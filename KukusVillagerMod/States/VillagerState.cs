@@ -16,27 +16,54 @@ namespace KukusVillagerMod.States
             GetComponentInParent<ZNetView>().SetPersistent(true);
 
             //Try to laod the uid
-            loadUID();
+            LoadUID();
+
         }
 
-        private void loadUID()
+        private void FixedUpdate()
+        {
+            if (!Global.villagerStates.Contains(this))
+            {
+                Global.villagerStates.Add(this);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            Global.villagerStates.Remove(this);
+        }
+
+        public void SetBed(BedState bed)
+        {
+            GetComponentInParent<ZNetView>().GetZDO().Set(Util.bedID, bed.uid);
+            this.bedState = bed;
+        }
+
+        private void LoadUID()
         {
             uid = GetComponentInParent<ZNetView>().GetZDO().GetString(Util.villagerID);
 
             //Failed to load. Create a new uid
-            if (uid == null)
+            if (uid == null || uid.Trim().Length == 0)
             {
                 string guid = System.Guid.NewGuid().ToString();
                 GetComponentInParent<ZNetView>().GetZDO().Set(Util.villagerID, guid);
                 uid = GetComponentInParent<ZNetView>().GetZDO().GetString(Util.villagerID);
                 KLog.warning($"Failed to load ID for villager, Saved new {uid}");
             }
+            else
+            {
+                KLog.warning($"Loadedvillager, ID : {uid}");
+
+            }
         }
-        private void loadBed()
+
+        //Find bed which has key {villagerID : uid}
+        private void FindBed()
         {
             var beds = FindObjectsOfType<BedState>();
 
-            if (beds == null)
+            if (beds == null || uid.Trim().Length == 0)
             {
                 //no beds found at all in world
                 return;
@@ -45,7 +72,7 @@ namespace KukusVillagerMod.States
             foreach (var b in beds)
             {
                 string vilID = b.GetComponentInParent<ZNetView>().GetZDO().GetString(Util.villagerID);
-                if (vilID == null)
+                if (vilID == null || vilID.Trim().Length == 0)
                 {
                     continue;
                 }
@@ -56,5 +83,7 @@ namespace KukusVillagerMod.States
                 }
             }
         }
+
+
     }
 }

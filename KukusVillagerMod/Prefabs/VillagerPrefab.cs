@@ -13,6 +13,12 @@ namespace KukusVillagerMod.Prefabs
 {
     class VillagerPrefab
     {
+
+        public VillagerPrefab()
+        {
+            //Weak
+            createCreature2("Weak_Villager_Ranged", "Dverger");
+        }
         void createCreature2(string villagerName, string prefabCloneName)
         {
             CreatureConfig villagerConfig = new CreatureConfig();

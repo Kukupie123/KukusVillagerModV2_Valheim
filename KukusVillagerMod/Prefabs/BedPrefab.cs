@@ -14,7 +14,13 @@ namespace KukusVillagerMod.Prefabs
     class BedPrefab
     {
 
-
+        public BedPrefab()
+        {
+            //First age
+            var weakReq = new List<RequirementConfig>();
+            weakReq.Add(new RequirementConfig("Wood", 20, 0, false));
+            createBed("Weak_Bed_Ranged", "Bed for Weak Villagers with ranged weapons", "piece_bed02", "Weak_Villager_Ranged", weakReq, 1, 250, 1);
+        }
 
         private void createBed(string bedID, string bedDesc, string cloneName, string villagerID, List<RequirementConfig> requirements, int villagerLevel, float villagerHealth, int villagerType)
         {
@@ -43,9 +49,8 @@ namespace KukusVillagerMod.Prefabs
             UnityEngine.Object.DestroyImmediate(bed.PiecePrefab.GetComponent(typeof(Bed)));
 
 
-            //Add Spawner component and update spawner creature name
+            //Add BedState component
             var bedState = bed.PiecePrefab.GetOrAddComponent<BedState>();
-
             bedState.villagerID = villagerID;
             bedState.villagerLevel = villagerLevel;
             bedState.villagerHealth = villagerHealth;

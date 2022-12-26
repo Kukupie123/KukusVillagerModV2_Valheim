@@ -28,7 +28,6 @@ namespace KukusVillagerMod.States
         bool placed = false; //To know if the object is placed or not
         int respawnTimer = 2000; //Used to respawn after a certain delay
         bool respawnTimerActive = false;
-        bool canSpawn = true;
         bool firstRespawnCountdown = true;
         private void Awake()
         {
@@ -37,14 +36,18 @@ namespace KukusVillagerMod.States
 
         private void FixedUpdate()
         {
-            if (!piece) return;
+            if (!piece)
+            {
+                KLog.warning("Piece is not valid yet");
+                return;
+            }
 
-
-            //Should only trigger ONCE. Which is when placed or loaded first time in game
+            //Should only trigger ONCE. Which is when placed or loaded first time in game or when it respawns after going too far
             if (piece.IsPlacedByPlayer())
             {
                 if (placed) return;
                 placed = true;
+                KLog.info("Bed placed. Trying to load UID NOW!");
                 loadUID();
 
             }
@@ -55,30 +58,20 @@ namespace KukusVillagerMod.States
 
             if (villagerState) //If villagerState is valid then we can't spawn
             {
-                canSpawn = false;
+                // maybe something in future
             }
             else
             {
-                //Check if respawn counter is active
-                if (respawnTimerActive)
+                //Check if respawn counter is active, if not then start it 
+                if (!respawnTimerActive)
                 {
-                    //if respawnTimer is active then check for canSpawn bool to be true, as respawn timer is complete canRespawn will be true
-                    if (canSpawn)
-                    {
-                        SpawnVillager();
-                        respawnTimerActive = false;
-                    }
-                }
-                else
-                {
-                    //Respawn timer is not active so we need to start countdown
-                    respawnTimerActive = true;
                     startRespawnCountdown();
                 }
+
             }
         }
 
-        private void OnDestroyed()
+        private void OnDestroy()
         {
             Global.bedStates.Remove(this);
         }
@@ -86,14 +79,18 @@ namespace KukusVillagerMod.States
 
         async void startRespawnCountdown()
         {
-            if (firstRespawnCountdown) respawnTimer = 2000; //To let the game load the monsters initially. TODO: Make it event based
+            //if uid valid then only try to spawn
+            if (uid == null) return;
+
+            KLog.info("Respawn Timer started");
+            if (firstRespawnCountdown) respawnTimer = 3000; //To let the game load the monsters initially. TODO: Make it event based
             else respawnTimer = 10000;
             firstRespawnCountdown = false;
             respawnTimerActive = true;
-            canSpawn = false;
             await Task.Delay(respawnTimer);
-            canSpawn = true;
+            SpawnVillager();
             respawnTimerActive = false;
+            KLog.info("Respawn Timer Ended");
         }
 
 
@@ -106,12 +103,17 @@ namespace KukusVillagerMod.States
             uid = GetComponentInParent<ZNetView>().GetZDO().GetString(Util.bedID);
 
             //failed to load create new one
-            if (uid == null)
+            if (uid == null || uid.Trim().Length == 0)
             {
                 string guid = System.Guid.NewGuid().ToString();
                 GetComponentInParent<ZNetView>().GetZDO().Set(Util.bedID, guid);
                 uid = GetComponentInParent<ZNetView>().GetZDO().GetString(Util.bedID);
                 KLog.warning($"Failed to load UID for Bed, Created and saved new bedID : {guid}");
+            }
+            else
+            {
+                KLog.warning($"Found bed ID  : {uid}");
+
             }
         }
 
@@ -120,17 +122,22 @@ namespace KukusVillagerMod.States
         /// </summary>
         private void SpawnVillager()
         {
-            if (uid == null) return;
-            if (villagerState != null) return;
-            if (villagerID == null) return;
+            if (uid == null || villagerState != null || villagerID == null)
+            {
+                KLog.warning("uid missing or villagerState already found or villagerID invalid");
+            }
 
-            LoadVillager();
+
+            FindVillager();
             if (villagerState != null)
             {
-                KLog.info($"Found villager with id : {villagerState.uid}");
+                KLog.warning($"Found villager with id : {villagerState.uid}");
                 return;
             }
 
+            /*
+             * When you spawn a villager make sure to set it's bedID 
+             */
             GameObject villagerCreaturePrefab = CreatureManager.Instance.GetCreaturePrefab(villagerID);
             var villagerCreature = SpawnSystem.Instantiate(villagerCreaturePrefab, transform.position, transform.rotation);
 
@@ -142,6 +149,8 @@ namespace KukusVillagerMod.States
 
             //Store the reference of villagerState
             villagerState = villagerCreature.GetComponent<VillagerState>();
+            //After spawning we need to set the bedID
+            villagerState.SetBed(this);
 
             //Save the uid of villager in zdo for persistence
             GetComponentInParent<ZNetView>().GetZDO().Set(Util.villagerID, villagerState.uid);
@@ -149,7 +158,8 @@ namespace KukusVillagerMod.States
 
         }
 
-        private void LoadVillager()
+        //Find villager with key {bedID : uid}
+        private void FindVillager()
         {
             //Tries to load villager based on data saved in zdo
 
@@ -161,7 +171,7 @@ namespace KukusVillagerMod.States
             {
                 string localBedID = v.GetComponentInParent<ZNetView>().GetZDO().GetString(Util.bedID);
 
-                if (localBedID == null) continue;
+                if (localBedID == null || localBedID.Trim().Length == 0) continue;
 
                 if (localBedID.Equals(uid))
                 {
