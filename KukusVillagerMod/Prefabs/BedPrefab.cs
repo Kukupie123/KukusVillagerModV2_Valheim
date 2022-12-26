@@ -1,5 +1,8 @@
-﻿using Jotunn.Configs;
+﻿using Jotunn;
+using Jotunn.Configs;
 using Jotunn.Entities;
+using Jotunn.Managers;
+using KukusVillagerMod.States;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +13,10 @@ namespace KukusVillagerMod.Prefabs
 {
     class BedPrefab
     {
-        private void createBed(string bedID, string bedDesc, string cloneName, string villagerCreatureName, List<RequirementConfig> requirements, int villagerLevel, float villagerHealth, int villagerType)
+
+
+
+        private void createBed(string bedID, string bedDesc, string cloneName, string villagerID, List<RequirementConfig> requirements, int villagerLevel, float villagerHealth, int villagerType)
         {
             //Create Configuration of the bed
             PieceConfig bedConfig = new PieceConfig();
@@ -38,11 +44,12 @@ namespace KukusVillagerMod.Prefabs
 
 
             //Add Spawner component and update spawner creature name
-            var spawner = bed.PiecePrefab.GetOrAddComponent<BedState>();
-            spawner.villagerName = villagerCreatureName;
-            spawner.villagerLevel = villagerLevel;
-            spawner.villagerType = villagerType;
-            spawner.villagerHealth = villagerHealth;
+            var bedState = bed.PiecePrefab.GetOrAddComponent<BedState>();
+
+            bedState.villagerID = villagerID;
+            bedState.villagerLevel = villagerLevel;
+            bedState.villagerHealth = villagerHealth;
+            bedState.villagerType = villagerType;
 
             //Add a container. Will use in future versions maybe
             bed.PiecePrefab.AddComponent<Container>();
@@ -50,7 +57,7 @@ namespace KukusVillagerMod.Prefabs
             //Add the piece to PieceManager
             PieceManager.Instance.AddPiece(bed);
 
-            KLog.logInfo($"Created : {bedID} with villager : {spawner.villagerName}, level : {spawner.villagerLevel}");
+            KLog.info($"Created : {bedID} with villager : {bedState.villagerID}, level : {bedState.villagerLevel}");
         }
     }
 

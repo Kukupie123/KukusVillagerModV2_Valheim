@@ -7,6 +7,8 @@
 using BepInEx;
 using Jotunn.Entities;
 using Jotunn.Managers;
+using KukusVillagerMod.States;
+using System.Collections.Generic;
 
 namespace KukusVillagerMod
 {
@@ -25,14 +27,15 @@ namespace KukusVillagerMod
 
         private void Awake()
         {
-            // Jotunn comes with its own Logger class to provide a consistent Log style for all mods using it
-            Jotunn.Logger.LogInfo("KukusVillagerMod has landed");
-
-            // To learn more about Jotunn's features, go to
-            // https://valheim-modding.github.io/Jotunn/tutorials/overview.html
         }
     }
 
+
+    class Global
+    {
+        public static List<VillagerState> villagerStates = new List<VillagerState>(); //Components of villagers prefab. Essentially keeps track of villagers spawned
+        public static List<BedState> bedStates = new List<BedState>(); //Components of bed prefabs. Essentially keeps track of our beds spawned
+    }
 
     class KLog
     {
@@ -45,5 +48,19 @@ namespace KukusVillagerMod
             Jotunn.Logger.LogWarning(msg);
         }
     }
-}
 
+    class Util
+    {
+        private Util()
+        {
+
+        }
+
+        public const string villagerID = "villagerID";
+        public const string bedID = "bedID";
+    }
+}
+/*
+ * NOTES:
+ * ZDO data are saved in parent component from state components such as VillagerState saves its data as GetComponentInParent, Same goes for BedState
+ */
