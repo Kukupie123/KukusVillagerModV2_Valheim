@@ -33,6 +33,8 @@ namespace KukusVillagerMod
         private void LoadBedPrefab()
         {
             new BedPrefab();
+            new DefensivePostPrefab();
+            new VillagerCommander();
             PrefabManager.OnVanillaPrefabsAvailable -= LoadBedPrefab;
         }
         private void LoadVillagerPrefab()
