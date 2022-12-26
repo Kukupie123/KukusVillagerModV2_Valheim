@@ -19,10 +19,11 @@ namespace KukusVillagerMod.Prefabs
             //First age
             var weakReq = new List<RequirementConfig>();
             weakReq.Add(new RequirementConfig("Wood", 20, 0, false));
-            createBed("Weak_Bed_Ranged", "Bed for Weak Villagers with ranged weapons", "piece_bed02", "Weak_Villager_Ranged", weakReq, 1, 250, 1);
+            createBed("Weak_Bed_Ranged", "Bed for Weak Villagers with ranged weapons", "piece_bed02", "Weak_Villager_Ranged", weakReq);
+            createBed("Weak_Bed", "Bed for Weak Villagers", "bed", "Weak_Villager", weakReq);
         }
 
-        private void createBed(string bedID, string bedDesc, string cloneName, string villagerID, List<RequirementConfig> requirements, int villagerLevel, float villagerHealth, int villagerType)
+        private void createBed(string bedID, string bedDesc, string cloneName, string villagerID, List<RequirementConfig> requirements)
         {
             //Create Configuration of the bed
             PieceConfig bedConfig = new PieceConfig();
@@ -51,10 +52,7 @@ namespace KukusVillagerMod.Prefabs
 
             //Add BedState component
             var bedState = bed.PiecePrefab.GetOrAddComponent<BedState>();
-            bedState.villagerID = villagerID;
-            bedState.villagerLevel = villagerLevel;
-            bedState.villagerHealth = villagerHealth;
-            bedState.villagerType = villagerType;
+            bedState.villagerID = villagerID; //The type of villager it will spawn
 
             //Add a container. Will use in future versions maybe
             bed.PiecePrefab.AddComponent<Container>();

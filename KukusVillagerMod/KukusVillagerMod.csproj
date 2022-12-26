@@ -81,12 +81,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="itemPrefab\VillagerCommander.cs" />
     <Compile Include="Prefabs\BedPrefab.cs" />
+    <Compile Include="Prefabs\DefensivePostPrefab.cs" />
     <Compile Include="Prefabs\VillagerPrefab.cs" />
     <Compile Include="Properties\IgnoreAccessModifiers.cs" />
     <Compile Include="KukusVillagerMod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="States\BedState.cs" />
+    <Compile Include="States\DefensePostState.cs" />
     <Compile Include="States\VillagerState.cs" />
   </ItemGroup>
   <ItemGroup>
