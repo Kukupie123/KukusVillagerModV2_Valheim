@@ -13,22 +13,15 @@ namespace KukusVillagerMod.States
         public int villagerLevel; //The level of the creature spawned
         public float villagerHealth; //The health of the villager spawned
         public int villagerType; //1 = melee, 2 = Ranged
-
-
-
-
-
-        Piece piece;
-        VillagerState villagerState;
-
-
-        public string uid = null; //UID of the bed
+        Piece piece; //Piece component to determine if placed or not
+        public VillagerState villagerState; //The Villager who spawned/Belongs to this bed
+        public string uid = null; //UID of the bed. Will be generated or loaded
 
         //Other vars
         bool placed = false; //To know if the object is placed or not
         int respawnTimer = 2000; //Used to respawn after a certain delay
-        bool respawnTimerActive = false;
-        bool firstRespawnCountdown = true;
+        bool respawnTimerActive = false; //Respawn system
+        bool firstRespawnCountdown = true; //Respawn System
         private void Awake()
         {
             piece = GetComponent<Piece>();
@@ -53,8 +46,8 @@ namespace KukusVillagerMod.States
             }
             if (!placed) return;
 
-            if (!Global.bedStates.Contains(this))
-                Global.bedStates.Add(this);
+            //Since it's a set we do not have to worry about it being added over and over
+            Global.bedStates.Add(this);
 
             if (villagerState) //If villagerState is valid then we can't spawn
             {
@@ -152,7 +145,7 @@ namespace KukusVillagerMod.States
             //After spawning we need to set the bedID
             villagerState.SetBed(this);
 
-            //Save the uid of villager in zdo for persistence
+            //Save the uid of villager in zdo of bed for persistence
             GetComponentInParent<ZNetView>().GetZDO().Set(Util.villagerID, villagerState.uid);
             KLog.info($"Spawned new villager and saved its id in zdo {villagerState.uid}");
 

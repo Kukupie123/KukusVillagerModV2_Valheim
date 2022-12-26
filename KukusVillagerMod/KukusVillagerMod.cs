@@ -7,6 +7,7 @@
 using BepInEx;
 using Jotunn.Entities;
 using Jotunn.Managers;
+using KukusVillagerMod.itemPrefab;
 using KukusVillagerMod.Prefabs;
 using KukusVillagerMod.States;
 using System.Collections.Generic;
@@ -21,9 +22,6 @@ namespace KukusVillagerMod
         public const string PluginGUID = "com.jotunn.KukusVillagerMod";
         public const string PluginName = "KukusVillagerMod";
         public const string PluginVersion = "1.0.0";
-
-        // Use this class to add your own localization to the game
-        // https://valheim-modding.github.io/Jotunn/tutorials/localization.html
         public static CustomLocalization Localization = LocalizationManager.Instance.GetLocalization();
 
         private void Awake()
@@ -35,6 +33,8 @@ namespace KukusVillagerMod
         private void LoadBedPrefab()
         {
             new BedPrefab();
+            new DefensivePostPrefab();
+            new VillagerCommander();
             PrefabManager.OnVanillaPrefabsAvailable -= LoadBedPrefab;
         }
         private void LoadVillagerPrefab()
@@ -47,8 +47,13 @@ namespace KukusVillagerMod
 
     class Global
     {
-        public static List<VillagerState> villagerStates = new List<VillagerState>(); //Components of villagers prefab. Essentially keeps track of villagers spawned
-        public static List<BedState> bedStates = new List<BedState>(); //Components of bed prefabs. Essentially keeps track of our beds spawned
+
+
+        public static HashSet<BedState> bedStates = new HashSet<BedState>(); //Keep track of all the beds in memory
+        public static HashSet<VillagerState> villagerStates = new HashSet<VillagerState>(); //Keep track of all villager in memory
+        public static HashSet<VillagerState> followingVillagers = new HashSet<VillagerState>(); //Keep track of all villager in memory who are following
+        public static HashSet<DefensePostState> defences = new HashSet<DefensePostState>(); //keep track of all defense post in memory
+
     }
 
     class KLog
@@ -72,7 +77,7 @@ namespace KukusVillagerMod
         public const string villagerID = "villagerID";
         public const string bedID = "bedID";
 
-        
+
     }
 }
 /*

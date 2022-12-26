@@ -11,9 +11,18 @@ namespace KukusVillagerMod.States
         public string uid = null;
 
         public BedState bedState;
+
+        private MonsterAI ai;
+        private Humanoid humanoid;
+
+        public GameObject following;
+        public int villagerType = -1; // 1 = melee, 2 = ranged
         private void Awake()
         {
             GetComponentInParent<ZNetView>().SetPersistent(true);
+
+            ai = GetComponent<MonsterAI>();
+            humanoid = GetComponent<Humanoid>();
 
             //Try to laod the uid
             LoadUID();
@@ -22,10 +31,9 @@ namespace KukusVillagerMod.States
 
         private void FixedUpdate()
         {
-            if (!Global.villagerStates.Contains(this))
-            {
-                Global.villagerStates.Add(this);
-            }
+            //Since it's set no duplicates will be present
+            Global.villagerStates.Add(this);
+
         }
 
         private void OnDestroy()
@@ -33,6 +41,7 @@ namespace KukusVillagerMod.States
             Global.villagerStates.Remove(this);
         }
 
+        //Save the bed to zdo of the villager. To be used by the bed after spawning this villager
         public void SetBed(BedState bed)
         {
             GetComponentInParent<ZNetView>().GetZDO().Set(Util.bedID, bed.uid);
@@ -78,12 +87,89 @@ namespace KukusVillagerMod.States
                 }
                 if (vilID.Equals(uid))
                 {
+                    if (b.villagerState != null)
+                    {
+                        KLog.warning("!!!!!!!!! DUPLICATE VILLAGER");
+                        continue;
+                    }
+
                     bedState = b;
+                    b.villagerState = this;
                     return;
                 }
             }
         }
 
+        //Start following the object.
+        private void startFollowing(GameObject following)
+        {
+            if (!ai.FindPath(following.transform.position) || !ai.HavePath(following.transform.position)) //if no path available then tp villager
+                transform.position = following.transform.position;
 
+            this.following = following;
+            ai.ResetPatrolPoint();
+            ai.ResetRandomMovement();
+            ai.SetFollowTarget(following);
+            ai.SetPatrolPoint(following.transform.position);
+        }
+
+
+        public void GuardBed()
+        {
+            if (!ai) return;
+            //Remove from following list
+            Global.followingVillagers.Remove(this);
+
+            //if bed not valid then try to find bed and destroy if still not found
+            if (bedState == null)
+            {
+                FindBed();
+                if (bedState == null)
+                {
+                    DestroyImmediate(this);
+                }
+            }
+            startFollowing(bedState.gameObject);
+            MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Guarding Bed");
+        }
+
+        public void FollowPlayer(Player player)
+        {
+            if (!ai) return;
+            if (player == null) return;
+            //Add villager to following list
+            Global.followingVillagers.Add(this);
+
+            startFollowing(player.gameObject);
+            MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Following {player.GetHoverName()}");
+        }
+
+        public void DefendPost()
+        {
+            if (!ai) return;
+            if (villagerType == -1) return;
+
+            Global.followingVillagers.Remove(this);
+
+            foreach (var d in Global.defences)
+            {
+                if (d.defenseType == villagerType)
+                {
+                    //Check if occupied by a villager
+                    if (d.villagerState == null)
+                    {
+                        //Not occupied
+
+                        //Set villagerState as this to signify that it's occupied
+                        d.villagerState = this;
+                        this.following = d.gameObject;
+                        startFollowing(d.gameObject);
+                        return;
+
+                    }
+                    else continue;
+                }
+            }
+        }
     }
 }

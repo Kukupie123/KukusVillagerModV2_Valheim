@@ -17,9 +17,12 @@ namespace KukusVillagerMod.Prefabs
         public VillagerPrefab()
         {
             //Weak
-            createCreature2("Weak_Villager_Ranged", "Dverger");
+            createCreature2("Weak_Villager_Ranged", "Dverger", 2);
+            createCreature2("Weak_Villager", "Skeleton_NoArcher", 1);
+
+
         }
-        void createCreature2(string villagerName, string prefabCloneName)
+        void createCreature2(string villagerName, string prefabCloneName, int villagerType)
         {
             CreatureConfig villagerConfig = new CreatureConfig();
             villagerConfig.Name = villagerName.Replace("_", " "); //Replace the "_" with " " Eg: Weak_Mage becomes Weak Mage
@@ -40,6 +43,9 @@ namespace KukusVillagerMod.Prefabs
             villager.Prefab.GetOrAddComponent<VillagerState>(); //villager state component
             villager.Prefab.GetOrAddComponent<Humanoid>();
             villager.Prefab.GetOrAddComponent<MonsterAI>();
+
+            //Set if melee or ranged villager
+            villager.Prefab.GetComponent<VillagerState>().villagerType = villagerType;
 
             //YOU CAN'T CONFIGURE SOME VALUES UNTIL CREATURE HAS BEEN INSTANTIATED SUCH AS HP
 
