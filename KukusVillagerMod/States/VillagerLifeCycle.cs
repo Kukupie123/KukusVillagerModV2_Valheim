@@ -11,6 +11,7 @@ namespace KukusVillagerMod.States
         //Components
         MonsterAI ai;
         Humanoid humanoid;
+        ZNetView znv;
         public BedCycle bed;
 
         GameObject following; //The target it is following
@@ -21,7 +22,8 @@ namespace KukusVillagerMod.States
         bool searchedBed = false; //Bed needs to be searched only once so we use this variable to search only once
         private void Awake()
         {
-            GetComponentInParent<ZNetView>().SetPersistent(true);
+            znv = GetComponentInParent<ZNetView>();
+            znv.SetPersistent(true);
             /*
              * 1. Load UID of the villager, if not found then create one and save it persistently
              * 2. Load the components
@@ -61,7 +63,7 @@ namespace KukusVillagerMod.States
              * 1. Check if map data has been loaded. If yes then try to load bed, if failed then destroy this villager as a villager MUST have a bed at spawn. Its okay for a villager to not have bed after some time but initially at spawn every villager needs a bed or else they are considered ill villagers and will polute the game
              * 
              */
-
+            znv.SetPersistent(true);
             if (!KukusVillagerMod.isMapDataLoaded) return;
             if (!humanoid || !ai) return;
 
@@ -92,20 +94,31 @@ namespace KukusVillagerMod.States
 
         async void LittleWaitAndSearch()
         {
-            await Task.Delay(500);
-            FindBed(true);
+            await Task.Delay(1000);
+            FindBed();
+            //If no bed found then this villager doesn't belong to be alive
+            if (bed == null)
+            {
+                LittleWaitNDestroy();
+            }
+        }
+
+        async void LittleWaitNDestroy()
+        {
+            await Task.Delay(5000);
+            Destroy(this.gameObject);
         }
 
         void LoadUID()
         {
-            uid = GetComponentInParent<ZNetView>().GetZDO().GetString(Util.villagerID);
+            uid = znv.GetZDO().GetString(Util.villagerID);
 
             if (uid == null || uid.Trim().Length == 0)
             {
                 string guid = System.Guid.NewGuid().ToString();
-                GetComponentInParent<ZNetView>().GetZDO().Set(Util.villagerID, guid);
-                uid = GetComponentInParent<ZNetView>().GetZDO().GetString(Util.villagerID);
-                KLog.info($"Created uid of villager  {uid}");
+                znv.GetZDO().Set(Util.villagerID, guid);
+                uid = znv.GetZDO().GetString(Util.villagerID);
+                KLog.warning($"Created uid of villager  {uid}");
             }
             else
             {
@@ -114,26 +127,30 @@ namespace KukusVillagerMod.States
         }
 
         //Search for a bed. If failed delete it.
-        void FindBed(bool destroyIfNotFound = false)
+        void FindBed()
         {
+            int c = 0;
             KLog.warning($"Finding bed for villager : {uid}");
             foreach (var b in FindObjectsOfType<BedCycle>())
             {
+                c++;
+
                 if (b == null) continue; //Very unlikely but safety first
-                string vilIDOfBed = b.GetComponentInParent<ZNetView>().GetZDO().GetString(Util.villagerID);
+                var bznv = b.GetComponentInParent<ZNetView>();
+                var zdo = bznv.GetZDO();
+                string vilIDOfBed = zdo.GetString(Util.villagerID);
+                KLog.warning($"{c} BED FOUND WITH VILLAGER : {vilIDOfBed}");
+
                 if (vilIDOfBed == null || vilIDOfBed.Trim().Length == 0) continue;
                 if (vilIDOfBed.Equals(uid))
                 {
                     KLog.warning($"FOUND bed for villager : {uid}");
-                    GetComponentInParent<ZNetView>().GetZDO().Set(Util.bedID, b.uid);
+                    znv.GetZDO().Set(Util.bedID, b.uid);
                     this.bed = b;
                     return;
                 }
             }
-            if (destroyIfNotFound)
-            {
-                Destroy(this.gameObject);
-            }
+            KLog.warning($"FAILED TO FIND bed for villager : {uid}");
         }
 
         //If following a player TP to them if distance exceeds certain amount or if they are teleporting

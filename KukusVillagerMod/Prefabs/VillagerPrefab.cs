@@ -55,11 +55,7 @@ namespace KukusVillagerMod.Prefabs
 
 
             //Add Components that we will need for the villager
-            if (villager.Prefab.GetComponent<Tameable>() == null)
-            {
-                villager.Prefab.AddComponent<Tameable>();
-            }
-
+            villager.Prefab.AddComponent<Tameable>();
             villager.Prefab.AddComponent<VillagerLifeCycle>();
             villager.Prefab.GetComponent<VillagerLifeCycle>().villagerType = villagerType;
             villager.Prefab.GetComponent<VillagerLifeCycle>().villagerLevel = level;

@@ -12,11 +12,14 @@ namespace KukusVillagerMod.States
     {
         Piece piece;
         VillagerLifeCycle villager;
+        private ZNetView znv;
 
         public string villagerName;
         public string uid;
         bool doneOnce = false;
         bool respawnTimerActive = false;
+
+
         private void Awake()
         {
             piece = GetComponent<Piece>();
@@ -54,7 +57,8 @@ namespace KukusVillagerMod.States
                 else
                 {
                     //Not done yet so lets do our thing and change doneOnce to true
-                    GetComponentInParent<ZNetView>().SetPersistent(true);
+                    znv = GetComponentInParent<ZNetView>();
+                    znv.GetComponentInChildren<ZNetView>().SetPersistent(true);
                     LoadUID();
                     FindOrSpawnVillager();
                     doneOnce = true;
@@ -74,14 +78,14 @@ namespace KukusVillagerMod.States
 
         private void LoadUID()
         {
-            uid = GetComponentInParent<ZNetView>().GetZDO().GetString(Util.bedID);
+            uid = znv.GetComponentInChildren<ZNetView>().GetZDO().GetString(Util.bedID);
 
             if (uid == null || uid.Trim().Length == 0)
             {
                 //Create a new UID and save it
                 string guid = System.Guid.NewGuid().ToString();
-                GetComponentInParent<ZNetView>().GetZDO().Set(Util.bedID, guid);
-                uid = GetComponentInParent<ZNetView>().GetZDO().GetString(Util.bedID);
+                znv.GetComponentInChildren<ZNetView>().GetZDO().Set(Util.bedID, guid);
+                uid = znv.GetComponentInChildren<ZNetView>().GetZDO().GetString(Util.bedID);
             }
         }
         private void FindOrSpawnVillager()
@@ -93,6 +97,7 @@ namespace KukusVillagerMod.States
 
         private void FindVillager()
         {
+            KLog.warning($"Finding Villager for bed {uid}");
             foreach (var v in FindObjectsOfType<VillagerLifeCycle>())
             {
                 if (v == null) continue; //Very unlikely but safety first
@@ -115,13 +120,13 @@ namespace KukusVillagerMod.States
             PostVillagerTasks(villagerCreature);
         }
 
-        private void PostVillagerTasks(GameObject villager)
+        private void PostVillagerTasks(GameObject v)
         {
             //Tame
-            var tame = villager.GetComponent<Tameable>();
+            var tame = v.GetComponent<Tameable>();
             if (tame == null)
             {
-                tame = villager.GetComponentInParent<Tameable>();
+                tame = v.GetComponentInParent<Tameable>();
 
                 if (tame)
                 {
@@ -132,13 +137,18 @@ namespace KukusVillagerMod.States
                     KLog.warning("TAMING COMPONENT NOT FOUND!!!!!!!!!!!!!!!!!!!");
                 }
             }
+            else
+            {
+                tame.Tame();
+            }
 
 
             //Set reference of villager
-            this.villager = villager.GetComponent<VillagerLifeCycle>();
+            this.villager = v.GetComponent<VillagerLifeCycle>();
 
             //Save the villagerID in the bed
-            GetComponentInParent<ZNetView>().GetZDO().Set(Util.villagerID, this.villager.uid);
+            znv.GetZDO().Set(Util.villagerID, this.villager.uid);
+            KLog.warning($"Bed {uid} saved villager {znv.GetZDO().GetString(Util.villagerID)}");
 
         }
     }
