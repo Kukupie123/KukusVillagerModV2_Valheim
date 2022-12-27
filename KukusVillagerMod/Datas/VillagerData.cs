@@ -13,12 +13,13 @@ namespace KukusVillagerMod.Datas
         public int villagerType;
         public int villagerLevel;
 
-        private BedState bed;
+        private BedState bed = null;
 
         private void Awake()
         {
-            if (Global.villagerData.Contains(this) == false) Global.villagerData.Add(this);
-            LoadUID();
+            bed = null;
+            if (Global.villagerData.Contains(this) == false) Global.villagerData.Add(this); //Add to global list if not present when spawned
+            LoadUID(); //Load UID saved in parent
         }
         private void OnDestroy()
         {

@@ -38,8 +38,26 @@ namespace KukusVillagerMod
             {
                 vc.HandleInputs();
             }
+
+            List<VillagerData> bedlessVillagers = new List<VillagerData>();
+            int bedlessVillagerCount = 0;
+            foreach (var v in Global.villagerData)
+            {
+
+                if (v.GetBed() == null)
+                {
+                    bedlessVillagers.Add(v);
+                    bedlessVillagerCount++;
+                }
+            }
+
+            foreach (var v in bedlessVillagers)
+            {
+                DestroyImmediate(v.gameObject);
+            }
+
             if (MessageHud.instance != null)
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Villagers : {Global.villagerData.Count} Followers : {Global.followingVillagers.Count} Beds : {Global.bedStates.Count} DP : {Global.defences.Count}");
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Villagers : {Global.villagerData.Count} Followers : {Global.followingVillagers.Count} Bedless Villagers : {bedlessVillagerCount}  Beds : {Global.bedStates.Count} DP : {Global.defences.Count}");
 
 
             //Clean lists

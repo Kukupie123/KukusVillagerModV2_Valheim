@@ -17,6 +17,7 @@ namespace KukusVillagerMod.States
 
         public GameObject following;
 
+
         private void Awake()
         {
             //Make ZDO Persist
@@ -28,11 +29,18 @@ namespace KukusVillagerMod.States
             if (villagerData == null)
             {
                 KLog.warning("VILLAGER DATA IS NOT VALID!!!!!!");
+                DestroyImmediate(this.gameObject);
             }
             if (villagerData.GetBed() == null)
             {
                 //When spawned and no bed found we need to remove it.
+                KLog.warning("Bedless Villager spawned in game world");
                 DestroyImmediate(this.gameObject);
+            }
+            else
+            {
+                KLog.warning("Bedfull Villager spawned in game world");
+
             }
 
             ai = GetComponent<MonsterAI>();
@@ -40,6 +48,7 @@ namespace KukusVillagerMod.States
             humanoid = GetComponent<Humanoid>();
 
             humanoid.SetLevel(villagerData.villagerLevel);
+
 
 
         }
