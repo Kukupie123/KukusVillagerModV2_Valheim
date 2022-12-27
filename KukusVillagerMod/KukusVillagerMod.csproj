@@ -81,7 +81,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Datas\VillagerData.cs" />
     <Compile Include="itemPrefab\VillagerCommander.cs" />
     <Compile Include="Prefabs\BedPrefab.cs" />
     <Compile Include="Prefabs\DefensivePostPrefab.cs" />
@@ -89,9 +88,9 @@
     <Compile Include="Properties\IgnoreAccessModifiers.cs" />
     <Compile Include="KukusVillagerMod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="States\BedState.cs" />
+    <Compile Include="States\BedCycle.cs" />
     <Compile Include="States\DefensePostState.cs" />
-    <Compile Include="States\VillagerState.cs" />
+    <Compile Include="States\VillagerLifeCycle.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

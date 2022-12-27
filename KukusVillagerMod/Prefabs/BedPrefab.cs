@@ -86,8 +86,8 @@ namespace KukusVillagerMod.Prefabs
 
 
             //Add BedState component
-            var bedState = bed.PiecePrefab.GetOrAddComponent<BedState>();
-            bedState.villagerID = villagerID; //The type of villager it will spawn
+            var bedState = bed.PiecePrefab.GetOrAddComponent<BedCycle>();
+            bedState.villagerName = villagerID; //The type of villager it will spawn
 
             //Add a container. Will use in future versions maybe
             bed.PiecePrefab.AddComponent<Container>();
@@ -95,7 +95,7 @@ namespace KukusVillagerMod.Prefabs
             //Add the piece to PieceManager
             PieceManager.Instance.AddPiece(bed);
 
-            KLog.info($"Created : {bedID} with villager : {bedState.villagerID}");
+            KLog.info($"Created : {bedID} with villager : {bedState.villagerName}");
         }
     }
 

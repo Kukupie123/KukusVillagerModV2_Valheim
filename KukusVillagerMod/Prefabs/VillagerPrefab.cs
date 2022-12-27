@@ -2,13 +2,7 @@
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using KukusVillagerMod.Datas;
 using KukusVillagerMod.States;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KukusVillagerMod.Prefabs
 {
@@ -48,19 +42,27 @@ namespace KukusVillagerMod.Prefabs
 
             CustomCreature villager = new CustomCreature(villagerName, prefabCloneName, villagerConfig);
 
-           
+            //Remove components that we do not need from the villagers
+            var npcTalk = villager.Prefab.GetComponent<NpcTalk>();
+            var charDrop = villager.Prefab.GetComponent<CharacterDrop>();
+            var npcTalkP = villager.Prefab.GetComponentInParent<NpcTalk>();
+            var charDropP = villager.Prefab.GetComponentInParent<CharacterDrop>();
+
+            UnityEngine.GameObject.DestroyImmediate(npcTalk);
+            UnityEngine.GameObject.DestroyImmediate(npcTalkP);
+            UnityEngine.GameObject.DestroyImmediate(charDrop);
+            UnityEngine.GameObject.DestroyImmediate(charDropP);
 
 
-            //Add custom comps
-            villager.Prefab.GetOrAddComponent<Tameable>(); //Add taming component so that it can be tamed if needed
-            //Add villager data comp to store values that will not change
-            villager.Prefab.AddComponent<VillagerData>();
-            villager.Prefab.GetComponent<VillagerData>().villagerType = villagerType;
-            villager.Prefab.GetComponent<VillagerData>().villagerLevel = level;
-            //ADD VILLAGER STATE AFTER SPAWNINIG
+            //Add Components that we will need for the villager
+            if (villager.Prefab.GetComponent<Tameable>() == null)
+            {
+                villager.Prefab.AddComponent<Tameable>();
+            }
 
-
-            //YOU CAN'T CONFIGURE SOME VALUES UNTIL CREATURE HAS BEEN INSTANTIATED SUCH AS HP
+            villager.Prefab.AddComponent<VillagerLifeCycle>();
+            villager.Prefab.GetComponent<VillagerLifeCycle>().villagerType = villagerType;
+            villager.Prefab.GetComponent<VillagerLifeCycle>().villagerLevel = level;
 
             CreatureManager.Instance.AddCreature(villager);
 

@@ -7,7 +7,6 @@
 using BepInEx;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using KukusVillagerMod.Datas;
 using KukusVillagerMod.itemPrefab;
 using KukusVillagerMod.Prefabs;
 using KukusVillagerMod.States;
@@ -26,10 +25,18 @@ namespace KukusVillagerMod
         public static CustomLocalization Localization = LocalizationManager.Instance.GetLocalization();
         private VillagerCommander vc;
 
+        public static bool isMapDataLoaded = false;
+
         private void Awake()
         {
             PrefabManager.OnVanillaPrefabsAvailable += LoadBedPrefab;
             CreatureManager.OnVanillaCreaturesAvailable += LoadVillagerPrefab;
+            MinimapManager.OnVanillaMapDataLoaded += OnMapDataLoaded;
+        }
+
+        private void OnMapDataLoaded()
+        {
+            isMapDataLoaded = true;
         }
 
         private void FixedUpdate()
@@ -39,21 +46,10 @@ namespace KukusVillagerMod
                 vc.HandleInputs();
             }
 
-            List<VillagerData> bedlessVillagers = new List<VillagerData>();
             int bedlessVillagerCount = 0;
             foreach (var v in Global.villagerData)
             {
-
-                if (v.GetBed() == null)
-                {
-                    bedlessVillagers.Add(v);
-                    bedlessVillagerCount++;
-                }
-            }
-
-            foreach (var v in bedlessVillagers)
-            {
-                DestroyImmediate(v.gameObject);
+                if (v.bed == null) bedlessVillagerCount++;
             }
 
             if (MessageHud.instance != null)
@@ -129,9 +125,9 @@ namespace KukusVillagerMod
     {
 
 
-        public static List<BedState> bedStates = new List<BedState>(); //Keep track of all the beds in memory
-        public static List<VillagerData> villagerData = new List<VillagerData>(); //Keep track of all villager in memory
-        public static List<VillagerData> followingVillagers = new List<VillagerData>(); //Keep track of all villager in memory who are following
+        public static List<BedCycle> bedStates = new List<BedCycle>(); //Keep track of all the beds in memory
+        public static List<VillagerLifeCycle> villagerData = new List<VillagerLifeCycle>(); //Keep track of all villager in memory
+        public static List<VillagerLifeCycle> followingVillagers = new List<VillagerLifeCycle>(); //Keep track of all villager in memory who are following
         public static List<DefensePostState> defences = new List<DefensePostState>(); //keep track of all defense post in memory
 
     }

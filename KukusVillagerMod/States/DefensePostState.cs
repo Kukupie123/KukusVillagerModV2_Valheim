@@ -9,7 +9,7 @@ namespace KukusVillagerMod.States
     class DefensePostState : MonoBehaviour
     {
         public int defenseType; // 1 = melee, 2 = ranged
-        public VillagerState villagerState; //The villager assigned to this post
+        public VillagerLifeCycle villager; //The villager assigned to this post
         private Piece piece;
         bool placed = false;
         private void Awake()

@@ -124,14 +124,14 @@ namespace KukusVillagerMod.itemPrefab
                                     foreach (var d in Global.defences)
                                     {
                                         if (d == null) continue;
-                                        d.villagerState = null;
+                                        d.villager = null;
                                     }
 
                                     //Make all villager guard their bed
                                     foreach (var vv in Global.villagerData)
                                     {
                                         if (vv == null) continue;
-                                        vv.GetComponentInParent<VillagerState>().GuardBed();
+                                        vv.GetComponentInParent<VillagerLifeCycle>().GuardBed();
                                     }
 
 
@@ -173,7 +173,7 @@ namespace KukusVillagerMod.itemPrefab
                                     //Make two list. One without followers and one with followers. First we will try to send the non followers, if still vacant, we will send followers
                                     foreach (var v in Global.villagerData)
                                     {
-                                        v.GetComponentInParent<VillagerState>().DefendPost();
+                                        v.GetComponentInParent<VillagerLifeCycle>().DefendPost();
                                     }
                                     MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Going to defense posts");
                                 }
@@ -215,11 +215,11 @@ namespace KukusVillagerMod.itemPrefab
                 }
             }
         }
-        VillagerState GetLookingAtVillager(Player player)
+        VillagerLifeCycle GetLookingAtVillager(Player player)
         {
             var a = player.GetHoverObject();
             if (a == null) return null;
-            var b = a.GetComponent<VillagerState>();
+            var b = a.GetComponent<VillagerLifeCycle>();
             return b;
         }
     }
