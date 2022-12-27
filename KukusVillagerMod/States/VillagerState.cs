@@ -17,15 +17,37 @@ namespace KukusVillagerMod.States
 
         public GameObject following;
         public int villagerType = -1; // 1 = melee, 2 = ranged
+        public int villagerLevel;
+
         private void Awake()
         {
+            try
+            {
+                UnityEngine.GameObject.DestroyImmediate(GetComponent<CharacterDrop>()); //Destroy player controller
+                UnityEngine.GameObject.DestroyImmediate(GetComponent<PlayerController>()); //Destroy player controller
+                UnityEngine.GameObject.DestroyImmediate(GetComponent<Talker>()); //destroy talking comp
+                UnityEngine.GameObject.DestroyImmediate(GetComponent<Skills>()); //Disable skils
+                UnityEngine.GameObject.DestroyImmediate(GetComponent<Player>()); //Disable skils
+            }
+            catch (UnityException e)
+            {
+
+            }
+            //Destroy comps
+
+
             GetComponentInParent<ZNetView>().SetPersistent(true);
 
             ai = GetComponent<MonsterAI>();
+
             humanoid = GetComponent<Humanoid>();
+            humanoid.SetLevel(villagerLevel);
 
             //Try to laod the uid
             LoadUID();
+
+            //if this was spawned without a bed it will get destroyed
+            //onSpawn();
 
         }
 
@@ -34,6 +56,26 @@ namespace KukusVillagerMod.States
             //Since it's set no duplicates will be present
             Global.villagerStates.Add(this);
 
+
+            //If following player tp to him when stuck
+            if (following)
+            {
+                if (following.GetComponent<Player>() != null)
+                {
+                    if (following.GetComponent<Player>().IsTeleporting())
+                    {
+                        transform.position = following.transform.position;
+                        return;
+                    }
+
+                    //TP to player if distance is too much
+                    if (Vector3.Distance(transform.position, following.transform.position) > 50 || !ai.HavePath(following.transform.position))
+                    {
+                        transform.position = following.transform.position;
+                    }
+                }
+            }
+
         }
 
         private void OnDestroy()
@@ -41,11 +83,37 @@ namespace KukusVillagerMod.States
             Global.villagerStates.Remove(this);
         }
 
+        private void OnCollisionEnter(Collision collision)
+        {
+            // ignore collision with player action and bed
+
+            Character character = collision.gameObject.GetComponent<Character>();
+            if ((character != null
+                && character.m_faction == Character.Faction.Players) || collision.gameObject.GetComponent<BedState>() != null
+               )
+            {
+                Physics.IgnoreCollision(collision.gameObject.GetComponent<Collider>(), GetComponent<Collider>());
+                return;
+            }
+        }
+
         //Save the bed to zdo of the villager. To be used by the bed after spawning this villager
         public void SetBed(BedState bed)
         {
             GetComponentInParent<ZNetView>().GetZDO().Set(Util.bedID, bed.uid);
             this.bedState = bed;
+        }
+
+        //When you spawn you are assigned a bed. if you dont have a bed it generally means you are a leftover. A situation would be where you died with your villagers very far away from their bed. And when you go back to their location after dying. They are reinitiated with no bed. They need to be destroyed
+        async void onSpawn()
+        {
+            await Task.Delay(500);
+            if (bedState == null)
+            {
+                DestroyImmediate(this.gameObject);
+                return;
+            }
+            KLog.info("BED FOUND ONSPAWN()");
         }
 
         private void LoadUID()
@@ -68,88 +136,106 @@ namespace KukusVillagerMod.States
         }
 
         //Find bed which has key {villagerID : uid}
+
+
+        //Start following the object.
+        private void startFollowing(GameObject following, bool havePathCheck = false)
+        {
+            if (following == null) return;
+            this.following = following;
+
+            ai.ResetPatrolPoint();
+            ai.ResetRandomMovement();
+            ai.SetFollowTarget(following);
+            ai.SetPatrolPoint(following.transform.position);
+            ai.ResetPatrolPoint();
+            ai.ResetRandomMovement();
+
+
+
+
+            if (havePathCheck)
+            {
+                if (!ai.HavePath(following.transform.position) || !ai.FindPath(following.transform.position))
+                {
+                    transform.position = following.transform.position;
+                }
+            }
+            else
+            {
+                if (!ai.FindPath(following.transform.position))
+                    transform.position = following.transform.position;
+            }
+
+        }
+
         private void FindBed()
         {
             var beds = FindObjectsOfType<BedState>();
-
-            if (beds == null || uid.Trim().Length == 0)
-            {
-                //no beds found at all in world
-                return;
-            }
+            if (beds == null) return;
 
             foreach (var b in beds)
             {
-                string vilID = b.GetComponentInParent<ZNetView>().GetZDO().GetString(Util.villagerID);
-                if (vilID == null || vilID.Trim().Length == 0)
-                {
-                    continue;
-                }
+                if (b == null) continue;
+                var znv = b.GetComponentInParent<ZNetView>();
+                if (znv == null) continue;
+                var zdo = znv.GetZDO();
+                if (zdo == null) continue;
+                string vilID = zdo.GetString(Util.villagerID);
+
+                if (vilID == null || vilID.Trim().Length == 0) continue;
                 if (vilID.Equals(uid))
                 {
-                    if (b.villagerState != null)
-                    {
-                        KLog.warning("!!!!!!!!! DUPLICATE VILLAGER");
-                        continue;
-                    }
-
                     bedState = b;
-                    b.villagerState = this;
                     return;
                 }
             }
         }
 
-        //Start following the object.
-        private void startFollowing(GameObject following)
+
+
+
+        public bool GuardBed()
         {
-            if (!ai.FindPath(following.transform.position) || !ai.HavePath(following.transform.position)) //if no path available then tp villager
-                transform.position = following.transform.position;
-
-            this.following = following;
-            ai.ResetPatrolPoint();
-            ai.ResetRandomMovement();
-            ai.SetFollowTarget(following);
-            ai.SetPatrolPoint(following.transform.position);
-        }
-
-
-        public void GuardBed()
-        {
-            if (!ai) return;
+            if (!ai) return false;
             //Remove from following list
-            Global.followingVillagers.Remove(this);
+
+            //Find bed
+            FindBed();
 
             //if bed not valid then try to find bed and destroy if still not found
             if (bedState == null)
             {
-                FindBed();
-                if (bedState == null)
-                {
-                    DestroyImmediate(this);
-                }
+                //DestroyImmediate(this.gameObject);
+                return false;
             }
+            removeFromFollower();
+            removeFromDefensePost();
+
             startFollowing(bedState.gameObject);
             MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Guarding Bed");
+            return true;
         }
 
-        public void FollowPlayer(Player player)
+        //When villager follows someone we need to set bed to null. So that if villager dies when bed isnt' in memory and player is near bed a new villager is spawned, and when player goes  near this villager we will see that bed is null and delete the villager
+        public bool FollowPlayer(Player player)
         {
-            if (!ai) return;
-            if (player == null) return;
+            if (!ai) return false;
+            if (player == null) return false;
             //Add villager to following list
-            Global.followingVillagers.Add(this);
-
-            startFollowing(player.gameObject);
+            removeFromFollower();
+            removeFromDefensePost();
+            bedState = null;
+            startFollowing(player.gameObject, true);
             MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Following {player.GetHoverName()}");
+            return true;
         }
 
-        public void DefendPost()
+        public bool DefendPost()
         {
-            if (!ai) return;
-            if (villagerType == -1) return;
+            if (!ai) return false;
+            if (villagerType == -1) return false;
 
-            Global.followingVillagers.Remove(this);
 
             foreach (var d in Global.defences)
             {
@@ -162,14 +248,36 @@ namespace KukusVillagerMod.States
 
                         //Set villagerState as this to signify that it's occupied
                         d.villagerState = this;
+                        removeFromFollower();
                         this.following = d.gameObject;
-                        startFollowing(d.gameObject);
-                        return;
+                        startFollowing(d.gameObject, true);
+                        return true;
 
                     }
                     else continue;
                 }
             }
+            return false;
         }
+
+        private void removeFromDefensePost()
+        {
+            foreach (var d in Global.defences)
+            {
+                if (d == null) continue;
+                if (d.villagerState == null) continue;
+                if (d.villagerState == this)
+                {
+                    d.villagerState = null;
+                    return;
+                }
+            }
+        }
+        private void removeFromFollower()
+        {
+            Global.followingVillagers.Remove(this);
+        }
+
+
     }
 }

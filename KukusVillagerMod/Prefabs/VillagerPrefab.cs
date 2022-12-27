@@ -17,12 +17,28 @@ namespace KukusVillagerMod.Prefabs
         public VillagerPrefab()
         {
             //Weak
-            createCreature2("Weak_Villager_Ranged", "Dverger", 2);
-            createCreature2("Weak_Villager", "Skeleton_NoArcher", 1);
+            createCreature2("Weak_Villager_Ranged", "Dverger", 2, 1);
+            createCreature2("Weak_Villager", "Skeleton_NoArcher", 1, 3);
+
+            //Bronze
+            createCreature2("Bronze_Villager_Ranged", "Dverger", 2, 2);
+            createCreature2("Bronze_Villager", "Skeleton_NoArcher", 1, 5);
+
+            //Iron
+            createCreature2("Iron_Villager_Ranged", "Dverger", 2, 3);
+            createCreature2("Iron_Villager", "Skeleton_NoArcher", 1, 7);
+
+            //Silver
+            createCreature2("Silver_Villager_Ranged", "Dverger", 2, 4);
+            createCreature2("Silver_Villager", "Skeleton_NoArcher", 1, 9);
+
+            //BM
+            createCreature2("BlackMetal_Villager_Ranged", "Dverger", 2, 5);
+            createCreature2("BlackMetal_Villager", "Skeleton_NoArcher", 1, 10);
 
 
         }
-        void createCreature2(string villagerName, string prefabCloneName, int villagerType)
+        void createCreature2(string villagerName, string prefabCloneName, int villagerType, int level)
         {
             CreatureConfig villagerConfig = new CreatureConfig();
             villagerConfig.Name = villagerName.Replace("_", " "); //Replace the "_" with " " Eg: Weak_Mage becomes Weak Mage
@@ -31,21 +47,17 @@ namespace KukusVillagerMod.Prefabs
 
             CustomCreature villager = new CustomCreature(villagerName, prefabCloneName, villagerConfig);
 
-            //Destroy comps
-            UnityEngine.GameObject.DestroyImmediate(villager.Prefab.GetComponent<PlayerController>()); //Destroy player controller
-            UnityEngine.GameObject.DestroyImmediate(villager.Prefab.GetComponent<Talker>()); //destroy talking comp
-            UnityEngine.GameObject.DestroyImmediate(villager.Prefab.GetComponent<Skills>()); //Disable skils
-            UnityEngine.GameObject.DestroyImmediate(villager.Prefab.GetComponent<Player>()); //Disable skils
+           
 
 
             //Add custom comps
             villager.Prefab.GetOrAddComponent<Tameable>(); //Add taming component so that it can be tamed if needed
             villager.Prefab.GetOrAddComponent<VillagerState>(); //villager state component
-            villager.Prefab.GetOrAddComponent<Humanoid>();
-            villager.Prefab.GetOrAddComponent<MonsterAI>();
 
             //Set if melee or ranged villager
             villager.Prefab.GetComponent<VillagerState>().villagerType = villagerType;
+            villager.Prefab.GetComponent<VillagerState>().villagerLevel = level;
+
 
             //YOU CAN'T CONFIGURE SOME VALUES UNTIL CREATURE HAS BEEN INSTANTIATED SUCH AS HP
 

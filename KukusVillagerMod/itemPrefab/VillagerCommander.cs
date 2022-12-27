@@ -20,10 +20,6 @@ namespace KukusVillagerMod.itemPrefab
             createKeyhints();
         }
 
-        ButtonConfig guardBedbtn;
-        ButtonConfig followPlayerBtn;
-        ButtonConfig defendButton;
-        ButtonConfig deleteAllPosts;
         CustomItem commander;
 
         void createCommanderPrefab()
@@ -39,21 +35,40 @@ namespace KukusVillagerMod.itemPrefab
 
         void createCommanderButtons()
         {
-            createButton(guardBedbtn, "KP1", "Guard Bed", UnityEngine.KeyCode.Keypad1);
-            createButton(followPlayerBtn, "KP2", "Follow Player", UnityEngine.KeyCode.Keypad2);
-            createButton(defendButton, "KP3", "Defend Post", UnityEngine.KeyCode.Keypad3);
-            createButton(deleteAllPosts, "KP4", "Destroy Nearby Defense Posts", UnityEngine.KeyCode.Keypad4);
-        }
 
-        private void createButton(ButtonConfig btnConfig, string name, string hint, UnityEngine.KeyCode key)
-        {
-            btnConfig = new ButtonConfig();
-            btnConfig.Name = name;
-            btnConfig.Hint = hint;
-            btnConfig.ActiveInCustomGUI = true;
-            btnConfig.BlockOtherInputs = true;
-            btnConfig.Key = key;
-            InputManager.Instance.AddButton("com.jotunn.KukuVillagers", btnConfig);
+            guardBedbtn = new ButtonConfig();
+            guardBedbtn.Name = "KP1";
+            guardBedbtn.Hint = "Guard Bed";
+            guardBedbtn.ActiveInCustomGUI = true;
+            guardBedbtn.BlockOtherInputs = true;
+            guardBedbtn.Key = UnityEngine.KeyCode.Keypad1;
+
+            followPlayerBtn = new ButtonConfig();
+            followPlayerBtn.Name = "KP2";
+            followPlayerBtn.Hint = "Follow Player";
+            followPlayerBtn.ActiveInCustomGUI = true;
+            followPlayerBtn.BlockOtherInputs = true;
+            followPlayerBtn.Key = UnityEngine.KeyCode.Keypad2;
+
+            defendBtn = new ButtonConfig();
+            defendBtn.Name = "KP3";
+            defendBtn.Hint = "Defend Posts";
+            defendBtn.ActiveInCustomGUI = true;
+            defendBtn.BlockOtherInputs = true;
+            defendBtn.Key = UnityEngine.KeyCode.Keypad3;
+
+            deletePostsBtn = new ButtonConfig();
+            deletePostsBtn.Name = "KP4";
+            deletePostsBtn.Hint = "Remove Nearby Posts";
+            deletePostsBtn.ActiveInCustomGUI = true;
+            deletePostsBtn.BlockOtherInputs = true;
+            deletePostsBtn.Key = UnityEngine.KeyCode.Keypad4;
+
+            InputManager.Instance.AddButton("com.jotunn.KukusVillagerMod", guardBedbtn);
+            InputManager.Instance.AddButton("com.jotunn.KukusVillagerMod", followPlayerBtn);
+            InputManager.Instance.AddButton("com.jotunn.KukusVillagerMod", defendBtn);
+            InputManager.Instance.AddButton("com.jotunn.KukusVillagerMod", deletePostsBtn);
+
         }
 
         void createKeyhints()
@@ -61,7 +76,7 @@ namespace KukusVillagerMod.itemPrefab
             var kh = new KeyHintConfig
             {
                 Item = "Village_Commander",
-                ButtonConfigs = new[] { guardBedbtn, followPlayerBtn, defendButton, deleteAllPosts }
+                ButtonConfigs = new[] { guardBedbtn, followPlayerBtn, defendBtn, deletePostsBtn }
             };
             KeyHintManager.Instance.AddKeyHint(kh);
         }
@@ -70,12 +85,18 @@ namespace KukusVillagerMod.itemPrefab
         bool keyPad2Pressed = false;
         bool keyPad3Pressed = false;
         bool keyPad4Pressed = false;
+        private ButtonConfig guardBedbtn;
+        private ButtonConfig followPlayerBtn;
+        private ButtonConfig defendBtn;
+        private ButtonConfig deletePostsBtn;
 
-        void handleInputs()
+        public void HandleInputs()
         {
             if (ZInput.instance == null || MessageHud.instance == null || Player.m_localPlayer == null) return;
             if (Player.m_localPlayer.GetInventory() == null) return;
             var allItems = Player.m_localPlayer.GetInventory().GetAllItems();
+
+            if (allItems == null) return;
 
             for (int i = 0; i < allItems.Count; i++)
             {
@@ -106,11 +127,21 @@ namespace KukusVillagerMod.itemPrefab
                                         d.villagerState = null;
                                     }
 
+                                    List<VillagerState> faultyVillagers = new List<VillagerState>();
+
                                     //Make all villager guard their bed
                                     foreach (var vv in Global.villagerStates)
                                     {
                                         if (vv == null) continue;
-                                        vv.GuardBed();
+                                        if (!vv.GuardBed()) faultyVillagers.Add(vv);
+                                    }
+
+                                    for (int j = 0; j < faultyVillagers.Count; j++)
+                                    {
+
+                                        // UnityEngine.GameObject.DestroyImmediate(faultyVillagers[j].gameObject);
+                                        UnityEngine.GameObject.Destroy(faultyVillagers[j].gameObject);
+                                        Global.villagerStates.Remove(faultyVillagers[j]);
                                     }
                                 }
                                 else if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad2)
@@ -147,10 +178,35 @@ namespace KukusVillagerMod.itemPrefab
                                     keyPad3Pressed = true;
                                     keyPad4Pressed = false;
 
+                                    //Make two list. One without followers and one with followers. First we will try to send the non followers, if still vacant, we will send followers
+
+                                    HashSet<VillagerState> nonFollowers = new HashSet<VillagerState>();
+
                                     foreach (var v in Global.villagerStates)
+                                    {
+                                        if (Global.followingVillagers.Contains(v)) continue;
+                                        nonFollowers.Add(v);
+                                    }
+
+                                    HashSet<VillagerState> followers = new HashSet<VillagerState>();
+
+                                    foreach (var v in Global.villagerStates)
+                                    {
+                                        if (nonFollowers.Contains(v)) continue;
+                                        followers.Add(v);
+                                    }
+
+
+                                    foreach (var v in nonFollowers)
                                     {
                                         v.DefendPost();
                                     }
+                                    foreach (var v in followers)
+                                    {
+                                        v.DefendPost();
+                                    }
+
+                                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Going to defense posts");
 
 
                                 }
@@ -162,11 +218,12 @@ namespace KukusVillagerMod.itemPrefab
                                     keyPad2Pressed = false;
                                     keyPad3Pressed = false;
                                     keyPad4Pressed = true;
+                                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all defense posts");
 
-                                    foreach (var v in UnityEngine.Object.FindObjectsOfType<DefensePostState>())
+                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<DefensePostState>())
                                     {
                                         if (v != null) continue;
-                                        UnityEngine.Object.Destroy(v.gameObject);
+                                        UnityEngine.Object.DestroyImmediate(v.gameObject);
                                     }
 
                                     MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all defense posts");

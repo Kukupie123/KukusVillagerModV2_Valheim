@@ -23,17 +23,25 @@ namespace KukusVillagerMod.States
             //Should execute only once
             if (piece.IsPlacedByPlayer())
             {
-                if (placed) return;
+                if (placed)
+                {
+                    if (placed)
+                    {
+                        //Since we are using sets no duplicates will be there
+                        Global.defences.Add(this);
+                    }
+                }
 
-                placed = true;
+                else
+                {
+                    placed = true;
+
+                }
+
 
             }
 
-            if (placed)
-            {
-                //Since we are using sets no duplicates will be there
-                Global.defences.Add(this);
-            }
+
         }
     }
 }

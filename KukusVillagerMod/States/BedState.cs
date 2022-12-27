@@ -35,33 +35,40 @@ namespace KukusVillagerMod.States
                 return;
             }
 
-            //Should only trigger ONCE. Which is when placed or loaded first time in game or when it respawns after going too far
+            //Else should trigger only once.
             if (piece.IsPlacedByPlayer())
             {
-                if (placed) return;
-                placed = true;
-                KLog.info("Bed placed. Trying to load UID NOW!");
-                loadUID();
-
-            }
-            if (!placed) return;
-
-            //Since it's a set we do not have to worry about it being added over and over
-            Global.bedStates.Add(this);
-
-            if (villagerState) //If villagerState is valid then we can't spawn
-            {
-                // maybe something in future
-            }
-            else
-            {
-                //Check if respawn counter is active, if not then start it 
-                if (!respawnTimerActive)
+                if (placed)
                 {
-                    startRespawnCountdown();
+                    //Since it's a set we do not have to worry about it being added over and over
+                    Global.bedStates.Add(this);
+
+                    if (villagerState) //If villagerState is valid then we can't spawn
+                    {
+                        // maybe something in future
+                    }
+                    else
+                    {
+                        //Check if respawn counter is active, if not then start it 
+                        if (!respawnTimerActive)
+                        {
+                            startRespawnCountdown();
+                        }
+
+                    }
                 }
 
+                else
+                {
+                    placed = true;
+                    KLog.info("Bed placed. Trying to load UID NOW!");
+                    loadUID();
+                }
+
+
             }
+
+
         }
 
         private void OnDestroy()
@@ -76,7 +83,7 @@ namespace KukusVillagerMod.States
             if (uid == null) return;
 
             KLog.info("Respawn Timer started");
-            if (firstRespawnCountdown) respawnTimer = 3000; //To let the game load the monsters initially. TODO: Make it event based
+            if (firstRespawnCountdown) respawnTimer = 5000; //To let the game load the monsters initially. TODO: Make it event based
             else respawnTimer = 10000;
             firstRespawnCountdown = false;
             respawnTimerActive = true;
@@ -110,6 +117,21 @@ namespace KukusVillagerMod.States
             }
         }
 
+        private void PostVillagerSet()
+        {
+            if (villagerState == null) return;
+            //Remove comps that we do not need
+            DestroyImmediate(villagerState.GetComponent<NpcTalk>());
+            DestroyImmediate(villagerState.GetComponent<CharacterDrop>());
+            DestroyImmediate(villagerState.GetComponentInParent<CharacterDrop>()); // remove item drops
+
+            //After spawning we need to set the bedID
+            villagerState.SetBed(this);
+
+            //Get taming component and tame
+            villagerState.GetComponentInParent<Tameable>().Tame();
+        }
+
         /// <summary>
         /// tries to load villager, if failed will spawn a new one
         /// </summary>
@@ -134,16 +156,10 @@ namespace KukusVillagerMod.States
             GameObject villagerCreaturePrefab = CreatureManager.Instance.GetCreaturePrefab(villagerID);
             var villagerCreature = SpawnSystem.Instantiate(villagerCreaturePrefab, transform.position, transform.rotation);
 
-            //Remove comps that we do not need
-            DestroyImmediate(villagerCreature.GetComponent<NpcTalk>());
-            DestroyImmediate(villagerCreature.GetComponent<CharacterDrop>());
-            DestroyImmediate(villagerCreature.GetComponentInParent<CharacterDrop>()); // remove item drops
-
-
             //Store the reference of villagerState
             villagerState = villagerCreature.GetComponent<VillagerState>();
-            //After spawning we need to set the bedID
-            villagerState.SetBed(this);
+
+            PostVillagerSet();
 
             //Save the uid of villager in zdo of bed for persistence
             GetComponentInParent<ZNetView>().GetZDO().Set(Util.villagerID, villagerState.uid);
@@ -162,15 +178,25 @@ namespace KukusVillagerMod.States
 
             foreach (var v in vv) //nice naming bro
             {
-                string localBedID = v.GetComponentInParent<ZNetView>().GetZDO().GetString(Util.bedID);
-
-                if (localBedID == null || localBedID.Trim().Length == 0) continue;
-
-                if (localBedID.Equals(uid))
+                try
                 {
-                    this.villagerState = v;
-                    return;
+
+                    string localBedID = v.GetComponent<ZNetView>().GetZDO().GetString(Util.bedID);
+
+                    if (localBedID == null || localBedID.Trim().Length == 0) continue;
+
+                    if (localBedID.Equals(uid))
+                    {
+                        this.villagerState = v;
+                        PostVillagerSet();
+                        return;
+                    }
                 }
+                catch (UnityException e)
+                {
+                    KLog.warning($"ERROR at find villager in bedstate : {e.Message}");
+                }
+
             }
         }
 

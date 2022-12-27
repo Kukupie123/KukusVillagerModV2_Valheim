@@ -23,6 +23,7 @@ namespace KukusVillagerMod
         public const string PluginName = "KukusVillagerMod";
         public const string PluginVersion = "1.0.0";
         public static CustomLocalization Localization = LocalizationManager.Instance.GetLocalization();
+        private VillagerCommander vc;
 
         private void Awake()
         {
@@ -30,11 +31,71 @@ namespace KukusVillagerMod
             CreatureManager.OnVanillaCreaturesAvailable += LoadVillagerPrefab;
         }
 
+        private void FixedUpdate()
+        {
+            if (vc != null)
+            {
+                vc.HandleInputs();
+            }
+
+            MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Villagers : {Global.villagerStates.Count} Beds : {Global.bedStates.Count}");
+
+
+            //Clean lists
+            foreach (var i in Global.bedStates)
+            {
+                if (i == null)
+                {
+                    Global.bedStates.Remove(i);
+                }
+                else if (i.gameObject == null)
+                {
+                    Global.bedStates.Remove(i);
+                }
+            }
+
+            foreach (var i in Global.villagerStates)
+            {
+                if (i == null)
+                {
+                    Global.villagerStates.Remove(i);
+                }
+                else if (i.gameObject == null)
+                {
+                    Global.villagerStates.Remove(i);
+                }
+            }
+            foreach (var i in Global.followingVillagers)
+            {
+                if (i == null)
+                {
+                    Global.followingVillagers.Remove(i);
+                }
+                else if (i.gameObject == null)
+                {
+                    Global.followingVillagers.Remove(i);
+                }
+            }
+            foreach (var i in Global.defences)
+            {
+                if (i == null)
+                {
+                    Global.defences.Remove(i);
+                }
+                else if (i.gameObject == null)
+                {
+                    Global.defences.Remove(i);
+                }
+            }
+        }
+
+
+
         private void LoadBedPrefab()
         {
             new BedPrefab();
             new DefensivePostPrefab();
-            new VillagerCommander();
+            vc = new VillagerCommander();
             PrefabManager.OnVanillaPrefabsAvailable -= LoadBedPrefab;
         }
         private void LoadVillagerPrefab()
@@ -103,3 +164,6 @@ namespace KukusVillagerMod
  * 
  * This can be heavily simplified if we can have a global ZNet
  */
+
+
+//PROBLEM : HASHLIST FUCKED
