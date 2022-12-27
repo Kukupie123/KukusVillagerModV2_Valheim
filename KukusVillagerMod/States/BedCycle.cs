@@ -16,6 +16,7 @@ namespace KukusVillagerMod.States
         public string villagerName;
         public string uid;
         bool doneOnce = false;
+        bool respawnTimerActive = false;
         private void Awake()
         {
             piece = GetComponent<Piece>();
@@ -47,7 +48,7 @@ namespace KukusVillagerMod.States
                     }
                     else
                     {
-                        FindOrSpawnVillager();
+                        StartRespawnTimerAndRespawn();
                     }
                 }
                 else
@@ -60,6 +61,15 @@ namespace KukusVillagerMod.States
                 }
             }
 
+        }
+
+        async void StartRespawnTimerAndRespawn()
+        {
+            if (respawnTimerActive) return;
+            respawnTimerActive = true;
+            await Task.Delay(10000);
+            FindOrSpawnVillager();
+            respawnTimerActive = false;
         }
 
         private void LoadUID()

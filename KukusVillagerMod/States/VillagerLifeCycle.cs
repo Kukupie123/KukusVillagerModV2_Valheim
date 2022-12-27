@@ -37,6 +37,8 @@ namespace KukusVillagerMod.States
         private void OnDestroy()
         {
             //Remove the item from global list
+            KLog.info($"Destroying Villager {uid} ");
+            Global.villagerData.Remove(this);
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -63,6 +65,8 @@ namespace KukusVillagerMod.States
             if (!KukusVillagerMod.isMapDataLoaded) return;
             if (!humanoid || !ai) return;
 
+            if (!Global.villagerData.Contains(this))
+                Global.villagerData.Add(this);
 
             if (bed)
             {
@@ -77,12 +81,19 @@ namespace KukusVillagerMod.States
                 //1. See if we searched bed already. if yes then destroy if bed not found as it is not acceptable
                 if (!searchedBed)
                 {
-                    FindBed(true); //will destroy villager if bed is not found
+                    //Before we search for bed please wait for a short amount of time as the creatures spawned by bed will have no bedID assigned and this will fuck up so we add a little delay for the bed to setup ZDO of the creatures before we start searching
                     searchedBed = true;
+                    LittleWaitAndSearch();
                 }
             }
 
             PlayerFollowingDistanceCheck();
+        }
+
+        async void LittleWaitAndSearch()
+        {
+            await Task.Delay(500);
+            FindBed(true);
         }
 
         void LoadUID()
@@ -94,12 +105,18 @@ namespace KukusVillagerMod.States
                 string guid = System.Guid.NewGuid().ToString();
                 GetComponentInParent<ZNetView>().GetZDO().Set(Util.villagerID, guid);
                 uid = GetComponentInParent<ZNetView>().GetZDO().GetString(Util.villagerID);
+                KLog.info($"Created uid of villager  {uid}");
+            }
+            else
+            {
+                KLog.info($"Loaded uid of villager  {uid}");
             }
         }
 
         //Search for a bed. If failed delete it.
         void FindBed(bool destroyIfNotFound = false)
         {
+            KLog.warning($"Finding bed for villager : {uid}");
             foreach (var b in FindObjectsOfType<BedCycle>())
             {
                 if (b == null) continue; //Very unlikely but safety first
@@ -107,6 +124,8 @@ namespace KukusVillagerMod.States
                 if (vilIDOfBed == null || vilIDOfBed.Trim().Length == 0) continue;
                 if (vilIDOfBed.Equals(uid))
                 {
+                    KLog.warning($"FOUND bed for villager : {uid}");
+                    GetComponentInParent<ZNetView>().GetZDO().Set(Util.bedID, b.uid);
                     this.bed = b;
                     return;
                 }
@@ -270,6 +289,6 @@ namespace KukusVillagerMod.States
             Global.followingVillagers.Remove(this);
         }
 
-      
+
     }
 }
