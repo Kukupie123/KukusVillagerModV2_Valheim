@@ -127,6 +127,7 @@ namespace KukusVillagerMod.itemPrefab
                                         d.villagerState = null;
                                     }
 
+                                    //Villagers with no bed are considered faulty and needs to be deleted
                                     List<VillagerState> faultyVillagers = new List<VillagerState>();
 
                                     //Make all villager guard their bed
@@ -180,20 +181,20 @@ namespace KukusVillagerMod.itemPrefab
 
                                     //Make two list. One without followers and one with followers. First we will try to send the non followers, if still vacant, we will send followers
 
-                                    HashSet<VillagerState> nonFollowers = new HashSet<VillagerState>();
+                                    List<VillagerState> nonFollowers = new List<VillagerState>();
 
                                     foreach (var v in Global.villagerStates)
                                     {
-                                        if (Global.followingVillagers.Contains(v)) continue;
-                                        nonFollowers.Add(v);
+                                        if (Global.followingVillagers.Contains(v) == false)
+                                            nonFollowers.Add(v);
                                     }
 
-                                    HashSet<VillagerState> followers = new HashSet<VillagerState>();
+                                    List<VillagerState> followers = new List<VillagerState>();
 
                                     foreach (var v in Global.villagerStates)
                                     {
-                                        if (nonFollowers.Contains(v)) continue;
-                                        followers.Add(v);
+                                        if (nonFollowers.Contains(v) == false)
+                                            followers.Add(v);
                                     }
 
 
@@ -201,6 +202,7 @@ namespace KukusVillagerMod.itemPrefab
                                     {
                                         v.DefendPost();
                                     }
+
                                     foreach (var v in followers)
                                     {
                                         v.DefendPost();

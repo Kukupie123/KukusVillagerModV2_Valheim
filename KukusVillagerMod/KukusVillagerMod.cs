@@ -37,8 +37,8 @@ namespace KukusVillagerMod
             {
                 vc.HandleInputs();
             }
-
-            MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Villagers : {Global.villagerStates.Count} Beds : {Global.bedStates.Count}");
+            if (MessageHud.instance != null)
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Villagers : {Global.villagerStates.Count} Followers : {Global.followingVillagers.Count} Beds : {Global.bedStates.Count} DP : {Global.defences.Count}");
 
 
             //Clean lists
@@ -110,10 +110,10 @@ namespace KukusVillagerMod
     {
 
 
-        public static HashSet<BedState> bedStates = new HashSet<BedState>(); //Keep track of all the beds in memory
-        public static HashSet<VillagerState> villagerStates = new HashSet<VillagerState>(); //Keep track of all villager in memory
-        public static HashSet<VillagerState> followingVillagers = new HashSet<VillagerState>(); //Keep track of all villager in memory who are following
-        public static HashSet<DefensePostState> defences = new HashSet<DefensePostState>(); //keep track of all defense post in memory
+        public static List<BedState> bedStates = new List<BedState>(); //Keep track of all the beds in memory
+        public static List<VillagerState> villagerStates = new List<VillagerState>(); //Keep track of all villager in memory
+        public static List<VillagerState> followingVillagers = new List<VillagerState>(); //Keep track of all villager in memory who are following
+        public static List<DefensePostState> defences = new List<DefensePostState>(); //keep track of all defense post in memory
 
     }
 

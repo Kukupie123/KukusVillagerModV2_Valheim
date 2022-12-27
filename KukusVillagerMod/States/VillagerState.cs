@@ -23,38 +23,34 @@ namespace KukusVillagerMod.States
         {
             try
             {
-                UnityEngine.GameObject.DestroyImmediate(GetComponent<CharacterDrop>()); //Destroy player controller
-                UnityEngine.GameObject.DestroyImmediate(GetComponent<PlayerController>()); //Destroy player controller
-                UnityEngine.GameObject.DestroyImmediate(GetComponent<Talker>()); //destroy talking comp
-                UnityEngine.GameObject.DestroyImmediate(GetComponent<Skills>()); //Disable skils
-                UnityEngine.GameObject.DestroyImmediate(GetComponent<Player>()); //Disable skils
+                DestroyImmediate(GetComponent<CharacterDrop>()); //Destroy player controller
+                DestroyImmediate(GetComponent<PlayerController>()); //Destroy player controller
+                DestroyImmediate(GetComponent<Talker>()); //destroy talking comp
+                DestroyImmediate(GetComponent<Skills>()); //Disable skils
+                DestroyImmediate(GetComponent<Player>()); //Disable skils
             }
             catch (UnityException e)
             {
 
             }
-            //Destroy comps
-
 
             GetComponentInParent<ZNetView>().SetPersistent(true);
 
             ai = GetComponent<MonsterAI>();
 
             humanoid = GetComponent<Humanoid>();
+
             humanoid.SetLevel(villagerLevel);
 
-            //Try to laod the uid
             LoadUID();
 
-            //if this was spawned without a bed it will get destroyed
-            //onSpawn();
 
         }
 
         private void FixedUpdate()
         {
-            //Since it's set no duplicates will be present
-            Global.villagerStates.Add(this);
+            if (Global.villagerStates.Contains(this) == false)
+                Global.villagerStates.Add(this);
 
 
             //If following player tp to him when stuck
@@ -69,7 +65,7 @@ namespace KukusVillagerMod.States
                     }
 
                     //TP to player if distance is too much
-                    if (Vector3.Distance(transform.position, following.transform.position) > 50 || !ai.HavePath(following.transform.position))
+                    if (Vector3.Distance(transform.position, following.transform.position) > 50 || !ai.FindPath(following.transform.position))
                     {
                         transform.position = following.transform.position;
                     }
@@ -80,6 +76,7 @@ namespace KukusVillagerMod.States
 
         private void OnDestroy()
         {
+            KLog.warning($"Destroying Villager with id {uid}");
             Global.villagerStates.Remove(this);
         }
 
@@ -89,8 +86,7 @@ namespace KukusVillagerMod.States
 
             Character character = collision.gameObject.GetComponent<Character>();
             if ((character != null
-                && character.m_faction == Character.Faction.Players) || collision.gameObject.GetComponent<BedState>() != null
-               )
+                && character.m_faction == Character.Faction.Players))
             {
                 Physics.IgnoreCollision(collision.gameObject.GetComponent<Collider>(), GetComponent<Collider>());
                 return;
@@ -103,19 +99,6 @@ namespace KukusVillagerMod.States
             GetComponentInParent<ZNetView>().GetZDO().Set(Util.bedID, bed.uid);
             this.bedState = bed;
         }
-
-        //When you spawn you are assigned a bed. if you dont have a bed it generally means you are a leftover. A situation would be where you died with your villagers very far away from their bed. And when you go back to their location after dying. They are reinitiated with no bed. They need to be destroyed
-        async void onSpawn()
-        {
-            await Task.Delay(500);
-            if (bedState == null)
-            {
-                DestroyImmediate(this.gameObject);
-                return;
-            }
-            KLog.info("BED FOUND ONSPAWN()");
-        }
-
         private void LoadUID()
         {
             uid = GetComponentInParent<ZNetView>().GetZDO().GetString(Util.villagerID);
@@ -130,12 +113,10 @@ namespace KukusVillagerMod.States
             }
             else
             {
-                KLog.warning($"Loadedvillager, ID : {uid}");
+                KLog.warning($"Loaded villager w ID : {uid}");
 
             }
         }
-
-        //Find bed which has key {villagerID : uid}
 
 
         //Start following the object.
@@ -200,15 +181,16 @@ namespace KukusVillagerMod.States
             if (!ai) return false;
             //Remove from following list
 
-            //Find bed
+            //Find bed in world.
             FindBed();
 
             //if bed not valid then try to find bed and destroy if still not found
             if (bedState == null)
             {
-                //DestroyImmediate(this.gameObject);
+                //NEEDS TO BE DESTROYED
                 return false;
             }
+
             removeFromFollower();
             removeFromDefensePost();
 

@@ -27,8 +27,8 @@ namespace KukusVillagerMod.States
                 {
                     if (placed)
                     {
-                        //Since we are using sets no duplicates will be there
-                        Global.defences.Add(this);
+                        if (Global.defences.Contains(this) == false)
+                            Global.defences.Add(this);
                     }
                 }
 
@@ -42,6 +42,11 @@ namespace KukusVillagerMod.States
             }
 
 
+        }
+
+        private void OnDestroy()
+        {
+            Global.defences.Remove(this);
         }
     }
 }

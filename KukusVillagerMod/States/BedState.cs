@@ -10,9 +10,6 @@ namespace KukusVillagerMod.States
     class BedState : MonoBehaviour
     {
         public string villagerID; //The id of the villager that it will spawn
-        public int villagerLevel; //The level of the creature spawned
-        public float villagerHealth; //The health of the villager spawned
-        public int villagerType; //1 = melee, 2 = Ranged
         Piece piece; //Piece component to determine if placed or not
         public VillagerState villagerState; //The Villager who spawned/Belongs to this bed
         public string uid = null; //UID of the bed. Will be generated or loaded
@@ -40,8 +37,8 @@ namespace KukusVillagerMod.States
             {
                 if (placed)
                 {
-                    //Since it's a set we do not have to worry about it being added over and over
-                    Global.bedStates.Add(this);
+                    if (Global.bedStates.Contains(this) == false)
+                        Global.bedStates.Add(this);
 
                     if (villagerState) //If villagerState is valid then we can't spawn
                     {
@@ -146,13 +143,10 @@ namespace KukusVillagerMod.States
             FindVillager();
             if (villagerState != null)
             {
-                KLog.warning($"Found villager with id : {villagerState.uid}");
+                KLog.warning($"BED : Found villager with id : {villagerState.uid}");
                 return;
             }
 
-            /*
-             * When you spawn a villager make sure to set it's bedID 
-             */
             GameObject villagerCreaturePrefab = CreatureManager.Instance.GetCreaturePrefab(villagerID);
             var villagerCreature = SpawnSystem.Instantiate(villagerCreaturePrefab, transform.position, transform.rotation);
 
@@ -163,7 +157,7 @@ namespace KukusVillagerMod.States
 
             //Save the uid of villager in zdo of bed for persistence
             GetComponentInParent<ZNetView>().GetZDO().Set(Util.villagerID, villagerState.uid);
-            KLog.info($"Spawned new villager and saved its id in zdo {villagerState.uid}");
+            KLog.info($"BED : Spawned new villager and saved its id in zdo {villagerState.uid}");
 
         }
 
@@ -176,7 +170,7 @@ namespace KukusVillagerMod.States
 
             if (vv == null) return;
 
-            foreach (var v in vv) //nice naming bro
+            foreach (var v in vv) //nice naming 
             {
                 try
                 {

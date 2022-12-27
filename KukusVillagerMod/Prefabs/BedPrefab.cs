@@ -95,7 +95,7 @@ namespace KukusVillagerMod.Prefabs
             //Add the piece to PieceManager
             PieceManager.Instance.AddPiece(bed);
 
-            KLog.info($"Created : {bedID} with villager : {bedState.villagerID}, level : {bedState.villagerLevel}");
+            KLog.info($"Created : {bedID} with villager : {bedState.villagerID}");
         }
     }
 
