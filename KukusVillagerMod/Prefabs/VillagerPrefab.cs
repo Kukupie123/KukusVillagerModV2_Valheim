@@ -2,6 +2,7 @@
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
+using KukusVillagerMod.Datas;
 using KukusVillagerMod.States;
 using System;
 using System.Collections.Generic;
@@ -52,11 +53,11 @@ namespace KukusVillagerMod.Prefabs
 
             //Add custom comps
             villager.Prefab.GetOrAddComponent<Tameable>(); //Add taming component so that it can be tamed if needed
-            villager.Prefab.GetOrAddComponent<VillagerState>(); //villager state component
-
-            //Set if melee or ranged villager
-            villager.Prefab.GetComponent<VillagerState>().villagerType = villagerType;
-            villager.Prefab.GetComponent<VillagerState>().villagerLevel = level;
+            //Add villager data comp to store values that will not change
+            villager.Prefab.AddComponent<VillagerData>();
+            villager.Prefab.GetComponent<VillagerData>().villagerType = villagerType;
+            villager.Prefab.GetComponent<VillagerData>().villagerLevel = level;
+            //ADD VILLAGER STATE AFTER SPAWNINIG
 
 
             //YOU CAN'T CONFIGURE SOME VALUES UNTIL CREATURE HAS BEEN INSTANTIATED SUCH AS HP

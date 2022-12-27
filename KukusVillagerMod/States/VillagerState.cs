@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KukusVillagerMod.Datas;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,76 +9,82 @@ namespace KukusVillagerMod.States
 {
     class VillagerState : MonoBehaviour
     {
-        public string uid = null;
-
-        public BedState bedState;
 
         private MonsterAI ai;
         private Humanoid humanoid;
 
+        public VillagerData villagerData;
+
         public GameObject following;
-        public int villagerType = -1; // 1 = melee, 2 = ranged
-        public int villagerLevel;
 
         private void Awake()
         {
-            try
-            {
-                DestroyImmediate(GetComponent<CharacterDrop>()); //Destroy player controller
-                DestroyImmediate(GetComponent<PlayerController>()); //Destroy player controller
-                DestroyImmediate(GetComponent<Talker>()); //destroy talking comp
-                DestroyImmediate(GetComponent<Skills>()); //Disable skils
-                DestroyImmediate(GetComponent<Player>()); //Disable skils
-            }
-            catch (UnityException e)
-            {
-
-            }
-
+            //Make ZDO Persist
             GetComponentInParent<ZNetView>().SetPersistent(true);
+
+            //Get villager data
+            villagerData = GetComponentInParent<VillagerData>();
+
+            if (villagerData == null)
+            {
+                KLog.warning("VILLAGER DATA IS NOT VALID!!!!!!");
+            }
+            if (villagerData.GetBed() == null)
+            {
+                //When spawned and no bed found we need to remove it.
+                DestroyImmediate(this.gameObject);
+            }
 
             ai = GetComponent<MonsterAI>();
 
             humanoid = GetComponent<Humanoid>();
 
-            humanoid.SetLevel(villagerLevel);
-
-            LoadUID();
+            humanoid.SetLevel(villagerData.villagerLevel);
 
 
         }
 
         private void FixedUpdate()
         {
-            if (Global.villagerStates.Contains(this) == false)
-                Global.villagerStates.Add(this);
 
-
-            //If following player tp to him when stuck
-            if (following)
+            try
             {
-                if (following.GetComponent<Player>() != null)
-                {
-                    if (following.GetComponent<Player>().IsTeleporting())
-                    {
-                        transform.position = following.transform.position;
-                        return;
-                    }
+                if (Global.villagerData.Contains(villagerData) == false)
+                    Global.villagerData.Add(villagerData);
 
-                    //TP to player if distance is too much
-                    if (Vector3.Distance(transform.position, following.transform.position) > 50 || !ai.FindPath(following.transform.position))
+
+                //If following player tp to him when stuck
+                if (following)
+                {
+                    if (following.GetComponent<Player>() != null)
                     {
-                        transform.position = following.transform.position;
+                        if (following.GetComponent<Player>().IsTeleporting())
+                        {
+                            transform.position = following.transform.position;
+                            return;
+                        }
+
+                        //TP to player if distance is too much
+                        if (Vector3.Distance(transform.position, following.transform.position) > 50 || !ai.FindPath(following.transform.position))
+                        {
+                            transform.position = following.transform.position;
+                        }
                     }
                 }
             }
+            catch (Exception e)
+            {
+
+            }
+
+
 
         }
 
         private void OnDestroy()
         {
-            KLog.warning($"Destroying Villager with id {uid}");
-            Global.villagerStates.Remove(this);
+            KLog.warning($"Destroying Villager with id {villagerData.uid}");
+            Global.villagerData.Remove(villagerData);
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -93,30 +100,8 @@ namespace KukusVillagerMod.States
             }
         }
 
-        //Save the bed to zdo of the villager. To be used by the bed after spawning this villager
-        public void SetBed(BedState bed)
-        {
-            GetComponentInParent<ZNetView>().GetZDO().Set(Util.bedID, bed.uid);
-            this.bedState = bed;
-        }
-        private void LoadUID()
-        {
-            uid = GetComponentInParent<ZNetView>().GetZDO().GetString(Util.villagerID);
 
-            //Failed to load. Create a new uid
-            if (uid == null || uid.Trim().Length == 0)
-            {
-                string guid = System.Guid.NewGuid().ToString();
-                GetComponentInParent<ZNetView>().GetZDO().Set(Util.villagerID, guid);
-                uid = GetComponentInParent<ZNetView>().GetZDO().GetString(Util.villagerID);
-                KLog.warning($"Failed to load ID for villager, Saved new {uid}");
-            }
-            else
-            {
-                KLog.warning($"Loaded villager w ID : {uid}");
 
-            }
-        }
 
 
         //Start following the object.
@@ -165,9 +150,9 @@ namespace KukusVillagerMod.States
                 string vilID = zdo.GetString(Util.villagerID);
 
                 if (vilID == null || vilID.Trim().Length == 0) continue;
-                if (vilID.Equals(uid))
+                if (vilID.Equals(villagerData.uid))
                 {
-                    bedState = b;
+                    villagerData.SetBed(b);
                     return;
                 }
             }
@@ -185,7 +170,7 @@ namespace KukusVillagerMod.States
             FindBed();
 
             //if bed not valid then try to find bed and destroy if still not found
-            if (bedState == null)
+            if (villagerData.GetBed() == null)
             {
                 //NEEDS TO BE DESTROYED
                 return false;
@@ -194,7 +179,7 @@ namespace KukusVillagerMod.States
             removeFromFollower();
             removeFromDefensePost();
 
-            startFollowing(bedState.gameObject);
+            startFollowing(villagerData.GetBed().gameObject);
             MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Guarding Bed");
             return true;
         }
@@ -207,7 +192,6 @@ namespace KukusVillagerMod.States
             //Add villager to following list
             removeFromFollower();
             removeFromDefensePost();
-            bedState = null;
             startFollowing(player.gameObject, true);
             MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Following {player.GetHoverName()}");
             return true;
@@ -216,12 +200,12 @@ namespace KukusVillagerMod.States
         public bool DefendPost()
         {
             if (!ai) return false;
-            if (villagerType == -1) return false;
+            if (villagerData.villagerType == -1) return false;
 
 
             foreach (var d in Global.defences)
             {
-                if (d.defenseType == villagerType)
+                if (d.defenseType == villagerData.villagerType)
                 {
                     //Check if occupied by a villager
                     if (d.villagerState == null)
@@ -257,7 +241,7 @@ namespace KukusVillagerMod.States
         }
         private void removeFromFollower()
         {
-            Global.followingVillagers.Remove(this);
+            Global.followingVillagers.Remove(villagerData);
         }
 
 

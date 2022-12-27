@@ -81,6 +81,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Datas\VillagerData.cs" />
     <Compile Include="itemPrefab\VillagerCommander.cs" />
     <Compile Include="Prefabs\BedPrefab.cs" />
     <Compile Include="Prefabs\DefensivePostPrefab.cs" />

@@ -7,6 +7,7 @@
 using BepInEx;
 using Jotunn.Entities;
 using Jotunn.Managers;
+using KukusVillagerMod.Datas;
 using KukusVillagerMod.itemPrefab;
 using KukusVillagerMod.Prefabs;
 using KukusVillagerMod.States;
@@ -38,7 +39,7 @@ namespace KukusVillagerMod
                 vc.HandleInputs();
             }
             if (MessageHud.instance != null)
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Villagers : {Global.villagerStates.Count} Followers : {Global.followingVillagers.Count} Beds : {Global.bedStates.Count} DP : {Global.defences.Count}");
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Villagers : {Global.villagerData.Count} Followers : {Global.followingVillagers.Count} Beds : {Global.bedStates.Count} DP : {Global.defences.Count}");
 
 
             //Clean lists
@@ -54,15 +55,15 @@ namespace KukusVillagerMod
                 }
             }
 
-            foreach (var i in Global.villagerStates)
+            foreach (var i in Global.villagerData)
             {
                 if (i == null)
                 {
-                    Global.villagerStates.Remove(i);
+                    Global.villagerData.Remove(i);
                 }
                 else if (i.gameObject == null)
                 {
-                    Global.villagerStates.Remove(i);
+                    Global.villagerData.Remove(i);
                 }
             }
             foreach (var i in Global.followingVillagers)
@@ -111,8 +112,8 @@ namespace KukusVillagerMod
 
 
         public static List<BedState> bedStates = new List<BedState>(); //Keep track of all the beds in memory
-        public static List<VillagerState> villagerStates = new List<VillagerState>(); //Keep track of all villager in memory
-        public static List<VillagerState> followingVillagers = new List<VillagerState>(); //Keep track of all villager in memory who are following
+        public static List<VillagerData> villagerData = new List<VillagerData>(); //Keep track of all villager in memory
+        public static List<VillagerData> followingVillagers = new List<VillagerData>(); //Keep track of all villager in memory who are following
         public static List<DefensePostState> defences = new List<DefensePostState>(); //keep track of all defense post in memory
 
     }

@@ -1,4 +1,5 @@
 ﻿using Jotunn.Managers;
+using KukusVillagerMod.Datas;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,6 @@ namespace KukusVillagerMod.States
         {
             piece = GetComponent<Piece>();
         }
-
         private void FixedUpdate()
         {
             if (!piece)
@@ -114,16 +114,38 @@ namespace KukusVillagerMod.States
             }
         }
 
-        private void PostVillagerSet()
+        private void PostVillagerSet(GameObject villager)
         {
-            if (villagerState == null) return;
+            if (villager == null) return;
             //Remove comps that we do not need
-            DestroyImmediate(villagerState.GetComponent<NpcTalk>());
-            DestroyImmediate(villagerState.GetComponent<CharacterDrop>());
-            DestroyImmediate(villagerState.GetComponentInParent<CharacterDrop>()); // remove item drops
+            DestroyImmediate(villager.GetComponent<NpcTalk>());
+            DestroyImmediate(villager.GetComponent<CharacterDrop>());
+            DestroyImmediate(villager.GetComponentInParent<CharacterDrop>()); // remove item drops
+            DestroyImmediate(villager.GetComponent<CharacterDrop>()); //Destroy player controller
+            DestroyImmediate(villager.GetComponent<PlayerController>()); //Destroy player controller
+            DestroyImmediate(villager.GetComponent<Talker>()); //destroy talking comp
+            DestroyImmediate(villager.GetComponent<Skills>()); //Disable skils
+            DestroyImmediate(villager.GetComponent<Player>()); //Disable skils
 
-            //After spawning we need to set the bedID
-            villagerState.SetBed(this);
+            //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WE MIGHT NOT NEED TO ADD THIS CHECK LATER
+
+            foreach (var v in villager.GetComponents<VillagerState>())
+            {
+                DestroyImmediate(v);
+            }
+            foreach(var v in villager.GetComponentsInParent<VillagerState>())
+            {
+                DestroyImmediate(v);
+            }
+
+            //Get villager data and set its bed
+            var vd = villager.GetComponent<VillagerData>();
+            vd.SetBed(this); //Set the bed for the villager, this will also save in zdo of the villager
+
+            //Add a villager state component which will take info from villagerData and since it's set already we should be fine
+            villager.AddComponent<VillagerState>();
+            //Store reference of the character
+            villagerState = villager.GetComponent<VillagerState>();
 
             //Get taming component and tame
             villagerState.GetComponentInParent<Tameable>().Tame();
@@ -143,21 +165,20 @@ namespace KukusVillagerMod.States
             FindVillager();
             if (villagerState != null)
             {
-                KLog.warning($"BED : Found villager with id : {villagerState.uid}");
+                KLog.warning($"BED : Found villager with id : {villagerState.villagerData.uid}");
                 return;
             }
 
+            //Get Villager Prefab and Spawn it
             GameObject villagerCreaturePrefab = CreatureManager.Instance.GetCreaturePrefab(villagerID);
             var villagerCreature = SpawnSystem.Instantiate(villagerCreaturePrefab, transform.position, transform.rotation);
 
-            //Store the reference of villagerState
-            villagerState = villagerCreature.GetComponent<VillagerState>();
+            //Call PostVillagerSet method that is going to do some cruicial work
+            PostVillagerSet(villagerCreature);
 
-            PostVillagerSet();
-
-            //Save the uid of villager in zdo of bed for persistence
-            GetComponentInParent<ZNetView>().GetZDO().Set(Util.villagerID, villagerState.uid);
-            KLog.info($"BED : Spawned new villager and saved its id in zdo {villagerState.uid}");
+            //Save the uid of villager in zdo of this bed for persistence
+            GetComponentInParent<ZNetView>().GetZDO().Set(Util.villagerID, villagerState.villagerData.uid);
+            KLog.info($"BED : Spawned new villager and saved its id in zdo {villagerState.villagerData.uid}");
 
         }
 
@@ -166,7 +187,7 @@ namespace KukusVillagerMod.States
         {
             //Tries to load villager based on data saved in zdo
 
-            var vv = FindObjectsOfType<VillagerState>();
+            var vv = FindObjectsOfType<VillagerData>();
 
             if (vv == null) return;
 
@@ -175,14 +196,14 @@ namespace KukusVillagerMod.States
                 try
                 {
 
-                    string localBedID = v.GetComponent<ZNetView>().GetZDO().GetString(Util.bedID);
+                    string localBedID = v.GetComponentInParent<ZNetView>().GetZDO().GetString(Util.bedID);
 
                     if (localBedID == null || localBedID.Trim().Length == 0) continue;
 
                     if (localBedID.Equals(uid))
                     {
-                        this.villagerState = v;
-                        PostVillagerSet();
+                        //MIGHT NOT WORK TEST IT OUT
+                        PostVillagerSet(v.gameObject);
                         return;
                     }
                 }

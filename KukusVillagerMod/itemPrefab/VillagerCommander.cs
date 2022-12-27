@@ -127,23 +127,14 @@ namespace KukusVillagerMod.itemPrefab
                                         d.villagerState = null;
                                     }
 
-                                    //Villagers with no bed are considered faulty and needs to be deleted
-                                    List<VillagerState> faultyVillagers = new List<VillagerState>();
-
                                     //Make all villager guard their bed
-                                    foreach (var vv in Global.villagerStates)
+                                    foreach (var vv in Global.villagerData)
                                     {
                                         if (vv == null) continue;
-                                        if (!vv.GuardBed()) faultyVillagers.Add(vv);
+                                        vv.GetComponentInParent<VillagerState>().GuardBed();
                                     }
 
-                                    for (int j = 0; j < faultyVillagers.Count; j++)
-                                    {
 
-                                        // UnityEngine.GameObject.DestroyImmediate(faultyVillagers[j].gameObject);
-                                        UnityEngine.GameObject.Destroy(faultyVillagers[j].gameObject);
-                                        Global.villagerStates.Remove(faultyVillagers[j]);
-                                    }
                                 }
                                 else if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad2)
                                 {
@@ -180,37 +171,11 @@ namespace KukusVillagerMod.itemPrefab
                                     keyPad4Pressed = false;
 
                                     //Make two list. One without followers and one with followers. First we will try to send the non followers, if still vacant, we will send followers
-
-                                    List<VillagerState> nonFollowers = new List<VillagerState>();
-
-                                    foreach (var v in Global.villagerStates)
+                                    foreach (var v in Global.villagerData)
                                     {
-                                        if (Global.followingVillagers.Contains(v) == false)
-                                            nonFollowers.Add(v);
+                                        v.GetComponentInParent<VillagerState>().DefendPost();
                                     }
-
-                                    List<VillagerState> followers = new List<VillagerState>();
-
-                                    foreach (var v in Global.villagerStates)
-                                    {
-                                        if (nonFollowers.Contains(v) == false)
-                                            followers.Add(v);
-                                    }
-
-
-                                    foreach (var v in nonFollowers)
-                                    {
-                                        v.DefendPost();
-                                    }
-
-                                    foreach (var v in followers)
-                                    {
-                                        v.DefendPost();
-                                    }
-
                                     MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Going to defense posts");
-
-
                                 }
                                 else if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad4)
                                 {
@@ -222,16 +187,18 @@ namespace KukusVillagerMod.itemPrefab
                                     keyPad4Pressed = true;
                                     MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all defense posts");
 
-                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<DefensePostState>())
+                                    try
                                     {
-                                        if (v != null) continue;
-                                        UnityEngine.Object.DestroyImmediate(v.gameObject);
+                                        foreach (var v in UnityEngine.GameObject.FindObjectsOfType<DefensePostState>())
+                                        {
+                                            UnityEngine.Object.DestroyImmediate(v.gameObject);
+                                        }
                                     }
+                                    catch (Exception fe)
+                                    {
 
+                                    }
                                     MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all defense posts");
-
-                                    //MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Beds : " + Global.beds.Count + " Villagers : " + Global.villagers.Count + " Defense Posts : " + Global.defenses.Count + " Followers : " + Global.followers.Count);
-
 
                                 }
 
