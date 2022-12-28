@@ -64,10 +64,56 @@ namespace KukusVillagerMod.itemPrefab
             deletePostsBtn.BlockOtherInputs = true;
             deletePostsBtn.Key = UnityEngine.KeyCode.Keypad4;
 
+            deleteVillagersBtn = new ButtonConfig();
+            deleteVillagersBtn.Name = "KP5";
+            deleteVillagersBtn.Hint = "Remove Nearby Posts";
+            deleteVillagersBtn.ActiveInCustomGUI = true;
+            deleteVillagersBtn.BlockOtherInputs = true;
+            deleteVillagersBtn.Key = UnityEngine.KeyCode.Keypad5;
+
+            guardBedbtn = new ButtonConfig();
+            guardBedbtn.Name = "KP1";
+            guardBedbtn.Hint = "Guard Bed";
+            guardBedbtn.ActiveInCustomGUI = true;
+            guardBedbtn.BlockOtherInputs = true;
+            guardBedbtn.Key = UnityEngine.KeyCode.Keypad1;
+
+            followPlayerBtn = new ButtonConfig();
+            followPlayerBtn.Name = "KP2";
+            followPlayerBtn.Hint = "Follow Player";
+            followPlayerBtn.ActiveInCustomGUI = true;
+            followPlayerBtn.BlockOtherInputs = true;
+            followPlayerBtn.Key = UnityEngine.KeyCode.Keypad2;
+
+            defendBtn = new ButtonConfig();
+            defendBtn.Name = "KP3";
+            defendBtn.Hint = "Defend Posts";
+            defendBtn.ActiveInCustomGUI = true;
+            defendBtn.BlockOtherInputs = true;
+            defendBtn.Key = UnityEngine.KeyCode.Keypad3;
+
+            deletePostsBtn = new ButtonConfig();
+            deletePostsBtn.Name = "KP4";
+            deletePostsBtn.Hint = "Remove Nearby Posts";
+            deletePostsBtn.ActiveInCustomGUI = true;
+            deletePostsBtn.BlockOtherInputs = true;
+            deletePostsBtn.Key = UnityEngine.KeyCode.Keypad4;
+
+            deleteVillagersBtn = new ButtonConfig();
+            deleteVillagersBtn.Name = "KP5";
+            deleteVillagersBtn.Hint = "Remove Nearby Posts";
+            deleteVillagersBtn.ActiveInCustomGUI = true;
+            deleteVillagersBtn.BlockOtherInputs = true;
+            deleteVillagersBtn.Key = UnityEngine.KeyCode.Keypad5;
+
+             
+
             InputManager.Instance.AddButton("com.jotunn.KukusVillagerMod", guardBedbtn);
             InputManager.Instance.AddButton("com.jotunn.KukusVillagerMod", followPlayerBtn);
             InputManager.Instance.AddButton("com.jotunn.KukusVillagerMod", defendBtn);
             InputManager.Instance.AddButton("com.jotunn.KukusVillagerMod", deletePostsBtn);
+            InputManager.Instance.AddButton("com.jotunn.KukusVillagerMod", deleteVillagersBtn);
+
 
         }
 
@@ -76,7 +122,7 @@ namespace KukusVillagerMod.itemPrefab
             var kh = new KeyHintConfig
             {
                 Item = "Village_Commander",
-                ButtonConfigs = new[] { guardBedbtn, followPlayerBtn, defendBtn, deletePostsBtn }
+                ButtonConfigs = new[] { guardBedbtn, followPlayerBtn, defendBtn, deletePostsBtn, deleteVillagersBtn }
             };
             KeyHintManager.Instance.AddKeyHint(kh);
         }
@@ -85,10 +131,12 @@ namespace KukusVillagerMod.itemPrefab
         bool keyPad2Pressed = false;
         bool keyPad3Pressed = false;
         bool keyPad4Pressed = false;
+        bool keyPad5Pressed = false;
         private ButtonConfig guardBedbtn;
         private ButtonConfig followPlayerBtn;
         private ButtonConfig defendBtn;
         private ButtonConfig deletePostsBtn;
+        private ButtonConfig deleteVillagersBtn;
 
         public void HandleInputs()
         {
@@ -119,6 +167,7 @@ namespace KukusVillagerMod.itemPrefab
                                     keyPad2Pressed = false;
                                     keyPad3Pressed = false;
                                     keyPad4Pressed = false;
+                                    keyPad5Pressed = false;
 
                                     //Clear out all defence's villagerState as all are going to go home
                                     foreach (var d in Global.defences)
@@ -144,6 +193,7 @@ namespace KukusVillagerMod.itemPrefab
                                     keyPad2Pressed = true;
                                     keyPad3Pressed = false;
                                     keyPad4Pressed = false;
+                                    keyPad5Pressed = false;
 
                                     var villager = GetLookingAtVillager(Player.m_localPlayer);
 
@@ -169,6 +219,7 @@ namespace KukusVillagerMod.itemPrefab
                                     keyPad2Pressed = false;
                                     keyPad3Pressed = true;
                                     keyPad4Pressed = false;
+                                    keyPad5Pressed = false;
 
                                     //Make two list. One without followers and one with followers. First we will try to send the non followers, if still vacant, we will send followers
                                     foreach (var v in Global.villagers)
@@ -185,6 +236,7 @@ namespace KukusVillagerMod.itemPrefab
                                     keyPad2Pressed = false;
                                     keyPad3Pressed = false;
                                     keyPad4Pressed = true;
+                                    keyPad5Pressed = false;
 
                                     foreach (var v in UnityEngine.GameObject.FindObjectsOfType<DefensePostState>())
                                     {
@@ -195,6 +247,23 @@ namespace KukusVillagerMod.itemPrefab
 
 
                                 }
+                                else if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad5)
+                                {
+                                    //Destroy all villagers
+                                    if (keyPad5Pressed) return;
+                                    keyPad1Pressed = false;
+                                    keyPad2Pressed = false;
+                                    keyPad3Pressed = false;
+                                    keyPad4Pressed = false;
+                                    keyPad5Pressed = true;
+
+                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<VillagerLifeCycle>())
+                                    {
+                                        ZNetScene.instance.Destroy(v.gameObject);
+                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all Villagers");
+                                    }
+
+                                }
 
                                 else
                                 {
@@ -202,6 +271,7 @@ namespace KukusVillagerMod.itemPrefab
                                     keyPad2Pressed = false;
                                     keyPad3Pressed = false;
                                     keyPad4Pressed = false;
+                                    keyPad5Pressed = false;
                                 }
                             }
                         }

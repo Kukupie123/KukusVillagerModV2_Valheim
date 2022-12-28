@@ -105,40 +105,34 @@ namespace KukusVillagerMod
 
     }
 }
-/*
- * NOTES:
- * ZDO data are saved in parent component from state components such as VillagerState saves its data as GetComponentInParent, Same goes for BedState
- * 
- * How it works :
- * We use ZDO to save link between villager and beds
- * 
- * Bed's Map {
- * uid : "uid of bed",
- * villagerID : "uid of villager who spawned using this bed"
- * }
- * Villager's Map {
- * uid : "uid of villager",
- * bedID : "uid of the bed which spawned this villager"
- * }
- * 
- * When we create a bed. It needs to setup it's uid.
- * Then it needs to spawn a villager. The villager will then setup it's uid
- * Once done the bed will set it's villagerID to uid of Villager
- * The Villager will set its bedID to the uid of the bed 
- * 
- * This can be heavily simplified if we can have a global ZNet
- */
-
-
-//PROBLEM : HASHLIST FUCKED
-
 
 /*
- * HOW OUR BED AND VILLAGER PERSISTENCE WORKS
- * 1st case : New Bed is placed
- * When a bed is created we are going to wait a while for zdo to setup. 
- * We then are going to spawn a villager, the villager will Create it's UID. And starts waiting for a while to find it's bed.
- * The villager waits a while so that the bed has time to save the villger's UID in it's ZDO
- * Meanwhile the villager is waiting the bed has saved the villager's UID and is now ready.
- * The Villager finishes waiting and is now going to find a bed. It will find a bed and not get destroyed
+ * Notes : 
+ * To delete scene objects we need to use ZNetScene.instance.delete
+ * We use ZDO to save persistent data, ZNetView of the component has to have persistent set to true
+ * MapDataLoaded is an event triggered at the last moment after all world data is loaded. We need to be searching for objects in world only after this is true
+ * 
+ * 
+ * 
+ * How we persist and Link Beds and villagers
+ * Beds save BedID, villagerID and VillagerSet(boolean) in it's zdo
+ * Villagers save VillagerID and BedID
+ * 
+ * Bed and Villagers:
+ * 1. When a bed is crafted, We generate UID for the bed and save it as BedID in it's ZDO
+ * 2. Next we try to find villagers in world whose ZDo has BedID saved and matches the bed's BedID
+ * 3. Ofcourse we are not going to find any villager as this bed was just created
+ * 4. We then spawn a Villager
+ * 5. The Villager when spawned will generate UID and save it as it's VillagerID
+ * 6. The bed will save the Villager's villagerID in it's ZDO
+ * 7. The Bed will then save VillagerSet as true in it's ZDO. This is going to be used by Villager as we seen later down the line
+ * 8. Lets talk about the villager now.
+ * 9. When the villager was spawned it generated UID and saved it as VillagerID in it's ZDO like mentioned in step 5
+ * 10. The villager will then Look for it's bed
+ * 11. The Looking for bed is going to be recursive as it takes time for the Bed to save the Villager's VillagerID in it's ZDO after it spawns, and after saving the villagerID the bed makes sure to save VillagerSet true value
+ * 12. The Villager's find bed function will get all bed in world currently and check if it has VillagerSet as true
+ * 13. If it does then it is going to Check the bed's villagerID and the villager's VillagerID. If it matches we know that we found the bed that spawned this villager
+ * 14. If the bed doesn't have villagerSet true then it is going to be added to the "villagerLessBed" list and it is going to search that list again.
+ * 15. This process continues until we end up with the bed found or end up with an empty "villagerLessBed" list which means that the villager was spawned without a bed. (Maybe bed got destroyed and you closed the game and reopened it or you spawned it using cheats)
+ * 16. When no bed is found the villager is going to be deleted to prevent redundant villager. Every villager needs a home
  */

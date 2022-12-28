@@ -36,9 +36,8 @@ namespace KukusVillagerMod.States
 
             if (piece.IsPlacedByPlayer())
             {
-                if (!KukusVillagerMod.isMapDataLoaded) return;
 
-                if (fixedUpdateDoneOnce == false && Player.m_localPlayer != null && !Player.m_localPlayer.IsTeleporting() && !ZNetScene.instance.InLoadingScreen())
+                if (fixedUpdateDoneOnce == false && Player.m_localPlayer != null && !Player.m_localPlayer.IsTeleporting() && !ZNetScene.instance.InLoadingScreen() && KukusVillagerMod.isMapDataLoaded)
 
                 {
                     //We have to wait for it to be placed before we can do anything so we have to run it inside FixedUpdate ONCE
@@ -52,10 +51,13 @@ namespace KukusVillagerMod.States
 
                     fixedUpdateDoneOnce = true;
                 }
-                else
+                else if (fixedUpdateDoneOnce && KukusVillagerMod.isMapDataLoaded && Player.m_localPlayer != null && Player.m_localPlayer.IsTeleporting() == false && !ZNetScene.instance.InLoadingScreen())
                 {
-                    if (!villager)
+                    KLog.info("UPDATING FRAME CALLED");
+                    if (villager == null)
                     {
+                        KLog.info("VILLAGER NULL");
+
                         //if not first update and no villager exist then we cakk FindOrRespawnAfterWait. This will spawn or find the villager after a while
                         FindOrSpawnAfterWait();
                     }
@@ -109,11 +111,12 @@ namespace KukusVillagerMod.States
             //We have to wait because for some gosh damned reason getObjectsOfType returns empty array
             if (alreadyWaiting) return;
             alreadyWaiting = true;
-            await Task.Delay(1200000);
+            await Task.Delay(60000);
             FindVillager();
             if (villager == null)
                 CreateVillager();
             alreadyWaiting = false;
+            KLog.info("Respawn timer Ended for villager bed");
         }
         void FindVillager()
         {
@@ -154,32 +157,3 @@ namespace KukusVillagerMod.States
         }
     }
 }
-
-/*
- * SPAWNING VILLAGER FROM BED MIGHT HAVE ISSUES AS WE ARE SPAWNING VILLAGER AND THEN SETTING VILLAGER KEY IN BED BUT THE VILLAGER COMP MIGHT HAVE ALREADY LOOKED FOR BED WITH ITS VILLAGER ID AND FAILED SO GOT DESTROYED
- */
-
-
-/*
- * Bed will have 3 keys
- * UID
- * VillagerID
- * villagerID SET
- * 
- * 
- * When a bed is created
- * It will create UID
- * 
- * It will then spawn a villager and save its id as villagerID
- * once done it will set villagerIDSet to True to signify that villager has been saved
- * 
- * 
- * In villger spawn side:
- * When spawned it waits for map data to load
- * 
- * It finds all bed
- * 
- * it then waits for the bed to set villagerIDSet to true
- * 
- * when true it checks villagerID and validates. if none match we destroy
- */
