@@ -28,31 +28,38 @@ namespace KukusVillagerMod.States
         bool fixedUpdateDoneOnce = false;
         private void FixedUpdate()
         {
-            if (piece.IsPlacedByPlayer())
+            try
             {
-                if (!KukusVillagerMod.isMapDataLoaded) return;
-
-                if (fixedUpdateDoneOnce == false && Player.m_localPlayer != null)
+                if (piece.IsPlacedByPlayer())
                 {
-                    //We have to wait for it to be placed before we can do anything so we have to run it inside FixedUpdate ONCE
-                    znv = GetComponentInParent<ZNetView>();
-                    znv.SetPersistent(true);
-                    LoadUID();
-                    //After loading UID find villager
-                    FindVillager();
-                    if (villager == null)
-                        CreateVillager();
+                    if (!KukusVillagerMod.isMapDataLoaded) return;
 
-                    fixedUpdateDoneOnce = true;
-                }
-                else
-                {
-                    if (!villager)
+                    if (fixedUpdateDoneOnce == false && Player.m_localPlayer != null && !Player.m_localPlayer.IsTeleporting())
                     {
-                        //if not first update and no villager exist then we cakk FindOrRespawnAfterWait. This will spawn or find the villager after a while
-                        FindOrSpawnAfterWait();
+                        //We have to wait for it to be placed before we can do anything so we have to run it inside FixedUpdate ONCE
+                        znv = GetComponentInParent<ZNetView>();
+                        znv.SetPersistent(true);
+                        LoadUID();
+                        //After loading UID find villager
+                        FindVillager();
+                        if (villager == null)
+                            CreateVillager();
+
+                        fixedUpdateDoneOnce = true;
                     }
+                    else
+                    {
+                        if (!villager)
+                        {
+                            //if not first update and no villager exist then we cakk FindOrRespawnAfterWait. This will spawn or find the villager after a while
+                            FindOrSpawnAfterWait();
+                        }
+                    }
+
                 }
+            }
+            catch (Exception e)
+            {
 
             }
         }

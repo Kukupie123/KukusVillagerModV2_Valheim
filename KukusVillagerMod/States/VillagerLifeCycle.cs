@@ -43,32 +43,39 @@ namespace KukusVillagerMod.States
         bool updatedOnce = false;
         private void FixedUpdate()
         {
-            //Wait for map data to load
-            if (KukusVillagerMod.isMapDataLoaded)
+            try
             {
-                if (Player.m_localPlayer == null) return;
-                //Only search for bed if bed is null
-                if (!bed)
+                //Wait for map data to load
+                if (KukusVillagerMod.isMapDataLoaded)
                 {
-
-
-                    //This block will get executed every frame except first or first few
-                    if (updatedOnce)
+                    if (Player.m_localPlayer == null || Player.m_localPlayer.IsTeleporting()) return;
+                    //Only search for bed if bed is null
+                    if (!bed)
                     {
 
-                    }
 
-                    //This block will get executed only once, we search for bed ONLY ONCE
-                    else
-                    {
-                        updatedOnce = true;
-                        FindBed();
-                        if (bed == null)
+                        //This block will get executed every frame except first or first few
+                        if (updatedOnce)
                         {
-                            Destroy(this.gameObject);
+
+                        }
+
+                        //This block will get executed only once, we search for bed ONLY ONCE
+                        else
+                        {
+                            updatedOnce = true;
+                            FindBed();
+                            if (bed == null)
+                            {
+                                Destroy(this.gameObject);
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                KLog.info(e.Message + " in fixed update of villager Life cycle");
             }
         }
 
