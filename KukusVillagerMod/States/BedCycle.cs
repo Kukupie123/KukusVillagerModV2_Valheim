@@ -24,45 +24,46 @@ namespace KukusVillagerMod.States
             piece = GetComponent<Piece>();
         }
 
+        private void OnDestroy()
+        {
+            Global.bedStates.Remove(this);
+        }
+
 
         bool fixedUpdateDoneOnce = false;
         private void FixedUpdate()
         {
-            try
+
+            if (piece.IsPlacedByPlayer())
             {
-                if (piece.IsPlacedByPlayer())
+                if (!KukusVillagerMod.isMapDataLoaded) return;
+
+                if (fixedUpdateDoneOnce == false && Player.m_localPlayer != null && !Player.m_localPlayer.IsTeleporting() && !ZNetScene.instance.InLoadingScreen())
+
                 {
-                    if (!KukusVillagerMod.isMapDataLoaded) return;
+                    //We have to wait for it to be placed before we can do anything so we have to run it inside FixedUpdate ONCE
+                    znv = GetComponentInParent<ZNetView>();
+                    znv.SetPersistent(true);
+                    LoadUID();
+                    //After loading UID find villager
+                    FindVillager();
+                    if (villager == null)
+                        CreateVillager();
 
-                    if (fixedUpdateDoneOnce == false && Player.m_localPlayer != null && !Player.m_localPlayer.IsTeleporting() && !ZNetScene.instance.InLoadingScreen())
-
-                    {
-                        //We have to wait for it to be placed before we can do anything so we have to run it inside FixedUpdate ONCE
-                        znv = GetComponentInParent<ZNetView>();
-                        znv.SetPersistent(true);
-                        LoadUID();
-                        //After loading UID find villager
-                        FindVillager();
-                        if (villager == null)
-                            CreateVillager();
-
-                        fixedUpdateDoneOnce = true;
-                    }
-                    else
-                    {
-                        if (!villager)
-                        {
-                            //if not first update and no villager exist then we cakk FindOrRespawnAfterWait. This will spawn or find the villager after a while
-                            FindOrSpawnAfterWait();
-                        }
-                    }
-
+                    fixedUpdateDoneOnce = true;
                 }
-            }
-            catch (Exception e)
-            {
+                else
+                {
+                    if (!villager)
+                    {
+                        //if not first update and no villager exist then we cakk FindOrRespawnAfterWait. This will spawn or find the villager after a while
+                        FindOrSpawnAfterWait();
+                    }
+                }
 
             }
+
+
         }
 
 
@@ -80,6 +81,7 @@ namespace KukusVillagerMod.States
             {
                 KLog.warning($"Bed ID Loaded {UID}");
             }
+            Global.bedStates.Add(this);
         }
 
         // Save villager's ID in ZDO and mark villagerSet as true

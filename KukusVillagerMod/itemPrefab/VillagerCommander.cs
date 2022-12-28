@@ -128,10 +128,10 @@ namespace KukusVillagerMod.itemPrefab
                                     }
 
                                     //Make all villager guard their bed
-                                    foreach (var vv in Global.villagerData)
+                                    foreach (var vv in Global.villagers)
                                     {
                                         if (vv == null) continue;
-                                        //vv.GetComponentInParent<VillagerLifeCycle>().GuardBed();
+                                        vv.GetComponentInParent<VillagerLifeCycle>().GuardBed();
                                     }
 
 
@@ -150,8 +150,8 @@ namespace KukusVillagerMod.itemPrefab
                                     if (villager)
                                     {
 
-                                        //villager.FollowPlayer(Player.m_localPlayer);
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "This villager is following you");
+                                        villager.FollowPlayer(Player.m_localPlayer);
+                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "Following " + Player.m_localPlayer.GetHoverName());
                                     }
                                     else
                                     {
@@ -171,11 +171,11 @@ namespace KukusVillagerMod.itemPrefab
                                     keyPad4Pressed = false;
 
                                     //Make two list. One without followers and one with followers. First we will try to send the non followers, if still vacant, we will send followers
-                                    foreach (var v in Global.villagerData)
+                                    foreach (var v in Global.villagers)
                                     {
-                                        //v.GetComponentInParent<VillagerLifeCycle>().DefendPost();
+                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Going to defense posts");
+                                        v.GetComponentInParent<VillagerLifeCycle>().DefendPost();
                                     }
-                                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Going to defense posts");
                                 }
                                 else if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad4)
                                 {
@@ -185,20 +185,14 @@ namespace KukusVillagerMod.itemPrefab
                                     keyPad2Pressed = false;
                                     keyPad3Pressed = false;
                                     keyPad4Pressed = true;
-                                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all defense posts");
 
-                                    try
+                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<DefensePostState>())
                                     {
-                                        foreach (var v in UnityEngine.GameObject.FindObjectsOfType<DefensePostState>())
-                                        {
-                                            UnityEngine.Object.DestroyImmediate(v.gameObject);
-                                        }
+                                        ZNetScene.instance.Destroy(v.gameObject);
+                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all defense posts");
                                     }
-                                    catch (Exception fe)
-                                    {
 
-                                    }
-                                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all defense posts");
+
 
                                 }
 

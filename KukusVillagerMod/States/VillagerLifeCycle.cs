@@ -17,8 +17,11 @@ namespace KukusVillagerMod.States
         public ZNetView znv;
 
         public string UID; //VillagerID
-        public int villagerType;
-        public int villagerLevel;
+        public int villagerType; //Set during prefab creation
+        public int villagerLevel; //Set during prefab creation
+
+        MonsterAI ai;
+        Humanoid humanoid;
 
         BedCycle bed;
 
@@ -29,10 +32,15 @@ namespace KukusVillagerMod.States
 
             //Load/Create UID
             LoadUID();
+            ai = GetComponent<MonsterAI>();
+            humanoid = GetComponent<Humanoid>();
+
+            humanoid.SetLevel(villagerLevel);
         }
 
         void OnDestroy()
         {
+            Global.villagers.Remove(this);
             KLog.warning($"Destroying Villager {UID}");
         }
 
@@ -41,15 +49,16 @@ namespace KukusVillagerMod.States
         //In fixed update we need to look for villager once mapData has been loaded. If it fails to do so we delete
 
         bool updatedOnce = false;
+        private GameObject followingTarget;
+
         private void FixedUpdate()
         {
 
-            //Wait for map data to load
-            if (KukusVillagerMod.isMapDataLoaded)
-            {
-                if (Player.m_localPlayer == null || Player.m_localPlayer.IsTeleporting()) return;
 
-                if (ZNetScene.instance.InLoadingScreen()) return;
+
+            //First If condition for bed
+            if (Player.m_localPlayer != null && !ZNetScene.instance.InLoadingScreen() && KukusVillagerMod.isMapDataLoaded)
+            {
                 //Only search for bed if bed is null
                 if (!bed)
                 {
@@ -72,7 +81,21 @@ namespace KukusVillagerMod.States
                         }
                     }
                 }
+
             }
+
+            //Second if condition for teleporting followers and stuff
+            if (Player.m_localPlayer != null)
+            {
+                if (followingTarget != null && followingTarget.GetComponent<Player>() != null)
+                {
+                    if (Vector3.Distance(followingTarget.transform.position, transform.position) > 50 || followingTarget.GetComponent<Player>().IsTeleporting()) transform.position = followingTarget.transform.position;
+
+                }
+            }
+
+
+
 
 
         }
@@ -100,9 +123,12 @@ namespace KukusVillagerMod.States
                 KLog.warning($"Villager Found UID ${UID}");
             }
 
+            Global.villagers.Add(this);
+
         }
 
 
+        //Recursive function. Uses recursion because when a villager is spawned by the bed, the bed needs time to save villager's ID to its zdo so we keep recursing and recursing and wait for the bed to set values
         private void FindBed(BedCycle[] useThis = null)
         {
             var list = FindObjectsOfType<BedCycle>();
@@ -146,6 +172,73 @@ namespace KukusVillagerMod.States
             else
             {
                 FindBed(NonReadyBeds.ToArray());
+            }
+        }
+
+
+        private void FollowTarget(GameObject target)
+        {
+            if (target == null) return;
+
+            this.followingTarget = target;
+
+            ai.ResetPatrolPoint();
+            ai.ResetRandomMovement();
+            ai.SetFollowTarget(target);
+
+            if (ai.FindPath(target.transform.position) == false || ai.HavePath(target.transform.position) == false)
+            {
+                transform.position = target.transform.position;
+            }
+        }
+
+        public void GuardBed()
+        {
+            if (bed == null) ZNetScene.instance.Destroy(this.gameObject);
+            RemoveVillagerFromFollower();
+            RemoveVillagerFromDefending();
+            FollowTarget(bed.gameObject);
+
+        }
+
+        public void FollowPlayer(Player p)
+        {
+            RemoveVillagerFromDefending();
+            Global.followingVillagers.Add(this);
+            FollowTarget(p.gameObject);
+        }
+
+        public void DefendPost()
+        {
+            foreach (var d in Global.defences)
+            {
+                if (d.defenseType == villagerType)
+                {
+                    if (d.villager == null)
+                    {
+                        RemoveVillagerFromFollower();
+                        d.villager = this;
+                        FollowTarget(d.gameObject);
+                        return;
+                    }
+                }
+            }
+        }
+
+        private void RemoveVillagerFromFollower()
+        {
+            Global.followingVillagers.Remove(this);
+        }
+
+        private void RemoveVillagerFromDefending()
+        {
+            foreach (var d in Global.defences)
+            {
+                if (d.villager == this)
+                {
+                    d.villager = null;
+                    this.followingTarget = null;
+                }
             }
         }
     }
