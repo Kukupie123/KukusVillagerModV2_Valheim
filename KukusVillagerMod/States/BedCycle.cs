@@ -16,7 +16,7 @@ namespace KukusVillagerMod.States
 
         public ZNetView znv;
 
-        Piece piece; 
+        Piece piece;
         VillagerLifeCycle villager;
 
         private void Awake()
@@ -28,19 +28,30 @@ namespace KukusVillagerMod.States
         bool fixedUpdateDoneOnce = false;
         private void FixedUpdate()
         {
-            if (piece.IsPlacedByPlayer() && KukusVillagerMod.isMapDataLoaded)
+            if (piece.IsPlacedByPlayer())
             {
+                if (!KukusVillagerMod.isMapDataLoaded) return;
 
-
-                if (fixedUpdateDoneOnce == false)
+                if (fixedUpdateDoneOnce == false && Player.m_localPlayer != null)
                 {
                     //We have to wait for it to be placed before we can do anything so we have to run it inside FixedUpdate ONCE
                     znv = GetComponentInParent<ZNetView>();
                     znv.SetPersistent(true);
                     LoadUID();
                     //After loading UID find villager
-                    FindOrSpawnAfterWait();
+                    FindVillager();
+                    if (villager == null)
+                        CreateVillager();
+
                     fixedUpdateDoneOnce = true;
+                }
+                else
+                {
+                    if (!villager)
+                    {
+                        //if not first update and no villager exist then we cakk FindOrRespawnAfterWait. This will spawn or find the villager after a while
+                        FindOrSpawnAfterWait();
+                    }
                 }
 
             }
@@ -86,7 +97,7 @@ namespace KukusVillagerMod.States
             //We have to wait because for some gosh damned reason getObjectsOfType returns empty array
             if (alreadyWaiting) return;
             alreadyWaiting = true;
-            await Task.Delay(1000);
+            await Task.Delay(10000);
             FindVillager();
             if (villager == null)
                 CreateVillager();
