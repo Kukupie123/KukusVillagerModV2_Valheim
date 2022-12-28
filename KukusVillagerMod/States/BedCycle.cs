@@ -16,7 +16,7 @@ namespace KukusVillagerMod.States
 
         public ZNetView znv;
 
-        Piece piece;
+        Piece piece; 
         VillagerLifeCycle villager;
 
         private void Awake()
