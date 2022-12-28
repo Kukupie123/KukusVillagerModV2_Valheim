@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace KukusVillagerMod.States
@@ -20,7 +21,6 @@ namespace KukusVillagerMod.States
 
         private void Awake()
         {
-            LoadUID();
             piece = GetComponent<Piece>();
         }
 
@@ -35,14 +35,12 @@ namespace KukusVillagerMod.States
                 if (fixedUpdateDoneOnce == false)
                 {
                     //We have to wait for it to be placed before we can do anything so we have to run it inside FixedUpdate ONCE
-                    fixedUpdateDoneOnce = true;
                     znv = GetComponentInParent<ZNetView>();
                     znv.SetPersistent(true);
                     LoadUID();
-
                     //After loading UID find villager
-                    FindVillager();
-                    if (!villager) CreateVillager();
+                    FindOrSpawnAfterWait();
+                    fixedUpdateDoneOnce = true;
                 }
 
             }
@@ -75,26 +73,50 @@ namespace KukusVillagerMod.States
             znv.GetZDO().Set(Util.villagerID, v.UID); //Store the villager ID in ZDO of bed. Used by villager to find his bed
             znv.GetZDO().Set(Util.villagerSet, true); //Mark villager set as true as this bed now has villager, used by spawned villagers to wait for a bed to finish saving villager's ID and then only continue searching for bed. A bed NEEDS to have villagerID
             this.villager = v;
+            villager.znv.GetZDO().Set(Util.bedID, UID); //Save the bedID on the villager's ZDO
             v.GetComponent<Tameable>().Tame();
             if (creating)
                 KLog.warning($"BED {UID} HAS CREATED VILLAGER {villager.UID}");
 
         }
 
+        bool alreadyWaiting = false;
+        async void FindOrSpawnAfterWait()
+        {
+            //We have to wait because for some gosh damned reason getObjectsOfType returns empty array
+            if (alreadyWaiting) return;
+            alreadyWaiting = true;
+            await Task.Delay(1000);
+            FindVillager();
+            if (villager == null)
+                CreateVillager();
+            alreadyWaiting = false;
+        }
         void FindVillager()
         {
-            foreach (var v in FindObjectsOfType<VillagerLifeCycle>())
+            var gg = FindObjectsOfType<VillagerLifeCycle>();
+
+            KLog.info($"TOTAL VILLAGERS RN = {gg.Length}");
+
+            foreach (var v in FindObjectsOfType<MonsterAI>())
             {
-                string bedID = v.znv.GetZDO().GetString(Util.bedID);
+                var ls = v.GetComponentInParent<VillagerLifeCycle>();
+                if (ls == null) continue;
+
+
+                KLog.warning($"LOOP");
+                string bedID = ls.znv.GetZDO().GetString(Util.bedID);
+                KLog.warning($"Villager {ls.UID} HAS BEDID : {ls.znv.GetZDO().GetString(Util.bedID)}");
 
                 if (bedID.Equals(UID))
                 {
-                    KLog.warning($"BED {UID} HAS FOUND VILLAGER {v.UID}");
-                    PostVillagerSet(v);
+                    KLog.warning($"BED {UID} HAS FOUND VILLAGER {ls.UID}");
+                    PostVillagerSet(ls);
                     return;
                 }
 
             }
+            KLog.warning($"BED {UID} HAS NOT FOUND VILLAGER!");
         }
 
         //Create villager

@@ -106,8 +106,8 @@ namespace KukusVillagerMod.States
             {
                 if (b == null) continue;
 
-                //if bed is not ready we are going to add this to nonReadybeds for recursion
-                if (!b.znv.GetZDO().GetBool(Util.villagerSet, false))
+                //if bed is not ready we are going to add this to nonReadybeds for recursion, znv to determine if they are placed yet or not
+                if (b.znv == null || !b.znv.GetZDO().GetBool(Util.villagerSet, false))
                 {
                     NonReadyBeds.Add(b);
                     continue;
