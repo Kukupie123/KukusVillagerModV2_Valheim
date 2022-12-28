@@ -36,6 +36,8 @@ namespace KukusVillagerMod.States
             KLog.warning($"Destroying Villager {UID}");
         }
 
+
+
         //In fixed update we need to look for villager once mapData has been loaded. If it fails to do so we delete
 
         bool updatedOnce = false;
@@ -44,6 +46,7 @@ namespace KukusVillagerMod.States
             //Wait for map data to load
             if (KukusVillagerMod.isMapDataLoaded)
             {
+                if (Player.m_localPlayer == null) return;
                 //Only search for bed if bed is null
                 if (!bed)
                 {
@@ -60,6 +63,10 @@ namespace KukusVillagerMod.States
                     {
                         updatedOnce = true;
                         FindBed();
+                        if (bed == null)
+                        {
+                            Destroy(this.gameObject);
+                        }
                     }
                 }
             }
