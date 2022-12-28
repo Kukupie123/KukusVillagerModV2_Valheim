@@ -10,146 +10,112 @@ namespace KukusVillagerMod.States
 {
     class BedCycle : MonoBehaviour
     {
+        public string villagerName; //The name of the villager it will spawn
+        public string UID;
+
+        public ZNetView znv;
+
         Piece piece;
         VillagerLifeCycle villager;
-        private ZNetView znv;
-
-        public string villagerName;
-        public string uid;
-        bool doneOnce = false;
-        bool respawnTimerActive = false;
-
 
         private void Awake()
         {
             piece = GetComponent<Piece>();
         }
 
-        private void OnDestroy()
-        {
-            Global.bedStates.Remove(this);
-        }
 
+        bool fixedUpdateDoneOnce = false;
         private void FixedUpdate()
         {
-            if (!piece) return;
-            if (!KukusVillagerMod.isMapDataLoaded) return;
-            /*
-             * 1. Check if the piece is placed and is placed by player
-             * 2. If placed then do important operations ONCE such as loading uid and setting zdo as persistent and finding/loading villager
-             */
             if (piece.IsPlacedByPlayer())
             {
-                if (!Global.bedStates.Contains(this))
-                    Global.bedStates.Add(this);
-                if (doneOnce)
-                {
-                    //Keep checking if villager is dead or not, if dead we respawn a new one
-                    if (villager)
-                    {
 
-                    }
-                    else
-                    {
-                        StartRespawnTimerAndRespawn();
-                    }
-                }
-                else
+
+                if (!fixedUpdateDoneOnce)
                 {
-                    //Not done yet so lets do our thing and change doneOnce to true
+                    //We have to wait for it to be placed before we can do anything so we have to run it inside FixedUpdate ONCE
+                    fixedUpdateDoneOnce = true;
                     znv = GetComponentInParent<ZNetView>();
-                    znv.GetComponentInChildren<ZNetView>().SetPersistent(true);
+                    znv.SetPersistent(true);
                     LoadUID();
-                    FindOrSpawnVillager();
-                    doneOnce = true;
-                }
-            }
 
+                    WaitNSetVillager(); //Do not spawn as soon as we set bed. We need to give it time to setup so we wait a little and then spawn villagers
+                }
+
+            }
         }
 
-        async void StartRespawnTimerAndRespawn()
+
+        bool alreadySetting = false;
+        private async void WaitNSetVillager()
         {
-            if (respawnTimerActive) return;
-            respawnTimerActive = true;
-            await Task.Delay(10000);
-            FindOrSpawnVillager();
-            respawnTimerActive = false;
+            if (alreadySetting) return;
+            alreadySetting = true;
+            await Task.Delay(5000);
+            FindVillager();
+            if (!villager) CreateVillager();
+            alreadySetting = false;
         }
 
         private void LoadUID()
         {
-            uid = znv.GetComponentInChildren<ZNetView>().GetZDO().GetString(Util.bedID);
-
-            if (uid == null || uid.Trim().Length == 0)
+            UID = znv.GetZDO().GetString(Util.bedID, null);
+            if (UID == null || UID.Trim().Length == 0)
             {
-                //Create a new UID and save it
-                string guid = System.Guid.NewGuid().ToString();
-                znv.GetComponentInChildren<ZNetView>().GetZDO().Set(Util.bedID, guid);
-                uid = znv.GetComponentInChildren<ZNetView>().GetZDO().GetString(Util.bedID);
-            }
-        }
-        private void FindOrSpawnVillager()
-        {
-            FindVillager();
-            if (villager == null)
-                SpawnVillager();
-        }
-
-        private void FindVillager()
-        {
-            KLog.warning($"Finding Villager for bed {uid}");
-            foreach (var v in FindObjectsOfType<VillagerLifeCycle>())
-            {
-                if (v == null) continue; //Very unlikely but safety first
-                string bedIDofVil = v.GetComponentInParent<ZNetView>().GetZDO().GetString(Util.bedID);
-                if (bedIDofVil == null || bedIDofVil.Trim().Length == 0) continue;
-                if (bedIDofVil.Equals(uid))
-                {
-                    KLog.warning($"Bed {uid} has found villager {v.uid}");
-                    PostVillagerTasks(v.gameObject);
-                    return;
-                }
-            }
-        }
-
-        private void SpawnVillager()
-        {
-            GameObject villagerPrefab = CreatureManager.Instance.GetCreaturePrefab(villagerName);
-            var villagerCreature = SpawnSystem.Instantiate(villagerPrefab, transform.position, transform.rotation);
-            KLog.warning($"Bed {uid} has SPAWNED villager {villagerCreature.GetComponent<VillagerLifeCycle>().uid}");
-            PostVillagerTasks(villagerCreature);
-        }
-
-        private void PostVillagerTasks(GameObject v)
-        {
-            //Tame
-            var tame = v.GetComponent<Tameable>();
-            if (tame == null)
-            {
-                tame = v.GetComponentInParent<Tameable>();
-
-                if (tame)
-                {
-                    tame.Tame();
-                }
-                else
-                {
-                    KLog.warning("TAMING COMPONENT NOT FOUND!!!!!!!!!!!!!!!!!!!");
-                }
+                string uid = System.Guid.NewGuid().ToString();
+                znv.GetZDO().Set(Util.bedID, uid);
+                UID = znv.GetZDO().GetString(Util.bedID, null);
+                KLog.warning($"Bed UID Created {UID}");
             }
             else
             {
-                tame.Tame();
+                KLog.warning($"Bed ID Loaded {UID}");
             }
+        }
 
+        // After spawning/Finding Villager we need to give it some time to setup it's ZDO and other stuff
+        bool isPostVillagerActive = false;
+        async void PostVillagerSet(VillagerLifeCycle v, bool creating = false)
+        {
+            if (isPostVillagerActive) return;
+            isPostVillagerActive = true;
+            await Task.Delay(500);
+            znv.GetZDO().Set(Util.villagerID, v.UID); //Store the villager ID in ZDO of bed. Used by villager to find his bed
+            this.villager = v;
+            v.GetComponent<Tameable>().Tame();
+            if (creating)
+                KLog.warning($"BED {UID} CREATED VILLAGER {villager.UID}");
+            isPostVillagerActive = false;
 
-            //Set reference of villager
-            this.villager = v.GetComponent<VillagerLifeCycle>();
+        }
 
-            //Save the villagerID in the bed
-            znv.GetZDO().Set(Util.villagerID, this.villager.uid);
-            KLog.warning($"Bed {uid} saved villager {znv.GetZDO().GetString(Util.villagerID)}");
+        void FindVillager()
+        {
+            foreach (var v in FindObjectsOfType<VillagerLifeCycle>())
+            {
+                string bedID = v.znv.GetZDO().GetString(Util.bedID);
+
+                if (bedID.Equals(UID))
+                {
+                    KLog.warning($"BED {UID} FOUND VILLAGER {v.UID}");
+                    PostVillagerSet(v);
+                    return;
+                }
+
+            }
+        }
+
+        void CreateVillager()
+        {
+            var prefab = CreatureManager.Instance.GetCreaturePrefab(villagerName);
+            var villagerCreature = Instantiate(prefab);
+            var vlc = villagerCreature.GetComponent<VillagerLifeCycle>();
+            PostVillagerSet(vlc, true);
 
         }
     }
 }
+
+/*
+ * SPAWNING VILLAGER FROM BED MIGHT HAVE ISSUES AS WE ARE SPAWNING VILLAGER AND THEN SETTING VILLAGER KEY IN BED BUT THE VILLAGER COMP MIGHT HAVE ALREADY LOOKED FOR BED WITH ITS VILLAGER ID AND FAILED SO GOT DESTROYED
+ */

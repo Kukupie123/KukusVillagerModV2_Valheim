@@ -49,59 +49,14 @@ namespace KukusVillagerMod
             int bedlessVillagerCount = 0;
             foreach (var v in Global.villagerData)
             {
-                if (v.bed == null) bedlessVillagerCount++;
+                //if (v.bed == null) bedlessVillagerCount++;
             }
 
             if (MessageHud.instance != null)
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Villagers : {Global.villagerData.Count} Followers : {Global.followingVillagers.Count} Bedless Villagers : {bedlessVillagerCount}  Beds : {Global.bedStates.Count} DP : {Global.defences.Count}");
 
 
-            //Clean lists
-            foreach (var i in Global.bedStates)
-            {
-                if (i == null)
-                {
-                    Global.bedStates.Remove(i);
-                }
-                else if (i.gameObject == null)
-                {
-                    Global.bedStates.Remove(i);
-                }
-            }
 
-            foreach (var i in Global.villagerData)
-            {
-                if (i == null)
-                {
-                    Global.villagerData.Remove(i);
-                }
-                else if (i.gameObject == null)
-                {
-                    Global.villagerData.Remove(i);
-                }
-            }
-            foreach (var i in Global.followingVillagers)
-            {
-                if (i == null)
-                {
-                    Global.followingVillagers.Remove(i);
-                }
-                else if (i.gameObject == null)
-                {
-                    Global.followingVillagers.Remove(i);
-                }
-            }
-            foreach (var i in Global.defences)
-            {
-                if (i == null)
-                {
-                    Global.defences.Remove(i);
-                }
-                else if (i.gameObject == null)
-                {
-                    Global.defences.Remove(i);
-                }
-            }
         }
 
 
@@ -182,3 +137,14 @@ namespace KukusVillagerMod
 
 
 //PROBLEM : HASHLIST FUCKED
+
+
+/*
+ * HOW OUR BED AND VILLAGER PERSISTENCE WORKS
+ * 1st case : New Bed is placed
+ * When a bed is created we are going to wait a while for zdo to setup. 
+ * We then are going to spawn a villager, the villager will Create it's UID. And starts waiting for a while to find it's bed.
+ * The villager waits a while so that the bed has time to save the villger's UID in it's ZDO
+ * Meanwhile the villager is waiting the bed has saved the villager's UID and is now ready.
+ * The Villager finishes waiting and is now going to find a bed. It will find a bed and not get destroyed
+ */
