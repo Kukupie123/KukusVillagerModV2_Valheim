@@ -46,17 +46,6 @@ namespace KukusVillagerMod
                 vc.HandleInputs();
             }
 
-            int bedlessVillagerCount = 0;
-            foreach (var v in Global.villagerData)
-            {
-                //if (v.bed == null) bedlessVillagerCount++;
-            }
-
-            if (MessageHud.instance != null)
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Villagers : {Global.villagerData.Count} Followers : {Global.followingVillagers.Count} Bedless Villagers : {bedlessVillagerCount}  Beds : {Global.bedStates.Count} DP : {Global.defences.Count}");
-
-
-
         }
 
 
@@ -107,6 +96,7 @@ namespace KukusVillagerMod
 
         public const string villagerID = "villagerID";
         public const string bedID = "bedID";
+        public const string villagerSet = "villagerSet";
 
 
     }

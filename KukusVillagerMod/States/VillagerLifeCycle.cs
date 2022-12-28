@@ -41,8 +41,10 @@ namespace KukusVillagerMod.States
         bool updatedOnce = false;
         private void FixedUpdate()
         {
+            //Wait for map data to load
             if (KukusVillagerMod.isMapDataLoaded)
             {
+                //Only search for bed if bed is null
                 if (!bed)
                 {
 
@@ -53,13 +55,12 @@ namespace KukusVillagerMod.States
 
                     }
 
-                    //This block will get executed only once
+                    //This block will get executed only once, we search for bed ONLY ONCE
                     else
                     {
                         updatedOnce = true;
-                        FindBed(true);
+                        FindBed();
                     }
-                    //Will wait a while for the bed to be setup with this villager's ID as a key then we try to find it. If not found the villager is homeless and needs to be destroyed
                 }
             }
         }
@@ -89,31 +90,51 @@ namespace KukusVillagerMod.States
 
         }
 
-        //We need to put a little delay so that we can let the newly created beds have time to setup their ZNV and stuff
-        bool findingBedAlready = false;
-        private async void FindBed(bool destroyIfNotFound = false)
+
+        private void FindBed(BedCycle[] useThis = null)
         {
-            if (findingBedAlready) return;
-            findingBedAlready = true;
-            await Task.Delay(1500);
+            var list = FindObjectsOfType<BedCycle>();
+
+            if (useThis != null)
+            {
+                list = useThis;
+            }
+
+            List<BedCycle> NonReadyBeds = new List<BedCycle>();
+
             foreach (var b in FindObjectsOfType<BedCycle>())
             {
+                if (b == null) continue;
+
+                //if bed is not ready we are going to add this to nonReadybeds for recursion
+                if (!b.znv.GetZDO().GetBool(Util.villagerSet, false))
+                {
+                    NonReadyBeds.Add(b);
+                    continue;
+                }
+
+
+                //Bed has villagerSet so we can compare villagers IID
                 string vilID = b.znv.GetZDO().GetString(Util.villagerID);
-                KLog.warning($"SEACHING BED FOUND : {b.znv.GetZDO().GetString(Util.bedID)} with villager {vilID}");
+                KLog.warning($"SEACHING BED FOR VILLAGER {UID} FOUND : {b.znv.GetZDO().GetString(Util.bedID)} with villager {vilID}");
                 if (vilID.Equals(UID))
                 {
                     KLog.warning($"Villager {UID} has found BED {b.UID}");
+                    znv.GetZDO().Set(Util.bedID, b.UID);
                     this.bed = b;
-                    findingBedAlready = false;
                     return;
                 }
             }
-            if (bed == null && destroyIfNotFound)
+
+            //After loop we are going to recursively call 
+            if (NonReadyBeds.Count == 0)
             {
-                KLog.warning($"DESTROYING VILLAGER AS NO BED WITH VILLAGERID {UID} FOUND");
-                DestroyImmediate(this);
+                KLog.warning($"Villager {UID} failed to find bed");
             }
-            findingBedAlready = false;
+            else
+            {
+                FindBed(NonReadyBeds.ToArray());
+            }
         }
     }
 
