@@ -26,7 +26,7 @@ namespace KukusVillagerMod.States
 
         private void OnDestroy()
         {
-            Global.bedStates.Remove(this);
+            Global.beds.Remove(this);
         }
 
 
@@ -81,7 +81,8 @@ namespace KukusVillagerMod.States
             {
                 KLog.warning($"Bed ID Loaded {UID}");
             }
-            Global.bedStates.Add(this);
+            if (Global.beds.Contains(this) == false)
+                Global.beds.Add(this);
         }
 
         // Save villager's ID in ZDO and mark villagerSet as true
@@ -95,6 +96,7 @@ namespace KukusVillagerMod.States
             znv.GetZDO().Set(Util.villagerSet, true); //Mark villager set as true as this bed now has villager, used by spawned villagers to wait for a bed to finish saving villager's ID and then only continue searching for bed. A bed NEEDS to have villagerID
             this.villager = v;
             villager.znv.GetZDO().Set(Util.bedID, UID); //Save the bedID on the villager's ZDO
+            villager.bed = this;
             v.GetComponent<Tameable>().Tame();
             if (creating)
                 KLog.warning($"BED {UID} HAS CREATED VILLAGER {villager.UID}");
@@ -107,7 +109,7 @@ namespace KukusVillagerMod.States
             //We have to wait because for some gosh damned reason getObjectsOfType returns empty array
             if (alreadyWaiting) return;
             alreadyWaiting = true;
-            await Task.Delay(10000);
+            await Task.Delay(1200000);
             FindVillager();
             if (villager == null)
                 CreateVillager();

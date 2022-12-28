@@ -47,7 +47,7 @@ namespace KukusVillagerMod
             }
             if (MessageHud.instance != null)
             {
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Villagers : {Global.villagers.Count}, Beds : {Global.bedStates.Count}, DP : {Global.defences.Count},");
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Villagers : {Global.villagers.Count}, Beds : {Global.beds.Count}, DP : {Global.defences.Count},");
             }
 
         }
@@ -73,7 +73,7 @@ namespace KukusVillagerMod
     {
 
 
-        public static List<BedCycle> bedStates = new List<BedCycle>(); //Keep track of all the beds in memory
+        public static List<BedCycle> beds = new List<BedCycle>(); //Keep track of all the beds in memory
         public static List<VillagerLifeCycle> villagers = new List<VillagerLifeCycle>(); //Keep track of all villager in memory
         public static List<VillagerLifeCycle> followingVillagers = new List<VillagerLifeCycle>(); //Keep track of all villager in memory who are following
         public static List<DefensePostState> defences = new List<DefensePostState>(); //keep track of all defense post in memory

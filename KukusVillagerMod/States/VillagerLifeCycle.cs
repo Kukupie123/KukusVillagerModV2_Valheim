@@ -23,7 +23,7 @@ namespace KukusVillagerMod.States
         MonsterAI ai;
         Humanoid humanoid;
 
-        BedCycle bed;
+        public BedCycle bed;
 
         private void Awake()
         {
@@ -56,22 +56,16 @@ namespace KukusVillagerMod.States
 
 
 
-            //First If condition for bed
-            if (Player.m_localPlayer != null && !ZNetScene.instance.InLoadingScreen() && KukusVillagerMod.isMapDataLoaded)
+            //First If condition for bed chevk
+            if (Player.m_localPlayer != null && !Player.m_localPlayer.IsTeleporting() && !ZNetScene.instance.InLoadingScreen() && KukusVillagerMod.isMapDataLoaded)
             {
                 //Only search for bed if bed is null
                 if (!bed)
                 {
 
 
-                    //This block will get executed every frame except first or first few
-                    if (updatedOnce)
-                    {
-
-                    }
-
-                    //This block will get executed only once, we search for bed ONLY ONCE
-                    else
+                    //This block will get executed once per spawn 
+                    if (updatedOnce == false && (followingTarget == null || followingTarget.GetComponent<Player>() == null))
                     {
                         updatedOnce = true;
                         FindBed();
@@ -80,18 +74,20 @@ namespace KukusVillagerMod.States
                             ZNetScene.instance.Destroy(this.gameObject);
                         }
                     }
+
+
                 }
 
             }
 
             //Second if condition for teleporting followers and stuff
-            if (Player.m_localPlayer != null)
+            else if (Player.m_localPlayer != null && followingTarget != null && followingTarget.GetComponent<Player>() != null)
             {
-                if (followingTarget != null && followingTarget.GetComponent<Player>() != null)
-                {
-                    if (Vector3.Distance(followingTarget.transform.position, transform.position) > 50 || followingTarget.GetComponent<Player>().IsTeleporting()) transform.position = followingTarget.transform.position;
 
-                }
+
+                if (Vector3.Distance(followingTarget.transform.position, transform.position) > 50 || followingTarget.GetComponent<Player>().IsTeleporting()) transform.position = followingTarget.transform.position;
+
+
             }
 
 
@@ -122,8 +118,8 @@ namespace KukusVillagerMod.States
             {
                 KLog.warning($"Villager Found UID ${UID}");
             }
-
-            Global.villagers.Add(this);
+            if (Global.villagers.Contains(this) == false)
+                Global.villagers.Add(this);
 
         }
 
