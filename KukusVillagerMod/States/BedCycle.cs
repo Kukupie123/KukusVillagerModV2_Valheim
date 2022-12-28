@@ -53,11 +53,8 @@ namespace KukusVillagerMod.States
                 }
                 else if (fixedUpdateDoneOnce && KukusVillagerMod.isMapDataLoaded && Player.m_localPlayer != null && Player.m_localPlayer.IsTeleporting() == false && !ZNetScene.instance.InLoadingScreen())
                 {
-                    KLog.info("UPDATING FRAME CALLED");
                     if (villager == null)
                     {
-                        KLog.info("VILLAGER NULL");
-
                         //if not first update and no villager exist then we cakk FindOrRespawnAfterWait. This will spawn or find the villager after a while
                         FindOrSpawnAfterWait();
                     }

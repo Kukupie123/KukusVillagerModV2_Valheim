@@ -181,6 +181,7 @@ namespace KukusVillagerMod.itemPrefab
                                     {
                                         if (vv == null) continue;
                                         vv.GetComponentInParent<VillagerLifeCycle>().GuardBed();
+                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Guarding Bed");
                                     }
 
 
@@ -205,7 +206,7 @@ namespace KukusVillagerMod.itemPrefab
                                     }
                                     else
                                     {
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "Please look at a close by villager and try again.");
+                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Please look at a close by villager and try again.");
 
                                     }
 

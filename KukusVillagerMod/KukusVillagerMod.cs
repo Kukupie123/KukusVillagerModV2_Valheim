@@ -47,7 +47,7 @@ namespace KukusVillagerMod
             }
             if (MessageHud.instance != null)
             {
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Villagers : {Global.villagers.Count}, Beds : {Global.beds.Count}, DP : {Global.defences.Count},");
+                //MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Villagers : {Global.villagers.Count}, Beds : {Global.beds.Count}, DP : {Global.defences.Count},");
             }
 
         }
