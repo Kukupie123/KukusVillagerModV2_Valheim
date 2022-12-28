@@ -136,3 +136,9 @@ namespace KukusVillagerMod
  * 15. This process continues until we end up with the bed found or end up with an empty "villagerLessBed" list which means that the villager was spawned without a bed. (Maybe bed got destroyed and you closed the game and reopened it or you spawned it using cheats)
  * 16. When no bed is found the villager is going to be deleted to prevent redundant villager. Every villager needs a home
  */
+
+/*
+ * MINI TODO
+ * Hover status of villagers like defending, following player, guarding bed etc
+ * Followers not lost after loading even if no bed exist
+ */
