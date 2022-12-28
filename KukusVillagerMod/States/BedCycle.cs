@@ -34,7 +34,8 @@ namespace KukusVillagerMod.States
                 {
                     if (!KukusVillagerMod.isMapDataLoaded) return;
 
-                    if (fixedUpdateDoneOnce == false && Player.m_localPlayer != null && !Player.m_localPlayer.IsTeleporting())
+                    if (fixedUpdateDoneOnce == false && Player.m_localPlayer != null && !Player.m_localPlayer.IsTeleporting() && !ZNetScene.instance.InLoadingScreen())
+
                     {
                         //We have to wait for it to be placed before we can do anything so we have to run it inside FixedUpdate ONCE
                         znv = GetComponentInParent<ZNetView>();

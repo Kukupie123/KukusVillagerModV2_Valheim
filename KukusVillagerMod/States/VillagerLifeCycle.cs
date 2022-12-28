@@ -43,40 +43,38 @@ namespace KukusVillagerMod.States
         bool updatedOnce = false;
         private void FixedUpdate()
         {
-            try
+
+            //Wait for map data to load
+            if (KukusVillagerMod.isMapDataLoaded)
             {
-                //Wait for map data to load
-                if (KukusVillagerMod.isMapDataLoaded)
+                if (Player.m_localPlayer == null || Player.m_localPlayer.IsTeleporting()) return;
+
+                if (ZNetScene.instance.InLoadingScreen()) return;
+                //Only search for bed if bed is null
+                if (!bed)
                 {
-                    if (Player.m_localPlayer == null || Player.m_localPlayer.IsTeleporting()) return;
-                    //Only search for bed if bed is null
-                    if (!bed)
+
+
+                    //This block will get executed every frame except first or first few
+                    if (updatedOnce)
                     {
 
+                    }
 
-                        //This block will get executed every frame except first or first few
-                        if (updatedOnce)
+                    //This block will get executed only once, we search for bed ONLY ONCE
+                    else
+                    {
+                        updatedOnce = true;
+                        FindBed();
+                        if (bed == null)
                         {
-
-                        }
-
-                        //This block will get executed only once, we search for bed ONLY ONCE
-                        else
-                        {
-                            updatedOnce = true;
-                            FindBed();
-                            if (bed == null)
-                            {
-                                Destroy(this.gameObject);
-                            }
+                            ZNetScene.instance.Destroy(this.gameObject);
                         }
                     }
                 }
             }
-            catch (Exception e)
-            {
-                KLog.info(e.Message + " in fixed update of villager Life cycle");
-            }
+
+
         }
 
         private void LoadUID()
