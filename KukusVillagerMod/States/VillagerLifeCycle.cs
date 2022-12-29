@@ -262,7 +262,7 @@ namespace KukusVillagerMod.States
                 {
                     if (d.villager == null)
                     {
-                        if (ZNetScene.instance.IsAreaReady(d.transform.position) == false) return;
+                        if (ZNetScene.instance.IsAreaReady(d.transform.position) == false) continue;
                         RemoveVillagerFromFollower();
                         d.villager = this;
                         FollowTarget(d.gameObject);
@@ -275,6 +275,7 @@ namespace KukusVillagerMod.States
         private void RemoveVillagerFromFollower()
         {
             this.followingTarget = null;
+            ai.SetFollowTarget(null);
         }
 
         private void RemoveVillagerFromDefending()
