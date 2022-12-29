@@ -61,28 +61,26 @@ namespace KukusVillagerMod.States
                 //Only search for bed if bed is null
                 if (!bed)
                 {
-
-
-                    //This block will get executed once per spawn 
-                    if (updatedOnce == false && (followingTarget == null || followingTarget.GetComponent<Player>() == null))
+                    if (!updatedOnce)
                     {
                         updatedOnce = true;
-                        FindBed();
-                        if (bed == null)
+                        if (followingTarget == null || followingTarget.GetComponent<Player>() == null)
                         {
-                            ZNet.instance.m_zdoMan.DestroyZDO(znv.GetZDO());
-                            ZNetScene.instance.Destroy(this.gameObject);
-                        }
-                        else
-                        {
-                            //They found bed and are in an area
-                            ai.SetFollowTarget(this.gameObject);  //Make the Villager stay where they were
+                            FindOrTakeBed();
+                            if (bed == null)
+                            {
+                                ZNet.instance.m_zdoMan.DestroyZDO(znv.GetZDO());
+                                ZNetScene.instance.Destroy(this.gameObject);
+                            }
+                            else
+                            {
+                                //They found bed and are in an area
+                                ai.SetFollowTarget(this.gameObject);  //Make the Villager stay where they were
+                            }
+
                         }
                     }
-
-
                 }
-
             }
 
             //Second if condition for teleporting followers and stuff
@@ -94,7 +92,6 @@ namespace KukusVillagerMod.States
 
 
             }
-
 
 
 
@@ -128,59 +125,76 @@ namespace KukusVillagerMod.States
 
 
         //Recursive function. Uses recursion because when a villager is spawned by the bed, the bed needs time to save villager's ID to its zdo so we keep recursing and recursing and wait for the bed to set values
-        private void FindBed(BedCycle[] useThis = null)
+        private void FindAssignedBed(BedCycle[] beds)
         {
-            var list = FindObjectsOfType<BedCycle>();
 
-            if (useThis != null)
+            foreach (var b in beds)
             {
-                list = useThis;
-            }
-
-            List<BedCycle> NonReadyBeds = new List<BedCycle>();
-
-            foreach (var b in FindObjectsOfType<BedCycle>())
-            {
-                if (b == null || ZNetScene.instance.IsAreaReady(b.transform.position) == false) continue;
-
-                //if bed is not ready we are going to add this to nonReadybeds for recursion, znv to determine if they are placed yet or not
-                if (b.znv == null || !b.znv.GetZDO().GetBool(Util.villagerSet, false))
+                if (b == null || b.znv == null || b.znv.GetZDO() == null) continue;
+                string villagerID = b.znv.GetZDO().GetString(Util.villagerID, null);
+                if (villagerID != null && villagerID.Equals(UID) && ZNetScene.instance.IsAreaReady(b.transform.position))
                 {
-                    NonReadyBeds.Add(b);
-                    continue;
-                }
-
-
-                //Bed has villagerSet so we can compare villagers IID as well as bedid
-                string vilID = b.znv.GetZDO().GetString(Util.villagerID);
-                KLog.warning($"SEACHING BED FOR VILLAGER {UID} FOUND : {b.znv.GetZDO().GetString(Util.bedID)} with villager {vilID}");
-                if (vilID.Equals(UID))
-                {
-                    if (b.znv.GetZDO().GetString(Util.villagerID).Equals(UID))
-                    {
-                        KLog.warning($"Villager {UID} has found BED {b.UID}");
-                        znv.GetZDO().Set(Util.bedID, b.UID);
-                        this.bed = b;
-                        return;
-                    }
-                    else
-                    {
-                        KLog.warning($"Villager {UID} has found BED BUT BED HAS DIFFERENT VILLAGER ID :(");
-
-                    }
-
+                    OnBedFound(b);
+                    return;
                 }
             }
 
-            //After loop we are going to recursively call 
-            if (NonReadyBeds.Count == 0)
+            if (bed == null)
+                FindEmptyBed(beds);
+        }
+
+        private void OnBedFound(BedCycle b)
+        {
+            if (b == null || b.znv == null || b.znv.GetZDO() == null) return;
+            //voila empty bed found we can use it
+
+            //Set the villager of the bed
+            b.setVillager(this);
+
+            //Save the bed's UID in this ZDO
+            znv.GetZDO().Set(Util.bedID, b.UID);
+        }
+
+        private void FindOrTakeBed()
+        {
+            //Check if this villager has a bedID
+            string bedID = znv.GetZDO().GetString(Util.bedID, null);
+
+            var beds = FindObjectsOfType<BedCycle>();
+
+            if (bedID == null)
             {
-                KLog.warning($"Villager {UID} failed to find bed");
+                //Probaby just spawned in. So a bed must have spawned it, A bed with no villager assigned. We should get the bed if we find an empty bed
+                FindEmptyBed(beds);
             }
             else
             {
-                FindBed(NonReadyBeds.ToArray());
+                //We try to find the bed with the villagerID. If none found then we try to search for empty beds
+                FindAssignedBed(beds);
             }
+        }
+
+        private void FindEmptyBed(BedCycle[] beds)
+        {
+            foreach (var b in beds)
+            {
+                if (b == null || b.znv == null || b.znv.GetZDO() == null) continue;
+                //if bed doesn't have villagerID it is empty
+                string villagerID = b.znv.GetZDO().GetString(Util.villagerID, null);
+                if (villagerID == null && ZNetScene.instance.IsAreaReady(b.transform.position))
+                {
+                    OnBedFound(b);
+                    return;
+                }
+            }
+            KLog.warning($"Failed to find empyty bed!! for villager {UID}");
+
+        }
+
+        public void setBed(BedCycle b)
+        {
+            this.bed = b;
+            znv.GetZDO().Set(Util.bedID, b.UID);
         }
 
 
@@ -218,8 +232,13 @@ namespace KukusVillagerMod.States
         {
             if (bed == null)
             {
-                FindBed();
-                if (bed == null || ZNetScene.instance.IsAreaReady(bed.transform.position) == false) ZNetScene.instance.Destroy(this.gameObject);
+
+                FindOrTakeBed();
+                if (bed == null || ZNetScene.instance.IsAreaReady(bed.transform.position) == false)
+                {
+                    ZNetScene.instance.Destroy(this.gameObject);
+                    return;
+                }
             }
             else if (ZNetScene.instance.IsAreaReady(bed.transform.position) == false) return;
             RemoveVillagerFromFollower();

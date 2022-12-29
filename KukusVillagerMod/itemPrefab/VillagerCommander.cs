@@ -202,7 +202,7 @@ namespace KukusVillagerMod.itemPrefab
                                     //Make all villager guard their bed
                                     foreach (var vv in UnityEngine.GameObject.FindObjectsOfType<VillagerLifeCycle>())
                                     {
-                                        if (vv == null) continue;
+                                        if (vv == null || vv.znv == null || vv.znv.GetZDO() == null) continue;
                                         if (vv.GetComponentInParent<VillagerLifeCycle>() == null) continue;
                                         vv.GetComponentInParent<VillagerLifeCycle>().GuardBed();
                                         MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Guarding Bed");
@@ -263,7 +263,7 @@ namespace KukusVillagerMod.itemPrefab
                                     //Make two list. One without followers and one with followers. First we will try to send the non followers, if still vacant, we will send followers
                                     foreach (var v in UnityEngine.GameObject.FindObjectsOfType<VillagerLifeCycle>())
                                     {
-                                        if (v == null) continue;
+                                        if (v == null || v.znv == null || v.znv.GetZDO() == null) continue;
                                         MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Going to defense posts");
                                         v.GetComponentInParent<VillagerLifeCycle>().DefendPost();
                                     }
@@ -313,7 +313,8 @@ namespace KukusVillagerMod.itemPrefab
 
                                     foreach (var v in UnityEngine.GameObject.FindObjectsOfType<VillagerLifeCycle>())
                                     {
-                                        ZNetScene.instance.Destroy(v.gameObject);
+                                        if (v == null || v.znv == null || v.znv.GetZDO() == null)
+                                            ZNetScene.instance.Destroy(v.gameObject);
                                         MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all Villagers");
                                     }
 
@@ -357,6 +358,7 @@ namespace KukusVillagerMod.itemPrefab
                                     int defending = 0;
                                     foreach (var v in UnityEngine.GameObject.FindObjectsOfType<VillagerLifeCycle>())
                                     {
+                                        if (v == null || v.znv == null || v.znv.GetZDO() == null) continue;
                                         if (v != null)
                                         {
                                             villagersCount++;

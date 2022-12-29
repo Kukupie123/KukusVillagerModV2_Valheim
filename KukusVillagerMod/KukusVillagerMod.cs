@@ -88,7 +88,6 @@ namespace KukusVillagerMod
 
         public const string villagerID = "villagerID";
         public const string bedID = "bedID";
-        public const string villagerSet = "villagerSet";
 
 
     }
