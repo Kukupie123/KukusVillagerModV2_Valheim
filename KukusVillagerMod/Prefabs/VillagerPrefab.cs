@@ -17,19 +17,19 @@ namespace KukusVillagerMod.Prefabs
 
             //Bronze
             createCreature2("Bronze_Villager_Ranged", "Dverger", 2, 2);
-            createCreature2("Bronze_Villager", "Skeleton_NoArcher", 1, 5);
+            createCreature2("Bronze_Villager", "Skeleton_NoArcher", 1, 6);
 
             //Iron
             createCreature2("Iron_Villager_Ranged", "Dverger", 2, 3);
-            createCreature2("Iron_Villager", "Skeleton_NoArcher", 1, 7);
+            createCreature2("Iron_Villager", "Skeleton_NoArcher", 1, 9);
 
             //Silver
             createCreature2("Silver_Villager_Ranged", "Dverger", 2, 4);
-            createCreature2("Silver_Villager", "Skeleton_NoArcher", 1, 9);
+            createCreature2("Silver_Villager", "Skeleton_NoArcher", 1, 12);
 
             //BM
             createCreature2("BlackMetal_Villager_Ranged", "Dverger", 2, 5);
-            createCreature2("BlackMetal_Villager", "Skeleton_NoArcher", 1, 10);
+            createCreature2("BlackMetal_Villager", "Skeleton_NoArcher", 1, 15);
 
 
         }
