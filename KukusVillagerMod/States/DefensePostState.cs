@@ -11,7 +11,7 @@ namespace KukusVillagerMod.States
         public int defenseType; // 1 = melee, 2 = ranged
         public VillagerLifeCycle villager; //The villager assigned to this post
         private Piece piece;
-        bool placed = false;
+        public bool placed = false;
         private void Awake()
         {
             piece = GetComponent<Piece>();
@@ -23,30 +23,12 @@ namespace KukusVillagerMod.States
             //Should execute only once
             if (piece.IsPlacedByPlayer())
             {
-                if (placed)
-                {
-                    if (placed)
-                    {
-                        if (Global.defences.Contains(this) == false)
-                            Global.defences.Add(this);
-                    }
-                }
-
-                else
-                {
-                    placed = true;
-
-                }
-
-
+                placed = true;
             }
 
 
         }
 
-        private void OnDestroy()
-        {
-            Global.defences.Remove(this);
-        }
+
     }
 }

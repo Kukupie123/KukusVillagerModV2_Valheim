@@ -68,18 +68,6 @@ namespace KukusVillagerMod
         }
     }
 
-
-    class Global
-    {
-
-
-        public static List<BedCycle> beds = new List<BedCycle>(); //Keep track of all the beds in memory
-        public static List<VillagerLifeCycle> villagers = new List<VillagerLifeCycle>(); //Keep track of all villager in memory
-        public static List<VillagerLifeCycle> followingVillagers = new List<VillagerLifeCycle>(); //Keep track of all villager in memory who are following
-        public static List<DefensePostState> defences = new List<DefensePostState>(); //keep track of all defense post in memory
-
-    }
-
     class KLog
     {
         public static void info(string msg)
@@ -111,7 +99,7 @@ namespace KukusVillagerMod
  * To delete scene objects we need to use ZNetScene.instance.delete
  * We use ZDO to save persistent data, ZNetView of the component has to have persistent set to true
  * MapDataLoaded is an event triggered at the last moment after all world data is loaded. We need to be searching for objects in world only after this is true
- * 
+ * ZNetScene's isAreaReady used to fix infinte spawn and respawn
  * 
  * 
  * How we persist and Link Beds and villagers

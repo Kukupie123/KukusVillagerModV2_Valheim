@@ -47,11 +47,15 @@ namespace KukusVillagerMod.Prefabs
             var charDrop = villager.Prefab.GetComponent<CharacterDrop>();
             var npcTalkP = villager.Prefab.GetComponentInParent<NpcTalk>();
             var charDropP = villager.Prefab.GetComponentInParent<CharacterDrop>();
+            var interactionP = villager.Prefab.GetComponentInParent(typeof(Interactable));
+            var interaction = villager.Prefab.GetComponent(typeof(Interactable));
 
             UnityEngine.GameObject.DestroyImmediate(npcTalk);
             UnityEngine.GameObject.DestroyImmediate(npcTalkP);
             UnityEngine.GameObject.DestroyImmediate(charDrop);
             UnityEngine.GameObject.DestroyImmediate(charDropP);
+            UnityEngine.GameObject.DestroyImmediate(interactionP);
+            UnityEngine.GameObject.DestroyImmediate(interaction);
 
 
             //Add Components that we will need for the villager

@@ -106,13 +106,27 @@ namespace KukusVillagerMod.itemPrefab
             deleteVillagersBtn.BlockOtherInputs = true;
             deleteVillagersBtn.Key = UnityEngine.KeyCode.Keypad5;
 
-             
+            deleteBedBtn = new ButtonConfig();
+            deleteBedBtn.Name = "KP6";
+            deleteBedBtn.Hint = "Remove Nearby Beds";
+            deleteBedBtn.ActiveInCustomGUI = true;
+            deleteBedBtn.BlockOtherInputs = true;
+            deleteBedBtn.Key = UnityEngine.KeyCode.Keypad6;
+
+            showStatsBtn = new ButtonConfig();
+            showStatsBtn.Name = "KP7";
+            showStatsBtn.Hint = "Remove Current Stats";
+            showStatsBtn.ActiveInCustomGUI = true;
+            showStatsBtn.BlockOtherInputs = true;
+            showStatsBtn.Key = UnityEngine.KeyCode.Keypad7;
 
             InputManager.Instance.AddButton("com.jotunn.KukusVillagerMod", guardBedbtn);
             InputManager.Instance.AddButton("com.jotunn.KukusVillagerMod", followPlayerBtn);
             InputManager.Instance.AddButton("com.jotunn.KukusVillagerMod", defendBtn);
             InputManager.Instance.AddButton("com.jotunn.KukusVillagerMod", deletePostsBtn);
             InputManager.Instance.AddButton("com.jotunn.KukusVillagerMod", deleteVillagersBtn);
+            InputManager.Instance.AddButton("com.jotunn.KukusVillagerMod", deleteBedBtn);
+            InputManager.Instance.AddButton("com.jotunn.KukusVillagerMod", showStatsBtn);
 
 
         }
@@ -122,7 +136,7 @@ namespace KukusVillagerMod.itemPrefab
             var kh = new KeyHintConfig
             {
                 Item = "Village_Commander",
-                ButtonConfigs = new[] { guardBedbtn, followPlayerBtn, defendBtn, deletePostsBtn, deleteVillagersBtn }
+                ButtonConfigs = new[] { guardBedbtn, followPlayerBtn, defendBtn, deletePostsBtn, deleteVillagersBtn, deleteBedBtn }
             };
             KeyHintManager.Instance.AddKeyHint(kh);
         }
@@ -132,14 +146,23 @@ namespace KukusVillagerMod.itemPrefab
         bool keyPad3Pressed = false;
         bool keyPad4Pressed = false;
         bool keyPad5Pressed = false;
+        bool keyPad6Pressed = false;
+        bool keyPad7Pressed = false;
+
         private ButtonConfig guardBedbtn;
         private ButtonConfig followPlayerBtn;
         private ButtonConfig defendBtn;
         private ButtonConfig deletePostsBtn;
         private ButtonConfig deleteVillagersBtn;
+        private ButtonConfig deleteBedBtn;
+        private ButtonConfig showStatsBtn;
+
+
 
         public void HandleInputs()
         {
+
+
             if (ZInput.instance == null || MessageHud.instance == null || Player.m_localPlayer == null) return;
             if (Player.m_localPlayer.GetInventory() == null) return;
             var allItems = Player.m_localPlayer.GetInventory().GetAllItems();
@@ -161,6 +184,11 @@ namespace KukusVillagerMod.itemPrefab
                             {
                                 if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad1)
                                 {
+                                    if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
+                                    {
+                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Area is not fully loaded. Please wait");
+                                    }
+
                                     //go to bed point
                                     if (keyPad1Pressed) return;
                                     keyPad1Pressed = true;
@@ -168,18 +196,14 @@ namespace KukusVillagerMod.itemPrefab
                                     keyPad3Pressed = false;
                                     keyPad4Pressed = false;
                                     keyPad5Pressed = false;
-
-                                    //Clear out all defence's villagerState as all are going to go home
-                                    foreach (var d in Global.defences)
-                                    {
-                                        if (d == null) continue;
-                                        d.villager = null;
-                                    }
+                                    keyPad6Pressed = false;
+                                    keyPad7Pressed = false;
 
                                     //Make all villager guard their bed
-                                    foreach (var vv in Global.villagers)
+                                    foreach (var vv in UnityEngine.GameObject.FindObjectsOfType<VillagerLifeCycle>())
                                     {
                                         if (vv == null) continue;
+                                        if (vv.GetComponentInParent<VillagerLifeCycle>() == null) continue;
                                         vv.GetComponentInParent<VillagerLifeCycle>().GuardBed();
                                         MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Guarding Bed");
                                     }
@@ -188,6 +212,11 @@ namespace KukusVillagerMod.itemPrefab
                                 }
                                 else if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad2)
                                 {
+                                    if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
+                                    {
+                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Area is not fully loaded. Please wait");
+                                    }
+
                                     //Follow Player
                                     if (keyPad2Pressed) return;
                                     keyPad1Pressed = false;
@@ -195,6 +224,8 @@ namespace KukusVillagerMod.itemPrefab
                                     keyPad3Pressed = false;
                                     keyPad4Pressed = false;
                                     keyPad5Pressed = false;
+                                    keyPad6Pressed = false;
+                                    keyPad7Pressed = false;
 
                                     var villager = GetLookingAtVillager(Player.m_localPlayer);
 
@@ -214,6 +245,11 @@ namespace KukusVillagerMod.itemPrefab
                                 }
                                 else if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad3)
                                 {
+                                    if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
+                                    {
+                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Area is not fully loaded. Please wait");
+                                    }
+
                                     //Go defensive position
                                     if (keyPad3Pressed) return;
                                     keyPad1Pressed = false;
@@ -221,16 +257,24 @@ namespace KukusVillagerMod.itemPrefab
                                     keyPad3Pressed = true;
                                     keyPad4Pressed = false;
                                     keyPad5Pressed = false;
+                                    keyPad6Pressed = false;
+                                    keyPad7Pressed = false;
 
                                     //Make two list. One without followers and one with followers. First we will try to send the non followers, if still vacant, we will send followers
-                                    foreach (var v in Global.villagers)
+                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<VillagerLifeCycle>())
                                     {
+                                        if (v == null) continue;
                                         MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Going to defense posts");
                                         v.GetComponentInParent<VillagerLifeCycle>().DefendPost();
                                     }
                                 }
                                 else if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad4)
                                 {
+                                    if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
+                                    {
+                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Area is not fully loaded. Please wait");
+                                    }
+
                                     //Go to aiming location
                                     if (keyPad4Pressed) return;
                                     keyPad1Pressed = false;
@@ -238,6 +282,8 @@ namespace KukusVillagerMod.itemPrefab
                                     keyPad3Pressed = false;
                                     keyPad4Pressed = true;
                                     keyPad5Pressed = false;
+                                    keyPad6Pressed = false;
+                                    keyPad7Pressed = false;
 
                                     foreach (var v in UnityEngine.GameObject.FindObjectsOfType<DefensePostState>())
                                     {
@@ -250,6 +296,11 @@ namespace KukusVillagerMod.itemPrefab
                                 }
                                 else if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad5)
                                 {
+                                    if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
+                                    {
+                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Area is not fully loaded. Please wait");
+                                    }
+
                                     //Destroy all villagers
                                     if (keyPad5Pressed) return;
                                     keyPad1Pressed = false;
@@ -257,6 +308,8 @@ namespace KukusVillagerMod.itemPrefab
                                     keyPad3Pressed = false;
                                     keyPad4Pressed = false;
                                     keyPad5Pressed = true;
+                                    keyPad6Pressed = false;
+                                    keyPad7Pressed = false;
 
                                     foreach (var v in UnityEngine.GameObject.FindObjectsOfType<VillagerLifeCycle>())
                                     {
@@ -265,7 +318,77 @@ namespace KukusVillagerMod.itemPrefab
                                     }
 
                                 }
+                                else if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad6)
+                                {
+                                    if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
+                                    {
+                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Area is not fully loaded. Please wait");
+                                    }
 
+                                    if (keyPad6Pressed) return;
+                                    keyPad1Pressed = false;
+                                    keyPad2Pressed = false;
+                                    keyPad3Pressed = false;
+                                    keyPad4Pressed = false;
+                                    keyPad5Pressed = false;
+                                    keyPad6Pressed = true;
+                                    keyPad7Pressed = false;
+
+                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<BedCycle>())
+                                    {
+                                        ZNetScene.instance.Destroy(v.gameObject);
+                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all Beds");
+                                    }
+                                }
+
+                                else if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad7)
+                                {
+                                    if (keyPad7Pressed) return;
+                                    keyPad1Pressed = false;
+                                    keyPad2Pressed = false;
+                                    keyPad3Pressed = false;
+                                    keyPad4Pressed = false;
+                                    keyPad5Pressed = false;
+                                    keyPad6Pressed = false;
+                                    keyPad7Pressed = true;
+
+                                    int villagersCount = 0;
+                                    int bedless = 0;
+                                    int defending = 0;
+                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<VillagerLifeCycle>())
+                                    {
+                                        if (v != null)
+                                        {
+                                            villagersCount++;
+                                        }
+
+                                        if (v.bed == null) bedless++;
+
+                                        if (v.followingTarget != null && v.followingTarget.GetComponent<DefensePostState>() != null) defending++;
+
+                                    }
+
+                                    int bedCount = 0;
+                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<BedCycle>())
+                                    {
+                                        if (v != null)
+                                        {
+                                            bedCount++;
+                                        }
+                                    }
+
+                                    int dpC = 0;
+                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<DefensePostState>())
+                                    {
+                                        if (v != null)
+                                        {
+                                            dpC++;
+                                        }
+                                    }
+
+
+                                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Villagers Loaded : {villagersCount}, Beddless Villagers : {bedless}, Defending villagers : {defending}, Beds Loaded : {bedCount}, DP Loaded : {dpC}");
+                                }
                                 else
                                 {
                                     keyPad1Pressed = false;
@@ -273,7 +396,10 @@ namespace KukusVillagerMod.itemPrefab
                                     keyPad3Pressed = false;
                                     keyPad4Pressed = false;
                                     keyPad5Pressed = false;
+                                    keyPad6Pressed = false;
                                 }
+                                keyPad7Pressed = false;
+
                             }
                         }
                     }

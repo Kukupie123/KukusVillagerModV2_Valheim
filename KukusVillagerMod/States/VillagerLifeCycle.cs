@@ -40,7 +40,6 @@ namespace KukusVillagerMod.States
 
         void OnDestroy()
         {
-            Global.villagers.Remove(this);
             KLog.warning($"Destroying Villager {UID}");
         }
 
@@ -49,14 +48,14 @@ namespace KukusVillagerMod.States
         //In fixed update we need to look for villager once mapData has been loaded. If it fails to do so we delete
 
         bool updatedOnce = false;
-        private GameObject followingTarget;
+        public GameObject followingTarget;
 
         private void FixedUpdate()
         {
 
 
 
-            //First If condition for bed chevk
+            //First If condition for bed check. We also check if the area is readyw
             if (Player.m_localPlayer != null && !Player.m_localPlayer.IsTeleporting() && !ZNetScene.instance.InLoadingScreen() && KukusVillagerMod.isMapDataLoaded && ZNetScene.instance.IsAreaReady(transform.position))
             {
                 //Only search for bed if bed is null
@@ -68,7 +67,17 @@ namespace KukusVillagerMod.States
                     if (updatedOnce == false && (followingTarget == null || followingTarget.GetComponent<Player>() == null))
                     {
                         updatedOnce = true;
-                        WaitNFindBed();
+                        FindBed();
+                        if (bed == null)
+                        {
+                            ZNet.instance.m_zdoMan.DestroyZDO(znv.GetZDO());
+                            ZNetScene.instance.Destroy(this.gameObject);
+                        }
+                        else
+                        {
+                            //They found bed and are in an area
+                            ai.SetFollowTarget(this.gameObject);  //Make the Villager stay where they were
+                        }
                     }
 
 
@@ -90,21 +99,6 @@ namespace KukusVillagerMod.States
 
 
 
-        }
-
-        bool finding = false;
-        async void WaitNFindBed()
-        {
-            if (finding) return;
-            finding = true;
-            await Task.Delay(2000);
-            FindBed();
-            if (bed == null)
-            {
-                ZNet.instance.m_zdoMan.DestroyZDO(znv.GetZDO());
-                ZNetScene.instance.Destroy(this.gameObject);
-            }
-            finding = false;
         }
 
         private void LoadUID()
@@ -129,8 +123,6 @@ namespace KukusVillagerMod.States
             {
                 KLog.warning($"Villager Found UID ${UID}");
             }
-            if (Global.villagers.Contains(this) == false)
-                Global.villagers.Add(this);
 
         }
 
@@ -149,7 +141,7 @@ namespace KukusVillagerMod.States
 
             foreach (var b in FindObjectsOfType<BedCycle>())
             {
-                if (b == null) continue;
+                if (b == null || ZNetScene.instance.IsAreaReady(b.transform.position) == false) continue;
 
                 //if bed is not ready we are going to add this to nonReadybeds for recursion, znv to determine if they are placed yet or not
                 if (b.znv == null || !b.znv.GetZDO().GetBool(Util.villagerSet, false))
@@ -194,23 +186,42 @@ namespace KukusVillagerMod.States
 
         private void FollowTarget(GameObject target)
         {
-            if (target == null) return;
-
-            this.followingTarget = target;
-
-            ai.ResetPatrolPoint();
-            ai.ResetRandomMovement();
-            ai.SetFollowTarget(target);
-
-            if (ai.FindPath(target.transform.position) == false || ai.HavePath(target.transform.position) == false)
+            try
             {
-                transform.position = target.transform.position;
+
+                if (target == null) return;
+
+
+                this.followingTarget = target;
+
+                ai.ResetPatrolPoint();
+                ai.ResetRandomMovement();
+                ai.SetFollowTarget(target);
+
+                if (ai.FindPath(target.transform.position) == false || ai.HavePath(target.transform.position) == false)
+                {
+                    transform.position = target.transform.position;
+                }
             }
+            catch (Exception e)
+            {
+                ai.ResetPatrolPoint();
+                ai.ResetRandomMovement();
+                ai.SetFollowTarget(null);
+                this.followingTarget = null;
+                KLog.warning($"Exception in follow target {e.Message}");
+            }
+
         }
 
         public void GuardBed()
         {
-            if (bed == null) ZNetScene.instance.Destroy(this.gameObject);
+            if (bed == null)
+            {
+                FindBed();
+                if (bed == null || ZNetScene.instance.IsAreaReady(bed.transform.position) == false) ZNetScene.instance.Destroy(this.gameObject);
+            }
+            else if (ZNetScene.instance.IsAreaReady(bed.transform.position) == false) return;
             RemoveVillagerFromFollower();
             RemoveVillagerFromDefending();
             FollowTarget(bed.gameObject);
@@ -220,18 +231,19 @@ namespace KukusVillagerMod.States
         public void FollowPlayer(Player p)
         {
             RemoveVillagerFromDefending();
-            Global.followingVillagers.Add(this);
             FollowTarget(p.gameObject);
         }
 
         public void DefendPost()
         {
-            foreach (var d in Global.defences)
+            foreach (var d in FindObjectsOfType<DefensePostState>())
             {
+                if (ZNetScene.instance.IsAreaReady(d.transform.position) == false) continue;
                 if (d.defenseType == villagerType)
                 {
                     if (d.villager == null)
                     {
+                        if (ZNetScene.instance.IsAreaReady(d.transform.position) == false) return;
                         RemoveVillagerFromFollower();
                         d.villager = this;
                         FollowTarget(d.gameObject);
@@ -243,13 +255,12 @@ namespace KukusVillagerMod.States
 
         private void RemoveVillagerFromFollower()
         {
-            Global.followingVillagers.Remove(this);
             this.followingTarget = null;
         }
 
         private void RemoveVillagerFromDefending()
         {
-            foreach (var d in Global.defences)
+            foreach (var d in UnityEngine.GameObject.FindObjectsOfType<DefensePostState>())
             {
                 if (d.villager == this)
                 {

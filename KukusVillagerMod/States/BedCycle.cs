@@ -26,7 +26,7 @@ namespace KukusVillagerMod.States
 
         private void OnDestroy()
         {
-            Global.beds.Remove(this);
+            KLog.warning($"Bed deleted {UID}");
         }
 
 
@@ -59,7 +59,7 @@ namespace KukusVillagerMod.States
                     if (villager == null)
                     {
                         //if not first update and no villager exist then we cakk FindOrRespawnAfterWait. This will spawn or find the villager after a while
-                        FindOrSpawnAfterWait(60000);
+                        FindOrSpawnAfterWait(300000);
                     }
                 }
 
@@ -83,8 +83,6 @@ namespace KukusVillagerMod.States
             {
                 KLog.warning($"Bed ID Loaded {UID}");
             }
-            if (Global.beds.Contains(this) == false)
-                Global.beds.Add(this);
         }
 
         // Save villager's ID in ZDO and mark villagerSet as true
@@ -157,11 +155,3 @@ namespace KukusVillagerMod.States
         }
     }
 }
-
-
-/*
- * SITUATIONS:
- * 
- * 
- * Bed Within Render distance after going far and coming back BUT Villagers not in render distance so new villagers are spawned in
- */
