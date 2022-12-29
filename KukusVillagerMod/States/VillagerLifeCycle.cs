@@ -57,7 +57,7 @@ namespace KukusVillagerMod.States
 
 
             //First If condition for bed chevk
-            if (Player.m_localPlayer != null && !Player.m_localPlayer.IsTeleporting() && !ZNetScene.instance.InLoadingScreen() && KukusVillagerMod.isMapDataLoaded)
+            if (Player.m_localPlayer != null && !Player.m_localPlayer.IsTeleporting() && !ZNetScene.instance.InLoadingScreen() && KukusVillagerMod.isMapDataLoaded && ZNetScene.instance.IsAreaReady(transform.position))
             {
                 //Only search for bed if bed is null
                 if (!bed)
@@ -68,11 +68,7 @@ namespace KukusVillagerMod.States
                     if (updatedOnce == false && (followingTarget == null || followingTarget.GetComponent<Player>() == null))
                     {
                         updatedOnce = true;
-                        FindBed();
-                        if (bed == null)
-                        {
-                            ZNetScene.instance.Destroy(this.gameObject);
-                        }
+                        WaitNFindBed();
                     }
 
 
@@ -94,6 +90,21 @@ namespace KukusVillagerMod.States
 
 
 
+        }
+
+        bool finding = false;
+        async void WaitNFindBed()
+        {
+            if (finding) return;
+            finding = true;
+            await Task.Delay(2000);
+            FindBed();
+            if (bed == null)
+            {
+                ZNet.instance.m_zdoMan.DestroyZDO(znv.GetZDO());
+                ZNetScene.instance.Destroy(this.gameObject);
+            }
+            finding = false;
         }
 
         private void LoadUID()
@@ -148,15 +159,24 @@ namespace KukusVillagerMod.States
                 }
 
 
-                //Bed has villagerSet so we can compare villagers IID
+                //Bed has villagerSet so we can compare villagers IID as well as bedid
                 string vilID = b.znv.GetZDO().GetString(Util.villagerID);
                 KLog.warning($"SEACHING BED FOR VILLAGER {UID} FOUND : {b.znv.GetZDO().GetString(Util.bedID)} with villager {vilID}");
                 if (vilID.Equals(UID))
                 {
-                    KLog.warning($"Villager {UID} has found BED {b.UID}");
-                    znv.GetZDO().Set(Util.bedID, b.UID);
-                    this.bed = b;
-                    return;
+                    if (b.znv.GetZDO().GetString(Util.villagerID).Equals(UID))
+                    {
+                        KLog.warning($"Villager {UID} has found BED {b.UID}");
+                        znv.GetZDO().Set(Util.bedID, b.UID);
+                        this.bed = b;
+                        return;
+                    }
+                    else
+                    {
+                        KLog.warning($"Villager {UID} has found BED BUT BED HAS DIFFERENT VILLAGER ID :(");
+
+                    }
+
                 }
             }
 
@@ -224,6 +244,7 @@ namespace KukusVillagerMod.States
         private void RemoveVillagerFromFollower()
         {
             Global.followingVillagers.Remove(this);
+            this.followingTarget = null;
         }
 
         private void RemoveVillagerFromDefending()
@@ -233,7 +254,6 @@ namespace KukusVillagerMod.States
                 if (d.villager == this)
                 {
                     d.villager = null;
-                    this.followingTarget = null;
                 }
             }
         }

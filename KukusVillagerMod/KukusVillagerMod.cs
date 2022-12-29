@@ -142,3 +142,45 @@ namespace KukusVillagerMod
  * Hover status of villagers like defending, following player, guarding bed etc
  * Followers not lost after loading even if no bed exist
  */
+
+
+
+/*
+ * SCENARIOS
+ * 
+ * Respawns:
+ * 1:
+ * Bed spawn first then villagers
+ * Expected Result:
+ * Bed will find villagers but not find any and will then spawn. When villagers spawn they will find beds but already occupied and get deleted
+ * 2:
+ * Bed & Villagers spawn together
+ * Expected Result:
+ * Bed will find villagers and get their BedIDs and if they match will get attached or else spawn new ones. For villagers they will find their beds. 
+ * If not found will delete
+ * 3:
+ * Villagers spawn first then Bed
+ * Expected Result:
+ * Villagers will find no bed and get deleted. Bed will spawn and find no villagers and spawn new ones
+ * 4:
+ * Villagers & Bed spawn Together
+ * Expected Result:
+ * Same as 2
+ * 
+ * Despawns:
+ * 1:
+ * Bed despawns first then villagers
+ * Expected Result:
+ * When bed despawns villagers will be fine. Villagers despawning will be fine too
+ * 2:
+ * Bed & Villagers despawn together
+ * Expected Result:
+ * Everything will work fine too
+ * 3:
+ * Villagers despawn first then bed
+ * Bed will start countdown timer because according to bed villagers are killed. Countdown will be cancelled when bed is despawned too
+ * 4:
+ * Villagers & Bed despawn together
+ * Everything will workout fine
+ *
+ */

@@ -30,14 +30,17 @@ namespace KukusVillagerMod.States
         }
 
 
+
+
         bool fixedUpdateDoneOnce = false;
         private void FixedUpdate()
         {
 
+
             if (piece.IsPlacedByPlayer())
             {
 
-                if (fixedUpdateDoneOnce == false && Player.m_localPlayer != null && !Player.m_localPlayer.IsTeleporting() && !ZNetScene.instance.InLoadingScreen() && KukusVillagerMod.isMapDataLoaded)
+                if (fixedUpdateDoneOnce == false && Player.m_localPlayer != null && !Player.m_localPlayer.IsTeleporting() && !ZNetScene.instance.InLoadingScreen() && KukusVillagerMod.isMapDataLoaded && ZNetScene.instance.IsAreaReady(transform.position))
 
                 {
                     //We have to wait for it to be placed before we can do anything so we have to run it inside FixedUpdate ONCE
@@ -56,7 +59,7 @@ namespace KukusVillagerMod.States
                     if (villager == null)
                     {
                         //if not first update and no villager exist then we cakk FindOrRespawnAfterWait. This will spawn or find the villager after a while
-                        FindOrSpawnAfterWait();
+                        FindOrSpawnAfterWait(60000);
                     }
                 }
 
@@ -103,7 +106,7 @@ namespace KukusVillagerMod.States
         }
 
         bool alreadyWaiting = false;
-        async void FindOrSpawnAfterWait()
+        async void FindOrSpawnAfterWait(int duration)
         {
             //We have to wait because for some gosh damned reason getObjectsOfType returns empty array
             if (alreadyWaiting) return;
@@ -154,3 +157,11 @@ namespace KukusVillagerMod.States
         }
     }
 }
+
+
+/*
+ * SITUATIONS:
+ * 
+ * 
+ * Bed Within Render distance after going far and coming back BUT Villagers not in render distance so new villagers are spawned in
+ */

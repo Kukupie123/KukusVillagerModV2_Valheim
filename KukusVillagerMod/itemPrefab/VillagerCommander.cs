@@ -101,7 +101,7 @@ namespace KukusVillagerMod.itemPrefab
 
             deleteVillagersBtn = new ButtonConfig();
             deleteVillagersBtn.Name = "KP5";
-            deleteVillagersBtn.Hint = "Remove Nearby Posts";
+            deleteVillagersBtn.Hint = "Remove Nearby Villagers";
             deleteVillagersBtn.ActiveInCustomGUI = true;
             deleteVillagersBtn.BlockOtherInputs = true;
             deleteVillagersBtn.Key = UnityEngine.KeyCode.Keypad5;

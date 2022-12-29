@@ -1,5 +1,5 @@
 ﻿# Kuku's Villager Mod
-
+DELETE OLD VERSION's DLL AND RECOMMENDED TO START A NEW WORLD IF FACING HEAVY FPS DROP
 ## Installation (manual)
 Paste the plugins folder in valheim/BepInEx/
 
@@ -20,7 +20,13 @@ Keypad5. Delete all Nearby villagers
 ## Changelog
 Any version below 2.0.0 is super broken and should be avoided completely
 
+# Link to Mod
+https://valheim.thunderstore.io/package/KukuPie/Kukus_Villagers_Mod/
+https://www.nexusmods.com/valheim/mods/2131
+
 ## Known issues
+Leave a comment in Nexus.
+
 
 If bed is not loaded in your memory but the villager is, the villager will be destroyed once you load the game.
 This is intended to prevent redundant villagers in world. A villager MUST have a bed.
