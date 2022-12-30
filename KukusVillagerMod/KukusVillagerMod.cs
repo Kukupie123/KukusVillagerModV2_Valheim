@@ -100,3 +100,18 @@ namespace KukusVillagerMod
  * MapDataLoaded is an event triggered at the last moment after all world data is loaded. We need to be searching for objects in world only after this is true
  * ZNetScene's isAreaReady used to fix infinte spawn and respawn
  */
+
+/*
+ * Bed and Villager Linking process :
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * TODO:
+ * 1. More commands, specially for following character such as move there. And patrol command
+ * 2. Remove collision from villagers and players
+ */
