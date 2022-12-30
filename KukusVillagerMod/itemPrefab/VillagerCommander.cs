@@ -115,7 +115,7 @@ namespace KukusVillagerMod.itemPrefab
 
             showStatsBtn = new ButtonConfig();
             showStatsBtn.Name = "KP7";
-            showStatsBtn.Hint = "Remove Current Stats";
+            showStatsBtn.Hint = "Show Current Stats";
             showStatsBtn.ActiveInCustomGUI = true;
             showStatsBtn.BlockOtherInputs = true;
             showStatsBtn.Key = UnityEngine.KeyCode.Keypad7;
@@ -136,7 +136,7 @@ namespace KukusVillagerMod.itemPrefab
             var kh = new KeyHintConfig
             {
                 Item = "Village_Commander",
-                ButtonConfigs = new[] { guardBedbtn, followPlayerBtn, defendBtn, deletePostsBtn, deleteVillagersBtn, deleteBedBtn }
+                ButtonConfigs = new[] { guardBedbtn, followPlayerBtn, defendBtn, deletePostsBtn, deleteVillagersBtn, deleteBedBtn,showStatsBtn }
             };
             KeyHintManager.Instance.AddKeyHint(kh);
         }
