@@ -24,12 +24,14 @@ Keypad6. Delete all nearby Beds
 Keypad7. Show stats such as villagers Count
 
 ## Changelog
-Any version below 2.0.0 is super broken and should be avoided completely
 
-# Link to Mod
-https://valheim.thunderstore.io/package/KukuPie/Kukus_Villagers_Mod/
+1.0.0 : Re-released after updating the code from scratch.
+
+
+# Mirror Link
 https://www.nexusmods.com/valheim/mods/2131
 
 ## Known issues
 Because of the way game handles Loading and unloading entites, it sometimes load entities but not the infomations saved in them so it is hard to always sync properly and I tried to the best of my ability to deal with it. 
+The freeze is something that should be gone in future updates after I shift the functions that take time into coroutines
 
