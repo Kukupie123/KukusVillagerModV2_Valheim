@@ -19,6 +19,8 @@ namespace KukusVillagerMod.States
         public string UID; //VillagerID
         public int villagerType; //Set during prefab creation
         public int villagerLevel; //Set during prefab creation
+        public float maxHP;
+
 
         MonsterAI ai;
         Humanoid humanoid;
@@ -36,6 +38,9 @@ namespace KukusVillagerMod.States
             humanoid = GetComponent<Humanoid>();
 
             humanoid.SetLevel(villagerLevel);
+            humanoid.SetMaxHealth(maxHP);
+            humanoid.SetHealth(maxHP);
+
         }
 
         void OnDestroy()

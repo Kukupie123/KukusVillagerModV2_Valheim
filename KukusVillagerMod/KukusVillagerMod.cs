@@ -7,6 +7,7 @@
 using BepInEx;
 using Jotunn.Entities;
 using Jotunn.Managers;
+using KukusVillagerMod.Configuration;
 using KukusVillagerMod.itemPrefab;
 using KukusVillagerMod.Prefabs;
 using KukusVillagerMod.States;
@@ -26,12 +27,15 @@ namespace KukusVillagerMod
         private VillagerCommander vc;
 
         public static bool isMapDataLoaded = false;
+        private VillagerModConfigurations configurations;
 
         private void Awake()
         {
+            VillagerModConfigurations.LoadConfig();
             PrefabManager.OnVanillaPrefabsAvailable += LoadBedPrefab;
             CreatureManager.OnVanillaCreaturesAvailable += LoadVillagerPrefab;
             MinimapManager.OnVanillaMapDataLoaded += OnMapDataLoaded;
+
         }
 
         private void OnMapDataLoaded()
@@ -44,10 +48,6 @@ namespace KukusVillagerMod
             if (vc != null)
             {
                 vc.HandleInputs();
-            }
-            if (MessageHud.instance != null)
-            {
-                //MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Villagers : {Global.villagers.Count}, Beds : {Global.beds.Count}, DP : {Global.defences.Count},");
             }
 
         }
