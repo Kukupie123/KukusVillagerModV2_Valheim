@@ -65,6 +65,7 @@ namespace KukusVillagerMod.Prefabs
             villager.Prefab.GetComponent<VillagerLifeCycle>().villagerType = villagerType;
             villager.Prefab.GetComponent<VillagerLifeCycle>().villagerLevel = level;
 
+
             CreatureManager.Instance.AddCreature(villager);
 
             KLog.info($"Created Creature with Name : {villagerName}");

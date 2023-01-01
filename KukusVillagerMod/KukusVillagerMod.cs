@@ -27,7 +27,6 @@ namespace KukusVillagerMod
         private VillagerCommander vc;
 
         public static bool isMapDataLoaded = false;
-        private VillagerModConfigurations configurations;
 
         private void Awake()
         {
@@ -49,7 +48,6 @@ namespace KukusVillagerMod
             {
                 vc.HandleInputs();
             }
-
         }
 
 
@@ -85,9 +83,9 @@ namespace KukusVillagerMod
         private Util()
         {
         }
-
-        public const string villagerID = "villagerID";
-        public const string bedID = "bedID";
+        public const string uid = "UID";
+        public const string bedID = "bedUID";
+        public const string villagerID = "villagerUID";
 
 
     }
@@ -105,13 +103,27 @@ namespace KukusVillagerMod
  * Bed and Villager Linking process :
  * 
  * 
- * 
- * 
- * 
- * 
- * 
- * 
  * TODO:
  * 1. More commands, specially for following character such as move there. And patrol command
  * 2. Remove collision from villagers and players
+ */
+
+/*
+ * Linking bed and villagers
+ * 
+ * VillagerCycle will be disabled by default and only bed can set it to enabled by a bed.
+ * 
+ * Benifits:
+ * You can set bed of villager before activating it and then OnEnabled can do some stuff
+ * 
+ * 
+ * Working:
+ * When bed is initiated. It checks if it has a UID. if not then it creates one.
+ * Then it tries to find villagers nearby and fails to find any villager with the same UID
+ * It spawns a new one (villagers are disabled by default)
+ * Then it saves the UID on the bed too.
+ * Then activates the villager
+ * 
+ * The villager now has a UID saved and tries to find a bed and it finds it.
+ * and saves the reference to the bed
  */

@@ -7,7 +7,7 @@ namespace KukusVillagerMod.Configuration
     class VillagerModConfigurations
     {
        
-        private static ConfigFile config;
+        private static ConfigFile config= new ConfigFile("kukuVillagerConfig.cfg",true);
         public static string weak_villager_melee_prefab;
         public static string weak_villager_ranged_prefab;
         public static string bronze_villager_melee_prefab;

@@ -11,8 +11,11 @@ namespace KukusVillagerMod.States
 {
     class BedCycle : MonoBehaviour
     {
+        /*
+         * When a bed is loaded it will search for villagers near it's area. 
+         * If it finds one it will save its reference.
+         */
         public string villagerName; //The name of the villager it will spawn
-        public string UID;
 
         public ZNetView znv;
 
@@ -24,153 +27,111 @@ namespace KukusVillagerMod.States
             piece = GetComponent<Piece>();
         }
 
+
         private void OnDestroy()
         {
-            KLog.warning($"Bed deleted {UID}");
         }
 
-
-
-
-        bool fixedUpdateDoneOnce = false;
+        bool fixedUpdateRan = false;
         private void FixedUpdate()
         {
-
-
+            if (Player.m_localPlayer == null) return;
             if (piece.IsPlacedByPlayer())
             {
-
-                if (fixedUpdateDoneOnce == false && Player.m_localPlayer != null && !Player.m_localPlayer.IsTeleporting() && !ZNetScene.instance.InLoadingScreen() && KukusVillagerMod.isMapDataLoaded && ZNetScene.instance.IsAreaReady(transform.position))
-
+                if (fixedUpdateRan == false)
                 {
-                    //We have to wait for it to be placed before we can do anything so we have to run it inside FixedUpdate ONCE
+                    if (KukusVillagerMod.isMapDataLoaded == false || ZNetScene.instance.IsAreaReady(transform.position) == false) return;
 
-                    LoadUID();
-
-                    //After loading UID find villager
+                    fixedUpdateRan = true;
+                    znv = GetComponentInParent<ZNetView>();
+                    znv.SetPersistent(true);
+                    loadOrCreateUID();
                     FindVillager();
                     if (villager == null)
-                        CreateVillager();
-
-                    fixedUpdateDoneOnce = true;
-                }
-                else if (fixedUpdateDoneOnce && KukusVillagerMod.isMapDataLoaded && Player.m_localPlayer != null && Player.m_localPlayer.IsTeleporting() == false && !ZNetScene.instance.InLoadingScreen())
-                {
-                    if (villager == null)
                     {
-                        //if not first update and no villager exist then we cakk FindOrRespawnAfterWait. This will spawn or find the villager after a while
-                        FindOrSpawnAfterWait(5000);
+                        CreateVillager();
                     }
                 }
-
-            }
-
-
-        }
-
-
-
-        private void LoadUID()
-        {
-            znv = GetComponentInParent<ZNetView>();
-            znv.SetPersistent(true);
-
-            UID = znv.GetZDO().GetString(Util.bedID, null);
-            if (UID == null)
-            {
-                string uid = System.Guid.NewGuid().ToString();
-                znv.GetZDO().Set(Util.bedID, uid);
-                UID = znv.GetZDO().GetString(Util.bedID, null);
-                KLog.warning($"Bed UID Created {UID}");
-            }
-            else
-            {
-                KLog.warning($"Bed ID Loaded {UID}");
             }
         }
 
-
-
-        bool alreadyWaiting = false;
-        async void FindOrSpawnAfterWait(int duration)
+        void loadOrCreateUID()
         {
-            //We have to wait because for some gosh damned reason getObjectsOfType returns empty array
-            if (alreadyWaiting) return;
-            alreadyWaiting = true;
-            await Task.Delay(duration);
-            if (villager != null)
+
+            var uid = znv.GetZDO().GetString(Util.uid, null);
+            if (uid == null)
             {
-                alreadyWaiting = false;
-                return;
+                //Create new UID
+                uid = System.Guid.NewGuid().ToString();
+
+                znv.GetZDO().Set(Util.uid, uid);
+                KLog.warning($"Created UID for bed {GetUID()}");
             }
-            FindVillager();
-            if (villager == null)
-                CreateVillager();
-            alreadyWaiting = false;
-            KLog.info("Respawn timer Ended for villager bed");
+            {
+                KLog.warning($"Found UID for bed {uid}");
+            }
+
+        }
+
+        public string GetUID()
+        {
+            if (znv == null) return null;
+            return znv.GetZDO().GetString(Util.uid, null);
+        }
+        public string GetLinkedVillagerID()
+        {
+            if (znv == null) return null;
+            return znv.GetZDO().GetString(Util.villagerID, null);
+        }
+
+        private void SaveVillager(VillagerLifeCycle villager)
+        {
+            villager.SaveBed(this); //Save this bed in villager's ZDO
+            znv.GetZDO().Set(Util.villagerID, villager.GetUID());
         }
 
         void FindVillager()
         {
-            if (znv == null || znv.GetZDO() == null) return; //Async process throws exception if object deleted in process
-            //Check if we even have villagerID set. If we do not have set any villagerID it means no villager has claimed this bed
-            if (znv.GetZDO().GetString(Util.villagerID, null) == null) return;
-            var gg = FindObjectsOfType<VillagerLifeCycle>();
 
-            KLog.info($"TOTAL VILLAGERS RN = {gg.Length}");
+            KLog.warning($"Searchig villager STARTED for bed {GetUID()}");
 
-            foreach (var v in FindObjectsOfType<MonsterAI>())
+            if (GetLinkedVillagerID() == null) return;
+
+            var villagers = FindObjectsOfType<VillagerLifeCycle>();
+
+            foreach (var v in villagers)
             {
-                var ls = v.GetComponentInParent<VillagerLifeCycle>();
-                if (ls == null || ZNetScene.instance.IsAreaReady(ls.transform.position) == false) continue;
+                //Check if area is available or if znv and UID is valid
+                if (ZNetScene.instance.IsAreaReady(v.transform.position) == false || v == null || v.GetUID() == null) continue;
 
-                string bedID = ls.znv.GetZDO().GetString(Util.bedID);
-
-                if (bedID.Equals(UID) && ls.znv.GetZDO().GetString(Util.bedID).Equals(UID))
+                if (v.GetUID().Equals(GetLinkedVillagerID()) && v.GetLinkedBedID().Equals(GetUID()))
                 {
-                    KLog.warning($"BED {UID} HAS FOUND VILLAGER {ls.UID}");
-                    PostVillagerSet(ls);
+                    this.villager = v;
+                    SaveVillager(v);
+                    KLog.warning($"Searchig villager SUCCESS for bed {GetUID()}, FOUND {GetLinkedVillagerID()}");
                     return;
                 }
-
             }
-            KLog.warning($"BED {UID} HAS NOT FOUND VILLAGER!");
+            KLog.warning($"Searchig villager FAILED for bed {GetUID()}");
+
         }
 
         void CreateVillager()
         {
+            KLog.warning($"creating villager for bed {GetUID()}");
+
             var prefab = CreatureManager.Instance.GetCreaturePrefab(villagerName);
-            var villagerCreature = SpawnSystem.Instantiate(prefab, transform.position, transform.rotation);
-            var vlc = villagerCreature.GetComponent<VillagerLifeCycle>();
-            PostVillagerSet(vlc, true);
+            var villager = SpawnSystem.Instantiate(prefab, transform.position, transform.rotation);
+            this.villager = villager.GetComponent<VillagerLifeCycle>();
+            this.villager.bed = this;
+            SaveVillager(this.villager); //Save the villager's ID before activating the villager
+            villager.GetComponent<Tameable>().Tame();
         }
 
-        void PostVillagerSet(VillagerLifeCycle v, bool creating = false)
-        {
-            if (v == null)
-            {
-                KLog.warning($"VILLAGER V NOT VALID IN POSTVILLAGERSET()");
-            }
 
-            //Save villager in zdo
-            this.villager = v;
-            znv.GetZDO().Set(Util.villagerID, v.UID);
 
-            //Save bed info in villager's zdo
 
-            v.setBed(this);
-            v.GetComponent<Tameable>().Tame();
-            if (creating)
-                KLog.warning($"BED {UID} HAS CREATED VILLAGER. NOW VILLAGER NEEDS TO LOOOK FOR THIS EMPTY BED!");
 
-        }
-
-        //Called by villager to set villager value of this object
-        public void setVillager(VillagerLifeCycle villager)
-        {
-            znv.GetZDO().Set(Util.villagerID, villager.UID);
-            this.villager = villager;
-        }
 
 
     }

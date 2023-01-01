@@ -1,4 +1,4 @@
-# Kuku's Villager Mod
+﻿# Kuku's Villager Mod
 DELETE OLD VERSION's DLL AND RECOMMENDED TO START A NEW WORLD
 ## Installation (manual)
 Paste the plugins folder in valheim/BepInEx/
@@ -27,6 +27,9 @@ Keypad7. Show stats such as villagers Count
 
 1.0.0 : Re-released after updating the code from scratch.
 
+
+# Mirror Link
+https://www.nexusmods.com/valheim/mods/2131
 
 ## Known issues
 Because of the way game handles Loading and unloading entites, it sometimes load entities but not the infomations saved in them so it is hard to always sync properly and I tried to the best of my ability to deal with it. 
