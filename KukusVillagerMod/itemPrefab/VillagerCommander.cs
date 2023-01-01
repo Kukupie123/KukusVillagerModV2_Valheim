@@ -2,6 +2,7 @@
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
+using KukusVillagerMod.Configuration;
 using KukusVillagerMod.States;
 using System;
 using System.Collections.Generic;
@@ -136,7 +137,7 @@ namespace KukusVillagerMod.itemPrefab
             var kh = new KeyHintConfig
             {
                 Item = "Village_Commander",
-                ButtonConfigs = new[] { guardBedbtn, followPlayerBtn, defendBtn, deletePostsBtn, deleteVillagersBtn, deleteBedBtn,showStatsBtn }
+                ButtonConfigs = new[] { guardBedbtn, followPlayerBtn, defendBtn, deletePostsBtn, deleteVillagersBtn, deleteBedBtn, showStatsBtn }
             };
             KeyHintManager.Instance.AddKeyHint(kh);
         }
@@ -182,7 +183,7 @@ namespace KukusVillagerMod.itemPrefab
                         {
                             if (e.TokenName().Equals("Village Commander"))
                             {
-                                if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad1)
+                                if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.guardBedKey)
                                 {
                                     if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
                                     {
@@ -210,7 +211,7 @@ namespace KukusVillagerMod.itemPrefab
 
 
                                 }
-                                else if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad2)
+                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.followPlayerKey)
                                 {
                                     if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
                                     {
@@ -243,7 +244,7 @@ namespace KukusVillagerMod.itemPrefab
 
 
                                 }
-                                else if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad3)
+                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.defendPostKey)
                                 {
                                     if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
                                     {
@@ -268,7 +269,7 @@ namespace KukusVillagerMod.itemPrefab
                                         v.GetComponentInParent<VillagerLifeCycle>().DefendPost();
                                     }
                                 }
-                                else if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad4)
+                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.deletePostKey)
                                 {
                                     if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
                                     {
@@ -294,7 +295,7 @@ namespace KukusVillagerMod.itemPrefab
 
 
                                 }
-                                else if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad5)
+                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.deleteVillagerKey)
                                 {
                                     if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
                                     {
@@ -319,7 +320,7 @@ namespace KukusVillagerMod.itemPrefab
                                     }
 
                                 }
-                                else if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad6)
+                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.deleteBedsKey)
                                 {
                                     if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
                                     {
@@ -342,7 +343,7 @@ namespace KukusVillagerMod.itemPrefab
                                     }
                                 }
 
-                                else if (ZInput.instance.GetPressedKey() == UnityEngine.KeyCode.Keypad7)
+                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.showStatKey)
                                 {
                                     if (keyPad7Pressed) return;
                                     keyPad1Pressed = false;
