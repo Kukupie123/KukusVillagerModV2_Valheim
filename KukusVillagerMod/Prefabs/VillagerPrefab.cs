@@ -2,6 +2,7 @@
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
+using KukusVillagerMod.Configuration;
 using KukusVillagerMod.States;
 
 namespace KukusVillagerMod.Prefabs
@@ -12,24 +13,24 @@ namespace KukusVillagerMod.Prefabs
         public VillagerPrefab()
         {
             //Weak
-            createCreature2("Weak_Villager_Ranged", "Dverger", 2, 1);
-            createCreature2("Weak_Villager", "Skeleton_NoArcher", 1, 3);
+            createCreature2("Weak_Villager_Ranged", VillagerModConfigurations.weak_villager_ranged_prefab, 2, VillagerModConfigurations.weak_villager_ranged_level);
+            createCreature2("Weak_Villager", VillagerModConfigurations.weak_villager_melee_prefab, 1, VillagerModConfigurations.weak_villager_level);
 
             //Bronze
-            createCreature2("Bronze_Villager_Ranged", "Dverger", 2, 2);
-            createCreature2("Bronze_Villager", "Skeleton_NoArcher", 1, 6);
+            createCreature2("Bronze_Villager_Ranged", VillagerModConfigurations.bronze_villager_ranged_prefab, 2, VillagerModConfigurations.bronze_villager_ranged_level);
+            createCreature2("Bronze_Villager", VillagerModConfigurations.bronze_villager_melee_prefab, 1, VillagerModConfigurations.bronze_villager_level);
 
             //Iron
-            createCreature2("Iron_Villager_Ranged", "Dverger", 2, 3);
-            createCreature2("Iron_Villager", "Skeleton_NoArcher", 1, 9);
+            createCreature2("Iron_Villager_Ranged", VillagerModConfigurations.iron_villager_ranged_prefab, 2, VillagerModConfigurations.weak_villager_ranged_level);
+            createCreature2("Iron_Villager", VillagerModConfigurations.iron_villager_melee_prefab, 1, VillagerModConfigurations.weak_villager_level);
 
             //Silver
-            createCreature2("Silver_Villager_Ranged", "Dverger", 2, 4);
-            createCreature2("Silver_Villager", "Skeleton_NoArcher", 1, 12);
+            createCreature2("Silver_Villager_Ranged", VillagerModConfigurations.silver_villager_ranged_prefab, 2, VillagerModConfigurations.weak_villager_ranged_level);
+            createCreature2("Silver_Villager", VillagerModConfigurations.silver_villager_melee_prefab, 1, VillagerModConfigurations.weak_villager_level);
 
             //BM
-            createCreature2("BlackMetal_Villager_Ranged", "Dverger", 2, 5);
-            createCreature2("BlackMetal_Villager", "Skeleton_NoArcher", 1, 15);
+            createCreature2("BlackMetal_Villager_Ranged", VillagerModConfigurations.bm_villager_ranged_prefab, 2, VillagerModConfigurations.weak_villager_ranged_level);
+            createCreature2("BlackMetal_Villager", VillagerModConfigurations.bm_villager_melee_prefab, 1, VillagerModConfigurations.weak_villager_level);
 
 
         }
