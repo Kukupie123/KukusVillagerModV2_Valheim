@@ -1,5 +1,5 @@
 ﻿# Kuku's Villager Mod
-DELETE OLD VERSION's DLL AND RECOMMENDED TO START A NEW WORLD
+DELETE OLD VERSION's DLL, CONFIGS EVERY UPDATE.
 ## Installation (manual)
 Paste the plugins folder in valheim/BepInEx/
 
@@ -13,25 +13,18 @@ Paste the plugins folder in valheim/BepInEx/
 ## Recommendations
 6. Recommended to keep beds and defensive posts close because of the way game loads and unloads resources
 7. The more the villagers, the longer the freeze there will be when they are loaded back in memory. 
-
-## Commands
-KeyPad1. Go to their Beds Location and Guard
-Keypad2. Aim at a villager and press to make them follow you
-Keypad3. Command Villagers to Guard Defensive posts
-Keypad4. Delete all nearby Defensive posts
-Keypad5. Delete all Nearby villagers
-Keypad6. Delete all nearby Beds
-Keypad7. Show stats such as villagers Count
+8. In case of any bugs Please send me your world and character save so that I can debug.
 
 ## Changelog
 
+1.0.1 : Added Configurations for heavy customization, Added A new command to teleport following villagers to looking direction. Refined Bed&Villager Link system.
+
 1.0.0 : Re-released after updating the code from scratch.
+
+## Future Plans
+
+Plan to make working villagers.
 
 
 # Mirror Link
 https://www.nexusmods.com/valheim/mods/2131
-
-## Known issues
-Because of the way game handles Loading and unloading entites, it sometimes load entities but not the infomations saved in them so it is hard to always sync properly and I tried to the best of my ability to deal with it. 
-The freeze is something that should be gone in future updates after I shift the functions that take time into coroutines
-

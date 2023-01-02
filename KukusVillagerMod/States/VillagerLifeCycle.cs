@@ -18,7 +18,7 @@ namespace KukusVillagerMod.States
         public GameObject followingTarget;
 
         MonsterAI ai;
-        Humanoid humanoid;
+        public Humanoid humanoid;
 
 
         private void Awake()
@@ -215,6 +215,9 @@ namespace KukusVillagerMod.States
                 transform.position = target;
             }
 
+            //WILL BE CHANGED IN FUTURE
+            transform.position = target;
+
         }
 
         public void GuardBed()
@@ -273,6 +276,7 @@ namespace KukusVillagerMod.States
             }
         }
 
+        //FUTURE
         public void CutTree()
         {
             var colliders = Physics.OverlapSphere(transform.position, 5000f);

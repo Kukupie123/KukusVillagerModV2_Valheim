@@ -111,7 +111,7 @@ namespace KukusVillagerMod.States
         {
 
             KLog.warning($"Searchig villager STARTED for bed {GetUID()}");
-                BoundingSphere s
+
             if (GetLinkedVillagerID() == null) return;
 
             var villagers = FindObjectsOfType<VillagerLifeCycle>();

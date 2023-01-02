@@ -248,7 +248,7 @@ namespace KukusVillagerMod.itemPrefab
                                     {
 
                                         villager.FollowPlayer(Player.m_localPlayer);
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, "Following " + Player.m_localPlayer.GetHoverName());
+                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Following " + Player.m_localPlayer.GetHoverName());
                                     }
                                     else
                                     {
@@ -381,6 +381,10 @@ namespace KukusVillagerMod.itemPrefab
                                     /*
                                     foreach (var v in Global.followers)
                                     {
+                                        //v.humanoid.UnequipAllItems();
+                                        var axe = ItemManager.Instance.GetItem("axe");
+                                        var a = ZNetScene.Instantiate(axe.ItemPrefab,v.transform);
+                                        v.humanoid.EquipItem(a.GetComponent<ItemDrop>().m_itemData);
                                         if (v != null && ZNetScene.instance.IsAreaReady(v.transform.position))
                                         {
                                             v.CutTree();
@@ -389,6 +393,7 @@ namespace KukusVillagerMod.itemPrefab
 
                                     return;
                                     */
+
 
                                     //Ray cast and see if that area is available
                                     Ray ray = Camera.main.ScreenPointToRay(new Vector2(Screen.width / 2, Screen.height / 2));
