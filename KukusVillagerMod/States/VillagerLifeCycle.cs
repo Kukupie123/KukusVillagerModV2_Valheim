@@ -119,7 +119,7 @@ namespace KukusVillagerMod.States
             KLog.warning($"Seaching bed for villager {GetUID()}");
             foreach (var bed in beds)
             {
-                if (ZNetScene.instance.IsAreaReady(bed.transform.position) == false || bed == null || bed.znv == null || bed.GetUID() == null) continue;
+                if (ZNetScene.instance.IsAreaReady(bed.transform.position) == false || bed == null || bed.znv == null || bed.GetUID() == null || ZNetScene.instance.IsAreaReady(transform.position) == false) continue;
                 if (bed.GetUID().Equals(GetLinkedBedID()) && GetUID().Equals(bed.GetLinkedVillagerID()))
                 {
                     this.bed = bed;

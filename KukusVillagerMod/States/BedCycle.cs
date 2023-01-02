@@ -16,11 +16,14 @@ namespace KukusVillagerMod.States
          * If it finds one it will save its reference.
          */
         public string villagerName; //The name of the villager it will spawn
+        public int respawnDuration = 5000;
 
         public ZNetView znv;
 
         Piece piece;
         VillagerLifeCycle villager;
+
+        private bool respawnTimerActive = false;
 
         private void Awake()
         {
@@ -33,6 +36,7 @@ namespace KukusVillagerMod.States
         }
 
         bool fixedUpdateRan = false;
+
         private void FixedUpdate()
         {
             if (Player.m_localPlayer == null) return;
@@ -50,6 +54,14 @@ namespace KukusVillagerMod.States
                     if (villager == null)
                     {
                         CreateVillager();
+                    }
+                }
+                else
+                {
+                    //If villager reference gets invalid we are going to start respawning timer
+                    if (villager == null)
+                    {
+                        StartRespawn();
                     }
                 }
             }
@@ -126,6 +138,19 @@ namespace KukusVillagerMod.States
             this.villager.bed = this;
             SaveVillager(this.villager); //Save the villager's ID before activating the villager
             villager.GetComponent<Tameable>().Tame();
+        }
+
+        async void StartRespawn()
+        {
+            if (respawnTimerActive) return;
+            respawnTimerActive = true;
+            await Task.Delay(respawnDuration);
+            FindVillager();
+            if (villager == null)
+            {
+                CreateVillager();
+            }
+            respawnTimerActive = false;
         }
 
 
