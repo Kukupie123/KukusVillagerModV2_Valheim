@@ -10,8 +10,6 @@ using Jotunn.Managers;
 using KukusVillagerMod.Configuration;
 using KukusVillagerMod.itemPrefab;
 using KukusVillagerMod.Prefabs;
-using KukusVillagerMod.States;
-using System.Collections.Generic;
 
 namespace KukusVillagerMod
 {
@@ -20,6 +18,7 @@ namespace KukusVillagerMod
     //[NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     internal class KukusVillagerMod : BaseUnityPlugin
     {
+        
         public const string PluginGUID = "com.kukukodes.KukuVillagers";
         public const string PluginName = "KukusVillagerMod";
         public const string PluginVersion = "1.0.0";
@@ -30,7 +29,7 @@ namespace KukusVillagerMod
 
         private void Awake()
         {
-            VillagerModConfigurations.LoadConfig();
+            VillagerModConfigurations.LoadConfig(Config);
             PrefabManager.OnVanillaPrefabsAvailable += LoadBedPrefab;
             CreatureManager.OnVanillaCreaturesAvailable += LoadVillagerPrefab;
             MinimapManager.OnVanillaMapDataLoaded += OnMapDataLoaded;

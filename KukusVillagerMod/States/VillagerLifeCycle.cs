@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using UnityEngine;
+
 namespace KukusVillagerMod.States
 {
     class VillagerLifeCycle : MonoBehaviour
@@ -35,6 +32,9 @@ namespace KukusVillagerMod.States
         bool fixedUpdateRanOnce = false;
         private void FixedUpdate()
         {
+
+            if (!ZNet.instance.IsServer()) return;
+
             if (Player.m_localPlayer == null) return;
 
 
@@ -57,7 +57,7 @@ namespace KukusVillagerMod.States
                     FindBed();
                     if (bed == null)
                     {
-                        KLog.info($"destroying villager {GetUID()}");
+                        KLog.info($"destroying villager");
                         ZNetScene.instance.Destroy(this.gameObject);
                     }
                 }
@@ -119,7 +119,7 @@ namespace KukusVillagerMod.States
             KLog.warning($"Seaching bed for villager {GetUID()}");
             foreach (var bed in beds)
             {
-                if (ZNetScene.instance.IsAreaReady(bed.transform.position) == false || bed == null || bed.znv == null || bed.GetUID() == null || ZNetScene.instance.IsAreaReady(transform.position) == false) continue;
+                if (bed == null || bed.znv == null || bed.GetUID() == null || ZNetScene.instance.IsAreaReady(transform.position) == false) continue;
                 if (bed.GetUID().Equals(GetLinkedBedID()) && GetUID().Equals(bed.GetLinkedVillagerID()))
                 {
                     this.bed = bed;

@@ -16,7 +16,7 @@ namespace KukusVillagerMod.States
          * If it finds one it will save its reference.
          */
         public string villagerName; //The name of the villager it will spawn
-        public int respawnDuration = 5000;
+        public int respawnDuration;
 
         public ZNetView znv;
 
@@ -39,6 +39,8 @@ namespace KukusVillagerMod.States
 
         private void FixedUpdate()
         {
+            if (!ZNet.instance.IsServer()) return;
+
             if (Player.m_localPlayer == null) return;
             if (piece.IsPlacedByPlayer())
             {
