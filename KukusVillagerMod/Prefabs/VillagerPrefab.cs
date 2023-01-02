@@ -21,16 +21,16 @@ namespace KukusVillagerMod.Prefabs
             createCreature2("Bronze_Villager", VillagerModConfigurations.bronze_villager_melee_prefab, 1, VillagerModConfigurations.bronze_villager_level, VillagerModConfigurations.bronze_villager_health);
 
             //Iron
-            createCreature2("Iron_Villager_Ranged", VillagerModConfigurations.iron_villager_ranged_prefab, 2, VillagerModConfigurations.weak_villager_ranged_level, VillagerModConfigurations.iron_villager_ranged_level);
-            createCreature2("Iron_Villager", VillagerModConfigurations.iron_villager_melee_prefab, 1, VillagerModConfigurations.weak_villager_level, VillagerModConfigurations.iron_villager_level);
+            createCreature2("Iron_Villager_Ranged", VillagerModConfigurations.iron_villager_ranged_prefab, 2, VillagerModConfigurations.iron_villager_ranged_level, VillagerModConfigurations.iron_villager_ranged_health);
+            createCreature2("Iron_Villager", VillagerModConfigurations.iron_villager_melee_prefab, 1, VillagerModConfigurations.iron_villager_level, VillagerModConfigurations.iron_villager_health);
 
             //Silver
-            createCreature2("Silver_Villager_Ranged", VillagerModConfigurations.silver_villager_ranged_prefab, 2, VillagerModConfigurations.weak_villager_ranged_level, VillagerModConfigurations.silver_villager_ranged_level);
-            createCreature2("Silver_Villager", VillagerModConfigurations.silver_villager_melee_prefab, 1, VillagerModConfigurations.weak_villager_level, VillagerModConfigurations.silver_villager_level);
+            createCreature2("Silver_Villager_Ranged", VillagerModConfigurations.silver_villager_ranged_prefab, 2, VillagerModConfigurations.silver_villager_ranged_level, VillagerModConfigurations.silver_villager_ranged_health);
+            createCreature2("Silver_Villager", VillagerModConfigurations.silver_villager_melee_prefab, 1, VillagerModConfigurations.silver_villager_level, VillagerModConfigurations.silver_villager_health);
 
             //BM
-            createCreature2("BlackMetal_Villager_Ranged", VillagerModConfigurations.bm_villager_ranged_prefab, 2, VillagerModConfigurations.weak_villager_ranged_level, VillagerModConfigurations.bm_villager_ranged_level);
-            createCreature2("BlackMetal_Villager", VillagerModConfigurations.bm_villager_melee_prefab, 1, VillagerModConfigurations.weak_villager_level, VillagerModConfigurations.bm_villager_level);
+            createCreature2("BlackMetal_Villager_Ranged", VillagerModConfigurations.bm_villager_ranged_prefab, 2, VillagerModConfigurations.bm_villager_ranged_level, VillagerModConfigurations.bm_villager_ranged_health);
+            createCreature2("BlackMetal_Villager", VillagerModConfigurations.bm_villager_melee_prefab, 1, VillagerModConfigurations.bm_villager_level, VillagerModConfigurations.bm_villager_health);
 
 
         }

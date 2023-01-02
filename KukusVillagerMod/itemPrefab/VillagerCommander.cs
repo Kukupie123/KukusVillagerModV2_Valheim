@@ -18,8 +18,8 @@ namespace KukusVillagerMod.itemPrefab
         public VillagerCommander()
         {
             createCommanderPrefab();
-            createCommanderButtons();
-            createKeyhints();
+            //createCommanderButtons();
+            CreateEmptyKH();
         }
 
         CustomItem commander;
@@ -143,6 +143,16 @@ namespace KukusVillagerMod.itemPrefab
             KeyHintManager.Instance.AddKeyHint(kh);
         }
 
+        void CreateEmptyKH()
+        {
+            var kh = new KeyHintConfig
+            {
+                Item = "Village_Commander",
+                ButtonConfigs = new ButtonConfig[] { }
+            };
+            KeyHintManager.Instance.AddKeyHint(kh);
+        }
+
         bool guardBedPressed = false;
         bool followPlayerPressed = false;
         bool defendPostPressed = false;
@@ -242,7 +252,11 @@ namespace KukusVillagerMod.itemPrefab
                                     }
                                     else
                                     {
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Please look at a close by villager and try again.");
+                                        foreach (var v in Global.followers)
+                                        {
+                                            v.FollowPlayer(Player.m_localPlayer);
+                                        }
+                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Commanded all followers to come back");
 
                                     }
 
@@ -271,8 +285,8 @@ namespace KukusVillagerMod.itemPrefab
                                     foreach (var v in UnityEngine.GameObject.FindObjectsOfType<VillagerLifeCycle>())
                                     {
                                         if (v == null || v.znv == null || v.znv.GetZDO() == null) continue;
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Going to defense posts");
                                         v.GetComponentInParent<VillagerLifeCycle>().DefendPost();
+                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Going to defense posts");
                                     }
                                 }
                                 else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.deletePostKey)
@@ -364,7 +378,7 @@ namespace KukusVillagerMod.itemPrefab
                                     showStatsPressed = false;
 
                                     //Ray cast and see if that area is available
-                                    Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+                                    Ray ray = Camera.main.ScreenPointToRay(new Vector2(Screen.width / 2, Screen.height / 2));
                                     RaycastHit hitData;
                                     if (Physics.Raycast(ray, out hitData, 5000f))
                                     {

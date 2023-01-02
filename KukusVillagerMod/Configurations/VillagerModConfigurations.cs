@@ -176,17 +176,18 @@ namespace KukusVillagerMod.Configuration
        new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
 
             //Villagers health
+          
             weak_villager_health = (int)Config.Bind("Villagers Health", "Weak_Villager_Health", 400, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
             weak_villager_ranged_health = (int)Config.Bind("Villagers Health", "Weak_Villager_Ranged_Health", 200, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
             bronze_villager_health = (int)Config.Bind("Villagers Health", "Bronze_Villager_Health", 600, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
             bronze_villager_ranged_health = (int)Config.Bind("Villagers Health", "Bronze_Villager_Ranged_Health", 300, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            iron_villager_health = (int)Config.Bind("Villagers Health", "Iron_Villager_Health", 700, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            iron_villager_ranged_health = (int)Config.Bind("Villagers Health", "Iron_Villager_Ranged_Health", 300, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            silver_villager_health = (int)Config.Bind("Villagers Health", "Silver_Villager_Health", 900, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            silver_villager_ranged_health = (int)Config.Bind("Villagers Health", "Silver_Villager_Ranged_Health", 400, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            bm_villager_health = (int)Config.Bind("Villagers Health", "BM_Villager_Health", 1000, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            bm_villager_ranged_health = (int)Config.Bind("Villagers Health", "BM_Villager_Ranged_Health", 500, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-
+            iron_villager_health = (int)Config.Bind("Villagers Health", "Iron_Villager_Health", 800, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            iron_villager_ranged_health = (int)Config.Bind("Villagers Health", "Iron_Villager_Ranged_Health", 400, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            silver_villager_health = (int)Config.Bind("Villagers Health", "Silver_Villager_Health", 1000, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            silver_villager_ranged_health = (int)Config.Bind("Villagers Health", "Silver_Villager_Ranged_Health", 500, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            bm_villager_health = (int)Config.Bind("Villagers Health", "BM_Villager_Health", 1200, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            bm_villager_ranged_health = (int)Config.Bind("Villagers Health", "BM_Villager_Ranged_Health", 600, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            
 
             //Bed model
 
@@ -245,6 +246,7 @@ namespace KukusVillagerMod.Configuration
 
 
 
+
             //Villager Commander Club keys
             guardBedKey = (string)Config.Bind("Commander Club keybinds", "Guard Bed Key", "Keypad1").BoxedValue;
             followPlayerKey = (string)Config.Bind("Commander Club keybinds", "Follow Player Key", "Keypad2").BoxedValue;
@@ -252,7 +254,7 @@ namespace KukusVillagerMod.Configuration
             deletePostKey = (string)Config.Bind("Commander Club keybinds", "Delete Defend Posts", "Keypad4").BoxedValue;
             deleteVillagerKey = (string)Config.Bind("Commander Club keybinds", "Delete Villagers Key", "Keypad5").BoxedValue;
             deleteBedsKey = (string)Config.Bind("Commander Club keybinds", "Delete Beds Key", "Keypad6").BoxedValue;
-            moveToKey = (string)Config.Bind("Commander Club keybinds", "Show stats Key", "Keypad7").BoxedValue;
+            moveToKey = (string)Config.Bind("Commander Club keybinds", "Move to Key", "Keypad7").BoxedValue;
             showStatKey = (string)Config.Bind("Commander Club keybinds", "Show stats Key", "Keypad8").BoxedValue;
 
         }

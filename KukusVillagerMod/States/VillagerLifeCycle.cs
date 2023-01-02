@@ -9,9 +9,9 @@ namespace KukusVillagerMod.States
 
         public BedCycle bed;
 
-        internal int villagerLevel;
-        internal int villagerType;
-        internal int health;
+        public int villagerLevel;
+        public int villagerType;
+        public int health;
 
         bool fixedUpdateRanOnce = false;
 
@@ -29,6 +29,7 @@ namespace KukusVillagerMod.States
             humanoid = GetComponent<Humanoid>();
             humanoid.SetLevel(villagerLevel);
             humanoid.SetMaxHealth(health);
+            humanoid.SetHealth(health);
             loadOrCreateUID();
         }
 
@@ -62,6 +63,17 @@ namespace KukusVillagerMod.States
                     {
                         KLog.info($"destroying villager");
                         ZNetScene.instance.Destroy(this.gameObject);
+                    }
+                }
+            }
+            else
+            {
+                if (followingTarget != null && followingTarget.GetComponent<Player>() != null)
+                {
+                    //TP if distance is greater or player is teleporting
+                    if (Vector3.Distance(followingTarget.transform.position, transform.position) > 70 || followingTarget.GetComponent<Player>().IsTeleporting())
+                    {
+                        transform.position = followingTarget.transform.position;
                     }
                 }
             }
@@ -122,7 +134,7 @@ namespace KukusVillagerMod.States
             KLog.warning($"Seaching bed for villager {GetUID()}");
             foreach (var bed in beds)
             {
-                if (bed == null || bed.znv == null || bed.GetUID() == null || ZNetScene.instance.IsAreaReady(transform.position) == false) continue;
+                if (bed == null || bed.znv == null || bed.GetUID() == null || ZNetScene.instance.IsAreaReady(transform.position) == false || ZNetScene.instance.IsAreaReady(bed.transform.position) == false) continue;
                 if (bed.GetUID().Equals(GetLinkedBedID()) && GetUID().Equals(bed.GetLinkedVillagerID()))
                 {
                     this.bed = bed;
@@ -167,10 +179,11 @@ namespace KukusVillagerMod.States
 
 
             this.followingTarget = null;
+            ai.SetFollowTarget(null);
             ai.ResetPatrolPoint();
             ai.ResetRandomMovement();
             RemoveVillagerFromDefending();
-            ai.MoveTo(10f, target, 10f, true);
+            ai.MoveTo(1f, target, 1f, true);
 
             if (ai.FindPath(target) == false || ai.HavePath(target) == false)
             {
@@ -216,10 +229,7 @@ namespace KukusVillagerMod.States
 
         public void DefendPost()
         {
-            if (ZNetScene.instance.IsAreaReady(transform.position) == false)
-            {
-                return;
-            }
+
 
             foreach (var d in FindObjectsOfType<DefensePostState>())
             {
@@ -228,10 +238,10 @@ namespace KukusVillagerMod.States
                 {
                     if (d.villager == null)
                     {
-                        if (ZNetScene.instance.IsAreaReady(d.transform.position) == false) return;
-                        RemoveVillagerFromFollower();
                         d.villager = this;
                         FollowTarget(d.gameObject);
+                        RemoveVillagerFromFollower();
+
                         return;
                     }
                 }
@@ -258,6 +268,9 @@ namespace KukusVillagerMod.States
     }
 
 }
+
+
+
 
 
 

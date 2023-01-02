@@ -108,30 +108,13 @@ namespace KukusVillagerMod
  */
 
 /*
- * Bed and Villager Linking process :
- * 
- * 
  * TODO:
+ * MAJOR
  * 1. More commands, specially for following character such as move there. And patrol command
- * 2. Remove collision from villagers and players
- */
-
-/*
- * Linking bed and villagers
- * 
- * VillagerCycle will be disabled by default and only bed can set it to enabled by a bed.
- * 
- * Benifits:
- * You can set bed of villager before activating it and then OnEnabled can do some stuff
+ * 3. Farming and harvesting stuff
+ * 4. Remember state eg farming guarding etc
  * 
  * 
- * Working:
- * When bed is initiated. It checks if it has a UID. if not then it creates one.
- * Then it tries to find villagers nearby and fails to find any villager with the same UID
- * It spawns a new one (villagers are disabled by default)
- * Then it saves the UID on the bed too.
- * Then activates the villager
- * 
- * The villager now has a UID saved and tries to find a bed and it finds it.
- * and saves the reference to the bed
+ * Minor:
+ * Do not fill up hp on every load
  */
