@@ -33,6 +33,11 @@ namespace KukusVillagerMod.States
             loadOrCreateUID();
         }
 
+        private void OnDestroy()
+        {
+            Global.followers.Remove(this);
+        }
+
 
         private void FixedUpdate()
         {
