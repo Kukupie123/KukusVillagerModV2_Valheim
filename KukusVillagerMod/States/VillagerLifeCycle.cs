@@ -5,31 +5,32 @@ namespace KukusVillagerMod.States
 {
     class VillagerLifeCycle : MonoBehaviour
     {
-        /*
-         * When villager is loaded in memory it checks if bed is null or not
-         * if bed is not null it means that it was just spawned and setAsActive by a bed.
-         * If bed is null it means that it was loaded by the game engine and has lost reference to it's bed.
-         * 
-         * If it was loaded by game engine then it will search for bed in vicinity and if found it will save it's reference.
-         * If it couldn't find it. It will get deleted
-         * 
-         * if it was spawned by a bed then we are going to save the bed's UID as our UID for future use
-         */
-        ZNetView znv;
+        public ZNetView znv;
 
         public BedCycle bed;
-
-        private void Awake()
-        {
-            znv = GetComponentInParent<ZNetView>();
-            znv.SetPersistent(true);
-            loadOrCreateUID();
-        }
 
         internal int villagerLevel;
         internal int villagerType;
 
         bool fixedUpdateRanOnce = false;
+
+        public GameObject followingTarget;
+
+        MonsterAI ai;
+        Humanoid humanoid;
+
+
+        private void Awake()
+        {
+            znv = GetComponentInParent<ZNetView>();
+            znv.SetPersistent(true);
+            ai = GetComponent<MonsterAI>();
+            humanoid = GetComponent<Humanoid>();
+            humanoid.SetLevel(villagerLevel);
+            loadOrCreateUID();
+        }
+
+
         private void FixedUpdate()
         {
 
@@ -131,6 +132,99 @@ namespace KukusVillagerMod.States
             }
             KLog.warning($"Seaching bed FAILED for villager {GetUID()}");
 
+        }
+
+
+        //COMMANDS----------------------
+        private void FollowTarget(GameObject target)
+        {
+            if (ZNetScene.instance.IsAreaReady(transform.position) == false || ZNetScene.instance.IsAreaReady(target.transform.position) == false)
+            {
+                return;
+            }
+
+            if (target == null) return;
+            this.followingTarget = target;
+            ai.ResetPatrolPoint();
+            ai.ResetRandomMovement();
+            ai.SetFollowTarget(target);
+
+            if (ai.FindPath(target.transform.position) == false || ai.HavePath(target.transform.position) == false)
+            {
+                transform.position = target.transform.position;
+            }
+
+        }
+
+        public void GuardBed()
+        {
+            if (ZNetScene.instance.IsAreaReady(transform.position) == false)
+            {
+                return;
+            }
+
+            if (bed == null)
+            {
+                FindBed();
+                if (bed == null || ZNetScene.instance.IsAreaReady(bed.transform.position) == false) ZNetScene.instance.Destroy(this.gameObject);
+            }
+            else if (ZNetScene.instance.IsAreaReady(bed.transform.position) == false) return;
+            RemoveVillagerFromFollower();
+            RemoveVillagerFromDefending();
+            FollowTarget(bed.gameObject);
+
+        }
+
+        public void FollowPlayer(Player p)
+        {
+            if (ZNetScene.instance.IsAreaReady(transform.position) == false)
+            {
+                return;
+            }
+
+            RemoveVillagerFromDefending();
+            FollowTarget(p.gameObject);
+        }
+
+
+        public void DefendPost()
+        {
+            if (ZNetScene.instance.IsAreaReady(transform.position) == false)
+            {
+                return;
+            }
+
+            foreach (var d in FindObjectsOfType<DefensePostState>())
+            {
+                if (ZNetScene.instance.IsAreaReady(d.transform.position) == false) continue;
+                if (d.defenseType == villagerType)
+                {
+                    if (d.villager == null)
+                    {
+                        if (ZNetScene.instance.IsAreaReady(d.transform.position) == false) return;
+                        RemoveVillagerFromFollower();
+                        d.villager = this;
+                        FollowTarget(d.gameObject);
+                        return;
+                    }
+                }
+            }
+        }
+
+        private void RemoveVillagerFromFollower()
+        {
+            this.followingTarget = null;
+        }
+
+        private void RemoveVillagerFromDefending()
+        {
+            foreach (var d in UnityEngine.GameObject.FindObjectsOfType<DefensePostState>())
+            {
+                if (d.villager == this)
+                {
+                    d.villager = null;
+                }
+            }
         }
 
     }

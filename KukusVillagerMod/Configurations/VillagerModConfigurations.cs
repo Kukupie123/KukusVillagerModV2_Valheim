@@ -222,9 +222,9 @@ namespace KukusVillagerMod.Configuration
 
 
             //Villager Commander Club keys
-            guardBedKey = (string)Config.Bind("Commander Club keybinds", "Guard Bed Key", "Keypad0").BoxedValue;
-            followPlayerKey = (string)Config.Bind("Commander Club keybinds", "Follow Player Key", "Keypad1").BoxedValue;
-            defendPostKey = (string)Config.Bind("Commander Club keybinds", "Defend Posts Key", "Keypad2").BoxedValue;
+            guardBedKey = (string)Config.Bind("Commander Club keybinds", "Guard Bed Key", "Keypad1").BoxedValue;
+            followPlayerKey = (string)Config.Bind("Commander Club keybinds", "Follow Player Key", "Keypad2").BoxedValue;
+            defendPostKey = (string)Config.Bind("Commander Club keybinds", "Defend Posts Key", "Keypad3").BoxedValue;
             deletePostKey = (string)Config.Bind("Commander Club keybinds", "Delete Defend Posts", "Keypad4").BoxedValue;
             deleteVillagerKey = (string)Config.Bind("Commander Club keybinds", "Delete Villagers Key", "Keypad5").BoxedValue;
             deleteBedsKey = (string)Config.Bind("Commander Club keybinds", "Delete Beds Key", "Keypad6").BoxedValue;
