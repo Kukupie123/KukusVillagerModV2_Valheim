@@ -377,6 +377,19 @@ namespace KukusVillagerMod.itemPrefab
                                     moveToPressed = true;
                                     showStatsPressed = false;
 
+                                    //TEST
+                                    /*
+                                    foreach (var v in Global.followers)
+                                    {
+                                        if (v != null && ZNetScene.instance.IsAreaReady(v.transform.position))
+                                        {
+                                            v.CutTree();
+                                        }
+                                    }
+
+                                    return;
+                                    */
+
                                     //Ray cast and see if that area is available
                                     Ray ray = Camera.main.ScreenPointToRay(new Vector2(Screen.width / 2, Screen.height / 2));
                                     RaycastHit hitData;

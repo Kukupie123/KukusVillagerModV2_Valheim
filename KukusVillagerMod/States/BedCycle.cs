@@ -35,19 +35,7 @@ namespace KukusVillagerMod.States
         {
         }
 
-        private void OnCollisionEnter(Collision collision)
-        {
-            Character character = collision.gameObject.GetComponent<Character>();
-            if (character != null
-                && character.m_faction == Character.Faction.Players
-                && character.GetComponent<VillagerLifeCycle>() == null) // allow collision between minions
-            {
-                Physics.IgnoreCollision(collision.gameObject.GetComponent<Collider>(), GetComponent<Collider>());
-                return;
-            }
 
-
-        }
 
         bool fixedUpdateRan = false;
 
@@ -61,7 +49,7 @@ namespace KukusVillagerMod.States
             {
                 if (fixedUpdateRan == false)
                 {
-                    if (KukusVillagerMod.isMapDataLoaded == false || ZNetScene.instance.IsAreaReady(transform.position) == false) return;
+                    if (KukusVillagerMod.isMapDataLoaded == false || ZNetScene.instance.IsAreaReady(transform.position) == false || Player.m_localPlayer == null) return;
 
                     fixedUpdateRan = true;
                     znv = GetComponentInParent<ZNetView>();
@@ -123,7 +111,7 @@ namespace KukusVillagerMod.States
         {
 
             KLog.warning($"Searchig villager STARTED for bed {GetUID()}");
-
+                BoundingSphere s
             if (GetLinkedVillagerID() == null) return;
 
             var villagers = FindObjectsOfType<VillagerLifeCycle>();
@@ -131,7 +119,7 @@ namespace KukusVillagerMod.States
             foreach (var v in villagers)
             {
                 //Check if area is available or if znv and UID is valid
-                if (ZNetScene.instance.IsAreaReady(v.transform.position) == false || v == null || v.GetUID() == null || ZNetScene.instance.IsAreaReady(transform.position)) continue;
+                if (ZNetScene.instance.IsAreaReady(v.transform.position) == false || v == null || v.GetUID() == null || ZNetScene.instance.IsAreaReady(transform.position) == false) continue;
 
                 if (v.GetUID().Equals(GetLinkedVillagerID()) && v.GetLinkedBedID().Equals(GetUID()))
                 {

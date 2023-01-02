@@ -38,6 +38,20 @@ namespace KukusVillagerMod.States
             Global.followers.Remove(this);
         }
 
+        private void OnCollisionEnter(Collision collision)
+        {
+            Character character = collision.gameObject.GetComponent<Character>();
+            if (character != null
+                && character.m_faction == Character.Faction.Players
+                && character.GetComponent<VillagerLifeCycle>() == null) // allow collision between minions
+            {
+                Physics.IgnoreCollision(collision.gameObject.GetComponent<Collider>(), GetComponent<Collider>());
+                return;
+            }
+
+
+        }
+
 
         private void FixedUpdate()
         {
@@ -256,6 +270,39 @@ namespace KukusVillagerMod.States
                         return;
                     }
                 }
+            }
+        }
+
+        public void CutTree()
+        {
+            var colliders = Physics.OverlapSphere(transform.position, 5000f);
+
+            foreach (var c in colliders)
+            {
+                var tree = c?.gameObject?.GetComponentInParent<TreeBase>();
+                var log = c?.gameObject?.GetComponentInParent<TreeLog>();
+                var destructible = c?.gameObject?.GetComponentInParent<Destructible>();
+
+                if (tree != null)
+                {
+                    ai.LookAt(tree.transform.position);
+                    ai.DoAttack(null, false);
+                }
+                else if (log != null)
+                {
+                    ai.LookAt(log.transform.position);
+                    ai.DoAttack(null, false);
+                }
+                else if (destructible != null)
+                {
+                    if (destructible.name.ToLower().Contains("stub"))
+                    {
+                        ai.LookAt(destructible.transform.position);
+                        ai.DoAttack(null, false);
+                    }
+                }
+
+
             }
         }
 
