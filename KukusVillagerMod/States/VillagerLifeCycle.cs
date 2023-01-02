@@ -42,7 +42,7 @@ namespace KukusVillagerMod.States
             if (Player.m_localPlayer == null) return;
 
 
-            if (KukusVillagerMod.isMapDataLoaded == false)
+            if (KukusVillagerMod.isMapDataLoaded == false || ZNetScene.instance.IsAreaReady(transform.position) == false)
             {
                 return;
             }
@@ -55,7 +55,7 @@ namespace KukusVillagerMod.States
 
             if (fixedUpdateRanOnce == false)
             {
-                if (bed == null && ZNetScene.instance.IsAreaReady(transform.position))
+                if (bed == null)
                 {
                     fixedUpdateRanOnce = true;
                     FindBed();
@@ -64,6 +64,12 @@ namespace KukusVillagerMod.States
                         KLog.info($"destroying villager");
                         ZNetScene.instance.Destroy(this.gameObject);
                     }
+                }
+                else
+                {
+                    //This should never get executed. At first loop the bed should always be null
+                    fixedUpdateRanOnce = true;
+                    //ZNetScene.instance.Destroy(this.gameObject);
                 }
             }
             else

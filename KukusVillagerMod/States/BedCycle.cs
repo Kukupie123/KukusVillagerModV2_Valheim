@@ -35,7 +35,22 @@ namespace KukusVillagerMod.States
         {
         }
 
+        private void OnCollisionEnter(Collision collision)
+        {
+            Character character = collision.gameObject.GetComponent<Character>();
+            if (character != null
+                && character.m_faction == Character.Faction.Players
+                && character.GetComponent<VillagerLifeCycle>() == null) // allow collision between minions
+            {
+                Physics.IgnoreCollision(collision.gameObject.GetComponent<Collider>(), GetComponent<Collider>());
+                return;
+            }
+
+
+        }
+
         bool fixedUpdateRan = false;
+
 
         private void FixedUpdate()
         {
@@ -116,7 +131,7 @@ namespace KukusVillagerMod.States
             foreach (var v in villagers)
             {
                 //Check if area is available or if znv and UID is valid
-                if (ZNetScene.instance.IsAreaReady(v.transform.position) == false || v == null || v.GetUID() == null) continue;
+                if (ZNetScene.instance.IsAreaReady(v.transform.position) == false || v == null || v.GetUID() == null || ZNetScene.instance.IsAreaReady(transform.position)) continue;
 
                 if (v.GetUID().Equals(GetLinkedVillagerID()) && v.GetLinkedBedID().Equals(GetUID()))
                 {
