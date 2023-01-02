@@ -11,6 +11,7 @@ namespace KukusVillagerMod.States
 
         internal int villagerLevel;
         internal int villagerType;
+        internal int health;
 
         bool fixedUpdateRanOnce = false;
 
@@ -27,6 +28,7 @@ namespace KukusVillagerMod.States
             ai = GetComponent<MonsterAI>();
             humanoid = GetComponent<Humanoid>();
             humanoid.SetLevel(villagerLevel);
+            humanoid.SetMaxHealth(health);
             loadOrCreateUID();
         }
 
@@ -156,6 +158,27 @@ namespace KukusVillagerMod.States
 
         }
 
+        public void GoToPosition(Vector3 target)
+        {
+            if (ZNetScene.instance.IsAreaReady(transform.position) == false || ZNetScene.instance.IsAreaReady(target) == false)
+            {
+                return;
+            }
+
+
+            this.followingTarget = null;
+            ai.ResetPatrolPoint();
+            ai.ResetRandomMovement();
+            RemoveVillagerFromDefending();
+            ai.MoveTo(10f, target, 10f, true);
+
+            if (ai.FindPath(target) == false || ai.HavePath(target) == false)
+            {
+                transform.position = target;
+            }
+
+        }
+
         public void GuardBed()
         {
             if (ZNetScene.instance.IsAreaReady(transform.position) == false)
@@ -184,6 +207,10 @@ namespace KukusVillagerMod.States
 
             RemoveVillagerFromDefending();
             FollowTarget(p.gameObject);
+            if (Global.followers.Contains(this) == false)
+            {
+                Global.followers.Add(this);
+            }
         }
 
 
@@ -214,6 +241,7 @@ namespace KukusVillagerMod.States
         private void RemoveVillagerFromFollower()
         {
             this.followingTarget = null;
+            Global.followers.Remove(this);
         }
 
         private void RemoveVillagerFromDefending()

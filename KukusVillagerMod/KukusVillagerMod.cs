@@ -10,6 +10,8 @@ using Jotunn.Managers;
 using KukusVillagerMod.Configuration;
 using KukusVillagerMod.itemPrefab;
 using KukusVillagerMod.Prefabs;
+using KukusVillagerMod.States;
+using System.Collections.Generic;
 
 namespace KukusVillagerMod
 {
@@ -18,7 +20,7 @@ namespace KukusVillagerMod
     //[NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     internal class KukusVillagerMod : BaseUnityPlugin
     {
-        
+
         public const string PluginGUID = "com.kukukodes.KukuVillagers";
         public const string PluginName = "KukusVillagerMod";
         public const string PluginVersion = "1.0.0";
@@ -63,6 +65,13 @@ namespace KukusVillagerMod
             new VillagerPrefab();
             CreatureManager.OnVanillaCreaturesAvailable -= LoadVillagerPrefab;
         }
+    }
+
+    class Global
+    {
+        private Global() { }
+
+        public static List<VillagerLifeCycle> followers = new List<VillagerLifeCycle>();
     }
 
     class KLog

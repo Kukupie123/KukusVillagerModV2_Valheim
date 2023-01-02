@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace KukusVillagerMod.itemPrefab
 {
@@ -148,6 +149,7 @@ namespace KukusVillagerMod.itemPrefab
         bool deletePostPressed = false;
         bool deleteVillagersPressed = false;
         bool deleteBedsPressed = false;
+        bool moveToPressed = false;
         bool showStatsPressed = false;
 
         private ButtonConfig guardBedbtn;
@@ -198,6 +200,7 @@ namespace KukusVillagerMod.itemPrefab
                                     deletePostPressed = false;
                                     deleteVillagersPressed = false;
                                     deleteBedsPressed = false;
+                                    moveToPressed = false;
                                     showStatsPressed = false;
 
                                     //Make all villager guard their bed
@@ -226,6 +229,7 @@ namespace KukusVillagerMod.itemPrefab
                                     deletePostPressed = false;
                                     deleteVillagersPressed = false;
                                     deleteBedsPressed = false;
+                                    moveToPressed = false;
                                     showStatsPressed = false;
 
                                     var villager = GetLookingAtVillager(Player.m_localPlayer);
@@ -251,6 +255,8 @@ namespace KukusVillagerMod.itemPrefab
                                         MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Area is not fully loaded. Please wait");
                                     }
 
+
+
                                     //Go defensive position
                                     if (defendPostPressed) return;
                                     guardBedPressed = false;
@@ -259,6 +265,7 @@ namespace KukusVillagerMod.itemPrefab
                                     deletePostPressed = false;
                                     deleteVillagersPressed = false;
                                     deleteBedsPressed = false;
+                                    moveToPressed = false;
                                     showStatsPressed = false;
 
                                     foreach (var v in UnityEngine.GameObject.FindObjectsOfType<VillagerLifeCycle>())
@@ -283,6 +290,7 @@ namespace KukusVillagerMod.itemPrefab
                                     deletePostPressed = true;
                                     deleteVillagersPressed = false;
                                     deleteBedsPressed = false;
+                                    moveToPressed = false;
                                     showStatsPressed = false;
 
                                     foreach (var v in UnityEngine.GameObject.FindObjectsOfType<DefensePostState>())
@@ -309,6 +317,7 @@ namespace KukusVillagerMod.itemPrefab
                                     deletePostPressed = false;
                                     deleteVillagersPressed = true;
                                     deleteBedsPressed = false;
+                                    moveToPressed = false;
                                     showStatsPressed = false;
 
                                     foreach (var v in UnityEngine.GameObject.FindObjectsOfType<VillagerLifeCycle>())
@@ -333,6 +342,7 @@ namespace KukusVillagerMod.itemPrefab
                                     deletePostPressed = false;
                                     deleteVillagersPressed = false;
                                     deleteBedsPressed = true;
+                                    moveToPressed = false;
                                     showStatsPressed = false;
 
                                     foreach (var v in UnityEngine.GameObject.FindObjectsOfType<BedCycle>())
@@ -341,7 +351,43 @@ namespace KukusVillagerMod.itemPrefab
                                         MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all Beds");
                                     }
                                 }
+                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.moveToKey)
+                                {
+                                    if (moveToPressed) return;
+                                    guardBedPressed = false;
+                                    followPlayerPressed = false;
+                                    defendPostPressed = false;
+                                    deletePostPressed = false;
+                                    deleteVillagersPressed = false;
+                                    deleteBedsPressed = false;
+                                    moveToPressed = true;
+                                    showStatsPressed = false;
 
+                                    //Ray cast and see if that area is available
+                                    Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+                                    RaycastHit hitData;
+                                    if (Physics.Raycast(ray, out hitData, 5000f))
+                                    {
+                                        //Is area ready
+                                        if (ZNetScene.instance.IsAreaReady(hitData.point) == false)
+                                        {
+                                            MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "The Move area is too far");
+                                            return;
+                                        }
+
+                                        foreach (var v in Global.followers)
+                                        {
+                                            if (v != null && ZNetScene.instance.IsAreaReady(v.transform.position))
+                                            {
+                                                v.GoToPosition(hitData.point);
+                                                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Sending followers to {hitData.point}");
+                                            }
+                                        }
+                                    }
+
+
+
+                                }
                                 else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.showStatKey)
                                 {
                                     if (showStatsPressed) return;
@@ -351,6 +397,7 @@ namespace KukusVillagerMod.itemPrefab
                                     deletePostPressed = false;
                                     deleteVillagersPressed = false;
                                     deleteBedsPressed = false;
+                                    moveToPressed = false;
                                     showStatsPressed = true;
 
                                     int villagersCount = 0;
@@ -398,6 +445,7 @@ namespace KukusVillagerMod.itemPrefab
                                     deletePostPressed = false;
                                     deleteVillagersPressed = false;
                                     deleteBedsPressed = false;
+                                    moveToPressed = false;
                                     showStatsPressed = false;
                                 }
 

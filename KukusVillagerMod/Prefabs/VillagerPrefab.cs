@@ -13,28 +13,28 @@ namespace KukusVillagerMod.Prefabs
         public VillagerPrefab()
         {
             //Weak
-            createCreature2("Weak_Villager_Ranged", VillagerModConfigurations.weak_villager_ranged_prefab, 2, VillagerModConfigurations.weak_villager_ranged_level);
-            createCreature2("Weak_Villager", VillagerModConfigurations.weak_villager_melee_prefab, 1, VillagerModConfigurations.weak_villager_level);
+            createCreature2("Weak_Villager_Ranged", VillagerModConfigurations.weak_villager_ranged_prefab, 2, VillagerModConfigurations.weak_villager_ranged_level, VillagerModConfigurations.weak_villager_ranged_health);
+            createCreature2("Weak_Villager", VillagerModConfigurations.weak_villager_melee_prefab, 1, VillagerModConfigurations.weak_villager_level, VillagerModConfigurations.weak_villager_health);
 
             //Bronze
-            createCreature2("Bronze_Villager_Ranged", VillagerModConfigurations.bronze_villager_ranged_prefab, 2, VillagerModConfigurations.bronze_villager_ranged_level);
-            createCreature2("Bronze_Villager", VillagerModConfigurations.bronze_villager_melee_prefab, 1, VillagerModConfigurations.bronze_villager_level);
+            createCreature2("Bronze_Villager_Ranged", VillagerModConfigurations.bronze_villager_ranged_prefab, 2, VillagerModConfigurations.bronze_villager_ranged_level, VillagerModConfigurations.bronze_villager_ranged_health);
+            createCreature2("Bronze_Villager", VillagerModConfigurations.bronze_villager_melee_prefab, 1, VillagerModConfigurations.bronze_villager_level, VillagerModConfigurations.bronze_villager_health);
 
             //Iron
-            createCreature2("Iron_Villager_Ranged", VillagerModConfigurations.iron_villager_ranged_prefab, 2, VillagerModConfigurations.weak_villager_ranged_level);
-            createCreature2("Iron_Villager", VillagerModConfigurations.iron_villager_melee_prefab, 1, VillagerModConfigurations.weak_villager_level);
+            createCreature2("Iron_Villager_Ranged", VillagerModConfigurations.iron_villager_ranged_prefab, 2, VillagerModConfigurations.weak_villager_ranged_level, VillagerModConfigurations.iron_villager_ranged_level);
+            createCreature2("Iron_Villager", VillagerModConfigurations.iron_villager_melee_prefab, 1, VillagerModConfigurations.weak_villager_level, VillagerModConfigurations.iron_villager_level);
 
             //Silver
-            createCreature2("Silver_Villager_Ranged", VillagerModConfigurations.silver_villager_ranged_prefab, 2, VillagerModConfigurations.weak_villager_ranged_level);
-            createCreature2("Silver_Villager", VillagerModConfigurations.silver_villager_melee_prefab, 1, VillagerModConfigurations.weak_villager_level);
+            createCreature2("Silver_Villager_Ranged", VillagerModConfigurations.silver_villager_ranged_prefab, 2, VillagerModConfigurations.weak_villager_ranged_level, VillagerModConfigurations.silver_villager_ranged_level);
+            createCreature2("Silver_Villager", VillagerModConfigurations.silver_villager_melee_prefab, 1, VillagerModConfigurations.weak_villager_level, VillagerModConfigurations.silver_villager_level);
 
             //BM
-            createCreature2("BlackMetal_Villager_Ranged", VillagerModConfigurations.bm_villager_ranged_prefab, 2, VillagerModConfigurations.weak_villager_ranged_level);
-            createCreature2("BlackMetal_Villager", VillagerModConfigurations.bm_villager_melee_prefab, 1, VillagerModConfigurations.weak_villager_level);
+            createCreature2("BlackMetal_Villager_Ranged", VillagerModConfigurations.bm_villager_ranged_prefab, 2, VillagerModConfigurations.weak_villager_ranged_level, VillagerModConfigurations.bm_villager_ranged_level);
+            createCreature2("BlackMetal_Villager", VillagerModConfigurations.bm_villager_melee_prefab, 1, VillagerModConfigurations.weak_villager_level, VillagerModConfigurations.bm_villager_level);
 
 
         }
-        void createCreature2(string villagerName, string prefabCloneName, int villagerType, int level)
+        void createCreature2(string villagerName, string prefabCloneName, int villagerType, int level, int health)
         {
             CreatureConfig villagerConfig = new CreatureConfig();
             villagerConfig.Name = villagerName.Replace("_", " "); //Replace the "_" with " " Eg: Weak_Mage becomes Weak Mage
@@ -64,6 +64,7 @@ namespace KukusVillagerMod.Prefabs
             villager.Prefab.AddComponent<VillagerLifeCycle>();
             villager.Prefab.GetComponent<VillagerLifeCycle>().villagerType = villagerType;
             villager.Prefab.GetComponent<VillagerLifeCycle>().villagerLevel = level;
+            villager.Prefab.GetComponent<VillagerLifeCycle>().health = health;
 
 
             CreatureManager.Instance.AddCreature(villager);
