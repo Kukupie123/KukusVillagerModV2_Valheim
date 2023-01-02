@@ -411,7 +411,7 @@ namespace KukusVillagerMod.itemPrefab
                                         {
                                             if (v != null && ZNetScene.instance.IsAreaReady(v.transform.position))
                                             {
-                                                v.GoToPosition(hitData.point);
+                                                v.MoveTo(hitData.point);
                                                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Sending followers to {hitData.point}");
                                             }
                                         }

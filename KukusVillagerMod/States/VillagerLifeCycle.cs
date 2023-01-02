@@ -1,4 +1,5 @@
 ﻿
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace KukusVillagerMod.States
@@ -101,6 +102,14 @@ namespace KukusVillagerMod.States
                         transform.position = followingTarget.transform.position;
                     }
                 }
+                else if (followingTarget == null && keepMoving)
+                {
+                    //Move to command was given and we will stop moving if we reach destination or if we follow someone
+                   if( ai.MoveTo(ai.GetWorldTimeDelta(), moveToTarget, 5f, true))
+                    {
+                        keepMoving = false;
+                    }
+                }
             }
         }
 
@@ -195,7 +204,10 @@ namespace KukusVillagerMod.States
 
         }
 
-        public void GoToPosition(Vector3 target)
+        Vector3 moveToTarget;
+        bool keepMoving = false;
+
+        public void MoveTo(Vector3 target)
         {
             if (ZNetScene.instance.IsAreaReady(transform.position) == false || ZNetScene.instance.IsAreaReady(target) == false)
             {
@@ -208,15 +220,29 @@ namespace KukusVillagerMod.States
             ai.ResetPatrolPoint();
             ai.ResetRandomMovement();
             RemoveVillagerFromDefending();
-            ai.MoveTo(1f, target, 1f, true);
 
             if (ai.FindPath(target) == false || ai.HavePath(target) == false)
             {
                 transform.position = target;
             }
+            else
+            {
+                moveToTarget = target;
+                keepMoving = true;
+            }
 
-            //WILL BE CHANGED IN FUTURE
-            transform.position = target;
+        }
+
+        async private void startMoving(Vector3 target)
+        {
+            while (true)
+            {
+                if (ai.MoveTo(ai.GetWorldTimeDelta(), target, 0f, true) || followingTarget != null)
+                {
+                    break;
+                }
+
+            }
 
         }
 
@@ -261,7 +287,7 @@ namespace KukusVillagerMod.States
 
             foreach (var d in FindObjectsOfType<DefensePostState>())
             {
-                if (ZNetScene.instance.IsAreaReady(d.transform.position) == false) continue;
+                if (ZNetScene.instance.IsAreaReady(d.transform.position) == false || ZNetScene.instance.IsAreaReady(transform.position) == false) continue;
                 if (d.defenseType == villagerType)
                 {
                     if (d.villager == null)
