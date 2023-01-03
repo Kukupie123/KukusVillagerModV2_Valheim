@@ -4,6 +4,7 @@ using Jotunn.Entities;
 using Jotunn.Managers;
 using KukusVillagerMod.Configuration;
 using KukusVillagerMod.States;
+using UnityEngine;
 
 namespace KukusVillagerMod.Prefabs
 {
@@ -31,6 +32,45 @@ namespace KukusVillagerMod.Prefabs
             //BM
             createCreature2("BlackMetal_Villager_Ranged", VillagerModConfigurations.bm_villager_ranged_prefab, 2, VillagerModConfigurations.bm_villager_ranged_level, VillagerModConfigurations.bm_villager_ranged_health);
             createCreature2("BlackMetal_Villager", VillagerModConfigurations.bm_villager_melee_prefab, 1, VillagerModConfigurations.bm_villager_level, VillagerModConfigurations.bm_villager_health);
+
+            //test
+            testHuman();
+        }
+
+        void testHuman()
+        {
+            //Get a monster prefab and copy some stuff
+
+            var monsterPrefab = CreatureManager.Instance.GetCreaturePrefab("Dverger");
+            var setHumanoid = monsterPrefab.GetComponent<Humanoid>();
+            var setAI = monsterPrefab.GetComponent<MonsterAI>();
+
+
+
+
+            CreatureConfig villagerConfig = new CreatureConfig();
+            villagerConfig.Name = "qqpie";
+            villagerConfig.Faction = Character.Faction.Players;
+            villagerConfig.Group = "Player";
+            CustomCreature villager = new CustomCreature("qqpie", "Player", villagerConfig);
+            var aiez = villager.Prefab.GetComponent<Player>().GetBaseAI();
+            UnityEngine.Object.Destroy(villager.Prefab.GetComponent<PlayerController>());
+            UnityEngine.Object.Destroy(villager.Prefab.GetComponent<Player>());
+            UnityEngine.Object.Destroy(villager.Prefab.GetComponent<Talker>());
+            UnityEngine.Object.Destroy(villager.Prefab.GetComponent<Skills>());
+
+            villager.Prefab.AddComponent<Humanoid>();
+            villager.Prefab.AddComponent<BaseAI>();
+            //villager.Prefab.AddComponent<Tameable>();
+            villager.Prefab.AddComponent<HumanSetup>();
+
+            //Not sure how to setup further
+
+            //disabled by default hmmm
+            villager.Prefab.SetActive(true);
+
+            CreatureManager.Instance.AddCreature(villager);
+            KLog.warning("ADDED HUMAN KUKUPIE");
 
 
         }

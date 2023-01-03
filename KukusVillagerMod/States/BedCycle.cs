@@ -1,5 +1,6 @@
 ﻿using Jotunn.Entities;
 using Jotunn.Managers;
+using KukusVillagerMod.enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,6 +96,18 @@ namespace KukusVillagerMod.States
             if (znv == null) return null;
             return znv.GetZDO().GetString(Util.uid, null);
         }
+
+        public VillagerState GetVillagerState()
+        {
+            if (znv == null) return VillagerState.GuardingBed;
+            return (VillagerState)znv.GetZDO().GetInt(Util.villagerState, (int)VillagerState.GuardingBed);
+        }
+
+        public void UpdateVillagerState(VillagerState villagerState)
+        {
+            znv.GetZDO().Set(Util.villagerState, (int)villagerState);
+        }
+
         public string GetLinkedVillagerID()
         {
             if (znv == null) return null;
@@ -135,7 +148,6 @@ namespace KukusVillagerMod.States
 
         void CreateVillager()
         {
-            KLog.warning($"creating villager for bed {GetUID()}");
 
             var prefab = CreatureManager.Instance.GetCreaturePrefab(villagerName);
             var villager = SpawnSystem.Instantiate(prefab, transform.position, transform.rotation);
@@ -143,6 +155,28 @@ namespace KukusVillagerMod.States
             this.villager.bed = this;
             SaveVillager(this.villager); //Save the villager's ID before activating the villager
             villager.GetComponent<Tameable>().Tame();
+            //Check villagerState enum saved in ZDO. If found we use it to make villager perform it's last action.
+            switch (GetVillagerState())
+            {
+                case VillagerState.GuardingBed:
+                    KLog.warning($"Created new villager {this.villager.GetUID()} who is guarding bed {GetUID()}");
+                    this.villager.GuardBed();
+                    break;
+                case VillagerState.GuardingDefensePost:
+                    //Defending post can fail sometime
+
+                    //If defending post failed
+                    if (!this.villager.DefendPost())
+                    {
+                        KLog.warning($"Created new villager {this.villager.GetUID()} who is guarding bed {GetUID()}");
+                        this.villager.GuardBed();
+                    }
+                    else
+                    {
+                        KLog.warning($"Created new Villager {this.villager.GetUID()} who is defending Post for bed {GetUID()}");
+                    }
+                    break;
+            }
         }
 
         async void StartRespawn()

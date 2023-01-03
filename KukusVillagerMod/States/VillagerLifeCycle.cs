@@ -1,4 +1,5 @@
 ﻿
+using KukusVillagerMod.enums;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -97,7 +98,7 @@ namespace KukusVillagerMod.States
                 if (followingTarget != null && followingTarget.GetComponent<Player>() != null)
                 {
                     //TP if distance is greater or player is teleporting
-                    if (Vector3.Distance(followingTarget.transform.position, transform.position) > 70 || followingTarget.GetComponent<Player>().IsTeleporting())
+                    if (Vector3.Distance(followingTarget.transform.position, transform.position) > 70 || followingTarget.GetComponent<Player>().IsTeleporting() || ai.FindPath(followingTarget.transform.position) == false)
                     {
                         transform.position = followingTarget.transform.position;
                     }
@@ -105,7 +106,7 @@ namespace KukusVillagerMod.States
                 else if (followingTarget == null && keepMoving)
                 {
                     //Move to command was given and we will stop moving if we reach destination or if we follow someone
-                   if( ai.MoveTo(ai.GetWorldTimeDelta(), moveToTarget, 5f, true))
+                    if (ai.MoveTo(ai.GetWorldTimeDelta(), moveToTarget, 5f, true))
                     {
                         keepMoving = false;
                     }
@@ -173,8 +174,18 @@ namespace KukusVillagerMod.States
                 {
                     this.bed = bed;
                     SaveBed(bed);
-                    KLog.warning($"Found bed for villager {GetUID()} , Bed : {GetLinkedBedID()}");
 
+                    switch (this.bed.GetVillagerState())
+                    {
+                        case VillagerState.GuardingBed:
+                            GuardBed();
+                            KLog.warning($"Found bed for villager {GetUID()} , Bed : {GetLinkedBedID()}, GUARDING BED NOW");
+                            break;
+                        case VillagerState.GuardingDefensePost:
+                            DefendPost();
+                            KLog.warning($"Found bed for villager {GetUID()} , Bed : {GetLinkedBedID()}, DEFENDING POST NOW");
+                            break;
+                    }
                     return;
                 }
             }
@@ -233,43 +244,33 @@ namespace KukusVillagerMod.States
 
         }
 
-        async private void startMoving(Vector3 target)
+
+        public bool GuardBed()
         {
-            while (true)
-            {
-                if (ai.MoveTo(ai.GetWorldTimeDelta(), target, 0f, true) || followingTarget != null)
-                {
-                    break;
-                }
-
-            }
-
-        }
-
-        public void GuardBed()
-        {
-            if (ZNetScene.instance.IsAreaReady(transform.position) == false)
-            {
-                return;
-            }
 
             if (bed == null)
             {
                 FindBed();
                 if (bed == null || ZNetScene.instance.IsAreaReady(bed.transform.position) == false) ZNetScene.instance.Destroy(this.gameObject);
             }
-            else if (ZNetScene.instance.IsAreaReady(bed.transform.position) == false) return;
+            else if (ZNetScene.instance.IsAreaReady(bed.transform.position) == false) return false;
             RemoveVillagerFromFollower();
             RemoveVillagerFromDefending();
             FollowTarget(bed.gameObject);
+            if (bed != null)
+            {
+                bed.UpdateVillagerState(enums.VillagerState.GuardingBed);
+            }
+            return true;
 
         }
 
-        public void FollowPlayer(Player p)
+        public bool FollowPlayer(Player p)
         {
+
             if (ZNetScene.instance.IsAreaReady(transform.position) == false)
             {
-                return;
+                return false;
             }
 
             RemoveVillagerFromDefending();
@@ -278,12 +279,16 @@ namespace KukusVillagerMod.States
             {
                 Global.followers.Add(this);
             }
+            if (bed != null)
+            {
+                bed.UpdateVillagerState(enums.VillagerState.Journeying);
+            }
+            return true;
         }
 
 
-        public void DefendPost()
+        public bool DefendPost()
         {
-
 
             foreach (var d in FindObjectsOfType<DefensePostState>())
             {
@@ -293,13 +298,17 @@ namespace KukusVillagerMod.States
                     if (d.villager == null)
                     {
                         d.villager = this;
-                        FollowTarget(d.gameObject);
                         RemoveVillagerFromFollower();
-
-                        return;
+                        FollowTarget(d.gameObject);
+                        if (bed != null)
+                        {
+                            bed.UpdateVillagerState(enums.VillagerState.GuardingDefensePost);
+                        }
+                        return true;
                     }
                 }
             }
+            return false;
         }
 
         //FUTURE

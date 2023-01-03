@@ -5,6 +5,7 @@
 // Project: KukusVillagerMod
 
 using BepInEx;
+using HarmonyLib;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using KukusVillagerMod.Configuration;
@@ -58,13 +59,18 @@ namespace KukusVillagerMod
             new BedPrefab();
             new DefensivePostPrefab();
             vc = new VillagerCommander();
+
+
             PrefabManager.OnVanillaPrefabsAvailable -= LoadBedPrefab;
         }
+
+
         private void LoadVillagerPrefab()
         {
             new VillagerPrefab();
             CreatureManager.OnVanillaCreaturesAvailable -= LoadVillagerPrefab;
         }
+
     }
 
     class Global
@@ -94,6 +100,7 @@ namespace KukusVillagerMod
         public const string uid = "UID";
         public const string bedID = "bedUID";
         public const string villagerID = "villagerUID";
+        public const string villagerState = "vilState";
 
 
     }
