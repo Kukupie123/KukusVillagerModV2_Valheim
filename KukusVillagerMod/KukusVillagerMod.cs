@@ -117,10 +117,10 @@ namespace KukusVillagerMod
 /*
  * TODO:
  * MAJOR
- * 1. More commands, specially for following character such as move there. And patrol command
+ * 1. ~More commands, specially for following character such as move there. And patrol command~ DONE
  * 3. Farming and harvesting stuff
- * 4. Remember state eg farming guarding etc
- * 
+ * 4. ~Remember state eg farming guarding etc~ DONE
+ * 5. Increase Alert and Attack Range
  * 
  * Minor:
  * Do not fill up hp on every load

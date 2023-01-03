@@ -28,6 +28,7 @@ namespace KukusVillagerMod.States
             znv = GetComponentInParent<ZNetView>();
             znv.SetPersistent(true);
             ai = GetComponent<MonsterAI>();
+            //ai.m_alertRange = 500f; TEST THIS RANGE OUT
             humanoid = GetComponent<Humanoid>();
             humanoid.SetLevel(villagerLevel);
             humanoid.SetMaxHealth(health);
