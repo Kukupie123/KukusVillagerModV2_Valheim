@@ -1,5 +1,6 @@
 ﻿# Kuku's Villager Mod
 DELETE OLD VERSION's DLL, CONFIGS EVERY UPDATE.
+NOT MULTIPLAYER COMPATIBLE. USE AT YOUR OWN RISK
 ## Installation (manual)
 Paste the plugins folder in valheim/BepInEx/
 

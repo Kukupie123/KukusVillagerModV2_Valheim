@@ -16,10 +16,11 @@ Paste the plugins folder in valheim/BepInEx/
 8. In case of any bugs Please send me your world and character save so that I can debug.
 
 ## Changelog
+<h3>1.1.0:</h3>  <br>1. Villagers go back to their last state (Guarding Bed or Defending Post) When loaded.<br>2. Replaced Teleport Following Villagers with Move villagers, they will now move to the aimed location and only teleport if moving to that area is not possible.
 
-1.0.1 : Added Configurations for heavy customization, Added A new command to teleport following villagers to looking direction. Refined Bed&Villager Link system.
+<h3>1.0.1 : </h3>Added Configurations for heavy customization,<br> Added A new command to teleport following villagers to looking direction. Refined Bed&Villager Link system.
 
-1.0.0 : Re-released after updating the code from scratch.
+<h3>1.0.0 : </h3> Re-released after updating the code from scratch.
 
 ## Future Plans
 
