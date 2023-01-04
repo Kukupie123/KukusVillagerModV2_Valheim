@@ -213,14 +213,17 @@ namespace KukusVillagerMod.itemPrefab
                                     moveToPressed = false;
                                     showStatsPressed = false;
 
-                                    //Make all villager guard their bed
-                                    foreach (var vv in UnityEngine.GameObject.FindObjectsOfType<VillagerLifeCycle>())
-                                    {
-                                        //if (vv == null || vv.znv == null || vv.znv.GetZDO() == null) continue;
-                                        if (vv.GetComponentInParent<VillagerLifeCycle>() == null) continue;
-                                        vv.GetComponentInParent<VillagerLifeCycle>().GuardBed();
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Guarding Bed");
-                                    }
+
+                                    MakeVillagersGoToBed("Weak_Villager_Ranged");
+                                    MakeVillagersGoToBed("Weak_Villager");
+                                    MakeVillagersGoToBed("Bronze_Villager_Ranged");
+                                    MakeVillagersGoToBed("Bronze_Villager");
+                                    MakeVillagersGoToBed("Iron_Villager_Ranged");
+                                    MakeVillagersGoToBed("Iron_Villager");
+                                    MakeVillagersGoToBed("Silver_Villager");
+                                    MakeVillagersGoToBed("Silver_Villager_Ranged");
+                                    MakeVillagersGoToBed("BlackMetal_Villager_Ranged");
+                                    MakeVillagersGoToBed("BlackMetal_Villager");
 
 
                                 }
@@ -282,12 +285,16 @@ namespace KukusVillagerMod.itemPrefab
                                     moveToPressed = false;
                                     showStatsPressed = false;
 
-                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<VillagerLifeCycle>())
-                                    {
-                                        if (v == null || v.znv == null || v.znv.GetZDO() == null) continue;
-                                        v.GetComponentInParent<VillagerLifeCycle>().DefendPost();
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Going to defense posts");
-                                    }
+                                    MakeVillagersDefend("Weak_Villager_Ranged");
+                                    MakeVillagersDefend("Weak_Villager");
+                                    MakeVillagersDefend("Bronze_Villager_Ranged");
+                                    MakeVillagersDefend("Bronze_Villager");
+                                    MakeVillagersDefend("Iron_Villager_Ranged");
+                                    MakeVillagersDefend("Iron_Villager");
+                                    MakeVillagersDefend("Silver_Villager");
+                                    MakeVillagersDefend("Silver_Villager_Ranged");
+                                    MakeVillagersDefend("BlackMetal_Villager_Ranged");
+                                    MakeVillagersDefend("BlackMetal_Villager");
                                 }
                                 else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.deletePostKey)
                                 {
@@ -307,7 +314,7 @@ namespace KukusVillagerMod.itemPrefab
                                     moveToPressed = false;
                                     showStatsPressed = false;
 
-                          
+
 
 
                                 }
@@ -490,6 +497,107 @@ namespace KukusVillagerMod.itemPrefab
             if (a == null) return null;
             var b = a.GetComponent<VillagerLifeCycle>();
             return b;
+        }
+
+        private void MakeVillagersGoToBed(string prefabName)
+        {
+            //Find spawner_id of every prefab and see if it has valid bedID, then based on if we found it's instance in game or not we command it to move guard bed or simply teleport by updating position
+
+            List<ZDO> zdos = new List<ZDO>();
+            List<ZDO> bedlessVillagerZDO = new List<ZDO>();
+            ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
+            foreach (ZDO z in zdos)
+            {
+                var bedID = z.GetZDOID("spawner_id");
+
+                if (bedID.IsNone())
+                {
+                    bedlessVillagerZDO.Add(z);
+                    continue;
+                }
+
+                //See if we can get an instance.
+                var villager = ZNetScene.instance.FindInstance(z);
+
+                if (villager != null)
+                {
+                    villager.GetComponent<VillagerLifeCycle>().GuardBed();
+                }
+                else //if we can't get instance we update the position in zdo
+                {
+                    var bedZDO = ZDOMan.instance.GetZDO(bedID);
+                    if (!bedZDO.IsValid())
+                    {
+                        bedlessVillagerZDO.Add(z);
+                        continue;
+                    }
+
+
+                    z.SetPosition(bedZDO.GetPosition());
+                }
+
+
+            }
+
+            //Destroy villagers with no bed
+            foreach (var z in bedlessVillagerZDO)
+            {
+                KLog.warning($"destroying villager with zdo id {z.m_uid.id} as it has no bed");
+                ZDOMan.instance.DestroyZDO(z);
+            }
+        }
+
+        private void MakeVillagersDefend(string prefabName)
+        {
+            //Find spawner_id of every prefab and see if it has valid bedID, then based on if we found it's instance in game or not we command it to move guard bed or simply teleport by updating position
+
+            List<ZDO> zdos = new List<ZDO>();
+            List<ZDO> bedlessVillagerZDO = new List<ZDO>();
+            ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
+            foreach (ZDO z in zdos)
+            {
+                var bedID = z.GetZDOID("spawner_id");
+
+                if (bedID.IsNone())
+                {
+                    bedlessVillagerZDO.Add(z);
+                    continue;
+                }
+
+                //See if we can get an instance.
+                var villager = ZNetScene.instance.FindInstance(z);
+
+                if (villager != null)
+                {
+                    villager.GetComponent<VillagerLifeCycle>().DefendPost();
+                }
+                else //if we can't get instance we are going to get defense zdo and use it's position
+                {
+                    var bedZDO = ZDOMan.instance.GetZDO(bedID);
+                    if (!bedZDO.IsValid())
+                    {
+                        bedlessVillagerZDO.Add(z);
+                        continue;
+                    }
+
+
+                    var defenseID = bedZDO.GetZDOID("defense");
+                    if (defenseID.IsNone()) continue;
+
+                    var defenseZDO = ZDOMan.instance.GetZDO(defenseID);
+
+                    z.SetPosition(defenseZDO.GetPosition());
+                }
+
+
+            }
+
+            //Destroy invalid villagers (villagers with no bed)
+            foreach (var z in bedlessVillagerZDO)
+            {
+                KLog.warning($"destroying villager with zdo id {z.m_uid.id} as it has no bed");
+                ZDOMan.instance.DestroyZDO(z);
+            }
         }
     }
 }
