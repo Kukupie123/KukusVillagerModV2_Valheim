@@ -132,7 +132,7 @@ namespace KukusVillagerMod.States
             string defense = "None";
             if (!defenseID.IsNone()) defense = defenseID.id.ToString();
 
-            return $"Bed ID : {bedID} <br> Villager ID {villager}<br> Container ID : {containerID}<br> Defense Post ID :{defense}";
+            return $"Bed ID : {bedID}\nVillager ID {villager}\nContainer ID : {containerID}\nDefense Post ID :{defense}";
         }
 
         public string GetHoverName()
