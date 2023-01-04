@@ -29,5 +29,26 @@ namespace KukusVillagerMod.Patches
 
     }
 
+    [HarmonyPatch(typeof(Tameable), nameof(Tameable.Interact))]
+    static class VillagerTameInteract
+    {
+        public static void Postfix(Tameable __instance, ref Humanoid user, ref bool hold, ref bool alt, ref bool __result)
+        {
+            var vls = __instance.GetComponentInParent<VillagerLifeCycle>(); //instance is the object
+            if (vls != null)
+            {
+                if (!hold)
+                {
+                    vls.FollowPlayer(user.GetComponent<Player>());
+                    __result = true;
+                }
+                else
+                {
+                    vls.GuardBed();
+                    __result = true;
+                }
+            }
+        }
+    }
 
 }

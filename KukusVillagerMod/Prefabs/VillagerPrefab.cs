@@ -104,8 +104,6 @@ namespace KukusVillagerMod.Prefabs
             villager.Prefab.GetComponent<VillagerLifeCycle>().villagerType = villagerType;
             villager.Prefab.GetComponent<VillagerLifeCycle>().villagerLevel = level;
             villager.Prefab.GetComponent<VillagerLifeCycle>().health = health;
-            //Add our custom interaction interface
-            villager.Prefab.AddComponent(typeof(VillagerInteractable));
 
 
             CreatureManager.Instance.AddCreature(villager);
