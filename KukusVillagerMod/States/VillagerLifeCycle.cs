@@ -17,6 +17,7 @@ namespace KukusVillagerMod.States
 
 
         public GameObject followingTarget;
+        public long followingPlayerID; //Used to figure out which player the villagers are following
 
         MonsterAI ai;
         public Humanoid humanoid;
@@ -62,9 +63,32 @@ namespace KukusVillagerMod.States
         }
 
         bool updateRanOnce = false;
+        DateTime? startingTimeForBedNotFound;
         private void FixedUpdate()
         {
             if (!KukusVillagerMod.isMapDataLoaded) return;
+            //Wait for the bed's ID which spawned this villagers to be saved in the zdo of this villager
+            if (!isBedAssigned())
+            {
+                if (startingTimeForBedNotFound == null)
+                {
+                    KLog.warning("SET STARTING TIME FOR BED NOT ASSIGNED");
+                    startingTimeForBedNotFound = DateTime.Now;
+                }
+
+
+                DateTime currentTime = DateTime.Now;
+
+                var a = currentTime - startingTimeForBedNotFound.Value;
+                if (a.TotalSeconds > 10)
+                {
+                    //if we crossed 10 sec of waiting we are destroying thezdo
+                    var zdo = base.GetComponent<ZNetView>().GetZDO();
+                    KLog.warning("10 sec passed since the villager has not found a bed. Destroying");
+                    ZDOMan.instance.DestroyZDO(zdo);
+                }
+                return;
+            }
 
             //Runs only once per creature load
             if (!updateRanOnce)
@@ -87,8 +111,7 @@ namespace KukusVillagerMod.States
                 updateRanOnce = true;
             }
 
-            //Wait for the bed's ID which spawned this villagers to be saved in the zdo of this villager
-            if (!isBedAssigned()) return;
+
 
 
             //Check if the bed assigned is valid. Or else destroy
@@ -184,27 +207,7 @@ namespace KukusVillagerMod.States
         }
 
 
-        Vector3 moveToTarget; //used in FixedUpdate
-        bool keepMoving = false; //Used in FixedUpdate
-        public void MoveTo(Vector3 target)
-        {
 
-            this.followingTarget = null;
-            ai.SetFollowTarget(null);
-            ai.ResetPatrolPoint();
-            ai.ResetRandomMovement();
-
-            if (ai.FindPath(target) == false || ai.HavePath(target) == false)
-            {
-                transform.position = target;
-            }
-            else
-            {
-                moveToTarget = target;
-                keepMoving = true;
-            }
-
-        }
 
 
         public bool GuardBed()
@@ -218,6 +221,8 @@ namespace KukusVillagerMod.States
 
             //Update state in ZDO of bed
             GetBedZDO().Set("state", (int)VillagerState.Guarding_Bed);
+            //remove playerID 
+            followingPlayerID = -1;
             return true;
         }
 
@@ -238,8 +243,34 @@ namespace KukusVillagerMod.States
 
             if (talk != null)
                 talk.Say($"Following you {Player.m_localPlayer.GetHoverName()}", "Following");
+            this.followingPlayerID = p.GetPlayerID();
 
             return true;
+        }
+
+        Vector3 moveToTarget; //used in FixedUpdate
+        bool keepMoving = false; //Used in FixedUpdate
+        public void MoveTo(Vector3 target)
+        {
+
+            this.followingTarget = null;
+            ai.SetFollowTarget(null);
+            ai.ResetPatrolPoint();
+            ai.ResetRandomMovement();
+
+            if (ai.FindPath(target) == false || ai.HavePath(target) == false)
+            {
+                transform.position = target;
+            }
+            else
+            {
+                moveToTarget = target;
+                keepMoving = true;
+            }
+
+            if (talk != null)
+                talk.Say("Moving to position", "Moving");
+
         }
 
 
@@ -262,7 +293,7 @@ namespace KukusVillagerMod.States
 
                 //Update the state in bed's ZDO
                 GetBedZDO().Set("state", (int)VillagerState.Defending_Post);
-
+                followingPlayerID = -1;
                 return true;
             }
         }

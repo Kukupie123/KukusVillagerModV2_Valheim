@@ -228,7 +228,7 @@ namespace KukusVillagerMod.itemPrefab
 
 
                                 }
-                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.Work)
+                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.CallFollowers)
                                 {
                                     if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
                                     {
@@ -246,16 +246,17 @@ namespace KukusVillagerMod.itemPrefab
                                     moveToPressed = false;
                                     showStatsPressed = false;
 
-                                    var villager = GetLookingAtVillager(Player.m_localPlayer);
-
-                                    if (villager)
-                                    {
-
-                                        villager.CutTree();
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Working");
-                                    }
-
-
+                                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Calling back followers");
+                                    MakeFollowersComeBack("Weak_Villager_Ranged");
+                                    MakeFollowersComeBack("Weak_Villager");
+                                    MakeFollowersComeBack("Bronze_Villager_Ranged");
+                                    MakeFollowersComeBack("Bronze_Villager");
+                                    MakeFollowersComeBack("Iron_Villager_Ranged");
+                                    MakeFollowersComeBack("Iron_Villager");
+                                    MakeFollowersComeBack("Silver_Villager");
+                                    MakeFollowersComeBack("Silver_Villager_Ranged");
+                                    MakeFollowersComeBack("BlackMetal_Villager_Ranged");
+                                    MakeFollowersComeBack("BlackMetal_Villager");
 
 
                                 }
@@ -487,13 +488,6 @@ namespace KukusVillagerMod.itemPrefab
                 }
             }
         }
-        VillagerLifeCycle GetLookingAtVillager(Player player)
-        {
-            var a = player.GetHoverObject();
-            if (a == null) return null;
-            var b = a.GetComponent<VillagerLifeCycle>();
-            return b;
-        }
 
         private void MakeVillagersGoToBed(string prefabName)
         {
@@ -597,7 +591,49 @@ namespace KukusVillagerMod.itemPrefab
 
                 if (villager != null)
                 {
+                    //Check if playerID matches
+
+                    if (villager.GetComponent<VillagerLifeCycle>().followingPlayerID != Player.m_localPlayer.GetPlayerID())
+                    {
+                        continue;
+                    }
+
                     villager.GetComponent<VillagerLifeCycle>().MoveTo(location);
+                }
+
+            }
+        }
+
+        private void MakeFollowersComeBack(string prefabName)
+        {
+            List<ZDO> zdos = new List<ZDO>();
+            ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
+            foreach (ZDO z in zdos)
+            {
+                var bedID = z.GetZDOID("spawner_id");
+
+                if (bedID.IsNone())
+                {
+                    continue;
+                }
+
+                //If they are not following then ignore
+                var state = (VillagerState)ZDOMan.instance.GetZDO(bedID).GetInt("state", (int)VillagerState.Guarding_Bed);
+                if (state != VillagerState.Following) continue;
+
+                //See if we can get an instance. We only make those who are nearby follow player
+                var villager = ZNetScene.instance.FindInstance(z);
+
+                if (villager != null)
+                {
+                    //Check if playerID matches
+
+                    if (villager.GetComponent<VillagerLifeCycle>().followingPlayerID != Player.m_localPlayer.GetPlayerID())
+                    {
+                        continue;
+                    }
+
+                    villager.GetComponent<VillagerLifeCycle>().FollowPlayer(Player.m_localPlayer);
                 }
 
             }
