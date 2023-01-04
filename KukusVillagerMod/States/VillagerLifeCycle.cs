@@ -56,43 +56,60 @@ namespace KukusVillagerMod.States
 
         private void FixedUpdate()
         {
+            if (!KukusVillagerMod.isMapDataLoaded) return;
 
-            if (!ZNet.instance.IsServer()) return;
+            //Wait for the bed's ID which spawned this villagers to be saved in the zdo of this villager
+            if (!isBedAssigned()) return;
 
-            if (Player.m_localPlayer == null) return;
+            //We reach here when the bed has been assigned
 
 
-            if (KukusVillagerMod.isMapDataLoaded == false || ZNetScene.instance.IsAreaReady(transform.position) == false)
+            if (followingTarget != null && followingTarget.GetComponent<Player>() != null)
             {
-                return;
-            }
-
-
-            if (fixedUpdateRanOnce == false)
-            {
-
-
-                fixedUpdateRanOnce = true;
-            }
-            else
-            {
-                if (followingTarget != null && followingTarget.GetComponent<Player>() != null)
+                //TP if distance is greater or player is teleporting
+                if (Vector3.Distance(followingTarget.transform.position, transform.position) > 70 || followingTarget.GetComponent<Player>().IsTeleporting() || ai.FindPath(followingTarget.transform.position) == false)
                 {
-                    //TP if distance is greater or player is teleporting
-                    if (Vector3.Distance(followingTarget.transform.position, transform.position) > 70 || followingTarget.GetComponent<Player>().IsTeleporting() || ai.FindPath(followingTarget.transform.position) == false)
-                    {
-                        transform.position = followingTarget.transform.position;
-                    }
-                }
-                else if (followingTarget == null && keepMoving)
-                {
-                    //Move to command was given and we will stop moving if we reach destination or if we follow someone
-                    if (ai.MoveTo(ai.GetWorldTimeDelta(), moveToTarget, 5f, true))
-                    {
-                        keepMoving = false;
-                    }
+                    transform.position = followingTarget.transform.position;
                 }
             }
+            else if (followingTarget == null && keepMoving)
+            {
+                //Move to command was given and we will stop moving if we reach destination or if we follow someone
+                if (ai.MoveTo(ai.GetWorldTimeDelta(), moveToTarget, 5f, true))
+                {
+                    keepMoving = false;
+                }
+            }
+
+        }
+
+        private bool isBedAssigned()
+        {
+
+            ZDOID zdoid = this.znv.GetZDO().GetZDOID("spawner_id");
+
+            //if zdoid is not null and it exists then we can say that the bed has been assigned for this villager after it spawned
+            if (!zdoid.IsNone() && ZDOMan.instance.GetZDO(zdoid) != null)
+            {
+                return true;
+            }
+            KLog.warning("bed not assigned yet");
+            return false;
+        }
+
+        private GameObject GetBed()
+        {
+            ZDOID zdoid = this.znv.GetZDO().GetZDOID("spawner_id");
+            return ZNetScene.instance.FindInstance(zdoid);
+        }
+
+        private Vector3? GetBedLocation()
+        {
+            var id = this.znv.GetZDO().GetZDOID("spawner_id");
+            var zdo = ZDOMan.instance.GetZDO(id);
+            if (zdo == null || !zdo.IsValid()) return null;
+            return zdo.GetPosition();
+
         }
 
 
@@ -101,6 +118,8 @@ namespace KukusVillagerMod.States
         {
             if (ZNetScene.instance.IsAreaReady(transform.position) == false || ZNetScene.instance.IsAreaReady(target.transform.position) == false)
             {
+                //If not within the area we are going to teleport
+                transform.position = target.transform.position;
                 return;
             }
 
@@ -122,11 +141,6 @@ namespace KukusVillagerMod.States
 
         public void MoveTo(Vector3 target)
         {
-            if (ZNetScene.instance.IsAreaReady(transform.position) == false || ZNetScene.instance.IsAreaReady(target) == false)
-            {
-                return;
-            }
-
 
             this.followingTarget = null;
             ai.SetFollowTarget(null);
@@ -149,24 +163,20 @@ namespace KukusVillagerMod.States
 
         public bool GuardBed()
         {
-            return false;
+            var bed = GetBed();
 
-
-            /*if (bed == null)
+            if (bed == null)
             {
-                FindBed();
-                if (bed == null || ZNetScene.instance.IsAreaReady(bed.transform.position) == false) ZNetScene.instance.Destroy(this.gameObject);
+                KLog.warning("Villager failed to find bed! Destroying Villager");
+                ZNetScene.instance.Destroy(this.gameObject);
+                return false;
             }
-            else if (ZNetScene.instance.IsAreaReady(bed.transform.position) == false) return false;
+
             RemoveVillagerFromFollower();
             RemoveVillagerFromDefending();
             FollowTarget(bed.gameObject);
-            if (bed != null)
-            {
-                bed.UpdateVillagerState(enums.VillagerState.GuardingBed);
-            }
             return true;
-            */
+
 
         }
 

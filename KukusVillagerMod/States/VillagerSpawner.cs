@@ -103,12 +103,11 @@ namespace KukusVillagerMod.States
             tameable.SetText("A Fighter");
             tameable.Tame();
 
-
+            component.GetZDO().Set("spawner_id", this.znv.GetZDO().m_uid); //Save the bed's ID in the villager's ZDO
             component.GetZDO().SetPGWVersion(this.znv.GetZDO().GetPGWVersion());
-            this.znv.GetZDO().Set("spawn_id", component.GetZDO().m_uid);
-            this.znv.GetZDO().Set("alive_time", ZNet.instance.GetTime().Ticks);
+            this.znv.GetZDO().Set("spawn_id", component.GetZDO().m_uid); //Save the villager's ID in this bed's ZDO
+            this.znv.GetZDO().Set("alive_time", ZNet.instance.GetTime().Ticks); //Save alive time in this bed's ZDO
             return component;
-
         }
     }
 }
