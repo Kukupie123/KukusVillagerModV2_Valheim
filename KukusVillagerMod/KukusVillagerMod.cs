@@ -30,12 +30,15 @@ namespace KukusVillagerMod
 
         public static bool isMapDataLoaded = false;
 
+        private readonly Harmony harmony = new Harmony("kukuvillager");
         private void Awake()
         {
             VillagerModConfigurations.LoadConfig(Config);
             PrefabManager.OnVanillaPrefabsAvailable += LoadBedPrefab;
             CreatureManager.OnVanillaCreaturesAvailable += LoadVillagerPrefab;
             MinimapManager.OnVanillaMapDataLoaded += OnMapDataLoaded;
+
+            harmony.PatchAll(); 
 
         }
 
@@ -112,19 +115,9 @@ namespace KukusVillagerMod
  * We use ZDO to save persistent data, ZNetView of the component has to have persistent set to true
  * MapDataLoaded is an event triggered at the last moment after all world data is loaded. We need to be searching for objects in world only after this is true
  * ZNetScene's isAreaReady used to fix infinte spawn and respawn
+ * We can get the game object by doind znetscene.instance.Getinstance(zdoid). So save ZDOid of important data
  */
 
-/*
- * TODO:
- * MAJOR
- * 1. ~More commands, specially for following character such as move there. And patrol command~ DONE
- * 3. Farming and harvesting stuff
- * 4. ~Remember state eg farming guarding etc~ DONE
- * 5. Increase Alert and Attack Range
- * 
- * Minor:
- * Do not fill up hp on every load
- */
 
 /*
  * A bed is going to spawn a villager and save it's ZDOID, the villager spawned in is going to save the beds ZDO ID

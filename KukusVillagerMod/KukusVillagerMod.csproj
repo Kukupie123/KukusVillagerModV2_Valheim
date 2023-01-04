@@ -84,6 +84,7 @@
     <Compile Include="Configurations\VillagerModConfigurations.cs" />
     <Compile Include="enums\VillagerState.cs" />
     <Compile Include="itemPrefab\VillagerCommander.cs" />
+    <Compile Include="Patches\VillagerPatches.cs" />
     <Compile Include="Prefabs\BedPrefab.cs" />
     <Compile Include="Prefabs\DefensivePostPrefab.cs" />
     <Compile Include="Prefabs\VillagerPrefab.cs" />

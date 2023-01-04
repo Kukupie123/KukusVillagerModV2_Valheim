@@ -1,5 +1,6 @@
 ﻿
 using KukusVillagerMod.enums;
+using System;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -14,7 +15,6 @@ namespace KukusVillagerMod.States
         public int villagerType;
         public int health;
 
-        bool fixedUpdateRanOnce = false;
 
         public GameObject followingTarget;
 
@@ -32,7 +32,11 @@ namespace KukusVillagerMod.States
             humanoid.SetLevel(villagerLevel);
             humanoid.SetMaxHealth(health);
             humanoid.SetHealth(health);
+
+
         }
+
+ 
 
         private void OnDestroy()
         {
@@ -116,12 +120,6 @@ namespace KukusVillagerMod.States
         //COMMANDS----------------------
         private void FollowTarget(GameObject target)
         {
-            if (ZNetScene.instance.IsAreaReady(transform.position) == false || ZNetScene.instance.IsAreaReady(target.transform.position) == false)
-            {
-                //If not within the area we are going to teleport
-                transform.position = target.transform.position;
-                return;
-            }
 
             if (target == null) return;
             this.followingTarget = target;
@@ -129,7 +127,7 @@ namespace KukusVillagerMod.States
             ai.ResetRandomMovement();
             ai.SetFollowTarget(target);
 
-            if (ai.FindPath(target.transform.position) == false || ai.HavePath(target.transform.position) == false)
+            if (ai.FindPath(target.transform.position) == false || ai.HavePath(target.transform.position) == false || ZNetScene.instance.IsAreaReady(transform.position) == false || ZNetScene.instance.IsAreaReady(target.transform.position) == false)
             {
                 transform.position = target.transform.position;
             }

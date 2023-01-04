@@ -100,7 +100,8 @@ namespace KukusVillagerMod.Prefabs
 
 
             //Add Components that we will need for the villager
-            villager.Prefab.AddComponent<Tameable>();
+            var tame = villager.Prefab.AddComponent<Tameable>();
+            UnityEngine.GameObject.DestroyImmediate(tame.GetComponent<HoverText>());
             villager.Prefab.AddComponent<VillagerLifeCycle>();
             villager.Prefab.GetComponent<VillagerLifeCycle>().villagerType = villagerType;
             villager.Prefab.GetComponent<VillagerLifeCycle>().villagerLevel = level;
