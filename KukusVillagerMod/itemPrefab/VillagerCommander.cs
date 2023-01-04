@@ -307,12 +307,7 @@ namespace KukusVillagerMod.itemPrefab
                                     moveToPressed = false;
                                     showStatsPressed = false;
 
-                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<DefensePostState>())
-                                    {
-                                        ZNetScene.instance.Destroy(v.gameObject);
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all defense posts");
-                                    }
-
+                          
 
 
                                 }
@@ -359,7 +354,7 @@ namespace KukusVillagerMod.itemPrefab
                                     moveToPressed = false;
                                     showStatsPressed = false;
 
-                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<VillagerSpawner>())
+                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<BedVillagerProcessor>())
                                     {
                                         ZNetScene.instance.Destroy(v.gameObject);
                                         MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all Beds");

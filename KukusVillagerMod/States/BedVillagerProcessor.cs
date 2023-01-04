@@ -4,12 +4,16 @@ using UnityEngine;
 namespace KukusVillagerMod.States
 {
     //Based off of CreatureSpawner of valheim
-    class VillagerSpawner : MonoBehaviour
+    class BedVillagerProcessor : MonoBehaviour, Hoverable, Interactable
     {
         private ZNetView znv;
         public float respawnTimeMin = 1f;
         public string VillagerPrefabName;
         private Piece piece;
+
+
+        public static ZDOID? SELECTED_BED_ID;
+
 
         private void Awake()
         {
@@ -31,12 +35,14 @@ namespace KukusVillagerMod.States
                     this.znv.SetPersistent(true);
                     if (znv.GetZDO() == null)
                     {
+                        fixedUpdateRanOnce = true;
                         return;
                     }
                     base.InvokeRepeating("UpdateSpawner", UnityEngine.Random.Range(3f, 5f), 5f);
 
                     fixedUpdateRanOnce = true;
                 }
+
             }
         }
 
@@ -98,16 +104,56 @@ namespace KukusVillagerMod.States
             ZNetView component = gameObject.GetComponent<ZNetView>();
             BaseAI component2 = gameObject.GetComponent<BaseAI>();
             Tameable tameable = gameObject.GetComponent<Tameable>();
-            tameable.name = "Villager";
-            tameable.SetName();
-            tameable.SetText("A Fighter");
             tameable.Tame();
 
             component.GetZDO().Set("spawner_id", this.znv.GetZDO().m_uid); //Save the bed's ID in the villager's ZDO
-            component.GetZDO().SetPGWVersion(this.znv.GetZDO().GetPGWVersion());
+            component.GetZDO().SetPGWVersion(this.znv.GetZDO().GetPGWVersion()); //not sure that this is for
             this.znv.GetZDO().Set("spawn_id", component.GetZDO().m_uid); //Save the villager's ID in this bed's ZDO
             this.znv.GetZDO().Set("alive_time", ZNet.instance.GetTime().Ticks); //Save alive time in this bed's ZDO
             return component;
+        }
+
+        //Interface
+
+        public string GetHoverText()
+        {
+            string bedID = this.znv.GetZDO().m_uid.id.ToString();
+
+            var villagerID = this.znv.GetZDO().GetZDOID("spawn_id");
+            string villager = "None";
+            if (!villagerID.IsNone())
+            {
+                villager = villagerID.id.ToString();
+            }
+
+            string containerID = "None";
+
+            var defenseID = this.znv.GetZDO().GetZDOID("defense");
+            string defense = "None";
+            if (!defenseID.IsNone()) defense = defenseID.id.ToString();
+
+            return $"Bed ID : {bedID} <br> Villager ID {villager}<br> Container ID : {containerID}<br> Defense Post ID :{defense}";
+        }
+
+        public string GetHoverName()
+        {
+            return "Villager's Bed NAME";
+        }
+
+        public bool Interact(Humanoid user, bool hold, bool alt)
+        {
+            if (!hold) //Save bed in ZDO of user temporarily, when interacted with defense post, we will make use of this bed
+            {
+                SELECTED_BED_ID = this.znv.GetZDO().m_uid;
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Bed {SELECTED_BED_ID.Value.id} selected. Interact with a Defense to let the villager know where to defend");
+                return true;
+            }
+            return false;
+        }
+
+        public bool UseItem(Humanoid user, ItemDrop.ItemData item)
+        {
+            return true;
         }
     }
 }

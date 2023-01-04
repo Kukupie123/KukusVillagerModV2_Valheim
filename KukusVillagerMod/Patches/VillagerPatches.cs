@@ -8,19 +8,24 @@ using System.Threading.Tasks;
 
 namespace KukusVillagerMod.Patches
 {
+    /*
+     * Hijack methods and do stuff
+     */
+
     //https://harmony.pardeike.net/articles/patching-injections.html
     [HarmonyPatch(typeof(Tameable),"GetHoverText")]
     static class VillagerPatches
     {
-        public static void Postfix(Tameable __instance, ref string __result)
+        public static void Postfix(Tameable __instance, ref string __result) //postfix = after the OG function is run
         {
-            var vls = __instance.GetComponentInParent<VillagerLifeCycle>();
+            var vls = __instance.GetComponentInParent<VillagerLifeCycle>(); //instance is the object
 
             if (vls != null)
             {
-                __result = "HELLO FROM PATCH";
+                __result = "HELLO FROM PATCH"; //result value
             }
         }
+
     }
 
 

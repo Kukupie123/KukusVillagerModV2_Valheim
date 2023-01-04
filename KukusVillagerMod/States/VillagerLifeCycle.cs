@@ -20,6 +20,7 @@ namespace KukusVillagerMod.States
 
         MonsterAI ai;
         public Humanoid humanoid;
+        NpcTalk talk;
 
 
         private void Awake()
@@ -27,6 +28,7 @@ namespace KukusVillagerMod.States
             znv = GetComponentInParent<ZNetView>();
             znv.SetPersistent(true);
             ai = GetComponent<MonsterAI>();
+            talk = GetComponent<NpcTalk>();
             //ai.m_alertRange = 500f; TEST THIS RANGE OUT
             humanoid = GetComponent<Humanoid>();
             humanoid.SetLevel(villagerLevel);
@@ -36,7 +38,7 @@ namespace KukusVillagerMod.States
 
         }
 
- 
+
 
         private void OnDestroy()
         {
@@ -107,21 +109,35 @@ namespace KukusVillagerMod.States
             return ZNetScene.instance.FindInstance(zdoid);
         }
 
-        private Vector3? GetBedLocation()
+        private ZDO GetBedZDO()
         {
             var id = this.znv.GetZDO().GetZDOID("spawner_id");
-            var zdo = ZDOMan.instance.GetZDO(id);
-            if (zdo == null || !zdo.IsValid()) return null;
-            return zdo.GetPosition();
-
+            return ZDOMan.instance.GetZDO(id);
         }
 
 
+
+
         //COMMANDS----------------------
-        private void FollowTarget(GameObject target)
+        private void FollowTarget(GameObject target, Vector3? position)
         {
 
-            if (target == null) return;
+            if (target == null)
+            {
+                if (position != null)
+                {
+                    ai.ResetPatrolPoint();
+                    ai.ResetRandomMovement();
+                    transform.position = position.Value;
+                    return;
+                }
+                else
+                {
+                    KLog.warning("Following target is null");
+                    return;
+                }
+
+            }
             this.followingTarget = target;
             ai.ResetPatrolPoint();
             ai.ResetRandomMovement();
@@ -163,20 +179,16 @@ namespace KukusVillagerMod.States
         {
             var bed = GetBed();
 
-            if (bed == null)
-            {
-                KLog.warning("Villager failed to find bed! Destroying Villager");
-                ZNetScene.instance.Destroy(this.gameObject);
-                return false;
-            }
-
             RemoveVillagerFromFollower();
             RemoveVillagerFromDefending();
-            FollowTarget(bed.gameObject);
+            FollowTarget(bed, GetBedZDO().GetPosition()); //if bed is not within loaded range then teleport there
+            talk.Say("Going to my bed and guard that area", "Bed");
             return true;
 
 
         }
+
+
 
         public bool FollowPlayer(Player p)
         {
@@ -187,7 +199,7 @@ namespace KukusVillagerMod.States
             }
 
             RemoveVillagerFromDefending();
-            FollowTarget(p.gameObject);
+            FollowTarget(p.gameObject, null);
             if (Global.followers.Contains(this) == false)
             {
                 Global.followers.Add(this);
@@ -198,22 +210,21 @@ namespace KukusVillagerMod.States
 
         public bool DefendPost()
         {
-
-            foreach (var d in FindObjectsOfType<DefensePostState>())
+            var defenseID = GetBedZDO().GetZDOID("defense");
+            if (defenseID.IsNone())
             {
-                if (ZNetScene.instance.IsAreaReady(d.transform.position) == false || ZNetScene.instance.IsAreaReady(transform.position) == false) continue;
-                if (d.defenseType == villagerType)
-                {
-                    if (d.villager == null)
-                    {
-                        d.villager = this;
-                        RemoveVillagerFromFollower();
-                        FollowTarget(d.gameObject);
-                        return true;
-                    }
-                }
+                talk.Say("You have not given me any defense post to defend", "Defend");
+                return false;
             }
-            return false;
+            else
+            {
+                var defense = ZNetScene.instance.FindInstance(defenseID);
+                FollowTarget(defense, ZDOMan.instance.GetZDO(defenseID).GetPosition());
+                talk.Say($"Defeinding Post {defenseID.id}", "Defend");
+                return true;
+            }
+
+
         }
 
         //FUTURE
@@ -258,15 +269,8 @@ namespace KukusVillagerMod.States
 
         private void RemoveVillagerFromDefending()
         {
-            foreach (var d in UnityEngine.GameObject.FindObjectsOfType<DefensePostState>())
-            {
-                if (d.villager == this)
-                {
-                    d.villager = null;
-                }
-            }
-        }
 
+        }
     }
 
 }

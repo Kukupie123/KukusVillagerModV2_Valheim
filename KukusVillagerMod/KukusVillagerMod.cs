@@ -59,10 +59,10 @@ namespace KukusVillagerMod
 
         private void LoadBedPrefab()
         {
+            //Register Piece and Item
             new BedPrefab();
-            new DefensivePostPrefab();
+            new DefensePostPrefab();
             vc = new VillagerCommander();
-
 
             PrefabManager.OnVanillaPrefabsAvailable -= LoadBedPrefab;
         }
@@ -116,6 +116,12 @@ namespace KukusVillagerMod
  * MapDataLoaded is an event triggered at the last moment after all world data is loaded. We need to be searching for objects in world only after this is true
  * ZNetScene's isAreaReady used to fix infinte spawn and respawn
  * We can get the game object by doind znetscene.instance.Getinstance(zdoid). So save ZDOid of important data
+ */
+
+/*
+ * TODO:
+ * Change how we scan villagers for commanding so that we can command who aren't loaded in memory too using zdo
+ * Follow/Stay command by interacting with villagers not commander club
  */
 
 

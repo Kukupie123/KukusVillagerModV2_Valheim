@@ -62,7 +62,6 @@ namespace KukusVillagerMod.Prefabs
             villager.Prefab.AddComponent<Humanoid>();
             villager.Prefab.AddComponent<BaseAI>();
             //villager.Prefab.AddComponent<Tameable>();
-            villager.Prefab.AddComponent<HumanSetup>();
 
             //Not sure how to setup further
 
@@ -99,13 +98,15 @@ namespace KukusVillagerMod.Prefabs
             UnityEngine.GameObject.DestroyImmediate(interaction);
 
 
-            //Add Components that we will need for the villager
-            var tame = villager.Prefab.AddComponent<Tameable>();
-            UnityEngine.GameObject.DestroyImmediate(tame.GetComponent<HoverText>());
-            villager.Prefab.AddComponent<VillagerLifeCycle>();
+            var t = villager.Prefab.AddComponent<Tameable>(); //Add taming component to be able to tame it
+            //UnityEngine.GameObject.DestroyImmediate(t.GetComponent(typeof(Interactable))); //Remove the interaction interface from taming comp
+            villager.Prefab.AddComponent<NpcTalk>(); //Add our custom talk component
+            villager.Prefab.AddComponent<VillagerLifeCycle>(); //Add villager lifecycle and setup values
             villager.Prefab.GetComponent<VillagerLifeCycle>().villagerType = villagerType;
             villager.Prefab.GetComponent<VillagerLifeCycle>().villagerLevel = level;
             villager.Prefab.GetComponent<VillagerLifeCycle>().health = health;
+            //Add our custom interaction interface
+            villager.Prefab.AddComponent(typeof(VillagerInteractable));
 
 
             CreatureManager.Instance.AddCreature(villager);
