@@ -9,7 +9,6 @@ namespace KukusVillagerMod.States
     {
         public ZNetView znv;
 
-        public BedCycle bed;
 
         public int villagerLevel;
         public int villagerType;
@@ -33,7 +32,6 @@ namespace KukusVillagerMod.States
             humanoid.SetLevel(villagerLevel);
             humanoid.SetMaxHealth(health);
             humanoid.SetHealth(health);
-            loadOrCreateUID();
         }
 
         private void OnDestroy()
@@ -69,30 +67,12 @@ namespace KukusVillagerMod.States
                 return;
             }
 
-            if (GetIsSet() == false)
-            {
-                KLog.warning($"Villager {GetUID()} has no bed YET!");
-                return; //After spawning we have to wait for the bed to be linked with this villager. Once done this will be true persistently.
-            }
 
             if (fixedUpdateRanOnce == false)
             {
-                if (bed == null)
-                {
-                    fixedUpdateRanOnce = true;
-                    FindBed();
-                    if (bed == null)
-                    {
-                        KLog.info($"destroying villager");
-                        ZNetScene.instance.Destroy(this.gameObject);
-                    }
-                }
-                else
-                {
-                    //This should never get executed. At first loop the bed should always be null
-                    fixedUpdateRanOnce = true;
-                    //ZNetScene.instance.Destroy(this.gameObject);
-                }
+
+
+                fixedUpdateRanOnce = true;
             }
             else
             {
@@ -113,85 +93,6 @@ namespace KukusVillagerMod.States
                     }
                 }
             }
-        }
-
-        void loadOrCreateUID()
-        {
-            var uid = znv.GetZDO().GetString(Util.uid, null);
-            if (uid == null)
-            {
-                //Create new UID
-                uid = System.Guid.NewGuid().ToString();
-
-                znv.GetZDO().Set(Util.uid, uid);
-                KLog.warning($"Created UID for Villager {GetUID()}");
-            }
-            {
-                KLog.warning($"Found UID for Villager {uid}");
-            }
-
-        }
-
-        bool GetIsSet()
-        {
-            if (znv == null) return false;
-            return znv.GetZDO().GetBool("set", false);
-        }
-
-        void markAsActivePersistent()
-        {
-            znv.GetZDO().Set("set", true);
-        }
-
-        public void SaveBed(BedCycle bed)
-        {
-            znv.GetZDO().Set(Util.bedID, bed.GetUID());
-            KLog.warning($"Villager {GetUID()}  saved beds UID {GetLinkedBedID()}");
-            markAsActivePersistent();
-        }
-
-        public string GetUID()
-        {
-            if (znv == null) return null;
-            return znv.GetZDO().GetString(Util.uid, null);
-        }
-
-        public string GetLinkedBedID()
-        {
-            if (znv == null) return null;
-            return znv.GetZDO().GetString(Util.bedID, null);
-        }
-
-
-        private void FindBed()
-        {
-            string bedID = znv.GetZDO().GetString(Util.bedID, "");
-            var beds = FindObjectsOfType<BedCycle>();
-            KLog.warning($"Seaching bed for villager {GetUID()}");
-            foreach (var bed in beds)
-            {
-                if (bed == null || bed.znv == null || bed.GetUID() == null || ZNetScene.instance.IsAreaReady(transform.position) == false || ZNetScene.instance.IsAreaReady(bed.transform.position) == false) continue;
-                if (bed.GetUID().Equals(GetLinkedBedID()) && GetUID().Equals(bed.GetLinkedVillagerID()))
-                {
-                    this.bed = bed;
-                    SaveBed(bed);
-
-                    switch (this.bed.GetVillagerState())
-                    {
-                        case VillagerState.GuardingBed:
-                            GuardBed();
-                            KLog.warning($"Found bed for villager {GetUID()} , Bed : {GetLinkedBedID()}, GUARDING BED NOW");
-                            break;
-                        case VillagerState.GuardingDefensePost:
-                            DefendPost();
-                            KLog.warning($"Found bed for villager {GetUID()} , Bed : {GetLinkedBedID()}, DEFENDING POST NOW");
-                            break;
-                    }
-                    return;
-                }
-            }
-            KLog.warning($"Seaching bed FAILED for villager {GetUID()}");
-
         }
 
 
@@ -248,8 +149,10 @@ namespace KukusVillagerMod.States
 
         public bool GuardBed()
         {
+            return false;
 
-            if (bed == null)
+
+            /*if (bed == null)
             {
                 FindBed();
                 if (bed == null || ZNetScene.instance.IsAreaReady(bed.transform.position) == false) ZNetScene.instance.Destroy(this.gameObject);
@@ -263,6 +166,7 @@ namespace KukusVillagerMod.States
                 bed.UpdateVillagerState(enums.VillagerState.GuardingBed);
             }
             return true;
+            */
 
         }
 
@@ -279,10 +183,6 @@ namespace KukusVillagerMod.States
             if (Global.followers.Contains(this) == false)
             {
                 Global.followers.Add(this);
-            }
-            if (bed != null)
-            {
-                bed.UpdateVillagerState(enums.VillagerState.Journeying);
             }
             return true;
         }
@@ -301,10 +201,6 @@ namespace KukusVillagerMod.States
                         d.villager = this;
                         RemoveVillagerFromFollower();
                         FollowTarget(d.gameObject);
-                        if (bed != null)
-                        {
-                            bed.UpdateVillagerState(enums.VillagerState.GuardingDefensePost);
-                        }
                         return true;
                     }
                 }

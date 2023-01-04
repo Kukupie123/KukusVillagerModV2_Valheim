@@ -359,7 +359,7 @@ namespace KukusVillagerMod.itemPrefab
                                     moveToPressed = false;
                                     showStatsPressed = false;
 
-                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<BedCycle>())
+                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<VillagerSpawner>())
                                     {
                                         ZNetScene.instance.Destroy(v.gameObject);
                                         MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all Beds");
@@ -435,6 +435,7 @@ namespace KukusVillagerMod.itemPrefab
                                     int villagersCount = 0;
                                     int bedless = 0;
                                     int defending = 0;
+                                    /*
                                     foreach (var v in UnityEngine.GameObject.FindObjectsOfType<VillagerLifeCycle>())
                                     {
                                         if (v != null)
@@ -468,7 +469,7 @@ namespace KukusVillagerMod.itemPrefab
 
 
                                     MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Villagers Loaded : {villagersCount}, Beddless Villagers : {bedless}, Defending villagers : {defending}, Beds Loaded : {bedCount}, DP Loaded : {dpC} {Player.m_localPlayer.GetGroup()}");
-
+                                    */
                                 }
                                 else
                                 {
