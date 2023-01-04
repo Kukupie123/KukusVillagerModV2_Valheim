@@ -72,7 +72,6 @@ namespace KukusVillagerMod.States
             {
                 if (startingTimeForBedNotFound == null)
                 {
-                    KLog.warning("SET STARTING TIME FOR BED NOT ASSIGNED");
                     startingTimeForBedNotFound = DateTime.Now;
                 }
 
