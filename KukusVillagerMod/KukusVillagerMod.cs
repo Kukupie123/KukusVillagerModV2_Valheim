@@ -125,3 +125,16 @@ namespace KukusVillagerMod
  * Minor:
  * Do not fill up hp on every load
  */
+
+/*
+ * A bed is going to spawn a villager and save it's ZDOID, the villager spawned in is going to save the beds ZDO ID
+ * Thats how they can talk to each other.
+ * Even if the areas are not loaded the ZDOID is always going to be valid and informations like positions etc etc are always going to bevalid
+ * 
+ * the only time ZDOID is going to be invalid is if it doesn't exist anymore.
+ * 
+ * 
+ * We are also going to be storing defense post ID and container ID in bed.
+ * We Can then use this to send a villager to the defense post the bed has saved the id of.
+ * Same goes for container.
+ */
