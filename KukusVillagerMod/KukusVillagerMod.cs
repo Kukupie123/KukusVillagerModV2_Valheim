@@ -122,12 +122,13 @@ namespace KukusVillagerMod
  * TODO:
  * Change how we scan villagers for commanding so that we can command who aren't loaded in memory too using zdo
  * Follow/Stay command by interacting with villagers not commander club
+ * Persistent follow and store who the villager is following
  */
 
 
 /*
  * A bed is going to spawn a villager and save it's ZDOID, the villager spawned in is going to save the beds ZDO ID
- * Thats how they can talk to each other.
+ * Thats how they can know about each other.
  * Even if the areas are not loaded the ZDOID is always going to be valid and informations like positions etc etc are always going to bevalid
  * 
  * the only time ZDOID is going to be invalid is if it doesn't exist anymore.
@@ -136,4 +137,6 @@ namespace KukusVillagerMod
  * We are also going to be storing defense post ID and container ID in bed.
  * We Can then use this to send a villager to the defense post the bed has saved the id of.
  * Same goes for container.
+ * 
+ * We save the state of the villager in bed too such as guarding bed, defending post, following player etc
  */

@@ -97,10 +97,9 @@ namespace KukusVillagerMod.Prefabs
             UnityEngine.GameObject.DestroyImmediate(interactionP);
             UnityEngine.GameObject.DestroyImmediate(interaction);
 
-
-            var t = villager.Prefab.AddComponent<Tameable>(); //Add taming component to be able to tame it
-            //UnityEngine.GameObject.DestroyImmediate(t.GetComponent(typeof(Interactable))); //Remove the interaction interface from taming comp
             villager.Prefab.AddComponent<NpcTalk>(); //Add our custom talk component
+            villager.Prefab.AddComponent<Tameable>(); //Add taming component to be able to tame it
+            //UnityEngine.GameObject.DestroyImmediate(t.GetComponent(typeof(Interactable))); //Remove the interaction interface from taming comp
             villager.Prefab.AddComponent<VillagerLifeCycle>(); //Add villager lifecycle and setup values
             villager.Prefab.GetComponent<VillagerLifeCycle>().villagerType = villagerType;
             villager.Prefab.GetComponent<VillagerLifeCycle>().villagerLevel = level;

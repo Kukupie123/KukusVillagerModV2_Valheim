@@ -1,4 +1,5 @@
 ﻿using Jotunn.Managers;
+using KukusVillagerMod.enums;
 using System;
 using UnityEngine;
 namespace KukusVillagerMod.States
@@ -33,6 +34,9 @@ namespace KukusVillagerMod.States
                     //Piece needs to be placed before ZNetView is Valid so we have to check if it has been placed every frame and run the codes below once
                     this.znv = base.GetComponent<ZNetView>();
                     this.znv.SetPersistent(true);
+
+                    //Load/Create Villager's state (Guarding, Defending etc)
+
                     if (znv.GetZDO() == null)
                     {
                         fixedUpdateRanOnce = true;
@@ -98,19 +102,43 @@ namespace KukusVillagerMod.States
 
             var villagerPrefab = CreatureManager.Instance.GetCreaturePrefab(this.VillagerPrefabName);
             Quaternion rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f);
-            GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(villagerPrefab, position, rotation);
+            GameObject villager = UnityEngine.Object.Instantiate<GameObject>(villagerPrefab, position, rotation);
 
 
-            ZNetView component = gameObject.GetComponent<ZNetView>();
-            BaseAI component2 = gameObject.GetComponent<BaseAI>();
-            Tameable tameable = gameObject.GetComponent<Tameable>();
+            ZNetView component = villager.GetComponent<ZNetView>();
+            BaseAI component2 = villager.GetComponent<BaseAI>();
+            Tameable tameable = villager.GetComponent<Tameable>();
             tameable.Tame();
 
             component.GetZDO().Set("spawner_id", this.znv.GetZDO().m_uid); //Save the bed's ID in the villager's ZDO
             component.GetZDO().SetPGWVersion(this.znv.GetZDO().GetPGWVersion()); //not sure that this is for
             this.znv.GetZDO().Set("spawn_id", component.GetZDO().m_uid); //Save the villager's ID in this bed's ZDO
             this.znv.GetZDO().Set("alive_time", ZNet.instance.GetTime().Ticks); //Save alive time in this bed's ZDO
+
+
+            //Based on the state stored in zdo we are going to make the villager do stuff
+            switch (GetVilState())
+            {
+                case VillagerState.GuardingBed:
+                    villager.GetComponent<VillagerLifeCycle>().GuardBed();
+                    break;
+                case VillagerState.GuardingDefensePost:
+                    villager.GetComponent<VillagerLifeCycle>().DefendPost();
+                    break;
+                case VillagerState.Journeying:
+                    villager.GetComponent<VillagerLifeCycle>().GuardBed(); //TODO: Save follower's ID to follow after respawn
+                    break;
+            }
             return component;
+        }
+
+        public VillagerState GetVilState()
+        {
+            return (VillagerState)this.znv.GetZDO().GetInt("state", (int)VillagerState.GuardingBed);
+        }
+        public void UpdateVilState(VillagerState state)
+        {
+            this.znv.GetZDO().Set("state", (int)state);
         }
 
         //Interface

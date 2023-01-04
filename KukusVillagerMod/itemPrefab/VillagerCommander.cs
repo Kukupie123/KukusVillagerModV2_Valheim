@@ -539,12 +539,7 @@ namespace KukusVillagerMod.itemPrefab
 
             }
 
-            //Destroy villagers with no bed
-            foreach (var z in bedlessVillagerZDO)
-            {
-                KLog.warning($"destroying villager with zdo id {z.m_uid.id} as it has no bed");
-                ZDOMan.instance.DestroyZDO(z);
-            }
+
         }
 
         private void MakeVillagersDefend(string prefabName)
@@ -592,12 +587,7 @@ namespace KukusVillagerMod.itemPrefab
 
             }
 
-            //Destroy invalid villagers (villagers with no bed)
-            foreach (var z in bedlessVillagerZDO)
-            {
-                KLog.warning($"destroying villager with zdo id {z.m_uid.id} as it has no bed");
-                ZDOMan.instance.DestroyZDO(z);
-            }
+
         }
     }
 }

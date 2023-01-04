@@ -36,6 +36,21 @@ namespace KukusVillagerMod.States
             humanoid.SetHealth(health);
 
 
+            //When loaded see what is the state that the villager needs to be at
+            switch ((VillagerState)GetBedZDO().GetInt("state", (int)VillagerState.GuardingBed))
+            {
+                case VillagerState.GuardingBed:
+                    GuardBed();
+                    break;
+                case VillagerState.GuardingDefensePost:
+                    DefendPost();
+                    break;
+                case VillagerState.Journeying:
+                    GuardBed();
+                    break;
+            }
+
+
         }
 
 
@@ -68,6 +83,12 @@ namespace KukusVillagerMod.States
             if (!isBedAssigned()) return;
 
             //We reach here when the bed has been assigned
+
+            //Check if the bed assigned is valid. Or else destroy
+            if (!GetBedZDO().IsValid())
+            {
+                ZNetScene.instance.Destroy(this.gameObject);
+            }
 
 
             if (followingTarget != null && followingTarget.GetComponent<Player>() != null)
@@ -103,13 +124,13 @@ namespace KukusVillagerMod.States
             return false;
         }
 
-        private GameObject GetBed()
+        public GameObject GetBed()
         {
             ZDOID zdoid = this.znv.GetZDO().GetZDOID("spawner_id");
             return ZNetScene.instance.FindInstance(zdoid);
         }
 
-        private ZDO GetBedZDO()
+        public ZDO GetBedZDO()
         {
             var id = this.znv.GetZDO().GetZDOID("spawner_id");
             return ZDOMan.instance.GetZDO(id);
@@ -160,7 +181,6 @@ namespace KukusVillagerMod.States
             ai.SetFollowTarget(null);
             ai.ResetPatrolPoint();
             ai.ResetRandomMovement();
-            RemoveVillagerFromDefending();
 
             if (ai.FindPath(target) == false || ai.HavePath(target) == false)
             {
@@ -179,10 +199,19 @@ namespace KukusVillagerMod.States
         {
             var bed = GetBed();
 
-            RemoveVillagerFromFollower();
-            RemoveVillagerFromDefending();
             FollowTarget(bed, GetBedZDO().GetPosition()); //if bed is not within loaded range then teleport there
-            talk.Say("Going to my bed and guard that area", "Bed");
+            if (talk != null)
+                talk.Say("Going to my bed and guard that area", "Bed");
+
+            //Update state in ZDO of bed
+            if (bed != null)
+            {
+                bed.GetComponent<BedVillagerProcessor>().UpdateVilState(VillagerState.GuardingBed);
+            }
+            else
+            {
+                GetBedZDO().Set("state", (int)VillagerState.GuardingBed);
+            }
             return true;
 
 
@@ -198,12 +227,23 @@ namespace KukusVillagerMod.States
                 return false;
             }
 
-            RemoveVillagerFromDefending();
             FollowTarget(p.gameObject, null);
             if (Global.followers.Contains(this) == false)
             {
                 Global.followers.Add(this);
             }
+            var bed = GetBed();
+            if (bed != null)
+            {
+                bed.GetComponent<BedVillagerProcessor>().UpdateVilState(VillagerState.GuardingBed);
+            }
+            else
+            {
+                GetBedZDO().Set("state", (int)VillagerState.Journeying);
+            }
+            if (talk != null)
+                talk.Say($"Following you {Player.m_localPlayer.GetHoverName()}", "Following");
+
             return true;
         }
 
@@ -213,14 +253,27 @@ namespace KukusVillagerMod.States
             var defenseID = GetBedZDO().GetZDOID("defense");
             if (defenseID.IsNone())
             {
-                talk.Say("You have not given me any defense post to defend", "Defend");
+                if (talk != null)
+                    talk.Say("You have not given me any defense post to defend", "Defend");
                 return false;
             }
             else
             {
                 var defense = ZNetScene.instance.FindInstance(defenseID);
                 FollowTarget(defense, ZDOMan.instance.GetZDO(defenseID).GetPosition());
-                talk.Say($"Defeinding Post {defenseID.id}", "Defend");
+                if (talk != null)
+                    talk.Say($"Defeinding Post {defenseID.id}", "Defend");
+
+                var bed = GetBed();
+                if (bed != null)
+                {
+                    bed.GetComponent<BedVillagerProcessor>().UpdateVilState(VillagerState.GuardingDefensePost);
+                }
+                else
+                {
+                    GetBedZDO().Set("state", (int)VillagerState.GuardingBed);
+                }
+
                 return true;
             }
 
@@ -259,17 +312,6 @@ namespace KukusVillagerMod.States
 
 
             }
-        }
-
-        private void RemoveVillagerFromFollower()
-        {
-            this.followingTarget = null;
-            Global.followers.Remove(this);
-        }
-
-        private void RemoveVillagerFromDefending()
-        {
-
         }
     }
 
