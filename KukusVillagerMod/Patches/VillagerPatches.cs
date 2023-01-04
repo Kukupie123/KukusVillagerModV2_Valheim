@@ -14,7 +14,7 @@ namespace KukusVillagerMod.Patches
      */
 
     //https://harmony.pardeike.net/articles/patching-injections.html
-    [HarmonyPatch(typeof(Tameable), "GetHoverText")]
+    [HarmonyPatch(typeof(Tameable), nameof(Tameable.GetHoverText))]
     static class VillagerPatches
     {
         public static void Postfix(Tameable __instance, ref string __result) //postfix = after the OG function is run
@@ -23,7 +23,7 @@ namespace KukusVillagerMod.Patches
 
             if (vls != null)
             {
-                __result = $"Villager : {vls.znv.GetZDO().m_uid.id}\nBed : {vls.GetBedZDO().m_uid.id}\n State : {(VillagerState)vls.GetBedZDO().GetInt("state", (int)VillagerState.GuardingBed)}";
+                __result = $"Villager : {vls.znv.GetZDO().m_uid.id}\nBed : {vls.GetBedZDO().m_uid.id}\nState : {((VillagerState)vls.GetBedZDO().GetInt("state", (int)VillagerState.Guarding_Bed)).ToString().Replace("_", " ")}";
             }
         }
 

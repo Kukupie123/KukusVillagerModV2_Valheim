@@ -122,7 +122,7 @@ namespace KukusVillagerMod
  * TODO:
  * Change how we scan villagers for commanding so that we can command who aren't loaded in memory too using zdo
  * Follow/Stay command by interacting with villagers not commander club
- * Persistent follow and store who the villager is following
+ * Persistent follow and store who the villager is following. SKIP IF HAVING ISSUES WITH PLAYER NOT LOADED STUFF
  */
 
 

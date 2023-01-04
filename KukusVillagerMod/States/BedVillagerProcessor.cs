@@ -119,13 +119,13 @@ namespace KukusVillagerMod.States
             //Based on the state stored in zdo we are going to make the villager do stuff
             switch (GetVilState())
             {
-                case VillagerState.GuardingBed:
+                case VillagerState.Guarding_Bed:
                     villager.GetComponent<VillagerLifeCycle>().GuardBed();
                     break;
-                case VillagerState.GuardingDefensePost:
+                case VillagerState.Defending_Post:
                     villager.GetComponent<VillagerLifeCycle>().DefendPost();
                     break;
-                case VillagerState.Journeying:
+                case VillagerState.Following:
                     villager.GetComponent<VillagerLifeCycle>().GuardBed(); //TODO: Save follower's ID to follow after respawn
                     break;
             }
@@ -134,7 +134,7 @@ namespace KukusVillagerMod.States
 
         public VillagerState GetVilState()
         {
-            return (VillagerState)this.znv.GetZDO().GetInt("state", (int)VillagerState.GuardingBed);
+            return (VillagerState)this.znv.GetZDO().GetInt("state", (int)VillagerState.Guarding_Bed);
         }
         public void UpdateVilState(VillagerState state)
         {

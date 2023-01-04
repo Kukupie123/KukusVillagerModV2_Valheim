@@ -3,6 +3,7 @@ using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using KukusVillagerMod.Configuration;
+using KukusVillagerMod.enums;
 using KukusVillagerMod.States;
 using System;
 using System.Collections.Generic;
@@ -504,7 +505,6 @@ namespace KukusVillagerMod.itemPrefab
             //Find spawner_id of every prefab and see if it has valid bedID, then based on if we found it's instance in game or not we command it to move guard bed or simply teleport by updating position
 
             List<ZDO> zdos = new List<ZDO>();
-            List<ZDO> bedlessVillagerZDO = new List<ZDO>();
             ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
             foreach (ZDO z in zdos)
             {
@@ -512,7 +512,6 @@ namespace KukusVillagerMod.itemPrefab
 
                 if (bedID.IsNone())
                 {
-                    bedlessVillagerZDO.Add(z);
                     continue;
                 }
 
@@ -526,14 +525,11 @@ namespace KukusVillagerMod.itemPrefab
                 else //if we can't get instance we update the position in zdo
                 {
                     var bedZDO = ZDOMan.instance.GetZDO(bedID);
-                    if (!bedZDO.IsValid())
-                    {
-                        bedlessVillagerZDO.Add(z);
-                        continue;
-                    }
 
 
                     z.SetPosition(bedZDO.GetPosition());
+                    //Set it's state manually
+                    bedZDO.Set("state", (int)VillagerState.Guarding_Bed);
                 }
 
 
@@ -547,7 +543,6 @@ namespace KukusVillagerMod.itemPrefab
             //Find spawner_id of every prefab and see if it has valid bedID, then based on if we found it's instance in game or not we command it to move guard bed or simply teleport by updating position
 
             List<ZDO> zdos = new List<ZDO>();
-            List<ZDO> bedlessVillagerZDO = new List<ZDO>();
             ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
             foreach (ZDO z in zdos)
             {
@@ -555,7 +550,6 @@ namespace KukusVillagerMod.itemPrefab
 
                 if (bedID.IsNone())
                 {
-                    bedlessVillagerZDO.Add(z);
                     continue;
                 }
 
@@ -569,11 +563,6 @@ namespace KukusVillagerMod.itemPrefab
                 else //if we can't get instance we are going to get defense zdo and use it's position
                 {
                     var bedZDO = ZDOMan.instance.GetZDO(bedID);
-                    if (!bedZDO.IsValid())
-                    {
-                        bedlessVillagerZDO.Add(z);
-                        continue;
-                    }
 
 
                     var defenseID = bedZDO.GetZDOID("defense");
@@ -582,6 +571,9 @@ namespace KukusVillagerMod.itemPrefab
                     var defenseZDO = ZDOMan.instance.GetZDO(defenseID);
 
                     z.SetPosition(defenseZDO.GetPosition());
+
+                    //Set it's state manually
+                    bedZDO.Set("state", (int)VillagerState.Defending_Post);
                 }
 
 
