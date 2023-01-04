@@ -63,7 +63,7 @@ namespace KukusVillagerMod.Configuration
         public static int silver_bed_respawn;
         public static int bm_bed_respawn;
         public static string guardBedKey;
-        public static string followPlayerKey;
+        public static string Work;
         public static string defendPostKey;
         public static string deletePostKey;
         public static string deleteVillagerKey;
@@ -249,7 +249,7 @@ namespace KukusVillagerMod.Configuration
 
             //Villager Commander Club keys
             guardBedKey = (string)Config.Bind("Commander Club keybinds", "Guard Bed Key", "Keypad1").BoxedValue;
-            followPlayerKey = (string)Config.Bind("Commander Club keybinds", "Follow Player Key", "Keypad2").BoxedValue;
+            Work = (string)Config.Bind("Commander Club keybinds", "Work Key (NOT AVAILABLE YET)", "NOT AVAILABLE YET").BoxedValue;
             defendPostKey = (string)Config.Bind("Commander Club keybinds", "Defend Posts Key", "Keypad3").BoxedValue;
             deletePostKey = (string)Config.Bind("Commander Club keybinds", "Delete Defend Posts", "Keypad4").BoxedValue;
             deleteVillagerKey = (string)Config.Bind("Commander Club keybinds", "Delete Villagers Key", "Keypad5").BoxedValue;

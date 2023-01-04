@@ -36,20 +36,7 @@ namespace KukusVillagerMod.States
             humanoid.SetHealth(health);
 
 
-            //When loaded see what is the state that the villager needs to be at
-            switch ((VillagerState)GetBedZDO().GetInt("state", (int)VillagerState.Guarding_Bed))
-            {
-                case VillagerState.Guarding_Bed:
-                    GuardBed();
-                    break;
-                case VillagerState.Defending_Post:
-                    DefendPost();
-                    break;
-                case VillagerState.Following:
-                    //Too much work to make them follow player again
-                    GuardBed();
-                    break;
-            }
+
 
 
         }
@@ -58,7 +45,6 @@ namespace KukusVillagerMod.States
 
         private void OnDestroy()
         {
-            Global.followers.Remove(this);
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -75,15 +61,35 @@ namespace KukusVillagerMod.States
 
         }
 
-
+        bool updateRanOnce = false;
         private void FixedUpdate()
         {
             if (!KukusVillagerMod.isMapDataLoaded) return;
 
+            //Runs only once per creature load
+            if (!updateRanOnce)
+            {
+                if (talk == null) talk = GetComponentInParent<NpcTalk>();
+                //When loaded see what is the state that the villager needs to be at
+                switch ((VillagerState)GetBedZDO().GetInt("state", (int)VillagerState.Guarding_Bed))
+                {
+                    case VillagerState.Guarding_Bed:
+                        GuardBed();
+                        break;
+                    case VillagerState.Defending_Post:
+                        DefendPost();
+                        break;
+                    case VillagerState.Following:
+                        //Too much work to make them follow player again
+                        GuardBed();
+                        break;
+                }
+                updateRanOnce = true;
+            }
+
             //Wait for the bed's ID which spawned this villagers to be saved in the zdo of this villager
             if (!isBedAssigned()) return;
 
-            //We reach here when the bed has been assigned
 
             //Check if the bed assigned is valid. Or else destroy
             if (!GetBedZDO().IsValid())
@@ -91,7 +97,7 @@ namespace KukusVillagerMod.States
                 ZNetScene.instance.Destroy(this.gameObject);
             }
 
-
+            //TP to player under certain conditions
             if (followingTarget != null && followingTarget.GetComponent<Player>() != null)
             {
                 //TP if distance is greater or player is teleporting
@@ -100,10 +106,12 @@ namespace KukusVillagerMod.States
                     transform.position = followingTarget.transform.position;
                 }
             }
+
+            //Move to designated location
             else if (followingTarget == null && keepMoving)
             {
                 //Move to command was given and we will stop moving if we reach destination or if we follow someone
-                if (ai.MoveTo(ai.GetWorldTimeDelta(), moveToTarget, 5f, true))
+                if (ai.MoveTo(ai.GetWorldTimeDelta(), moveToTarget, 2.5f, true))
                 {
                     keepMoving = false;
                 }
@@ -111,6 +119,7 @@ namespace KukusVillagerMod.States
 
         }
 
+        //Returns true if a bed was assigned to this villager after it spawned
         private bool isBedAssigned()
         {
 
@@ -125,12 +134,14 @@ namespace KukusVillagerMod.States
             return false;
         }
 
+        //Returns GO based on the ZDOID of the bed saved in the ZDO of this creature, will return null if not loaded in memory
         public GameObject GetBed()
         {
             ZDOID zdoid = this.znv.GetZDO().GetZDOID("spawner_id");
             return ZNetScene.instance.FindInstance(zdoid);
         }
 
+        //Returns the ZDO of the bed that spawned this creature
         public ZDO GetBedZDO()
         {
             var id = this.znv.GetZDO().GetZDOID("spawner_id");
@@ -172,9 +183,9 @@ namespace KukusVillagerMod.States
 
         }
 
-        Vector3 moveToTarget;
-        bool keepMoving = false;
 
+        Vector3 moveToTarget; //used in FixedUpdate
+        bool keepMoving = false; //Used in FixedUpdate
         public void MoveTo(Vector3 target)
         {
 
@@ -201,56 +212,29 @@ namespace KukusVillagerMod.States
             var bed = GetBed();
 
             FollowTarget(bed, GetBedZDO().GetPosition()); //if bed is not within loaded range then teleport there
+
             if (talk != null)
                 talk.Say("Going to my bed and guard that area", "Bed");
 
             //Update state in ZDO of bed
-            if (bed != null)
-            {
-                bed.GetComponent<BedVillagerProcessor>().UpdateVilState(VillagerState.Guarding_Bed);
-            }
-            else
-            {
-                GetBedZDO().Set("state", (int)VillagerState.Guarding_Bed);
-            }
+            GetBedZDO().Set("state", (int)VillagerState.Guarding_Bed);
             return true;
-
-
         }
 
 
 
         public bool FollowPlayer(Player p)
         {
-
+            //If player's area is not ready we are aborting follow command
             if (ZNetScene.instance.IsAreaReady(transform.position) == false)
             {
                 return false;
             }
 
             FollowTarget(p.gameObject, null);
-            if (Global.followers.Contains(this) == false)
-            {
-                Global.followers.Add(this);
-            }
 
             //Update the state in bed's ZDO
-            var bed = GetBed();
-            if (bed != null)
-            {
-                bed.GetComponent<BedVillagerProcessor>().UpdateVilState(VillagerState.Following);
-            }
-            else
-            {
-                GetBedZDO().Set("state", (int)VillagerState.Following);
-            }
-
-            //We need to save the playerID in the bed's ZDo. This is to make sure that when the villager loads we can make them follow player again
-            //long pid = ZNet.instance.GetPeerByPlayerName(p.GetPlayerName()).m_uid;
-            
-
-            //GetBedZDO().Set("followerID", pid);
-
+            GetBedZDO().Set("state", (int)VillagerState.Following);
 
             if (talk != null)
                 talk.Say($"Following you {Player.m_localPlayer.GetHoverName()}", "Following");
@@ -277,20 +261,10 @@ namespace KukusVillagerMod.States
 
 
                 //Update the state in bed's ZDO
-                var bed = GetBed();
-                if (bed != null)
-                {
-                    bed.GetComponent<BedVillagerProcessor>().UpdateVilState(VillagerState.Defending_Post);
-                }
-                else
-                {
-                    GetBedZDO().Set("state", (int)VillagerState.Defending_Post);
-                }
+                GetBedZDO().Set("state", (int)VillagerState.Defending_Post);
 
                 return true;
             }
-
-
         }
 
         //FUTURE

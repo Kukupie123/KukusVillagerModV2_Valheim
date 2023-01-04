@@ -24,7 +24,7 @@ namespace KukusVillagerMod.Prefabs
             weakReqM.Add(new RequirementConfig("Wood", 10, 0, false));
             createBed("Weak_Bed_Ranged", "Bed for Weak Villagers with ranged weapons", VillagerModConfigurations.bed_weak_ranged_prefab, "Weak_Villager_Ranged", weakReq,VillagerModConfigurations.weak_bed_respawn);
             createBed("Weak_Bed", "Bed for Weak Villagers", VillagerModConfigurations.bed_weak_melee_prefab, "Weak_Villager", weakReqM, VillagerModConfigurations.weak_bed_respawn);
-
+            //createBed("Worker_Bed", "Bed for worker trolls", VillagerModConfigurations.bed_weak_melee_prefab, "Worker_Troll", weakReqM, VillagerModConfigurations.weak_bed_respawn);
             //Bronze Age
             var bronzeReq = new List<RequirementConfig>();
             bronzeReq.Add(new RequirementConfig("Bronze", 45, 0, false));

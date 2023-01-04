@@ -35,6 +35,9 @@ namespace KukusVillagerMod.Prefabs
 
             //test
             testHuman();
+
+            //Worker
+            //createCreature2("Worker_Troll", "Troll", 3, 0, 100);
         }
 
         void testHuman()
@@ -104,7 +107,6 @@ namespace KukusVillagerMod.Prefabs
             villager.Prefab.GetComponent<VillagerLifeCycle>().villagerType = villagerType;
             villager.Prefab.GetComponent<VillagerLifeCycle>().villagerLevel = level;
             villager.Prefab.GetComponent<VillagerLifeCycle>().health = health;
-
 
             CreatureManager.Instance.AddCreature(villager);
 

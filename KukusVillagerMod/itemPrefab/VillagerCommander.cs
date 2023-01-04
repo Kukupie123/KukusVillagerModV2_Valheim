@@ -228,7 +228,7 @@ namespace KukusVillagerMod.itemPrefab
 
 
                                 }
-                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.followPlayerKey)
+                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.Work)
                                 {
                                     if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
                                     {
@@ -251,18 +251,11 @@ namespace KukusVillagerMod.itemPrefab
                                     if (villager)
                                     {
 
-                                        villager.FollowPlayer(Player.m_localPlayer);
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Following " + Player.m_localPlayer.GetHoverName());
+                                        villager.CutTree();
+                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Working");
                                     }
-                                    else
-                                    {
-                                        foreach (var v in Global.followers)
-                                        {
-                                            v.FollowPlayer(Player.m_localPlayer);
-                                        }
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Commanded all followers to come back");
 
-                                    }
+
 
 
                                 }
@@ -410,14 +403,16 @@ namespace KukusVillagerMod.itemPrefab
                                             return;
                                         }
 
-                                        foreach (var v in Global.followers)
-                                        {
-                                            if (v != null && ZNetScene.instance.IsAreaReady(v.transform.position))
-                                            {
-                                                v.MoveTo(hitData.point);
-                                                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Sending followers to {hitData.point}");
-                                            }
-                                        }
+                                        MakeFollowersGoToLocation("Weak_Villager_Ranged", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Weak_Villager", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Bronze_Villager_Ranged", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Bronze_Villager", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Iron_Villager_Ranged", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Iron_Villager", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Silver_Villager", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Silver_Villager_Ranged", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("BlackMetal_Villager_Ranged", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("BlackMetal_Villager", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
                                     }
 
 
@@ -576,10 +571,36 @@ namespace KukusVillagerMod.itemPrefab
                     bedZDO.Set("state", (int)VillagerState.Defending_Post);
                 }
 
-
             }
 
+        }
 
+        private void MakeFollowersGoToLocation(string prefabName, Vector3 location)
+        {
+            List<ZDO> zdos = new List<ZDO>();
+            ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
+            foreach (ZDO z in zdos)
+            {
+                var bedID = z.GetZDOID("spawner_id");
+
+                if (bedID.IsNone())
+                {
+                    continue;
+                }
+
+                //If they are not following then ignore
+                var state = (VillagerState)ZDOMan.instance.GetZDO(bedID).GetInt("state", (int)VillagerState.Guarding_Bed);
+                if (state != VillagerState.Following) continue;
+
+                //See if we can get an instance. We only make those who are nearby follow player
+                var villager = ZNetScene.instance.FindInstance(z);
+
+                if (villager != null)
+                {
+                    villager.GetComponent<VillagerLifeCycle>().MoveTo(location);
+                }
+
+            }
         }
     }
 }

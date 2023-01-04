@@ -80,7 +80,6 @@ namespace KukusVillagerMod
     {
         private Global() { }
 
-        public static List<VillagerLifeCycle> followers = new List<VillagerLifeCycle>();
     }
 
     class KLog
@@ -125,6 +124,10 @@ namespace KukusVillagerMod
  * Persistent follow and store who the villager is following. SKIP IF HAVING ISSUES WITH PLAYER NOT LOADED STUFF
  */
 
+/*
+ * BUG:
+ * If there are two players and both have followers. If one commands to move his followers the followers of the other villager will move too
+ */
 
 /*
  * A bed is going to spawn a villager and save it's ZDOID, the villager spawned in is going to save the beds ZDO ID
