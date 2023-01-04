@@ -72,6 +72,7 @@ namespace KukusVillagerMod.States
             {
                 if (startingTimeForBedNotFound == null)
                 {
+                    KLog.warning("SET STARTING TIME FOR BED NOT ASSIGNED");
                     startingTimeForBedNotFound = DateTime.Now;
                 }
 
@@ -152,7 +153,6 @@ namespace KukusVillagerMod.States
             {
                 return true;
             }
-            KLog.warning("bed not assigned yet");
             return false;
         }
 
@@ -212,6 +212,8 @@ namespace KukusVillagerMod.States
         public bool GuardBed()
         {
             var bed = GetBed();
+
+            removeFromFollower();
 
             FollowTarget(bed, GetBedZDO().GetPosition()); //if bed is not within loaded range then teleport there
 
@@ -285,6 +287,7 @@ namespace KukusVillagerMod.States
             else
             {
                 var defense = ZNetScene.instance.FindInstance(defenseID);
+                removeFromFollower();
                 FollowTarget(defense, ZDOMan.instance.GetZDO(defenseID).GetPosition());
                 if (talk != null)
                     talk.Say($"Defending Post {defenseID.id}", "Defend");
@@ -295,6 +298,12 @@ namespace KukusVillagerMod.States
                 followingPlayerID = -1;
                 return true;
             }
+        }
+
+        private void removeFromFollower()
+        {
+            ai.SetFollowTarget(null);
+            followingPlayerID = -1;
         }
 
         //FUTURE
