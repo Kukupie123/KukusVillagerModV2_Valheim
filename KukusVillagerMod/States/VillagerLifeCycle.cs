@@ -222,8 +222,6 @@ namespace KukusVillagerMod.States
 
             //Update state in ZDO of bed
             GetBedZDO().Set("state", (int)VillagerState.Guarding_Bed);
-            //remove playerID 
-            followingPlayerID = -1;
             return true;
         }
 
@@ -295,7 +293,6 @@ namespace KukusVillagerMod.States
 
                 //Update the state in bed's ZDO
                 GetBedZDO().Set("state", (int)VillagerState.Defending_Post);
-                followingPlayerID = -1;
                 return true;
             }
         }
@@ -304,6 +301,7 @@ namespace KukusVillagerMod.States
         {
             ai.SetFollowTarget(null);
             followingPlayerID = -1;
+            this.followingTarget = null;
         }
 
         //FUTURE
