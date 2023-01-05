@@ -34,7 +34,7 @@ namespace KukusVillagerMod.Prefabs
             createCreature2("BlackMetal_Villager", VillagerModConfigurations.bm_villager_melee_prefab, 1, VillagerModConfigurations.bm_villager_level, VillagerModConfigurations.bm_villager_health);
 
             //test
-            testHuman();
+            //testHuman();
 
             //Worker
             //createCreature2("Worker_Troll", "Troll", 3, 0, 100);
