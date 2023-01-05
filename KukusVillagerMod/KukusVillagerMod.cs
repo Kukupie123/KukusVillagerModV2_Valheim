@@ -119,7 +119,13 @@ namespace KukusVillagerMod
 
 /*
  * TODO:
- * AI Tweaks such as attack rate etc
+ * 1. AI Tweaks such as attack rate etc
+ * 2. Troll worker villager.
+ * 
+ * How should we go about it hmmm.
+ * 
+ * They can be commanded just like normal villagers.
+ * 
  */
 
 /*
