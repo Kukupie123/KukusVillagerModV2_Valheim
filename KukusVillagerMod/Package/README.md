@@ -1,4 +1,4 @@
-﻿# Kuku's Villager Mod
+# Kuku's Villager Mod
 DELETE OLD VERSION's DLL, CONFIGS EVERY UPDATE.
 ## Installation (manual)
 Paste the plugins folder in valheim/BepInEx/
@@ -18,7 +18,7 @@ To assign it a defense post you need to interact with the bed and then interact 
 To make a villager follow you, interact with him by tapping your interact key (E default). If you hold your interact key they will go back to guarding their base.<br>
 You can craft the villager commander club to command villagers<br>
 1. Guard bed : Commands all the villagers to guard their bed
-2. Call back Followers : Commands all your followers whom you have commanded to move to a location previously to come back to you.
+2. Call back Followers : Commands all your followers whom to come back to you.
 3. Guard Defense post : Command all your villagers to go to their assigned defense post. 
 4,5,6 : Destroy Defense post, Destroy villagers, Destroy bed in area
 7. Move To : Command your followers to move to the location you are aiming at.

@@ -24,7 +24,7 @@ namespace KukusVillagerMod
 
         public const string PluginGUID = "com.kukukodes.KukuVillagers";
         public const string PluginName = "KukusVillagerMod";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "2.0.0";
         public static CustomLocalization Localization = LocalizationManager.Instance.GetLocalization();
         private VillagerCommander vc;
 
