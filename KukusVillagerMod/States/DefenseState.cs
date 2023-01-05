@@ -18,7 +18,7 @@ namespace KukusVillagerMod.States
             piece = GetComponent<Piece>();
         }
 
-
+        //Same deal as the one in BedVillagerProcessor. Please check that file to know about this variable
         bool fixedUpdateRanOnce = false;
         private void FixedUpdate()
         {
@@ -46,6 +46,7 @@ namespace KukusVillagerMod.States
         }
 
 
+
         public string GetHoverName()
         {
             string defenseID = znv.GetZDO().m_uid.id.ToString();
@@ -58,6 +59,16 @@ namespace KukusVillagerMod.States
             return $"Defense post ID {defenseID}";
         }
 
+
+        /// <summary>
+        /// Interacting with the defense post will save the defense post's ZDOID in the bed's ZDO of the variable "SELECTED_BED_ID".
+        /// If no bed was interacted with prior to interacting with this defense post we will show error message.
+        /// Related : Interact method of "BedVillagerProcessor" class
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="hold"></param>
+        /// <param name="alt"></param>
+        /// <returns></returns>
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
             //Check if user has a bed uid

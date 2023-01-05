@@ -8,11 +8,13 @@ namespace KukusVillagerMod.States
     class BedVillagerProcessor : MonoBehaviour, Hoverable, Interactable
     {
         private ZNetView znv;
-        public float respawnTimeMin = 1f;
-        public string VillagerPrefabName;
+        public float respawnTimeInMinute = 1f; //The respawn time for the villager. Has to be set during prefab creation
+        public string VillagerPrefabName; //Name of the villager it has to spawn, has to be set during prefab creation
         private Piece piece;
 
-
+        /*
+         * When assigning posts and containers for a bed we need to keep track of the bed we interacted with. We store that bed's ZDO in this static variable
+         */
         public static ZDOID? SELECTED_BED_ID;
 
 
@@ -21,10 +23,11 @@ namespace KukusVillagerMod.States
             piece = base.GetComponent<Piece>();
         }
 
-        bool fixedUpdateRanOnce = false;
+        
+        bool fixedUpdateRanOnce = false; //Used to determine if we have ran the fixed update atleast once, we need to perform few actions during the first update call and then never perform them. We use this boolean to determine it.
         private void FixedUpdate()
         {
-            if (!piece || KukusVillagerMod.isMapDataLoaded == false) return;
+            if (!piece || KukusVillagerMod.isMapDataLoaded == false) return; //Map data has to be loaded before we can proceed
 
             if (piece.IsPlacedByPlayer())
             {
@@ -42,7 +45,7 @@ namespace KukusVillagerMod.States
                         fixedUpdateRanOnce = true;
                         return;
                     }
-                    base.InvokeRepeating("UpdateSpawner", UnityEngine.Random.Range(3f, 5f), 5f);
+                    base.InvokeRepeating("UpdateSpawner", 2f, 5f);
 
                     fixedUpdateRanOnce = true;
                 }
@@ -50,6 +53,9 @@ namespace KukusVillagerMod.States
             }
         }
 
+        /// <summary>
+        /// Determines if we need to spawn a new villager or not.
+        /// </summary>
         private void UpdateSpawner()
         {
             if (!this.znv.IsOwner())
@@ -57,23 +63,28 @@ namespace KukusVillagerMod.States
                 return;
             }
 
-            ZDOID zdoid = this.znv.GetZDO().GetZDOID("spawn_id");
-            if (this.respawnTimeMin <= 0f && !zdoid.IsNone())
+            ZDOID villagerZDOID = this.znv.GetZDO().GetZDOID("spawn_id");
+
+            //If respawn timer is less than 0 and villager is valid we simply return. IDK why tho, this is from the game's official CreatureSpawner class
+            if (this.respawnTimeInMinute <= 0f && !villagerZDOID.IsNone())
             {
                 return;
             }
 
-            if (!zdoid.IsNone() && ZDOMan.instance.GetZDO(zdoid) != null)
+            //If villager is valid and the ZDO of the villager we got from villagerZDOID is valid we update the alive time variable. Pretty sure we do not need this. Part of official code
+            if (!villagerZDOID.IsNone() && ZDOMan.instance.GetZDO(villagerZDOID) != null)
             {
                 this.znv.GetZDO().Set("alive_time", ZNet.instance.GetTime().Ticks);
                 return;
             }
 
-            if (this.respawnTimeMin > 0f)
+
+            //If respawnTimerInMin is greater than 0 we check the alive_time count. And if alive time - currentTime is invalid then we can assume that the villager is dead and spawn if enough time has passed after the villager died
+            if (this.respawnTimeInMinute > 0f)
             {
                 DateTime time = ZNet.instance.GetTime();
                 DateTime d = new DateTime(this.znv.GetZDO().GetLong("alive_time", 0L));
-                if ((time - d).TotalMinutes < (double)this.respawnTimeMin)
+                if ((time - d).TotalMinutes < (double)this.respawnTimeInMinute)
                 {
                     return;
                 }
@@ -85,30 +96,42 @@ namespace KukusVillagerMod.States
         }
 
 
+        /// <summary>
+        /// Checks if this bed has a villager spawned
+        /// </summary>
+        /// <returns>true if it has a villager </returns>
         private bool HasSpawned()
         {
             return !(this.znv == null) && this.znv.GetZDO() != null && !this.znv.GetZDO().GetZDOID("spawn_id").IsNone();
         }
 
+
+        /// <summary>
+        /// Spawns a villager and saves essential data
+        /// </summary>
+        /// <returns></returns>
         private ZNetView Spawn()
         {
             KLog.warning("Spawning CREATURE!");
             Vector3 position = base.transform.position;
             float y;
+
+            //Finding the best spawn location
             if (ZoneSystem.instance.FindFloor(position, out y))
             {
                 position.y = y;
             }
 
-            var villagerPrefab = CreatureManager.Instance.GetCreaturePrefab(this.VillagerPrefabName);
-            Quaternion rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f);
-            GameObject villager = UnityEngine.Object.Instantiate<GameObject>(villagerPrefab, position, rotation);
+            
+            var villagerPrefab = CreatureManager.Instance.GetCreaturePrefab(this.VillagerPrefabName); //Getting prefab of the villager
+            Quaternion rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f); //Random rotation along the YAW
+            GameObject villager = UnityEngine.Object.Instantiate<GameObject>(villagerPrefab, position, rotation); //spawning a villager
 
 
             ZNetView component = villager.GetComponent<ZNetView>();
             BaseAI component2 = villager.GetComponent<BaseAI>();
             Tameable tameable = villager.GetComponent<Tameable>();
-            tameable.Tame();
+            tameable.Tame(); //Taming the spawned villager
 
             component.GetZDO().Set("spawner_id", this.znv.GetZDO().m_uid); //Save the bed's ID in the villager's ZDO
             component.GetZDO().SetPGWVersion(this.znv.GetZDO().GetPGWVersion()); //not sure that this is for
@@ -132,6 +155,11 @@ namespace KukusVillagerMod.States
             return component;
         }
 
+
+        /// <summary>
+        /// Returns an enum which is the state the villager should be at. If none found it will create a new one, save it in the zdo and return it back
+        /// </summary>
+        /// <returns>State of the villager</returns>
         public VillagerState GetVilState()
         {
             return (VillagerState)this.znv.GetZDO().GetInt("state", (int)VillagerState.Guarding_Bed);
@@ -165,9 +193,16 @@ namespace KukusVillagerMod.States
 
         public string GetHoverName()
         {
-            return "Villager's Bed NAME";
+            return name;
         }
 
+        /// <summary>
+        /// Interacting with the bed will save the bed's ZDO to the static variable SELECTED_BED_ZDO and will be used for setting defenses and containers assigned to the bed
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="hold"></param>
+        /// <param name="alt"></param>
+        /// <returns></returns>
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
             if (!hold) //Save bed in ZDO of user temporarily, when interacted with defense post, we will make use of this bed
@@ -179,6 +214,7 @@ namespace KukusVillagerMod.States
             return false;
         }
 
+        //Does nothing as of now
         public bool UseItem(Humanoid user, ItemDrop.ItemData item)
         {
             return true;

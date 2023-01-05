@@ -59,7 +59,7 @@ namespace KukusVillagerMod.Prefabs
             createBed("BlackMetal_Bed", "Bed for Great Villagers, better than Silver Villagers", VillagerModConfigurations.bed_bm_melee_prefab, "BlackMetal_Villager", bmReqM, VillagerModConfigurations.bm_bed_respawn);
         }
 
-        private void createBed(string bedID, string bedDesc, string cloneName, string villagerID, List<RequirementConfig> requirements, int respawnDuration)
+        private void createBed(string bedID, string bedDesc, string cloneName, string villagerID, List<RequirementConfig> requirements, float respawnInMin)
         {
             //Create Configuration of the bed
             PieceConfig bedConfig = new PieceConfig();
@@ -90,6 +90,7 @@ namespace KukusVillagerMod.Prefabs
             var spawner = bed.PiecePrefab.GetOrAddComponent<BedVillagerProcessor>();
             //bedState.respawnDuration = respawnDuration;
             spawner.VillagerPrefabName = villagerID;
+            spawner.respawnTimeInMinute = respawnInMin;
             //Add the piece to PieceManager
             PieceManager.Instance.AddPiece(bed);
         }

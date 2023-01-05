@@ -434,41 +434,7 @@ namespace KukusVillagerMod.itemPrefab
                                     int villagersCount = 0;
                                     int bedless = 0;
                                     int defending = 0;
-                                    /*
-                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<VillagerLifeCycle>())
-                                    {
-                                        if (v != null)
-                                        {
-                                            villagersCount++;
-                                        }
-
-                                        if (v.bed == null) bedless++;
-
-                                        if (v.followingTarget != null && v.followingTarget.GetComponent<DefensePostState>() != null) defending++;
-
-                                    }
-
-                                    int bedCount = 0;
-                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<BedCycle>())
-                                    {
-                                        if (v != null)
-                                        {
-                                            bedCount++;
-                                        }
-                                    }
-
-                                    int dpC = 0;
-                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<DefensePostState>())
-                                    {
-                                        if (v != null)
-                                        {
-                                            dpC++;
-                                        }
-                                    }
-
-
-                                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Villagers Loaded : {villagersCount}, Beddless Villagers : {bedless}, Defending villagers : {defending}, Beds Loaded : {bedCount}, DP Loaded : {dpC} {Player.m_localPlayer.GetGroup()}");
-                                    */
+                              
                                 }
                                 else
                                 {
@@ -491,7 +457,11 @@ namespace KukusVillagerMod.itemPrefab
 
         private void MakeVillagersGoToBed(string prefabName)
         {
-            //Find spawner_id of every prefab and see if it has valid bedID, then based on if we found it's instance in game or not we command it to move guard bed or simply teleport by updating position
+            //Find spawner_id of every prefab and see if it has valid bedID,
+            //Get BedZDO using bedID
+            //Get instance of bed GameObject using bedZDo.
+            //If found then call villager.GuardBed() or else we Tp the villager 
+            //Update the state of the bed's ZDO manually if we had to TP villager
 
             List<ZDO> zdos = new List<ZDO>();
             ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
@@ -529,7 +499,11 @@ namespace KukusVillagerMod.itemPrefab
 
         private void MakeVillagersDefend(string prefabName)
         {
-            //Find spawner_id of every prefab and see if it has valid bedID, then based on if we found it's instance in game or not we command it to move guard bed or simply teleport by updating position
+            //Find spawner_id of every prefab and see if it has valid bedID,
+            //then we get the ZDO of the spawner. From the spawner's ZDo we get the defense's ZDO
+            //Get instance of defense Game object using the defense's ZDO. If found we make villager call Defend Post.
+            //If not found we TP the villager to that location 
+            //Update the state of the bed's ZDO at the end if we had to TP the villager
 
             List<ZDO> zdos = new List<ZDO>();
             ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
@@ -571,6 +545,13 @@ namespace KukusVillagerMod.itemPrefab
 
         private void MakeFollowersGoToLocation(string prefabName, Vector3 location)
         {
+
+            //ONLY VILLAGERS LOADED IN MEMORY, WILL BE CONSIDERED. I.e Whose instance can be found
+            //Get all villagers ZDO in world.
+            //Get villager's Bed ZDO, 
+            //Get State stored in bed. If following then get instance, if you cant then skip 
+            //Check followingPlayerID and see if it matches this local player. If match then make them moveTo location
+
             List<ZDO> zdos = new List<ZDO>();
             ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
             foreach (ZDO z in zdos)
@@ -606,6 +587,12 @@ namespace KukusVillagerMod.itemPrefab
 
         private void MakeFollowersComeBack(string prefabName)
         {
+            //ONLY VILLAGERS LOADED IN MEMORY, WILL BE CONSIDERED. I.e Whose instance can be found
+            //Get all villagers ZDO in world.
+            //Get villager's Bed ZDO, 
+            //Get State stored in bed. If following then get instance, if you cant then skip 
+            //Check followingPlayerID and see if it matches this local player. If match then make them follow player again
+
             List<ZDO> zdos = new List<ZDO>();
             ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
             foreach (ZDO z in zdos)

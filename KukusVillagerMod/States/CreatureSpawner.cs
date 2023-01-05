@@ -2,6 +2,8 @@
 using UnityEngine;
 
 // Token: 0x0200000C RID: 12
+
+//GANE CODE, KEPT FOR REFERENCE
 public class CreatureSpawner : MonoBehaviour
 {
 	// Token: 0x0600011A RID: 282 RVA: 0x00008065 File Offset: 0x00006265

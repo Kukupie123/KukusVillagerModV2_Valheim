@@ -57,11 +57,11 @@ namespace KukusVillagerMod.Configuration
         public static string bed_silver_ranged_prefab;
         public static string bed_bm_melee_prefab;
         public static string bed_bm_ranged_prefab;
-        public static int weak_bed_respawn;
-        public static int bronze_bed_respawn;
-        public static int iron_bed_respawn;
-        public static int silver_bed_respawn;
-        public static int bm_bed_respawn;
+        public static float weak_bed_respawn;
+        public static float bronze_bed_respawn;
+        public static float iron_bed_respawn;
+        public static float silver_bed_respawn;
+        public static float bm_bed_respawn;
         public static string guardBedKey;
         public static string CallFollowers;
         public static string defendPostKey;
@@ -238,11 +238,11 @@ namespace KukusVillagerMod.Configuration
 
 
             //Bed Respawn timer
-            weak_bed_respawn = (int)Config.Bind("Bed respawn timer", "Weak_Bed_Melee_RT", 40000, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            bronze_bed_respawn = (int)Config.Bind("Bed respawn timer", "Bronze_Bed_Melee_RT", 120000, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            iron_bed_respawn = (int)Config.Bind("Bed respawn timer", "Iron_Bed_Melee_RT", 240000, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            silver_bed_respawn = (int)Config.Bind("Bed respawn timer", "Silver_Bed_Melee_RT", 360000, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            bm_bed_respawn = (int)Config.Bind("Bed respawn timer", "BM_Bed_Melee_RT", 480000, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            weak_bed_respawn = (float)Config.Bind("Bed respawn timer", "Weak_Bed_Melee_RT (Minute)", 1f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            bronze_bed_respawn = (float)Config.Bind("Bed respawn timer", "Bronze_Bed_Melee_RT (Minute)", 3f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            iron_bed_respawn = (float)Config.Bind("Bed respawn timer", "Iron_Bed_Melee_RT (Minute)", 5f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            silver_bed_respawn = (float)Config.Bind("Bed respawn timer", "Silver_Bed_Melee_RT (Minute)", 7f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            bm_bed_respawn = (float)Config.Bind("Bed respawn timer", "BM_Bed_Melee_RT (Minute)", 9f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
 
 
 

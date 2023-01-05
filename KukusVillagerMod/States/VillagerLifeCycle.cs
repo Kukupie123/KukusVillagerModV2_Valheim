@@ -11,34 +11,34 @@ namespace KukusVillagerMod.States
         public ZNetView znv;
 
 
-        public int villagerLevel;
-        public int villagerType;
-        public int health;
+        public int villagerLevel; //The level of the villager. Has to be set during creature prefab setup
+        public int villagerType; //The type of villager. Servers no purpose anymore, will remove soon
+        public int health; //The health of the villager. Has to be set during the creature prefab setup.
 
 
-        public GameObject followingTarget;
+        public GameObject followingTarget; //Used to store the game object the villager is following
         public long followingPlayerID; //Used to figure out which player the villagers are following
 
         MonsterAI ai;
         public Humanoid humanoid;
         NpcTalk talk;
 
+        Vector3 moveToTarget; //used in FixedUpdate to make the ai go to a location
+        bool keepMoving = false; //Used in FixedUpdate to make ai go to a location
 
         private void Awake()
         {
             znv = GetComponentInParent<ZNetView>();
-            znv.SetPersistent(true);
+            znv.SetPersistent(true); //ZNV has to be persistent
             ai = GetComponent<MonsterAI>();
             talk = GetComponent<NpcTalk>();
             //ai.m_alertRange = 500f; TEST THIS RANGE OUT
+
+            //Setting the values set during prefab setup 
             humanoid = GetComponent<Humanoid>();
             humanoid.SetLevel(villagerLevel);
             humanoid.SetMaxHealth(health);
             humanoid.SetHealth(health);
-
-
-
-
 
         }
 
@@ -48,6 +48,8 @@ namespace KukusVillagerMod.States
         {
         }
 
+
+        //Ignore collision with player
         private void OnCollisionEnter(Collision collision)
         {
             Character character = collision.gameObject.GetComponent<Character>();
@@ -61,26 +63,27 @@ namespace KukusVillagerMod.States
 
 
         }
-
+        //updateRanOnce is used to determine if FixedUpdate function has been run once after certain criterias were met. It will perform operations that needs to be done once but needs certain conditions to be met so we can't do them in Awake Method
         bool updateRanOnce = false;
         DateTime? startingTimeForBedNotFound;
         private void FixedUpdate()
         {
             if (!KukusVillagerMod.isMapDataLoaded) return;
-            //Wait for the bed's ID which spawned this villagers to be saved in the zdo of this villager
+            //Wait for the bed's ID which spawned this villagers to be saved in the zdo of this villager. The threshold is 10 sec. If we fail to find bed in 10 sec then we are going to assume that this villager was spawned without a bed and needs to be destroyed
             if (!isBedAssigned())
             {
+                //Set starting time. Will execute only once
                 if (startingTimeForBedNotFound == null)
                 {
                     KLog.warning("SET STARTING TIME FOR BED NOT ASSIGNED");
-                    startingTimeForBedNotFound = DateTime.Now;
+                    startingTimeForBedNotFound = ZNet.instance.GetTime();
                 }
-
 
                 DateTime currentTime = DateTime.Now;
 
-                var a = currentTime - startingTimeForBedNotFound.Value;
-                if (a.TotalSeconds > 10)
+                var timeElasped = currentTime - startingTimeForBedNotFound.Value;
+
+                if (timeElasped.TotalSeconds > 10)
                 {
                     //if we crossed 10 sec of waiting we are destroying thezdo
                     var zdo = base.GetComponent<ZNetView>().GetZDO();
@@ -120,8 +123,8 @@ namespace KukusVillagerMod.States
                 ZNetScene.instance.Destroy(this.gameObject);
             }
 
-            //TP to player under certain conditions
-            if (followingTarget != null && followingTarget.GetComponent<Player>() != null)
+            //TP to player if distance > certain distance, following and the following target is a valid player
+            if (followingTarget != null && followingTarget.GetComponent<Player>() != null && (VillagerState)GetBedZDO().GetInt("state", (int)VillagerState.Guarding_Bed) == VillagerState.Following)
             {
                 //TP if distance is greater or player is teleporting
                 if (Vector3.Distance(followingTarget.transform.position, transform.position) > 70 || followingTarget.GetComponent<Player>().IsTeleporting() || ai.FindPath(followingTarget.transform.position) == false)
@@ -130,10 +133,10 @@ namespace KukusVillagerMod.States
                 }
             }
 
-            //Move to designated location
-            else if (followingTarget == null && keepMoving)
+            //Move to designated location if keepMoving was set to true
+            else if (keepMoving)
             {
-                //Move to command was given and we will stop moving if we reach destination or if we follow someone
+                //Move to the moveToTarget and disable keepMoving when villager reaches that location
                 if (ai.MoveTo(ai.GetWorldTimeDelta(), moveToTarget, 2.5f, true))
                 {
                     keepMoving = false;
@@ -174,9 +177,14 @@ namespace KukusVillagerMod.States
 
 
         //COMMANDS----------------------
+
+        /// <summary>
+        /// Follow the Go, if Go is null, TP the villager to the Vector3 position
+        /// </summary>
+        /// <param name="target">The Go to follow</param>
+        /// <param name="position">The location to TP to if target is null</param>
         private void FollowTarget(GameObject target, Vector3? position)
         {
-
             if (target == null)
             {
                 if (position != null)
@@ -188,7 +196,7 @@ namespace KukusVillagerMod.States
                 }
                 else
                 {
-                    KLog.warning("Following target is null");
+                    KLog.warning("Following target & position are null ");
                     return;
                 }
 
@@ -208,13 +216,16 @@ namespace KukusVillagerMod.States
 
 
 
-
+        /// <summary>
+        /// Guards the bed it was assigned. Updates the state of the bed to "Guarding Bed" Will teleport to the bed if no path available. Or if GO not loaded in memory.
+        /// </summary>
+        /// <returns>true if successfully executed</returns>
         public bool GuardBed()
         {
             var bed = GetBed();
 
-            removeFromFollower();
-
+            removeFromFollower(); //Remove the villager from follower in case it was following.
+            StopMoving(); //Sets the keepMoving boolean to false so that the character stops moving
             FollowTarget(bed, GetBedZDO().GetPosition()); //if bed is not within loaded range then teleport there
 
             if (talk != null)
@@ -226,7 +237,11 @@ namespace KukusVillagerMod.States
         }
 
 
-
+        /// <summary>
+        /// Follows the player and updates state of the bed to "Following"
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
         public bool FollowPlayer(Player p)
         {
             //If player's area is not ready we are aborting follow command
@@ -234,6 +249,7 @@ namespace KukusVillagerMod.States
             {
                 return false;
             }
+            StopMoving();
 
             FollowTarget(p.gameObject, null);
 
@@ -242,13 +258,15 @@ namespace KukusVillagerMod.States
 
             if (talk != null)
                 talk.Say($"Following you {Player.m_localPlayer.GetHoverName()}", "Following");
-            this.followingPlayerID = p.GetPlayerID();
+            this.followingPlayerID = p.GetPlayerID(); //Save the playerID of the player it is following.
 
             return true;
         }
 
-        Vector3 moveToTarget; //used in FixedUpdate
-        bool keepMoving = false; //Used in FixedUpdate
+        /// <summary>
+        /// Moves the villager to the target 
+        /// </summary>
+        /// <param name="target"></param>
         public void MoveTo(Vector3 target)
         {
 
@@ -273,6 +291,10 @@ namespace KukusVillagerMod.States
         }
 
 
+        /// <summary>
+        /// Guards the defense post it was assigned. If no defense post assigned it will do nothing.
+        /// </summary>
+        /// <returns></returns>
         public bool DefendPost()
         {
             var defenseID = GetBedZDO().GetZDOID("defense");
@@ -285,6 +307,9 @@ namespace KukusVillagerMod.States
             else
             {
                 var defense = ZNetScene.instance.FindInstance(defenseID);
+
+                StopMoving();
+
                 removeFromFollower();
                 FollowTarget(defense, ZDOMan.instance.GetZDO(defenseID).GetPosition());
                 if (talk != null)
@@ -297,11 +322,18 @@ namespace KukusVillagerMod.States
             }
         }
 
+        //Sets the follow target of the AI to null and invalidates the followingPlayerID. DOES NOT UPDATE STATE OF THE BED
         private void removeFromFollower()
         {
             ai.SetFollowTarget(null);
             followingPlayerID = -1;
             this.followingTarget = null;
+        }
+
+        //Sets the keep moving variable to false. DOES NOT UPDATE STATE.
+        private void StopMoving()
+        {
+            keepMoving = false;
         }
 
         //FUTURE
