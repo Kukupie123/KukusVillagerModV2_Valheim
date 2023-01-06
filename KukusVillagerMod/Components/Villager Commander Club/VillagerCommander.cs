@@ -4,13 +4,15 @@ using Jotunn.Entities;
 using Jotunn.Managers;
 using KukusVillagerMod.Configuration;
 using KukusVillagerMod.enums;
-using KukusVillagerMod.States;
+using KukusVillagerMod.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using KukusVillagerMod.Components.Villager;
+using KukusVillagerMod.Components.VillagerBed;
 
 namespace KukusVillagerMod.itemPrefab
 {
@@ -331,7 +333,7 @@ namespace KukusVillagerMod.itemPrefab
                                     moveToPressed = false;
                                     showStatsPressed = false;
 
-                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<VillagerLifeCycle>())
+                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<VillagerGeneral>())
                                     {
                                         //if (v == null || v.znv == null || v.znv.GetZDO() == null)
                                         ZNetScene.instance.Destroy(v.gameObject);
@@ -434,7 +436,7 @@ namespace KukusVillagerMod.itemPrefab
                                     int villagersCount = 0;
                                     int bedless = 0;
                                     int defending = 0;
-                              
+
                                 }
                                 else
                                 {
@@ -479,7 +481,7 @@ namespace KukusVillagerMod.itemPrefab
 
                 if (villager != null)
                 {
-                    villager.GetComponent<VillagerLifeCycle>().GuardBed();
+                    villager.GetComponent<VillagerAI>().GuardBed();
                 }
                 else //if we can't get instance we update the position in zdo
                 {
@@ -499,44 +501,41 @@ namespace KukusVillagerMod.itemPrefab
 
         private void MakeVillagersDefend(string prefabName)
         {
-            //Find spawner_id of every prefab and see if it has valid bedID,
-            //then we get the ZDO of the spawner. From the spawner's ZDo we get the defense's ZDO
-            //Get instance of defense Game object using the defense's ZDO. If found we make villager call Defend Post.
-            //If not found we TP the villager to that location 
-            //Update the state of the bed's ZDO at the end if we had to TP the villager
 
-            List<ZDO> zdos = new List<ZDO>();
+
+            List<ZDO> zdos = new List<ZDO>(); //Will be used to store all zdos of prefabName(villager) type
             ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
             foreach (ZDO z in zdos)
             {
-                var bedID = z.GetZDOID("spawner_id");
+                var bedID = z.GetZDOID("spawner_id"); //Get bed's ZDOID stored in the villager
 
                 if (bedID.IsNone())
                 {
                     continue;
                 }
 
-                //See if we can get an instance.
+                //See if we can get an instance of the villager.
                 var villager = ZNetScene.instance.FindInstance(z);
 
-                if (villager != null)
+                if (villager != null) //if instance is valid we call DefendPost function
                 {
-                    villager.GetComponent<VillagerLifeCycle>().DefendPost();
+                    villager.GetComponent<VillagerAI>().DefendPost();
                 }
                 else //if we can't get instance we are going to get defense zdo and use it's position
                 {
-                    var bedZDO = ZDOMan.instance.GetZDO(bedID);
+
+                    var bedZDO = ZDOMan.instance.GetZDO(bedID); //Get bed's ZDO using bedID
 
 
-                    var defenseID = bedZDO.GetZDOID("defense");
-                    if (defenseID.IsNone()) continue;
+                    var defenseID = bedZDO.GetZDOID("defense"); //Get defenseID stored in bed's ZDO
+                    if (defenseID.IsNone()) continue; //if defense not assigned yet for the bed we skip
 
-                    var defenseZDO = ZDOMan.instance.GetZDO(defenseID);
+                    var defenseZDO = ZDOMan.instance.GetZDO(defenseID); //Get ZDO of the defense post based on defenseID
 
-                    z.SetPosition(defenseZDO.GetPosition());
+                    z.SetPosition(defenseZDO.GetPosition()); //Set the position of the villager's ZDO to that of Defendese's ZDO's position
 
                     //Set it's state manually
-                    bedZDO.Set("state", (int)VillagerState.Defending_Post);
+                    bedZDO.Set("state", (int)VillagerState.Defending_Post); //Update the state of the villager
                 }
 
             }
@@ -545,12 +544,6 @@ namespace KukusVillagerMod.itemPrefab
 
         private void MakeFollowersGoToLocation(string prefabName, Vector3 location)
         {
-
-            //ONLY VILLAGERS LOADED IN MEMORY, WILL BE CONSIDERED. I.e Whose instance can be found
-            //Get all villagers ZDO in world.
-            //Get villager's Bed ZDO, 
-            //Get State stored in bed. If following then get instance, if you cant then skip 
-            //Check followingPlayerID and see if it matches this local player. If match then make them moveTo location
 
             List<ZDO> zdos = new List<ZDO>();
             ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
@@ -574,23 +567,30 @@ namespace KukusVillagerMod.itemPrefab
                 {
                     //Check if playerID matches
 
-                    if (villager.GetComponent<VillagerLifeCycle>().followingPlayerID != Player.m_localPlayer.GetPlayerID())
+                    if (villager.GetComponent<VillagerAI>().followingPlayerZDOID != Player.m_localPlayer.GetZDOID())
                     {
                         continue;
                     }
 
-                    villager.GetComponent<VillagerLifeCycle>().MoveTo(location);
+                    villager.GetComponent<VillagerAI>().MoveVillagerToLoc(location, true); //Move the villager to the location and also keep the villager as follower
+                }
+                else
+                {
+                    //Villager instance not valid so we make them guard bed
+                    MakeVillagersGoToBed(prefabName);
                 }
 
             }
         }
 
+        /// <summary>
+        /// Makes all followers who were commanded to go to a location come back to player.
+        /// Those who are not in range (no instance/ not loaded in game world), will be made to guard bed
+        /// </summary>
+        /// <param name="prefabName"></param>
         private void MakeFollowersComeBack(string prefabName)
         {
-            //ONLY VILLAGERS LOADED IN MEMORY, WILL BE CONSIDERED. I.e Whose instance can be found
-            //Get all villagers ZDO in world.
-            //Get villager's Bed ZDO, 
-            //Get State stored in bed. If following then get instance, if you cant then skip 
+
             //Check followingPlayerID and see if it matches this local player. If match then make them follow player again
 
             List<ZDO> zdos = new List<ZDO>();
@@ -615,12 +615,17 @@ namespace KukusVillagerMod.itemPrefab
                 {
                     //Check if playerID matches
 
-                    if (villager.GetComponent<VillagerLifeCycle>().followingPlayerID != Player.m_localPlayer.GetPlayerID())
+                    if (villager.GetComponent<VillagerAI>().followingPlayerZDOID != Player.m_localPlayer.GetZDOID())
                     {
                         continue;
                     }
 
-                    villager.GetComponent<VillagerLifeCycle>().FollowPlayer(Player.m_localPlayer);
+                    villager.GetComponent<VillagerAI>().FollowPlayer(Player.m_localPlayer);
+                }
+                else
+                {
+                    //Follower is not close to player, Make them guard bed.
+                    MakeVillagersGoToBed(prefabName);
                 }
 
             }

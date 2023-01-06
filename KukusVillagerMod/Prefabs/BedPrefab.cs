@@ -3,12 +3,13 @@ using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using KukusVillagerMod.Configuration;
-using KukusVillagerMod.States;
+using KukusVillagerMod.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using KukusVillagerMod.Components.VillagerBed;
 
 namespace KukusVillagerMod.Prefabs
 {

@@ -1,11 +1,12 @@
-﻿using System;
+﻿using KukusVillagerMod.Components.VillagerBed;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace KukusVillagerMod.States
+namespace KukusVillagerMod.Components.DefensePost
 {
     class DefenseState : MonoBehaviour, Interactable, Hoverable
     {

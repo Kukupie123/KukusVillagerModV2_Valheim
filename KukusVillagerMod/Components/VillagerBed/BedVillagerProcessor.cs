@@ -1,8 +1,9 @@
 ﻿using Jotunn.Managers;
+using KukusVillagerMod.Components.Villager;
 using KukusVillagerMod.enums;
 using System;
 using UnityEngine;
-namespace KukusVillagerMod.States
+namespace KukusVillagerMod.Components.VillagerBed
 {
     //Based off of CreatureSpawner of valheim
     class BedVillagerProcessor : MonoBehaviour, Hoverable, Interactable
@@ -123,7 +124,7 @@ namespace KukusVillagerMod.States
             }
 
             
-            var villagerPrefab = CreatureManager.Instance.GetCreaturePrefab(this.VillagerPrefabName); //Getting prefab of the villager
+            var villagerPrefab = CreatureManager.Instance.GetCreaturePrefab(VillagerPrefabName); //Getting prefab of the villager
             Quaternion rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f); //Random rotation along the YAW
             GameObject villager = UnityEngine.Object.Instantiate<GameObject>(villagerPrefab, position, rotation); //spawning a villager
 
@@ -137,36 +138,7 @@ namespace KukusVillagerMod.States
             component.GetZDO().SetPGWVersion(this.znv.GetZDO().GetPGWVersion()); //not sure that this is for
             this.znv.GetZDO().Set("spawn_id", component.GetZDO().m_uid); //Save the villager's ID in this bed's ZDO
             this.znv.GetZDO().Set("alive_time", ZNet.instance.GetTime().Ticks); //Save alive time in this bed's ZDO
-
-
-            //Based on the state stored in zdo we are going to make the villager do stuff
-            switch (GetVilState())
-            {
-                case VillagerState.Guarding_Bed:
-                    villager.GetComponent<VillagerLifeCycle>().GuardBed();
-                    break;
-                case VillagerState.Defending_Post:
-                    villager.GetComponent<VillagerLifeCycle>().DefendPost();
-                    break;
-                case VillagerState.Following:
-                    villager.GetComponent<VillagerLifeCycle>().GuardBed(); //TODO: Save follower's ID to follow after respawn
-                    break;
-            }
             return component;
-        }
-
-
-        /// <summary>
-        /// Returns an enum which is the state the villager should be at. If none found it will create a new one, save it in the zdo and return it back
-        /// </summary>
-        /// <returns>State of the villager</returns>
-        public VillagerState GetVilState()
-        {
-            return (VillagerState)this.znv.GetZDO().GetInt("state", (int)VillagerState.Guarding_Bed);
-        }
-        public void UpdateVilState(VillagerState state)
-        {
-            this.znv.GetZDO().Set("state", (int)state);
         }
 
         //Interface

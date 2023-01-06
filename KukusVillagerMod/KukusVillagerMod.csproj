@@ -81,9 +81,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\Villager\VillagerAI.cs" />
     <Compile Include="Configurations\VillagerModConfigurations.cs" />
     <Compile Include="enums\VillagerState.cs" />
-    <Compile Include="itemPrefab\VillagerCommander.cs" />
+    <Compile Include="Components\Villager Commander Club\VillagerCommander.cs" />
     <Compile Include="Patches\VillagerPatches.cs" />
     <Compile Include="Prefabs\BedPrefab.cs" />
     <Compile Include="Prefabs\DefensePostPrefab.cs" />
@@ -93,7 +94,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Components\CreatureSpawner.cs" />
     <Compile Include="Components\Defense Post\DefenseState.cs" />
-    <Compile Include="Components\Villager\VillagerLifeCycle.cs" />
+    <Compile Include="Components\Villager\VillagerGeneral.cs" />
     <Compile Include="Components\VillagerBed\BedVillagerProcessor.cs" />
   </ItemGroup>
   <ItemGroup>

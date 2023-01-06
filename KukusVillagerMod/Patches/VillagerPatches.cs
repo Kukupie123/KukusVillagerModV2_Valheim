@@ -1,11 +1,12 @@
 ﻿using HarmonyLib;
 using KukusVillagerMod.enums;
-using KukusVillagerMod.States;
+using KukusVillagerMod.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using KukusVillagerMod.Components.Villager;
 
 namespace KukusVillagerMod.Patches
 {
@@ -19,11 +20,11 @@ namespace KukusVillagerMod.Patches
     {
         public static void Postfix(Tameable __instance, ref string __result) //postfix = after the OG function is run
         {
-            var vls = __instance.GetComponentInParent<VillagerLifeCycle>(); //instance is the object
+            var vls = __instance.GetComponentInParent<VillagerGeneral>(); //instance is the object
 
             if (vls != null)
             {
-                __result = $"Villager : {vls.znv.GetZDO().m_uid.id}\nBed : {vls.GetBedZDO().m_uid.id}\nState : {((VillagerState)vls.GetBedZDO().GetInt("state", (int)VillagerState.Guarding_Bed)).ToString().Replace("_", " ")}";
+                __result = $"Villager : {vls.ZNV.GetZDO().m_uid.id}\nBed : {vls.GetBedZDO().m_uid.id}\nState : {((VillagerState)vls.GetBedZDO().GetInt("state", (int)VillagerState.Guarding_Bed)).ToString().Replace("_", " ")}";
             }
         }
 
@@ -34,7 +35,7 @@ namespace KukusVillagerMod.Patches
     {
         public static void Postfix(Tameable __instance, ref Humanoid user, ref bool hold, ref bool alt, ref bool __result)
         {
-            var vls = __instance.GetComponentInParent<VillagerLifeCycle>(); //instance is the object
+            var vls = __instance.GetComponentInParent<VillagerGeneral>(); //instance is the object
             if (vls != null)
             {
                 if (!hold)
@@ -47,6 +48,10 @@ namespace KukusVillagerMod.Patches
                     vls.GuardBed();
                     __result = true;
                 }
+            }
+            else
+            {
+                __result = false;
             }
         }
     }

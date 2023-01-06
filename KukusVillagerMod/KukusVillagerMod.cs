@@ -11,7 +11,7 @@ using Jotunn.Managers;
 using KukusVillagerMod.Configuration;
 using KukusVillagerMod.itemPrefab;
 using KukusVillagerMod.Prefabs;
-using KukusVillagerMod.States;
+using KukusVillagerMod.Components;
 using System.Collections.Generic;
 
 namespace KukusVillagerMod
@@ -121,6 +121,7 @@ namespace KukusVillagerMod
  * TODO:
  * 1. AI Tweaks such as attack rate etc
  * 2. Troll worker villager.
+ * 3. When near bed they regen HP. 
  * 
  * How should we go about it hmmm.
  * 

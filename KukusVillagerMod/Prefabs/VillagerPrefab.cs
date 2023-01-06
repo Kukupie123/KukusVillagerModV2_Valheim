@@ -2,8 +2,9 @@
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
+using KukusVillagerMod.Components.Villager;
 using KukusVillagerMod.Configuration;
-using KukusVillagerMod.States;
+using KukusVillagerMod.Components;
 using UnityEngine;
 
 namespace KukusVillagerMod.Prefabs
@@ -102,11 +103,11 @@ namespace KukusVillagerMod.Prefabs
 
             villager.Prefab.AddComponent<NpcTalk>(); //Add our custom talk component
             villager.Prefab.AddComponent<Tameable>(); //Add taming component to be able to tame it
-            //UnityEngine.GameObject.DestroyImmediate(t.GetComponent(typeof(Interactable))); //Remove the interaction interface from taming comp
-            villager.Prefab.AddComponent<VillagerLifeCycle>(); //Add villager lifecycle and setup values
-            villager.Prefab.GetComponent<VillagerLifeCycle>().villagerType = villagerType;
-            villager.Prefab.GetComponent<VillagerLifeCycle>().villagerLevel = level;
-            villager.Prefab.GetComponent<VillagerLifeCycle>().health = health;
+            villager.Prefab.AddComponent<VillagerGeneral>(); //Add villager General component 
+            villager.Prefab.AddComponent<VillagerAI>();
+            villager.Prefab.GetComponent<VillagerGeneral>().villagerType = villagerType;
+            villager.Prefab.GetComponent<VillagerGeneral>().villagerLevel = level;
+            villager.Prefab.GetComponent<VillagerGeneral>().health = health;
 
             CreatureManager.Instance.AddCreature(villager);
 
