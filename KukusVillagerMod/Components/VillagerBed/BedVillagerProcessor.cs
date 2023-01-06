@@ -24,7 +24,7 @@ namespace KukusVillagerMod.Components.VillagerBed
             piece = base.GetComponent<Piece>();
         }
 
-        
+
         bool fixedUpdateRanOnce = false; //Used to determine if we have ran the fixed update atleast once, we need to perform few actions during the first update call and then never perform them. We use this boolean to determine it.
         private void FixedUpdate()
         {
@@ -46,7 +46,7 @@ namespace KukusVillagerMod.Components.VillagerBed
                         fixedUpdateRanOnce = true;
                         return;
                     }
-                    base.InvokeRepeating("UpdateSpawner", 2f, 5f);
+                    base.InvokeRepeating("UpdateSpawner", 1f, 1f);
 
                     fixedUpdateRanOnce = true;
                 }
@@ -123,7 +123,7 @@ namespace KukusVillagerMod.Components.VillagerBed
                 position.y = y;
             }
 
-            
+
             var villagerPrefab = CreatureManager.Instance.GetCreaturePrefab(VillagerPrefabName); //Getting prefab of the villager
             Quaternion rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f); //Random rotation along the YAW
             GameObject villager = UnityEngine.Object.Instantiate<GameObject>(villagerPrefab, position, rotation); //spawning a villager
@@ -151,16 +151,45 @@ namespace KukusVillagerMod.Components.VillagerBed
             string villager = "None";
             if (!villagerID.IsNone())
             {
-                villager = villagerID.id.ToString();
+                if (ZDOMan.instance.GetZDO(villagerID) != null && ZDOMan.instance.GetZDO(villagerID).IsValid())
+                {
+                    villager = villagerID.id.ToString();
+                }
+                else
+                {
+                    villager = getTimeLeftToSpawn();
+                }
             }
+            else
+            {
+                villager = getTimeLeftToSpawn();
+            }
+
 
             string containerID = "None";
 
             var defenseID = this.znv.GetZDO().GetZDOID("defense");
             string defense = "None";
-            if (!defenseID.IsNone()) defense = defenseID.id.ToString();
+            if (!defenseID.IsNone())
+            {
+                if (ZDOMan.instance.GetZDO(defenseID) != null && ZDOMan.instance.GetZDO(defenseID).IsValid())
+                    defense = defenseID.id.ToString();
+            }
 
-            return $"Bed ID : {bedID}\nVillager ID {villager}\nContainer ID : {containerID}\nDefense Post ID :{defense}";
+            return $"{this.name.Replace("(Clone)", "")}\nBed ID : {bedID}\nVillager ID : {villager}\nContainer ID : {containerID}\nDefense Post ID :{defense}";
+        }
+
+        private string getTimeLeftToSpawn()
+        {
+            DateTime time = ZNet.instance.GetTime();
+            DateTime d = new DateTime(this.znv.GetZDO().GetLong("alive_time", 0L));
+            var timeleft = ((double)respawnTimeInMinute - (time - d).TotalMinutes);
+            if (timeleft < 0)
+            {
+                timeleft = timeleft * -1;
+            }
+
+            return "Respawning in " + timeleft.ToString("0.#");
         }
 
         public string GetHoverName()

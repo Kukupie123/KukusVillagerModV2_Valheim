@@ -11,14 +11,14 @@ namespace KukusVillagerMod.Components.Villager
 {
     class VillagerAI : MonoBehaviour
     {
-        private VillagerGeneral lifeCycle;
+        private VillagerGeneral villagerGeneral;
         private NpcTalk talk;
         private MonsterAI ai;
         public ZDOID followingPlayerZDOID;
 
         private void Awake()
         {
-            this.lifeCycle = GetComponent<VillagerGeneral>();
+            this.villagerGeneral = GetComponent<VillagerGeneral>();
             ai = GetComponent<MonsterAI>();
         }
 
@@ -26,7 +26,7 @@ namespace KukusVillagerMod.Components.Villager
         bool updateRanOnce = false;
         private void FixedUpdate()
         {
-            if (!KukusVillagerMod.isMapDataLoaded) return;
+            if (!KukusVillagerMod.isMapDataLoaded || villagerGeneral.isBedAssigned() == false) return;
 
             if (!updateRanOnce)
             {
@@ -36,7 +36,7 @@ namespace KukusVillagerMod.Components.Villager
                 }
 
                 //Get the state of the villager using bed zdo to determine which command to execute
-                VillagerState villagerState = lifeCycle.GetVillagerState();
+                VillagerState villagerState = villagerGeneral.GetVillagerState();
                 switch (villagerState)
                 {
                     case VillagerState.Guarding_Bed:
@@ -53,7 +53,7 @@ namespace KukusVillagerMod.Components.Villager
             else
             {
                 //If following a player and player is valid
-                if (lifeCycle.GetVillagerState() == VillagerState.Following && followingPlayerZDOID.IsNone() == false)
+                if (villagerGeneral.GetVillagerState() == VillagerState.Following && followingPlayerZDOID.IsNone() == false)
                 {
                     var playerPos = ZDOMan.instance.GetZDO(followingPlayerZDOID).GetPosition();
                     var distance = Vector3.Distance(transform.position, ZDOMan.instance.GetZDO(followingPlayerZDOID).GetPosition());
@@ -98,7 +98,7 @@ namespace KukusVillagerMod.Components.Villager
         /// <param name="pos"></param>
         private bool TPToLoc(Vector3 pos)
         {
-            lifeCycle.ZNV.GetZDO().SetPosition(pos);
+            villagerGeneral.ZNV.GetZDO().SetPosition(pos);
             return true;
         }
 
@@ -139,7 +139,7 @@ namespace KukusVillagerMod.Components.Villager
             //Follow the target and update villager state value stored in bed
             if (FollowGameObject(p.gameObject))
             {
-                lifeCycle.SetVillagerState(VillagerState.Following);
+                villagerGeneral.SetVillagerState(VillagerState.Following);
                 return true;
             }
             return false;
@@ -162,7 +162,7 @@ namespace KukusVillagerMod.Components.Villager
             if (!keepFollower)
             {
                 RemoveVillagersFollower();
-                lifeCycle.SetVillagerState(VillagerState.Moving);
+                villagerGeneral.SetVillagerState(VillagerState.Moving);
             }
             ai.ResetPatrolPoint();
             ai.ResetRandomMovement();
@@ -173,7 +173,7 @@ namespace KukusVillagerMod.Components.Villager
         public bool GuardBed()
         {
             //Get the bed's instance
-            var bed = lifeCycle.GetBed();
+            var bed = villagerGeneral.GetBed();
             //if bed is valid we are going to make villager follow it
             if (bed != null && bed.gameObject != null)
             {
@@ -183,11 +183,11 @@ namespace KukusVillagerMod.Components.Villager
             //Bed instance not valid. Get the bed's ZDO and use it's position to move villager
             else
             {
-                var bedPos = lifeCycle.GetBedZDO().GetPosition();
+                var bedPos = villagerGeneral.GetBedZDO().GetPosition();
                 RemoveVillagersFollower();
                 if (TPToLoc(bedPos))
                 {
-                    lifeCycle.SetVillagerState(VillagerState.Guarding_Bed);
+                    villagerGeneral.SetVillagerState(VillagerState.Guarding_Bed);
                     return true;
                 }
                 return false;
@@ -198,13 +198,13 @@ namespace KukusVillagerMod.Components.Villager
         public bool DefendPost()
         {
             //Get bed's ZDO and then defense's ZDOID stored
-            var defensePostID = lifeCycle.GetDefensePostID();
+            var defensePostID = villagerGeneral.GetDefensePostID();
             if (defensePostID.IsNone())
             {
                 return false;
             }
             //Get the instance of the defense
-            var defenseInstance = lifeCycle.GetDefensePostInstance();
+            var defenseInstance = villagerGeneral.GetDefensePostInstance();
 
             //if instance is valid we make villager follow it
             if (defenseInstance)
@@ -212,16 +212,16 @@ namespace KukusVillagerMod.Components.Villager
                 RemoveVillagersFollower();
                 if (FollowGameObject(defenseInstance))
                 {
-                    lifeCycle.SetVillagerState(VillagerState.Defending_Post);
+                    villagerGeneral.SetVillagerState(VillagerState.Defending_Post);
                     return true;
                 }
             }
             else
             {
                 RemoveVillagersFollower();
-                if (TPToLoc(lifeCycle.GetDefenseZDO().GetPosition()))
+                if (TPToLoc(villagerGeneral.GetDefenseZDO().GetPosition()))
                 {
-                    lifeCycle.SetVillagerState(VillagerState.Defending_Post);
+                    villagerGeneral.SetVillagerState(VillagerState.Defending_Post);
                     return true;
                 }
             }
