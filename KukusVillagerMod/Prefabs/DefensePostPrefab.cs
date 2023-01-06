@@ -36,7 +36,7 @@ namespace KukusVillagerMod.Prefabs
             {
                 dpConfig.AddRequirement(r);
             }
-            dpConfig.Description = "Place these and then assign them to a bed for the villager of that bed to use.";
+            dpConfig.Description = "Defense post for your villagers to defend.\nTo Assign A villager to a defense post, interact with their bed and then interact with the desired defense post.";
             //Create the Bed Piece (Custom Piece)
             var dp = new CustomPiece("DefensePost", "jute_carpet_blue", dpConfig);
             //Add defenseState

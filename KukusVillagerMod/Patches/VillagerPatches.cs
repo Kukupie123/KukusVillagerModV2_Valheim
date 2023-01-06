@@ -55,5 +55,35 @@ namespace KukusVillagerMod.Patches
             }
         }
     }
+    /*
+    [HarmonyReversePatch]
+    [HarmonyPatch(typeof(Humanoid), nameof(Humanoid.GetCurrentWeapon))]
+    static class VillagerDmgPatch
+    {
+        public static void Postfix(MonsterAI __instance, ref ItemDrop.ItemData __result, ref ItemDrop.ItemData ___m_rightItem, ref ItemDrop.ItemData ___m_leftItem, ref ItemDrop ___m_unarmedWeapon)
+        {
+            if (__instance.GetComponentInParent<VillagerAI>() != null)
+            {
+                var h = __instance.GetComponent<Humanoid>();
+                //KLog.warning("CUSTOM GET CURRENT WEAPON CALLED");
+                if (___m_rightItem != null && ___m_rightItem.IsWeapon())
+                {
+                    __result = ___m_rightItem;
+
+                }
+                if (___m_leftItem != null && ___m_leftItem.IsWeapon() && ___m_leftItem.m_shared.m_itemType != ItemDrop.ItemData.ItemType.Torch)
+                {
+                    __result = ___m_leftItem;
+                }
+                if (___m_unarmedWeapon)
+                {
+                    __result = ___m_unarmedWeapon.m_itemData;
+                }
+                __result = null;
+            }
+
+        }
+    }
+    */
 
 }

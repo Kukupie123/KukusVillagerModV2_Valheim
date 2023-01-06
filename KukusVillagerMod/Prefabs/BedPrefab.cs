@@ -75,7 +75,7 @@ namespace KukusVillagerMod.Prefabs
             }
 
 
-            bedConfig.Description = bedDesc;
+            bedConfig.Description = bedDesc + "\nTo Assign a defense post for the bed, Interact with the bed first then go to your desired defense post and interact with it.";
 
 
             //Create the Bed Piece (Custom Piece)

@@ -122,6 +122,8 @@ namespace KukusVillagerMod
  * 1. AI Tweaks such as attack rate etc
  * 2. Troll worker villager.
  * 3. When near bed they regen HP. 
+ * 4. Show commands in commander desc
+ * 5. Show how to control bed in bed desc
  * 
  * How should we go about it hmmm.
  * 

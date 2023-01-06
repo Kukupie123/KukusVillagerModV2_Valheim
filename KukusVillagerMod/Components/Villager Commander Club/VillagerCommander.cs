@@ -31,7 +31,7 @@ namespace KukusVillagerMod.itemPrefab
         {
             ItemConfig commanderConfig = new ItemConfig();
             commanderConfig.Name = "Village Commander";
-            commanderConfig.Description = "Command the villagers in your village";
+            commanderConfig.Description = $"Command the villagers in your village.\nCommands:\n{VillagerModConfigurations.guardBedKey} : Guard Bed\n{VillagerModConfigurations.CallFollowers} : Call Followers back to the commander\n{VillagerModConfigurations.defendPostKey} : Defend Defend Post\n{VillagerModConfigurations.moveToKey} : Move followers to aimed location";
             commanderConfig.CraftingStation = null;
             commanderConfig.AddRequirement(new RequirementConfig("Wood", 1, 0, false));
             commander = new CustomItem("Village_Commander", "Club", commanderConfig);
@@ -433,9 +433,6 @@ namespace KukusVillagerMod.itemPrefab
                                     moveToPressed = false;
                                     showStatsPressed = true;
 
-                                    int villagersCount = 0;
-                                    int bedless = 0;
-                                    int defending = 0;
 
                                 }
                                 else
