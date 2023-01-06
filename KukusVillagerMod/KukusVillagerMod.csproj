@@ -91,10 +91,10 @@
     <Compile Include="Properties\IgnoreAccessModifiers.cs" />
     <Compile Include="KukusVillagerMod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="States\CreatureSpawner.cs" />
-    <Compile Include="States\DefenseState.cs" />
-    <Compile Include="States\VillagerLifeCycle.cs" />
-    <Compile Include="States\BedVillagerProcessor.cs" />
+    <Compile Include="Components\CreatureSpawner.cs" />
+    <Compile Include="Components\Defense Post\DefenseState.cs" />
+    <Compile Include="Components\Villager\VillagerLifeCycle.cs" />
+    <Compile Include="Components\VillagerBed\BedVillagerProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
