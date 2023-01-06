@@ -35,17 +35,17 @@ namespace KukusVillagerMod.Patches
     {
         public static void Postfix(Tameable __instance, ref Humanoid user, ref bool hold, ref bool alt, ref bool __result)
         {
-            var vls = __instance.GetComponentInParent<VillagerGeneral>(); //instance is the object
-            if (vls != null)
+            var vAI = __instance.GetComponentInParent<VillagerAI>(); //instance is the object
+            if (vAI != null)
             {
                 if (!hold)
                 {
-                    vls.FollowPlayer(user.GetComponent<Player>());
+                    vAI.FollowPlayer(user.GetComponent<Player>());
                     __result = true;
                 }
                 else
                 {
-                    vls.GuardBed();
+                    vAI.GuardBed();
                     __result = true;
                 }
             }

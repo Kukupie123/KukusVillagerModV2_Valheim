@@ -8,6 +8,7 @@ namespace KukusVillagerMod.enums
 {
     enum VillagerState
     {
-        Guarding_Bed, Defending_Post, Patrolling, Following
+        Guarding_Bed, Defending_Post, Patrolling, Following,
+        Moving,
     }
 }

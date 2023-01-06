@@ -45,19 +45,28 @@ namespace KukusVillagerMod.Components.Villager
                     case VillagerState.Defending_Post:
                         DefendPost();
                         break;
-                    case VillagerState.Patrolling:
-                        //FUTURE
-                        //PatrolArea();
-                        break;
-                    case VillagerState.Following:
-                        //PatrolArea();
+                    default:
                         GuardBed();
                         break;
                 }
             }
             else
             {
-                MovePerUpdateIfDesired(); //Will move the villager to a location if it needs to.
+                //If following a player and player is valid
+                if (lifeCycle.GetVillagerState() == VillagerState.Following && followingPlayerZDOID.IsNone() == false)
+                {
+                    var playerPos = ZDOMan.instance.GetZDO(followingPlayerZDOID).GetPosition();
+                    var distance = Vector3.Distance(transform.position, ZDOMan.instance.GetZDO(followingPlayerZDOID).GetPosition());
+
+                    if (distance > 75)
+                    {
+                        transform.position = playerPos;
+                    }
+                }
+                else //FUTURE : Change logic
+                {
+                    MovePerUpdateIfDesired(); //Will move the villager to a location if it needs to.
+                }
             }
 
         }
@@ -146,17 +155,14 @@ namespace KukusVillagerMod.Components.Villager
         public bool MoveVillagerToLoc(Vector3 pos, bool keepFollower = true)
         {
 
-            movePos = pos;
+            movePos = pos; //update the movePos
             acceptableDistance = 2f;
 
             //FUTURE
-            if (keepFollower)
-            {
-
-            }
-            else
+            if (!keepFollower)
             {
                 RemoveVillagersFollower();
+                lifeCycle.SetVillagerState(VillagerState.Moving);
             }
             ai.ResetPatrolPoint();
             ai.ResetRandomMovement();
