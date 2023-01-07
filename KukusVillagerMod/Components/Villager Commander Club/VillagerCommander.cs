@@ -200,10 +200,7 @@ namespace KukusVillagerMod.itemPrefab
                             {
                                 if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.guardBedKey)
                                 {
-                                    if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
-                                    {
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Area is not fully loaded. Please wait");
-                                    }
+                                  
 
                                     //go to bed point
                                     if (guardBedPressed) return;
@@ -232,10 +229,6 @@ namespace KukusVillagerMod.itemPrefab
                                 }
                                 else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.CallFollowers)
                                 {
-                                    if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
-                                    {
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Area is not fully loaded. Please wait");
-                                    }
 
                                     //Follow Player
                                     if (followPlayerPressed) return;
@@ -264,12 +257,6 @@ namespace KukusVillagerMod.itemPrefab
                                 }
                                 else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.defendPostKey)
                                 {
-                                    if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
-                                    {
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Area is not fully loaded. Please wait");
-                                    }
-
-
 
                                     //Go defensive position
                                     if (defendPostPressed) return;
@@ -295,10 +282,7 @@ namespace KukusVillagerMod.itemPrefab
                                 }
                                 else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.deletePostKey)
                                 {
-                                    if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
-                                    {
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Area is not fully loaded. Please wait");
-                                    }
+                                   
 
                                     //Go to aiming location
                                     if (deletePostPressed) return;
@@ -317,10 +301,7 @@ namespace KukusVillagerMod.itemPrefab
                                 }
                                 else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.deleteVillagerKey)
                                 {
-                                    if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
-                                    {
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Area is not fully loaded. Please wait");
-                                    }
+                                   
 
                                     //Destroy all villagers
                                     if (deleteVillagersPressed) return;
@@ -343,10 +324,6 @@ namespace KukusVillagerMod.itemPrefab
                                 }
                                 else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.deleteBedsKey)
                                 {
-                                    if (ZNetScene.instance.IsAreaReady(Player.m_localPlayer.transform.position) == false)
-                                    {
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Area is not fully loaded. Please wait");
-                                    }
 
                                     if (deleteBedsPressed) return;
                                     guardBedPressed = false;
@@ -375,23 +352,6 @@ namespace KukusVillagerMod.itemPrefab
                                     deleteBedsPressed = false;
                                     moveToPressed = true;
                                     showStatsPressed = false;
-
-                                    //TEST
-                                    /*
-                                    foreach (var v in Global.followers)
-                                    {
-                                        //v.humanoid.UnequipAllItems();
-                                        var axe = ItemManager.Instance.GetItem("axe");
-                                        var a = ZNetScene.Instantiate(axe.ItemPrefab,v.transform);
-                                        v.humanoid.EquipItem(a.GetComponent<ItemDrop>().m_itemData);
-                                        if (v != null && ZNetScene.instance.IsAreaReady(v.transform.position))
-                                        {
-                                            v.CutTree();
-                                        }
-                                    }
-
-                                    return;
-                                    */
 
 
                                     //Ray cast and see if that area is available
@@ -476,7 +436,7 @@ namespace KukusVillagerMod.itemPrefab
                 //See if we can get an instance.
                 var villager = ZNetScene.instance.FindInstance(z);
 
-                if (villager != null)
+                if (villager != null && ZNetScene.instance.IsAreaReady(villager.transform.position)) //if instance is valid we call DefendPost function
                 {
                     villager.GetComponent<VillagerAI>().GuardBed();
                 }
@@ -514,15 +474,15 @@ namespace KukusVillagerMod.itemPrefab
                 //See if we can get an instance of the villager.
                 var villager = ZNetScene.instance.FindInstance(z);
 
-                if (villager != null) //if instance is valid we call DefendPost function
+                if (villager != null && ZNetScene.instance.IsAreaReady(villager.transform.position)) //if instance is valid we call DefendPost function
                 {
                     villager.GetComponent<VillagerAI>().DefendPost();
+                    KLog.warning($"Defend post called for Villager {z.m_uid.id}");
                 }
                 else //if we can't get instance we are going to get defense zdo and use it's position
                 {
 
                     var bedZDO = ZDOMan.instance.GetZDO(bedID); //Get bed's ZDO using bedID
-
 
                     var defenseID = bedZDO.GetZDOID("defense"); //Get defenseID stored in bed's ZDO
                     if (defenseID.IsNone()) continue; //if defense not assigned yet for the bed we skip
@@ -531,8 +491,11 @@ namespace KukusVillagerMod.itemPrefab
 
                     z.SetPosition(defenseZDO.GetPosition()); //Set the position of the villager's ZDO to that of Defendese's ZDO's position
 
+
                     //Set it's state manually
                     bedZDO.Set("state", (int)VillagerState.Defending_Post); //Update the state of the villager
+
+                    KLog.warning($"TPing Villager {z.m_uid.id} to DP {defenseID.id}");  
                 }
 
             }
@@ -560,7 +523,7 @@ namespace KukusVillagerMod.itemPrefab
                 //See if we can get an instance. We only make those who are nearby follow player
                 var villager = ZNetScene.instance.FindInstance(z);
 
-                if (villager != null)
+                if (villager != null && ZNetScene.instance.IsAreaReady(villager.transform.position)) //if instance is valid we call DefendPost function
                 {
                     //Check if playerID matches
 
@@ -608,7 +571,7 @@ namespace KukusVillagerMod.itemPrefab
                 //See if we can get an instance. We only make those who are nearby follow player
                 var villager = ZNetScene.instance.FindInstance(z);
 
-                if (villager != null)
+                if (villager != null && ZNetScene.instance.IsAreaReady(villager.transform.position)) //if instance is valid we call DefendPost function
                 {
                     //Check if playerID matches
 

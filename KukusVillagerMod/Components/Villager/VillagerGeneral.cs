@@ -113,17 +113,22 @@ namespace KukusVillagerMod.Components.Villager
             return false;
         }
 
-        //Returns GO based on the ZDOID of the bed saved in the ZDO of this creature, will return null if not loaded in memory
-        public GameObject GetBed()
+        public ZDOID GetBedZDOID()
         {
-            ZDOID zdoid = this.ZNV.GetZDO().GetZDOID("spawner_id");
+            return this.ZNV.GetZDO().GetZDOID("spawner_id");
+        }
+
+        //Returns GO based on the ZDOID of the bed saved in the ZDO of this creature, will return null if not loaded in memory
+        public GameObject GetBedInstance()
+        {
+            ZDOID zdoid = GetBedZDOID();
             return ZNetScene.instance.FindInstance(zdoid);
         }
 
         //Returns the ZDO of the bed that spawned this creature
         public ZDO GetBedZDO()
         {
-            var id = this.ZNV.GetZDO().GetZDOID("spawner_id");
+            var id = GetBedZDOID();
             return ZDOMan.instance.GetZDO(id);
         }
 

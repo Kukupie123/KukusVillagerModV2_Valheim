@@ -58,9 +58,10 @@ namespace KukusVillagerMod.Components.Villager
                     var playerPos = ZDOMan.instance.GetZDO(followingPlayerZDOID).GetPosition();
                     var distance = Vector3.Distance(transform.position, ZDOMan.instance.GetZDO(followingPlayerZDOID).GetPosition());
 
-                    if (distance > 75)
+                    if (distance > 60)
                     {
-                        transform.position = playerPos;
+                        villagerGeneral.ZNV.GetZDO().SetPosition(playerPos);
+                        KLog.info($"Teleported Villager {villagerGeneral.ZNV.GetZDO().m_uid.id} to Player {followingPlayerZDOID.id}");
                     }
                 }
                 else //FUTURE : Change logic
@@ -79,16 +80,50 @@ namespace KukusVillagerMod.Components.Villager
         {
             if (keepMoving)
             {
-                ai.MoveAndAvoid(ai.GetWorldTimeDelta(), movePos, acceptableDistance, true);
+                keepMoving = ai.MoveAndAvoid(ai.GetWorldTimeDelta(), movePos, acceptableDistance, true);
             }
         }
 
-        private bool FollowGameObject(GameObject target)
+
+        private void StopMoving()
         {
-            if (target == null) return false;
+            keepMoving = false;
+        }
+
+        /// <summary>
+        /// Follow the given target, if invalid then TP to the backup pos, if backupPos is invalid return false
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="BackupPos"></param>
+        /// <returns></returns>
+        private bool FollowGameObject(GameObject target, Vector3? BackupPos)
+        {
+
+            if (target == null)
+            {
+                if (BackupPos != null)
+                {
+                    ai.ResetPatrolPoint();
+                    ai.ResetRandomMovement();
+                    TPToLoc(BackupPos.Value);
+                    KLog.warning($"Teleporting villager {villagerGeneral.ZNV.GetZDO().m_uid.id} to pos {BackupPos.Value} for FollowObject method");
+                    return true;
+                }
+                else
+                {
+                    KLog.warning("Following target & position are null ");
+                    return false;
+                }
+
+            }
             ai.ResetPatrolPoint();
             ai.ResetRandomMovement();
             ai.SetFollowTarget(target);
+
+            if (ai.FindPath(target.transform.position) == false || ai.HavePath(target.transform.position) == false || ZNetScene.instance.IsAreaReady(transform.position) == false || ZNetScene.instance.IsAreaReady(target.transform.position) == false)
+            {
+                TPToLoc(target.transform.position);
+            }
             return true;
         }
 
@@ -98,7 +133,9 @@ namespace KukusVillagerMod.Components.Villager
         /// <param name="pos"></param>
         private bool TPToLoc(Vector3 pos)
         {
+            ai.SetFollowTarget(null);
             villagerGeneral.ZNV.GetZDO().SetPosition(pos);
+            transform.position = pos;
             return true;
         }
 
@@ -107,6 +144,7 @@ namespace KukusVillagerMod.Components.Villager
         /// </summary>
         private void RemoveVillagersFollower()
         {
+            ai.SetFollowTarget(null);
             followingPlayerZDOID = new ZDOID { m_hash = -1, m_userID = -1 };
         }
 
@@ -117,6 +155,7 @@ namespace KukusVillagerMod.Components.Villager
             {
                 talk.Say("Can't follow", nameof(FollowPlayer));
             }
+
             //Save player's ZDO
             ZNetView playerZNV = p.GetComponent<ZNetView>();
             if (playerZNV == null)
@@ -124,6 +163,7 @@ namespace KukusVillagerMod.Components.Villager
                 playerZNV = p.GetComponentInParent<ZNetView>();
                 if (playerZNV == null)
                 {
+                    talk.Say("Can't follow", nameof(FollowPlayer));
                     return false;
                 }
             }
@@ -137,8 +177,9 @@ namespace KukusVillagerMod.Components.Villager
                 return false;
 
             //Follow the target and update villager state value stored in bed
-            if (FollowGameObject(p.gameObject))
+            if (FollowGameObject(p.gameObject, ZDOMan.instance.GetZDO(p.GetZDOID()).GetPosition()))
             {
+                talk.Say($"Following {p.GetHoverText()}", nameof(FollowPlayer));
                 villagerGeneral.SetVillagerState(VillagerState.Following);
                 return true;
             }
@@ -164,6 +205,7 @@ namespace KukusVillagerMod.Components.Villager
                 RemoveVillagersFollower();
                 villagerGeneral.SetVillagerState(VillagerState.Moving);
             }
+            talk.Say($"Moving to {pos.ToString()}", "Moving");
             ai.ResetPatrolPoint();
             ai.ResetRandomMovement();
             keepMoving = true;
@@ -172,60 +214,41 @@ namespace KukusVillagerMod.Components.Villager
 
         public bool GuardBed()
         {
-            //Get the bed's instance
-            var bed = villagerGeneral.GetBed();
-            //if bed is valid we are going to make villager follow it
-            if (bed != null && bed.gameObject != null)
-            {
-                RemoveVillagersFollower();
-                return FollowGameObject(bed);
-            }
-            //Bed instance not valid. Get the bed's ZDO and use it's position to move villager
-            else
-            {
-                var bedPos = villagerGeneral.GetBedZDO().GetPosition();
-                RemoveVillagersFollower();
-                if (TPToLoc(bedPos))
-                {
-                    villagerGeneral.SetVillagerState(VillagerState.Guarding_Bed);
-                    return true;
-                }
-                return false;
-                //Update villager's State
-            }
+            var bed = villagerGeneral.GetBedInstance();
+
+            RemoveVillagersFollower(); //Remove the villager from follower in case it was following.
+            StopMoving(); //Sets the keepMoving boolean to false so that the character stops moving
+            FollowGameObject(bed, villagerGeneral.GetBedZDO().GetPosition()); //if bed is not within loaded range then teleport there
+
+            if (talk != null)
+                talk.Say("Going to my bed and guard that area", "Bed");
+
+            //Update state in ZDO of bed
+            villagerGeneral.SetVillagerState(VillagerState.Guarding_Bed);
+            return true;
         }
 
         public bool DefendPost()
         {
-            //Get bed's ZDO and then defense's ZDOID stored
-            var defensePostID = villagerGeneral.GetDefensePostID();
-            if (defensePostID.IsNone())
+            var dp = villagerGeneral.GetDefensePostID();
+
+            if (dp == null || dp.IsNone())
             {
+                talk.Say("No Defense Post assigned", "Defense");
                 return false;
             }
-            //Get the instance of the defense
-            var defenseInstance = villagerGeneral.GetDefensePostInstance();
 
-            //if instance is valid we make villager follow it
-            if (defenseInstance)
-            {
-                RemoveVillagersFollower();
-                if (FollowGameObject(defenseInstance))
-                {
-                    villagerGeneral.SetVillagerState(VillagerState.Defending_Post);
-                    return true;
-                }
-            }
-            else
-            {
-                RemoveVillagersFollower();
-                if (TPToLoc(villagerGeneral.GetDefenseZDO().GetPosition()))
-                {
-                    villagerGeneral.SetVillagerState(VillagerState.Defending_Post);
-                    return true;
-                }
-            }
-            return false;
+            var dpi = villagerGeneral.GetDefensePostInstance();
+
+            RemoveVillagersFollower(); //Remove the villager from follower in case it was following.
+            StopMoving(); //Sets the keepMoving boolean to false so that the character stops moving
+            FollowGameObject(dpi, villagerGeneral.GetDefenseZDO().GetPosition()); //if bed is not within loaded range then teleport there
+
+            talk.Say($"Going to defend my post {villagerGeneral.GetDefensePostID().id}", "Defense");
+
+            //Update state in ZDO of bed
+            villagerGeneral.SetVillagerState(VillagerState.Defending_Post);
+            return true;
         }
     }
 }
