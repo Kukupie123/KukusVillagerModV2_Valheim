@@ -80,7 +80,7 @@ namespace KukusVillagerMod.Components.Villager
         {
             if (keepMoving)
             {
-                keepMoving = ai.MoveAndAvoid(ai.GetWorldTimeDelta(), movePos, acceptableDistance, true);
+                keepMoving = !ai.MoveAndAvoid(ai.GetWorldTimeDelta(), movePos, acceptableDistance, true);
             }
         }
 
@@ -235,6 +235,12 @@ namespace KukusVillagerMod.Components.Villager
             if (dp == null || dp.IsNone())
             {
                 talk.Say("No Defense Post assigned", "Defense");
+                return false;
+            }
+
+            if (villagerGeneral.GetDefenseZDO() == null || villagerGeneral.GetDefenseZDO().IsValid() == false)
+            {
+                talk.Say("My Defense post was destroyed", "Defense");
                 return false;
             }
 
