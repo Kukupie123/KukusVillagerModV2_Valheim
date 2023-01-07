@@ -15,23 +15,23 @@ namespace KukusVillagerMod.Components.Villager
         private NpcTalk talk;
         private MonsterAI ai;
         public ZDOID followingPlayerZDOID;
+        bool updateRanOnce = false;
 
         private void Awake()
         {
             this.villagerGeneral = GetComponent<VillagerGeneral>();
             ai = GetComponent<MonsterAI>();
+            updateRanOnce = false;
         }
 
 
-        bool updateRanOnce = false;
         private void FixedUpdate()
         {
             if (!KukusVillagerMod.isMapDataLoaded || villagerGeneral.isBedAssigned() == false) return;
 
-            updateRanOnce = true;
-            {
-                if (talk == null) talk = GetComponent<NpcTalk>();
-            }
+
+            if (talk == null) talk = GetComponent<NpcTalk>();
+
 
 
             if (!updateRanOnce)
@@ -124,7 +124,7 @@ namespace KukusVillagerMod.Components.Villager
             }
             ai.ResetPatrolPoint();
             ai.ResetRandomMovement();
-            if (ai.HavePath(target.transform.position) == false || Vector3.Distance(transform.position, target.transform.position) > 80)
+            if (ai.HavePath(target.transform.position) == false || Vector3.Distance(transform.position, target.transform.position) > 80 || ai.FindPath(target.transform.position) == false || ZNetScene.instance.IsAreaReady(target.transform.position) == false)
             {
                 TPToLoc(target.transform.position);
             }
@@ -217,18 +217,18 @@ namespace KukusVillagerMod.Components.Villager
 
             ZDO bedZDO = villagerGeneral.GetBedZDO();
 
-            
-            if(bedZDO == null || bedZDO.IsValid() == false)
+
+            if (bedZDO == null || bedZDO.IsValid() == false)
             {
-                talk.Say("Couldn't find my bed","Bed");
+                talk.Say("Couldn't find my bed", "Bed");
                 return false;
             }
-
+            villagerGeneral.SetVillagerState(VillagerState.Guarding_Bed);
             GameObject bed = villagerGeneral.GetBedInstance();
             RemoveVillagersFollower();
             StopMoving();
             FollowGameObject(bed, villagerGeneral.GetBedZDO().GetPosition());
-
+            talk.Say("Guarding Bed", "Bed");
             return true;
         }
 
@@ -247,17 +247,15 @@ namespace KukusVillagerMod.Components.Villager
                 talk.Say("My Defense post was destroyed", "Defense");
                 return false;
             }
-
+            //Update state in ZDO of bed
+            villagerGeneral.SetVillagerState(VillagerState.Defending_Post);
             GameObject dpi = villagerGeneral.GetDefensePostInstance();
-
             RemoveVillagersFollower(); //Remove the villager from follower in case it was following.
             StopMoving(); //Sets the keepMoving boolean to false so that the character stops moving
             FollowGameObject(dpi, villagerGeneral.GetDefenseZDO().GetPosition()); //if bed is not within loaded range then teleport there
+            talk.Say($"Defending post {villagerGeneral.GetDefensePostID().id}", "Defense");
 
-            talk.Say($"Going to defend my post {villagerGeneral.GetDefensePostID().id}", "Defense");
-
-            //Update state in ZDO of bed
-            villagerGeneral.SetVillagerState(VillagerState.Defending_Post);
+           
             return true;
         }
     }

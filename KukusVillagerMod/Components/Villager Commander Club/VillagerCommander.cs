@@ -455,8 +455,8 @@ namespace KukusVillagerMod.itemPrefab
                 }
                 else //Not valid so we TP the Villager's ZDO to the bed's ZDO and update the state of the villager to Guarding_Bed
                 {
+                    bedZDO.Set("state", (int)VillagerState.Guarding_Bed); //Update the state of the villager's ZDO Manually. The ORDER IS IMP. Or else if loaded in memory before State is set, it will go back to it's old state and overwrite this
                     zdo.SetPosition(bedZDO.GetPosition()); //Set the position of the 
-                    zdo.Set("state", (int)VillagerState.Guarding_Bed); //Update the state of the villager's ZDO Manually
                 }
 
 
@@ -518,8 +518,8 @@ namespace KukusVillagerMod.itemPrefab
                 }
                 else //Not valid so we TP the Villager's ZDO to the Defend Post's ZDO and update the state of the villager to Defending_Post
                 {
+                    bedZDO.Set("state", (int)VillagerState.Defending_Post); //Update the state of the villager's ZDO Manually. The ORDER IS IMP. Or else if loaded in memory before State is set, it will go back to it's old state and overwrite this
                     zdo.SetPosition(defenseZDO.GetPosition()); //Set the position of the 
-                    zdo.Set("state", (int)VillagerState.Defending_Post); //Update the state of the villager's ZDO Manually
                 }
 
             }
