@@ -141,6 +141,29 @@ namespace KukusVillagerMod.Components.VillagerBed
             return component;
         }
 
+
+        //Ignore collision with player
+        private void OnCollisionEnter(Collision collision)
+        {
+            Character character = collision.gameObject.GetComponent<Character>();
+            if (character != null
+                && character.m_faction == Character.Faction.Players
+                && character.GetComponent<VillagerGeneral>() == null) // allow collision between minions
+            {
+                Physics.IgnoreCollision(collision.gameObject.GetComponent<Collider>(), GetComponent<Collider>());
+                return;
+            }
+
+            VillagerGeneral villager = collision.gameObject.GetComponent<VillagerGeneral>();
+            if (villager != null)
+            {
+                Physics.IgnoreCollision(collision.gameObject.GetComponent<Collider>(), GetComponent<Collider>());
+                return;
+            }
+
+
+        }
+
         //Interface
 
         public string GetHoverText()

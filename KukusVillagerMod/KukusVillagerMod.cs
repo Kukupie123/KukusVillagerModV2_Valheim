@@ -124,6 +124,8 @@ namespace KukusVillagerMod
  * 3. When near bed they regen HP. 
  * 4. Show commands in commander desc
  * 5. Show how to control bed in bed desc
+ * 6. Map marker
+ * 7. Disable collision between villager and bed
  * 
  * How should we go about it hmmm.
  * 
