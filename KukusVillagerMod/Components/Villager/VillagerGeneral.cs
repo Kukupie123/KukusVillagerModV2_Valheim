@@ -66,12 +66,12 @@ namespace KukusVillagerMod.Components.Villager
 
                 DateTime currentTime = DateTime.Now;
 
-                var timeElasped = currentTime - startingTimeForBedNotFound.Value;
+                TimeSpan timeElasped = currentTime - startingTimeForBedNotFound.Value;
 
                 if (timeElasped.TotalSeconds > 10)
                 {
                     //if we crossed 10 sec of waiting we are destroying thezdo
-                    var zdo = base.GetComponent<ZNetView>().GetZDO();
+                    ZDO zdo = base.GetComponent<ZNetView>().GetZDO();
                     KLog.warning("10 sec passed since the villager has not found a bed. Destroying");
                     ZDOMan.instance.DestroyZDO(zdo);
                 }
@@ -128,7 +128,7 @@ namespace KukusVillagerMod.Components.Villager
         //Returns the ZDO of the bed that spawned this creature
         public ZDO GetBedZDO()
         {
-            var id = GetBedZDOID();
+            ZDOID id = GetBedZDOID();
             return ZDOMan.instance.GetZDO(id);
         }
 
@@ -139,32 +139,32 @@ namespace KukusVillagerMod.Components.Villager
 
         public bool isDefensePostAssigned()
         {
-            var defensePostID = GetDefensePostID();
+            ZDOID defensePostID = GetDefensePostID();
             return !defensePostID.IsNone();
         }
 
         public GameObject GetDefensePostInstance()
         {
-            var defensePostID = GetDefensePostID();
+            ZDOID defensePostID = GetDefensePostID();
             return ZNetScene.instance.FindInstance(defensePostID);
         }
 
         public ZDO GetDefenseZDO()
         {
-            var defensePostID = GetDefensePostID();
+            ZDOID defensePostID = GetDefensePostID();
             return ZDOMan.instance.GetZDO(defensePostID);
         }
 
         //FUTURE
         public void CutTree()
         {
-            var colliders = Physics.OverlapSphere(transform.position, 5000f);
+            Collider[] colliders = Physics.OverlapSphere(transform.position, 5000f);
 
-            foreach (var c in colliders)
+            foreach (Collider c in colliders)
             {
-                var tree = c?.gameObject?.GetComponentInParent<TreeBase>();
-                var log = c?.gameObject?.GetComponentInParent<TreeLog>();
-                var destructible = c?.gameObject?.GetComponentInParent<Destructible>();
+                TreeBase tree = c?.gameObject?.GetComponentInParent<TreeBase>();
+                TreeLog log = c?.gameObject?.GetComponentInParent<TreeLog>();
+                Destructible destructible = c?.gameObject?.GetComponentInParent<Destructible>();
 
                 if (tree != null)
                 {

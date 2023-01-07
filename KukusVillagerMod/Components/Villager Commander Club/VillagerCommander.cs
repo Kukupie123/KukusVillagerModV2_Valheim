@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using KukusVillagerMod.Components.Villager;
 using KukusVillagerMod.Components.VillagerBed;
+using KukusVillagerMod.Components.DefensePost;
 
 namespace KukusVillagerMod.itemPrefab
 {
@@ -138,7 +139,7 @@ namespace KukusVillagerMod.itemPrefab
 
         void createKeyhints()
         {
-            var kh = new KeyHintConfig
+            KeyHintConfig kh = new KeyHintConfig
             {
                 Item = "Village_Commander",
                 ButtonConfigs = new[] { guardBedbtn, followPlayerBtn, defendBtn, deletePostsBtn, deleteVillagersBtn, deleteBedBtn, showStatsBtn }
@@ -148,7 +149,7 @@ namespace KukusVillagerMod.itemPrefab
 
         void CreateEmptyKH()
         {
-            var kh = new KeyHintConfig
+            KeyHintConfig kh = new KeyHintConfig
             {
                 Item = "Village_Commander",
                 ButtonConfigs = new ButtonConfig[] { }
@@ -181,7 +182,7 @@ namespace KukusVillagerMod.itemPrefab
 
             if (ZInput.instance == null || MessageHud.instance == null || Player.m_localPlayer == null) return;
             if (Player.m_localPlayer.GetInventory() == null) return;
-            var allItems = Player.m_localPlayer.GetInventory().GetAllItems();
+            List<ItemDrop.ItemData> allItems = Player.m_localPlayer.GetInventory().GetAllItems();
 
             if (allItems == null) return;
 
@@ -189,7 +190,7 @@ namespace KukusVillagerMod.itemPrefab
             {
                 if (Player.m_localPlayer.GetInventory().GetEquipedtems().Contains(allItems[i]))
                 {
-                    foreach (var e in Player.m_localPlayer.GetInventory().GetEquipedtems())
+                    foreach (ItemDrop.ItemData e in Player.m_localPlayer.GetInventory().GetEquipedtems())
                     {
                         if (e == null) continue;
                         if (allItems[i] == null) continue;
@@ -200,7 +201,7 @@ namespace KukusVillagerMod.itemPrefab
                             {
                                 if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.guardBedKey)
                                 {
-                                  
+
 
                                     //go to bed point
                                     if (guardBedPressed) return;
@@ -282,7 +283,7 @@ namespace KukusVillagerMod.itemPrefab
                                 }
                                 else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.deletePostKey)
                                 {
-                                   
+
 
                                     //Go to aiming location
                                     if (deletePostPressed) return;
@@ -295,13 +296,18 @@ namespace KukusVillagerMod.itemPrefab
                                     moveToPressed = false;
                                     showStatsPressed = false;
 
-
+                                    foreach (DefenseState v in UnityEngine.GameObject.FindObjectsOfType<DefenseState>())
+                                    {
+                                        //if (v == null || v.znv == null || v.znv.GetZDO() == null)
+                                        ZNetScene.instance.Destroy(v.gameObject);
+                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all Post");
+                                    }
 
 
                                 }
                                 else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.deleteVillagerKey)
                                 {
-                                   
+
 
                                     //Destroy all villagers
                                     if (deleteVillagersPressed) return;
@@ -314,7 +320,7 @@ namespace KukusVillagerMod.itemPrefab
                                     moveToPressed = false;
                                     showStatsPressed = false;
 
-                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<VillagerGeneral>())
+                                    foreach (VillagerGeneral v in UnityEngine.GameObject.FindObjectsOfType<VillagerGeneral>())
                                     {
                                         //if (v == null || v.znv == null || v.znv.GetZDO() == null)
                                         ZNetScene.instance.Destroy(v.gameObject);
@@ -335,7 +341,7 @@ namespace KukusVillagerMod.itemPrefab
                                     moveToPressed = false;
                                     showStatsPressed = false;
 
-                                    foreach (var v in UnityEngine.GameObject.FindObjectsOfType<BedVillagerProcessor>())
+                                    foreach (BedVillagerProcessor v in UnityEngine.GameObject.FindObjectsOfType<BedVillagerProcessor>())
                                     {
                                         ZNetScene.instance.Destroy(v.gameObject);
                                         MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all Beds");
@@ -416,43 +422,45 @@ namespace KukusVillagerMod.itemPrefab
 
         private void MakeVillagersGoToBed(string prefabName)
         {
-            //Find spawner_id of every prefab and see if it has valid bedID,
-            //Get BedZDO using bedID
-            //Get instance of bed GameObject using bedZDo.
-            //If found then call villager.GuardBed() or else we Tp the villager 
-            //Update the state of the bed's ZDO manually if we had to TP villager
 
-            List<ZDO> zdos = new List<ZDO>();
+
+            List<ZDO> zdos = new List<ZDO>(); //Store ZDOs of all villager
+
             ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
-            foreach (ZDO z in zdos)
-            {
-                var bedID = z.GetZDOID("spawner_id");
 
-                if (bedID.IsNone())
+            foreach (ZDO zdo in zdos)
+            {
+                ZDOID bedZDOID = zdo.GetZDOID("spawner_id"); //Get BedZDOID Stored in the villager's ZDO
+
+                if (bedZDOID == null || bedZDOID.IsNone()) //Validate if bedZDOID is valid
                 {
+                    KLog.warning($"Villager {zdo.m_uid.id} Does not have bed ZDOID Stored");
                     continue;
                 }
 
-                //See if we can get an instance.
-                var villager = ZNetScene.instance.FindInstance(z);
+                ZDO bedZDO = ZDOMan.instance.GetZDO(bedZDOID); //Get the ZDO of the bed to get the location of the bed
 
-                if (villager != null && ZNetScene.instance.IsAreaReady(villager.transform.position)) //if instance is valid we call DefendPost function
+                //Validate bedZDO
+                if (bedZDO == null || bedZDO.IsValid() == false)
                 {
-                    villager.GetComponent<VillagerAI>().GuardBed();
+                    KLog.warning($"BedZDO is invalid for villager {zdo.m_uid.id}");
+                    continue;
                 }
-                else //if we can't get instance we update the position in zdo
+
+                GameObject villager = ZNetScene.instance.FindInstance(zdo.m_uid);  //Get ZNV of the villager
+                if (villager != null && villager.GetComponent<VillagerAI>() != null)
                 {
-                    var bedZDO = ZDOMan.instance.GetZDO(bedID);
-
-
-                    z.SetPosition(bedZDO.GetPosition());
-                    //Set it's state manually
-                    bedZDO.Set("state", (int)VillagerState.Guarding_Bed);
+                    VillagerAI ai = villager.GetComponent<VillagerAI>();
+                    ai.GuardBed();
+                }
+                else //Not valid so we TP the Villager's ZDO to the bed's ZDO and update the state of the villager to Guarding_Bed
+                {
+                    zdo.SetPosition(bedZDO.GetPosition()); //Set the position of the 
+                    zdo.Set("state", (int)VillagerState.Guarding_Bed); //Update the state of the villager's ZDO Manually
                 }
 
 
             }
-
 
         }
 
@@ -460,45 +468,62 @@ namespace KukusVillagerMod.itemPrefab
         {
 
 
-            List<ZDO> zdos = new List<ZDO>(); //Will be used to store all zdos of prefabName(villager) type
+            List<ZDO> zdos = new List<ZDO>(); //Store villagers ZDO here
             ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
-            foreach (ZDO z in zdos)
-            {
-                var bedID = z.GetZDOID("spawner_id"); //Get bed's ZDOID stored in the villager
 
-                if (bedID.IsNone())
+            foreach (ZDO zdo in zdos)
+            {
+                ZDOID bedZDOID = zdo.GetZDOID("spawner_id"); //Get BedZDOID Stored in the villager's ZDO
+
+                if (bedZDOID == null || bedZDOID.IsNone()) //Validate if bedZDOID is valid
                 {
+                    KLog.warning($"Villager {zdo.m_uid.id} Does not have bed ZDOID Stored");
                     continue;
                 }
 
-                //See if we can get an instance of the villager.
-                var villager = ZNetScene.instance.FindInstance(z);
+                //Get the ZDO if the bed using bedZDOID
+                ZDO bedZDO = ZDOMan.instance.GetZDO(bedZDOID);
 
-                if (villager != null && ZNetScene.instance.IsAreaReady(villager.transform.position)) //if instance is valid we call DefendPost function
+                //Validate bedZDO
+                if (bedZDO == null || bedZDO.IsValid() == false)
                 {
-                    villager.GetComponent<VillagerAI>().DefendPost();
-                    KLog.warning($"Defend post called for Villager {z.m_uid.id}");
+                    KLog.warning($"BedZDO is invalid for villager {zdo.m_uid.id}");
+                    continue;
                 }
-                else //if we can't get instance we are going to get defense zdo and use it's position
+
+                ZDOID defenseZDOID = bedZDO.GetZDOID("defense"); //Get ZDOID of defense post
+
+                //Validate defenseZDOID
+                if (defenseZDOID == null || defenseZDOID.IsNone())
                 {
+                    KLog.warning($"defenseZDOID is invalid for villager {zdo.m_uid.id} & bed {bedZDOID}");
+                    continue;
+                }
 
-                    var bedZDO = ZDOMan.instance.GetZDO(bedID); //Get bed's ZDO using bedID
+                //Get ZDO of defense post using defenseZDOID
+                ZDO defenseZDO = ZDOMan.instance.GetZDO(defenseZDOID);
 
-                    var defenseID = bedZDO.GetZDOID("defense"); //Get defenseID stored in bed's ZDO
-                    if (defenseID.IsNone()) continue; //if defense not assigned yet for the bed we skip
+                //Validate bedZDO
+                if (defenseZDO == null || defenseZDO.IsValid() == false)
+                {
+                    KLog.warning($"DefenseZDO is invalid for villager {zdo.m_uid.id}");
+                    continue;
+                }
 
-                    var defenseZDO = ZDOMan.instance.GetZDO(defenseID); //Get ZDO of the defense post based on defenseID
-
-                    z.SetPosition(defenseZDO.GetPosition()); //Set the position of the villager's ZDO to that of Defendese's ZDO's position
-
-
-                    //Set it's state manually
-                    bedZDO.Set("state", (int)VillagerState.Defending_Post); //Update the state of the villager
-
-                    KLog.warning($"TPing Villager {z.m_uid.id} to DP {defenseID.id}");  
+                GameObject villager = ZNetScene.instance.FindInstance(zdo.m_uid);  //Get ZNV of the villager
+                if (villager != null && villager.GetComponent<VillagerAI>() != null)
+                {
+                    VillagerAI ai = villager.GetComponent<VillagerAI>();
+                    ai.DefendPost();
+                }
+                else //Not valid so we TP the Villager's ZDO to the Defend Post's ZDO and update the state of the villager to Defending_Post
+                {
+                    zdo.SetPosition(defenseZDO.GetPosition()); //Set the position of the 
+                    zdo.Set("state", (int)VillagerState.Defending_Post); //Update the state of the villager's ZDO Manually
                 }
 
             }
+
 
         }
 
@@ -509,7 +534,7 @@ namespace KukusVillagerMod.itemPrefab
             ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
             foreach (ZDO z in zdos)
             {
-                var bedID = z.GetZDOID("spawner_id");
+                ZDOID bedID = z.GetZDOID("spawner_id");
 
                 if (bedID.IsNone())
                 {
@@ -517,11 +542,11 @@ namespace KukusVillagerMod.itemPrefab
                 }
 
                 //If they are not following then ignore
-                var state = (VillagerState)ZDOMan.instance.GetZDO(bedID).GetInt("state", (int)VillagerState.Guarding_Bed);
+                VillagerState state = (VillagerState)ZDOMan.instance.GetZDO(bedID).GetInt("state", (int)VillagerState.Guarding_Bed);
                 if (state != VillagerState.Following) continue;
 
                 //See if we can get an instance. We only make those who are nearby follow player
-                var villager = ZNetScene.instance.FindInstance(z);
+                GameObject villager = ZNetScene.instance.FindInstance(z.m_uid);
 
                 if (villager != null && ZNetScene.instance.IsAreaReady(villager.transform.position)) //if instance is valid we call DefendPost function
                 {
@@ -557,7 +582,7 @@ namespace KukusVillagerMod.itemPrefab
             ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
             foreach (ZDO z in zdos)
             {
-                var bedID = z.GetZDOID("spawner_id");
+                ZDOID bedID = z.GetZDOID("spawner_id");
 
                 if (bedID.IsNone())
                 {
@@ -565,11 +590,11 @@ namespace KukusVillagerMod.itemPrefab
                 }
 
                 //If they are not following then ignore
-                var state = (VillagerState)ZDOMan.instance.GetZDO(bedID).GetInt("state", (int)VillagerState.Guarding_Bed);
+                VillagerState state = (VillagerState)ZDOMan.instance.GetZDO(bedID).GetInt("state", (int)VillagerState.Guarding_Bed);
                 if (state != VillagerState.Following) continue;
 
                 //See if we can get an instance. We only make those who are nearby follow player
-                var villager = ZNetScene.instance.FindInstance(z);
+                GameObject villager = ZNetScene.instance.FindInstance(z.m_uid);
 
                 if (villager != null && ZNetScene.instance.IsAreaReady(villager.transform.position)) //if instance is valid we call DefendPost function
                 {
