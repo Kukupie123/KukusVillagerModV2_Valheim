@@ -58,22 +58,8 @@ namespace KukusVillagerMod.Components.Villager
             }
             else
             {
-                //If following a valid player with valid zdo
-                if (villagerGeneral.GetVillagerState() == VillagerState.Following && followingPlayerZDOID.IsNone() == false && ZDOMan.instance.GetZDO(followingPlayerZDOID) != null && ZDOMan.instance.GetZDO(followingPlayerZDOID).IsValid())
-                {
-                    Vector3 playerPos = ZDOMan.instance.GetZDO(followingPlayerZDOID).GetPosition();
-                    float distance = Vector3.Distance(transform.position, ZDOMan.instance.GetZDO(followingPlayerZDOID).GetPosition());
-
-                    if (distance > 60)
-                    {
-                        TPToLoc(playerPos);
-                        KLog.info($"Teleported Villager {villagerGeneral.ZNV.GetZDO().m_uid.id} to Player {followingPlayerZDOID.id}");
-                    }
-                }
-                else //FUTURE : Change logic
-                {
-                    MovePerUpdateIfDesired(); //Will move the villager to a location if it needs to.
-                }
+                TPVillagerToFollowerIfNeeded();
+                MovePerUpdateIfDesired();
             }
 
         }
@@ -84,15 +70,46 @@ namespace KukusVillagerMod.Components.Villager
         Vector3 movePos; //the location to move to
         private void MovePerUpdateIfDesired()
         {
-            if (keepMoving)
+            if (keepMoving == true)
             {
-                keepMoving = !ai.MoveAndAvoid(ai.GetWorldTimeDelta(), movePos, acceptableDistance, true);
+                KLog.info($"Moving to {movePos}");
+                if (ai.HavePath(movePos) == false)
+                {
+                    TPToLoc(movePos);
+                    keepMoving = false;
+
+                }
+                else if (ai.MoveAndAvoid(ai.GetWorldTimeDelta(), movePos, acceptableDistance, true))
+                {
+                    keepMoving = false;
+                }
+            }
+
+        }
+
+        private void TPVillagerToFollowerIfNeeded()
+        {
+            //If following a valid player with valid zdo
+            if (villagerGeneral.GetVillagerState() == VillagerState.Following)
+            {
+                if (followingPlayerZDOID != null && followingPlayerZDOID.IsNone() == false && ZDOMan.instance.GetZDO(followingPlayerZDOID) != null && ZDOMan.instance.GetZDO(followingPlayerZDOID).IsValid() && ai.GetFollowTarget() != null && ai.GetFollowTarget().GetComponent<Player>() != null)
+                {
+                    Vector3 playerPos = ZDOMan.instance.GetZDO(followingPlayerZDOID).GetPosition();
+                    float distance = Vector3.Distance(transform.position, ZDOMan.instance.GetZDO(followingPlayerZDOID).GetPosition());
+
+                    if (distance > 60)
+                    {
+                        TPToLoc(playerPos);
+                        KLog.info($"Teleported Villager {villagerGeneral.ZNV.GetZDO().m_uid.id} to Player {followingPlayerZDOID.id}");
+                    }
+                }
             }
         }
 
 
         private void StopMoving()
         {
+            KLog.info($"{villagerGeneral.ZNV.GetZDO().m_uid.id} Stopped moving");
             keepMoving = false;
         }
 
@@ -198,6 +215,7 @@ namespace KukusVillagerMod.Components.Villager
 
             movePos = pos; //update the movePos
             acceptableDistance = 2f;
+            keepMoving = true;
 
             //FUTURE
             if (!keepFollower)
@@ -208,7 +226,7 @@ namespace KukusVillagerMod.Components.Villager
             talk.Say($"Moving to {pos.ToString()}", "Moving");
             ai.ResetPatrolPoint();
             ai.ResetRandomMovement();
-            keepMoving = true;
+            ai.SetFollowTarget(null);
             return true;
         }
 
@@ -255,7 +273,7 @@ namespace KukusVillagerMod.Components.Villager
             FollowGameObject(dpi, villagerGeneral.GetDefenseZDO().GetPosition()); //if bed is not within loaded range then teleport there
             talk.Say($"Defending post {villagerGeneral.GetDefensePostID().id}", "Defense");
 
-           
+
             return true;
         }
     }

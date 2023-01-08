@@ -548,7 +548,7 @@ namespace KukusVillagerMod.itemPrefab
                 //See if we can get an instance. We only make those who are nearby follow player
                 GameObject villager = ZNetScene.instance.FindInstance(z.m_uid);
 
-                if (villager != null && ZNetScene.instance.IsAreaReady(villager.transform.position)) //if instance is valid we call DefendPost function
+                if (villager != null && ZNetScene.instance.IsAreaReady(villager.transform.position)) 
                 {
                     //Check if playerID matches
 
