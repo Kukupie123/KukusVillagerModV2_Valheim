@@ -155,6 +155,27 @@ namespace KukusVillagerMod.Components.Villager
             return ZDOMan.instance.GetZDO(defensePostID);
         }
 
+        public ZDOID GetWorkPostID()
+        {
+            return GetBedZDO().GetZDOID("work");
+        }
+
+
+        public bool isWorkPostAssigned()
+        {
+            return !GetWorkPostID().IsNone();
+        }
+
+        public ZDO GetWorkZDO()
+        {
+            return ZDOMan.instance.GetZDO(GetWorkPostID());
+        }
+
+        public GameObject GetWorkInstance()
+        {
+            return ZNetScene.instance.FindInstance(GetWorkPostID());
+        }
+
         //FUTURE
         public void CutTree()
         {
