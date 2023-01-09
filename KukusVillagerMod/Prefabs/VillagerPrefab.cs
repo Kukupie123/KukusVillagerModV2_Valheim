@@ -11,6 +11,7 @@ using static CharacterDrop;
 
 namespace KukusVillagerMod.Prefabs
 {
+
     class VillagerPrefab
     {
 
@@ -43,44 +44,13 @@ namespace KukusVillagerMod.Prefabs
             //createCreature2("Worker_Troll", "Troll", 3, 0, 100);
         }
 
-        void testHuman()
-        {
-            //Get a monster prefab and copy some stuff
-
-            var monsterPrefab = CreatureManager.Instance.GetCreaturePrefab("Dverger");
-            var setHumanoid = monsterPrefab.GetComponent<Humanoid>();
-            var setAI = monsterPrefab.GetComponent<MonsterAI>();
-
-
-
-
-            CreatureConfig villagerConfig = new CreatureConfig();
-            villagerConfig.Name = "qqpie";
-            villagerConfig.Faction = Character.Faction.Players;
-            villagerConfig.Group = "Player";
-            CustomCreature villager = new CustomCreature("qqpie", "Player", villagerConfig);
-            var aiez = villager.Prefab.GetComponent<Player>().GetBaseAI();
-            UnityEngine.Object.Destroy(villager.Prefab.GetComponent<PlayerController>());
-            UnityEngine.Object.Destroy(villager.Prefab.GetComponent<Player>());
-            UnityEngine.Object.Destroy(villager.Prefab.GetComponent<Talker>());
-            UnityEngine.Object.Destroy(villager.Prefab.GetComponent<Skills>());
-
-            villager.Prefab.AddComponent<Humanoid>();
-            villager.Prefab.AddComponent<BaseAI>();
-            //villager.Prefab.AddComponent<Tameable>();
-
-            //Not sure how to setup further
-
-            //disabled by default hmmm
-            villager.Prefab.SetActive(true);
-
-            CreatureManager.Instance.AddCreature(villager);
-            KLog.warning("ADDED HUMAN KUKUPIE");
-
-
-        }
         void createCreature2(string villagerName, string prefabCloneName, int villagerType, int level, int health)
         {
+            var rrr = PrefabManager.Instance.GetPrefab("RRR_Hostile_T1");
+            if (rrr == null)
+            {
+                KLog.warning("RRRNPC IS INVALID FOR COMPANION");
+            }
             CreatureConfig villagerConfig = new CreatureConfig();
             villagerConfig.Name = villagerName.Replace("_", " "); //Replace the "_" with " " Eg: Weak_Mage becomes Weak Mage
             villagerConfig.Faction = Character.Faction.Players;
@@ -89,19 +59,19 @@ namespace KukusVillagerMod.Prefabs
             CustomCreature villager = new CustomCreature(villagerName, prefabCloneName, villagerConfig);
 
             //Remove components that we do not need from the villagers
-            var npcTalk = villager.Prefab.GetComponent<NpcTalk>();
+            //var npcTalk = villager.Prefab.GetComponent<NpcTalk>();
             var charDrop = villager.Prefab.GetComponent<CharacterDrop>();
-            var npcTalkP = villager.Prefab.GetComponentInParent<NpcTalk>();
-            var charDropP = villager.Prefab.GetComponentInParent<CharacterDrop>();
+            //var npcTalkP = villager.Prefab.GetComponentInParent<NpcTalk>();
+            //var charDropP = villager.Prefab.GetComponentInParent<CharacterDrop>();
             var interactionP = villager.Prefab.GetComponentInParent(typeof(Interactable));
             var interaction = villager.Prefab.GetComponent(typeof(Interactable));
 
             //Edit drops
             charDrop.SetDropsEnabled(false);
-            charDrop.m_drops = new List<Drop>();
+            charDrop.m_drops =new List<Drop>();
 
-            UnityEngine.GameObject.DestroyImmediate(npcTalk);
-            UnityEngine.GameObject.DestroyImmediate(npcTalkP);
+            //UnityEngine.GameObject.DestroyImmediate(npcTalk);
+            //UnityEngine.GameObject.DestroyImmediate(npcTalkP);
             UnityEngine.GameObject.DestroyImmediate(interactionP);
             UnityEngine.GameObject.DestroyImmediate(interaction);
 

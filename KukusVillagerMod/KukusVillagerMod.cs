@@ -16,12 +16,14 @@ using System.Collections.Generic;
 
 namespace KukusVillagerMod
 {
-    [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
+    [BepInDependency("com.alexanderstrada.rrrnpcs", BepInDependency.DependencyFlags.HardDependency)]
+
     [BepInDependency(Jotunn.Main.ModGuid)]
+    [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     //[NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     internal class KukusVillagerMod : BaseUnityPlugin
     {
-
+        public static bool isModded = true;
         public const string PluginGUID = "com.kukukodes.KukuVillagers";
         public const string PluginName = "KukusVillagerMod";
         public const string PluginVersion = "2.0.0";
@@ -62,6 +64,7 @@ namespace KukusVillagerMod
             //Register Piece and Item
             new BedPrefab();
             new DefensePostPrefab();
+            new WorkPostPrefab();
             vc = new VillagerCommander();
 
             PrefabManager.OnVanillaPrefabsAvailable -= LoadBedPrefab;

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using KukusVillagerMod.Components.Villager;
+using KukusVillagerMod.Components.VillagerBed;
 
 namespace KukusVillagerMod.Patches
 {
@@ -55,35 +56,24 @@ namespace KukusVillagerMod.Patches
             }
         }
     }
-    /*
-    [HarmonyReversePatch]
-    [HarmonyPatch(typeof(Humanoid), nameof(Humanoid.GetCurrentWeapon))]
-    static class VillagerDmgPatch
+
+    [HarmonyPatch(typeof(Container), nameof(Container.Interact))]
+    static class ContainerInteraction
     {
-        public static void Postfix(MonsterAI __instance, ref ItemDrop.ItemData __result, ref ItemDrop.ItemData ___m_rightItem, ref ItemDrop.ItemData ___m_leftItem, ref ItemDrop ___m_unarmedWeapon)
+        public static void Postfix(Container __instance)
         {
-            if (__instance.GetComponentInParent<VillagerAI>() != null)
+            if (BedVillagerProcessor.SELECTED_BED_ID != null && BedVillagerProcessor.SELECTED_BED_ID.Value.IsNone() == false)
             {
-                var h = __instance.GetComponent<Humanoid>();
-                //KLog.warning("CUSTOM GET CURRENT WEAPON CALLED");
-                if (___m_rightItem != null && ___m_rightItem.IsWeapon())
+                ZNetView containerZNV = __instance.GetComponentInParent<ZNetView>();
+                ZDO bedZDO = ZDOMan.instance.GetZDO(BedVillagerProcessor.SELECTED_BED_ID.Value);
+                if (bedZDO != null && bedZDO.IsValid())
                 {
-                    __result = ___m_rightItem;
-
+                    bedZDO.Set("container", containerZNV.GetZDO().m_uid);
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Assigned Container {containerZNV.GetZDO().m_uid.id} to Bed {BedVillagerProcessor.SELECTED_BED_ID.Value.id}");
                 }
-                if (___m_leftItem != null && ___m_leftItem.IsWeapon() && ___m_leftItem.m_shared.m_itemType != ItemDrop.ItemData.ItemType.Torch)
-                {
-                    __result = ___m_leftItem;
-                }
-                if (___m_unarmedWeapon)
-                {
-                    __result = ___m_unarmedWeapon.m_itemData;
-                }
-                __result = null;
             }
-
         }
     }
-    */
+
 
 }

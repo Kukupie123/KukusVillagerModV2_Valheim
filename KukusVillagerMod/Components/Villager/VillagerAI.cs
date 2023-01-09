@@ -281,6 +281,10 @@ namespace KukusVillagerMod.Components.Villager
 
 
         //Worker AI
+        /*
+         * Need to figure out things hmmm
+         * 
+         */
 
     }
 }

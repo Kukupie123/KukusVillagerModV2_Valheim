@@ -36,7 +36,7 @@ namespace KukusVillagerMod.Prefabs
             }
             dpConfig.Description = "Work post for your villagers to go to and work.\n Interact with a bed then with a work post to assign the work post to the villager.";
             //Create the Bed Piece (Custom Piece)
-            var dp = new CustomPiece("DefensePost", "jute_carpet", dpConfig);
+            var dp = new CustomPiece("WorkPost", "jute_carpet", dpConfig);
             //Add defenseState
             var spawner = dp.PiecePrefab.GetOrAddComponent<WorkPostState>();
             //Add the piece to PieceManager
