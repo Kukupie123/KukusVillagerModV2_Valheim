@@ -6,6 +6,8 @@ using KukusVillagerMod.Components.Villager;
 using KukusVillagerMod.Configuration;
 using KukusVillagerMod.Components;
 using UnityEngine;
+using System.Collections.Generic;
+using static CharacterDrop;
 
 namespace KukusVillagerMod.Prefabs
 {
@@ -94,10 +96,12 @@ namespace KukusVillagerMod.Prefabs
             var interactionP = villager.Prefab.GetComponentInParent(typeof(Interactable));
             var interaction = villager.Prefab.GetComponent(typeof(Interactable));
 
+            //Edit drops
+            charDrop.SetDropsEnabled(false);
+            charDrop.m_drops = new List<Drop>();
+
             UnityEngine.GameObject.DestroyImmediate(npcTalk);
             UnityEngine.GameObject.DestroyImmediate(npcTalkP);
-            UnityEngine.GameObject.DestroyImmediate(charDrop);
-            UnityEngine.GameObject.DestroyImmediate(charDropP);
             UnityEngine.GameObject.DestroyImmediate(interactionP);
             UnityEngine.GameObject.DestroyImmediate(interaction);
 
