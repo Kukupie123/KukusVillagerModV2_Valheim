@@ -157,6 +157,7 @@ namespace KukusVillagerMod.itemPrefab
             KeyHintManager.Instance.AddKeyHint(kh);
         }
 
+        //Keeps track of which key has been pressed down.
         bool guardBedPressed = false;
         bool followPlayerPressed = false;
         bool defendPostPressed = false;
@@ -175,7 +176,7 @@ namespace KukusVillagerMod.itemPrefab
         private ButtonConfig showStatsBtn;
 
 
-
+        //This is not the right way to handle input but I couldn't get those to work so I ended up doing it this way
         public void HandleInputs()
         {
 
@@ -183,13 +184,16 @@ namespace KukusVillagerMod.itemPrefab
             if (ZInput.instance == null || MessageHud.instance == null || Player.m_localPlayer == null) return;
             if (Player.m_localPlayer.GetInventory() == null) return;
             List<ItemDrop.ItemData> allItems = Player.m_localPlayer.GetInventory().GetAllItems();
-
+               
+            
             if (allItems == null) return;
 
+            //I tried foreach loop but it just wouldn't work so I looped using iterative numbers
             for (int i = 0; i < allItems.Count; i++)
             {
                 if (Player.m_localPlayer.GetInventory().GetEquipedtems().Contains(allItems[i]))
                 {
+                    //I tried to avoid nesting this much but foreach would never loop so I ended up doing this. Planning to fix once major stuffs are done
                     foreach (ItemDrop.ItemData e in Player.m_localPlayer.GetInventory().GetEquipedtems())
                     {
                         if (e == null) continue;
@@ -420,6 +424,7 @@ namespace KukusVillagerMod.itemPrefab
             }
         }
 
+        ///Make all villager go to their bed.
         private void MakeVillagersGoToBed(string prefabName)
         {
 
@@ -464,6 +469,7 @@ namespace KukusVillagerMod.itemPrefab
 
         }
 
+        ///Make all villagers defend their Defense post
         private void MakeVillagersDefend(string prefabName)
         {
 
@@ -527,6 +533,7 @@ namespace KukusVillagerMod.itemPrefab
 
         }
 
+        ///Make followers go to the location
         private void MakeFollowersGoToLocation(string prefabName, Vector3 location)
         {
 
