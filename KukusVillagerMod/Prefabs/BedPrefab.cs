@@ -92,6 +92,7 @@ namespace KukusVillagerMod.Prefabs
             //bedState.respawnDuration = respawnDuration;
             spawner.VillagerPrefabName = villagerID;
             spawner.respawnTimeInMinute = respawnInMin;
+            var container = bed.PiecePrefab.GetOrAddComponent<Container>();
             //Add the piece to PieceManager
             PieceManager.Instance.AddPiece(bed);
         }

@@ -72,7 +72,6 @@ namespace KukusVillagerMod.Components.Villager
         {
             if (keepMoving == true)
             {
-                KLog.info($"Moving to {movePos}");
                 if (ai.HavePath(movePos) == false)
                 {
                     TPToLoc(movePos);
@@ -276,5 +275,12 @@ namespace KukusVillagerMod.Components.Villager
 
             return true;
         }
+
+
+
+
+
+        //Worker AI
+
     }
 }

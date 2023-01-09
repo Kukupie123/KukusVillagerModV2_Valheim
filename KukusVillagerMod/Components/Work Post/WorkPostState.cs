@@ -6,18 +6,18 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace KukusVillagerMod.Components.DefensePost
+namespace KukusVillagerMod.Components.Work_Post
 {
-    class DefenseState : MonoBehaviour, Interactable, Hoverable
+    class WorkPostState : MonoBehaviour, Interactable, Hoverable
     {
-
+        ZNetView znv;
         Piece piece;
-        private ZNetView znv;
 
         private void Awake()
         {
             piece = GetComponent<Piece>();
         }
+
 
         //Same deal as the one in BedVillagerProcessor. Please check that file to know about this variable
         bool fixedUpdateRanOnce = false;
@@ -47,16 +47,17 @@ namespace KukusVillagerMod.Components.DefensePost
 
 
 
+
         public string GetHoverName()
         {
             string defenseID = znv.GetZDO().m_uid.id.ToString();
-            return $"Defense post ID {defenseID}";
+            return $"Work post ID {defenseID}";
         }
 
         public string GetHoverText()
         {
             string defenseID = znv.GetZDO().m_uid.id.ToString();
-            return $"Defense post ID {defenseID}";
+            return $"Work Post ID {defenseID}";
         }
 
 
@@ -76,15 +77,15 @@ namespace KukusVillagerMod.Components.DefensePost
 
             if (bedID == null)
             {
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Please Select a bed first by interacting.");
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Please Select a bed first by interacting with a bed.");
                 return false;
             }
             else
             {
                 //Save the id of the defense post in the bed and then empty the bed value from the static variable
                 var bedZDO = ZDOMan.instance.GetZDO(bedID.Value);
-                bedZDO.Set("defense", znv.GetZDO().m_uid);
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Defense {znv.GetZDO().m_uid} Linked with Bed {bedID.Value.id}");
+                bedZDO.Set("work", znv.GetZDO().m_uid);
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Work {znv.GetZDO().m_uid} Linked with Bed {bedID.Value.id}");
                 BedVillagerProcessor.SELECTED_BED_ID = null;
                 return true;
             }

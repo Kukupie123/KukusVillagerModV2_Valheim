@@ -164,6 +164,38 @@ namespace KukusVillagerMod.Components.VillagerBed
 
         }
 
+
+
+        public ZDOID GetDefensePostID()
+        {
+            return znv.GetZDO().GetZDOID("defense");
+        }
+
+        public ZDO GetDefenseZDO()
+        {
+            return ZDOMan.instance.GetZDO(GetDefensePostID());
+        }
+
+        public GameObject GetDefenseInstance()
+        {
+            return ZNetScene.instance.FindInstance(GetDefensePostID());
+        }
+
+        public ZDOID GetWorkPostID()
+        {
+            return znv.GetZDO().GetZDOID("work");
+        }
+
+        public ZDO GetWorkPostZDO()
+        {
+            return ZDOMan.instance.GetZDO(GetWorkPostID());
+        }
+
+        public GameObject GetWorkPostInstance()
+        {
+            return ZNetScene.instance.FindInstance(GetWorkPostID());
+        }
+
         //Interface
 
         public string GetHoverText()
@@ -188,10 +220,15 @@ namespace KukusVillagerMod.Components.VillagerBed
                 villager = getTimeLeftToSpawn();
             }
 
+            var workID = GetWorkPostID();
+            string work = "None";
+            if (workID.IsNone() == false)
+            {
+                if (ZDOMan.instance.GetZDO(workID) != null && ZDOMan.instance.GetZDO(workID).IsValid())
+                    work = workID.id.ToString();
+            }
 
-            string containerID = "None";
-
-            var defenseID = this.znv.GetZDO().GetZDOID("defense");
+            var defenseID = GetDefensePostID();
             string defense = "None";
             if (!defenseID.IsNone())
             {
@@ -199,7 +236,7 @@ namespace KukusVillagerMod.Components.VillagerBed
                     defense = defenseID.id.ToString();
             }
 
-            return $"{this.name.Replace("(Clone)", "")}\nBed ID : {bedID}\nVillager ID : {villager}\nContainer ID : {containerID}\nDefense Post ID :{defense}";
+            return $"{this.name.Replace("(Clone)", "")}\nBed ID : {bedID}\nVillager ID : {villager}\nWork Post ID : {work}\nDefense Post ID :{defense}";
         }
 
         private string getTimeLeftToSpawn()
@@ -229,13 +266,21 @@ namespace KukusVillagerMod.Components.VillagerBed
         /// <returns></returns>
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
-            if (!hold) //Save bed in ZDO of user temporarily, when interacted with defense post, we will make use of this bed
+            if (hold) //Save bed in ZDO of user temporarily, when interacted with defense post, we will make use of this bed
+            {
+                //Open container
+                Container container = GetComponent<Container>();
+                InventoryGui.instance.Show(container);
+                return true;
+
+
+            }
+            else
             {
                 SELECTED_BED_ID = this.znv.GetZDO().m_uid;
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Bed {SELECTED_BED_ID.Value.id} selected. Interact with a Defense to let the villager know where to defend");
                 return true;
             }
-            return false;
         }
 
         //Does nothing as of now
