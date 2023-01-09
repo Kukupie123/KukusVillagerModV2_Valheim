@@ -319,7 +319,7 @@ namespace KukusVillagerMod.Components.Villager
         {
             while (true)
             {
-                if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                if (villagerGeneral.GetVillagerState() != VillagerState.Working || villagerGeneral.GetContainerZDO().IsValid() == false || villagerGeneral.GetWorkZDO().IsValid() == false)
                 {
                     await Task.Delay(500);
                     continue;
@@ -350,9 +350,9 @@ namespace KukusVillagerMod.Components.Villager
                         talk.Say($"Going to pickup {pickable.GetHoverName()}", "work");
                         await Task.Delay(500);
                     }
-
-                    await Task.Delay(500);
-                    talk.Say("Can pickup item now","work");
+                    talk.Say("Can pickup item now", "work");
+                    await Task.Delay(1000);
+                    ZDOMan.instance.DestroyZDO(pickable.GetComponentInParent<ZNetView>().GetZDO());
                 }
             }
         }
@@ -406,54 +406,11 @@ namespace KukusVillagerMod.Components.Villager
             return pickable;
         }
 
-        public void PickupProcessed()
+        public void StartWork()
         {
             villagerGeneral.SetVillagerState(VillagerState.Working);
             return;
 
-            //Move to Work Post
-            ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
-
-            if (WorkPostZDO.IsValid() == false) return;
-
-            Vector3 workPosLoc = WorkPostZDO.GetPosition();
-
-            MoveVillagerToLoc(workPosLoc, 2f, false);
-
-            //Figure out a way to wait until move is false
-
-            //Scan for objects that we can pickup and add it in list
-            Collider[] colliders = Physics.OverlapSphere(workPosLoc, 100f);
-
-            List<ItemDrop> pickable = new List<ItemDrop>();
-
-            foreach (var c in colliders)
-            {
-                var d = c?.gameObject?.GetComponent<ItemDrop>();
-
-                if (d == null)
-                {
-                    d = c?.gameObject?.GetComponentInChildren<ItemDrop>();
-                }
-                if (d == null)
-                {
-                    d = c?.gameObject?.GetComponentInParent<ItemDrop>();
-                }
-                if (d == null)
-                {
-
-                    continue;
-                }
-
-                string prefabName = d.GetHoverName();
-                if (prefabName.Equals("$item_bronze"))
-                {
-                    pickable.Add(d);
-                    GetComponent<Humanoid>().Pickup(d.gameObject, false);
-                }
-            }
-
-            //Move to each item and pickup
 
         }
 
