@@ -1,6 +1,8 @@
 ﻿using KukusVillagerMod.Components;
 using KukusVillagerMod.enums;
+using KukusVillagerMod.enums.Work_Enum;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -37,6 +39,7 @@ namespace KukusVillagerMod.Components.Villager
             if (!updateRanOnce)
             {
                 updateRanOnce = true;
+                WorkAsync();
                 {
                     if (talk == null) talk = GetComponent<NpcTalk>();
                 }
@@ -209,20 +212,39 @@ namespace KukusVillagerMod.Components.Villager
         /// <param name="pos">The position to move to</param>
         /// <param name="keepFollower">If true, then will keep the villager as follower of the player. if false, will remove the villager as the follower of the player</param>
         /// <returns></returns>
-        public bool MoveVillagerToLoc(Vector3 pos, bool keepFollower = true)
+        public bool MoveVillagerToLoc(Vector3 pos, float radius, bool keepFollower = true, bool shouldTalk = true)
         {
 
             movePos = pos; //update the movePos
-            acceptableDistance = 2f;
+            acceptableDistance = radius;
+
+            //Check if already within range
+            if (Vector3.Distance(transform.position, pos) < radius)
+            {
+                if (shouldTalk)
+                {
+                    talk.Say("Already near the move location", "move");
+
+
+
+                }
+
+                keepMoving = false;
+                if (!keepFollower)
+                {
+                    RemoveVillagersFollower();
+                }
+                return false;
+            }
             keepMoving = true;
 
             //FUTURE
             if (!keepFollower)
             {
                 RemoveVillagersFollower();
-                villagerGeneral.SetVillagerState(VillagerState.Moving);
             }
-            talk.Say($"Moving to {pos.ToString()}", "Moving");
+            if (shouldTalk)
+                talk.Say($"Moving to {pos.ToString()}", "Moving");
             ai.ResetPatrolPoint();
             ai.ResetRandomMovement();
             ai.SetFollowTarget(null);
@@ -283,8 +305,157 @@ namespace KukusVillagerMod.Components.Villager
         //Worker AI
         /*
          * Need to figure out things hmmm
+         * Things AI needs to be able to do
+         * 1. Pickup valuables and store them in container,
+         * 2. Take coals/ores from container and smelt them
          * 
+         * Farming:
+         * 1. Cut trees/mine rocks nearby. 
+         * 2. Pickup and store
          */
+
+
+        async private void WorkAsync()
+        {
+            while (true)
+            {
+                if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                {
+                    await Task.Delay(500);
+                    continue;
+                }
+
+                //Go to work post
+                ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
+                Vector3 workPosLoc = WorkPostZDO.GetPosition();
+
+                MoveVillagerToLoc(workPosLoc, 3f, false, false);
+                while (keepMoving)
+                {
+                    talk.Say("Going to Work Post", "work");
+                    await Task.Delay(500);
+                }
+                await Task.Delay(500);
+                talk.Say("Reached Work Post", "work");
+
+                //Now search for pickable item
+                ItemDrop pickable = FindClosestPickup(workPosLoc, 250f);
+                if (pickable != null)
+                {
+                    //Move to the pickable item 
+                    MoveVillagerToLoc(pickable.transform.position, 1f, false, false);
+
+                    while (keepMoving)
+                    {
+                        talk.Say($"Going to pickup {pickable.GetHoverName()}", "work");
+                        await Task.Delay(500);
+                    }
+
+                    await Task.Delay(500);
+                    talk.Say("Can pickup item now","work");
+                }
+            }
+        }
+
+        private ItemDrop FindClosestPickup(Vector3 center, float radius)
+        {
+            //Scan for objects that we can pickup and add it in list
+            Collider[] colliders = Physics.OverlapSphere(center, radius);
+
+            ItemDrop pickable = null;
+
+            float distance = -1;
+
+            foreach (var c in colliders)
+            {
+                var d = c?.gameObject?.GetComponent<ItemDrop>();
+
+                if (d == null)
+                {
+                    d = c?.gameObject?.GetComponentInChildren<ItemDrop>();
+                }
+                if (d == null)
+                {
+                    d = c?.gameObject?.GetComponentInParent<ItemDrop>();
+                }
+                if (d == null)
+                {
+
+                    continue;
+                }
+
+                string prefabName = d.GetHoverName();
+                if (prefabName.Equals("$item_bronze"))
+                {
+                    if (pickable == null) //No pickable item selected so we select this as first
+                    {
+                        pickable = d;
+                        distance = Vector3.Distance(center, d.transform.position);
+                    }
+                    else //Pickable object exist we check for distance
+                    {
+                        float thisDistance = Vector3.Distance(center, d.transform.position);
+                        if (thisDistance < distance)
+                        {
+                            pickable = d;
+                            distance = thisDistance;
+                        }
+                    }
+                }
+            }
+            return pickable;
+        }
+
+        public void PickupProcessed()
+        {
+            villagerGeneral.SetVillagerState(VillagerState.Working);
+            return;
+
+            //Move to Work Post
+            ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
+
+            if (WorkPostZDO.IsValid() == false) return;
+
+            Vector3 workPosLoc = WorkPostZDO.GetPosition();
+
+            MoveVillagerToLoc(workPosLoc, 2f, false);
+
+            //Figure out a way to wait until move is false
+
+            //Scan for objects that we can pickup and add it in list
+            Collider[] colliders = Physics.OverlapSphere(workPosLoc, 100f);
+
+            List<ItemDrop> pickable = new List<ItemDrop>();
+
+            foreach (var c in colliders)
+            {
+                var d = c?.gameObject?.GetComponent<ItemDrop>();
+
+                if (d == null)
+                {
+                    d = c?.gameObject?.GetComponentInChildren<ItemDrop>();
+                }
+                if (d == null)
+                {
+                    d = c?.gameObject?.GetComponentInParent<ItemDrop>();
+                }
+                if (d == null)
+                {
+
+                    continue;
+                }
+
+                string prefabName = d.GetHoverName();
+                if (prefabName.Equals("$item_bronze"))
+                {
+                    pickable.Add(d);
+                    GetComponent<Humanoid>().Pickup(d.gameObject, false);
+                }
+            }
+
+            //Move to each item and pickup
+
+        }
 
     }
 }

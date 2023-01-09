@@ -176,6 +176,27 @@ namespace KukusVillagerMod.Components.Villager
             return ZNetScene.instance.FindInstance(GetWorkPostID());
         }
 
+
+        public ZDOID GetContainerID()
+        {
+            return GetBedZDO().GetZDOID("container");
+        }
+
+        public bool IsContainerAssigned()
+        {
+            return !GetContainerID().IsNone();
+        }
+
+        public ZDO GetContainerZDO()
+        {
+            return ZDOMan.instance.GetZDO(GetContainerID());
+        }
+
+        public GameObject GetContainerInstancec()
+        {
+            return ZNetScene.instance.FindInstance(GetContainerID());
+        }
+
         //FUTURE
         public void CutTree()
         {

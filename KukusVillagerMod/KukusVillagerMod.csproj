@@ -86,6 +86,7 @@
     <Compile Include="Configurations\VillagerModConfigurations.cs" />
     <Compile Include="enums\VillagerState.cs" />
     <Compile Include="Components\Villager Commander Club\VillagerCommander.cs" />
+    <Compile Include="enums\Work Enum\WorkingState.cs" />
     <Compile Include="Patches\VillagerPatches.cs" />
     <Compile Include="Prefabs\BedPrefab.cs" />
     <Compile Include="Prefabs\DefensePostPrefab.cs" />

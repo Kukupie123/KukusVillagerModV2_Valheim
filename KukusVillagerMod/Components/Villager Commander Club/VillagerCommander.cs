@@ -184,8 +184,8 @@ namespace KukusVillagerMod.itemPrefab
             if (ZInput.instance == null || MessageHud.instance == null || Player.m_localPlayer == null) return;
             if (Player.m_localPlayer.GetInventory() == null) return;
             List<ItemDrop.ItemData> allItems = Player.m_localPlayer.GetInventory().GetAllItems();
-               
-            
+
+
             if (allItems == null) return;
 
             //I tried foreach loop but it just wouldn't work so I looped using iterative numbers
@@ -403,6 +403,17 @@ namespace KukusVillagerMod.itemPrefab
                                     moveToPressed = false;
                                     showStatsPressed = true;
 
+                                    MakeVillagersWork("Weak_Villager_Ranged");
+                                    MakeVillagersWork("Weak_Villager");
+                                    MakeVillagersWork("Bronze_Villager_Ranged");
+                                    MakeVillagersWork("Bronze_Villager");
+                                    MakeVillagersWork("Iron_Villager_Ranged");
+                                    MakeVillagersWork("Iron_Villager");
+                                    MakeVillagersWork("Silver_Villager");
+                                    MakeVillagersWork("Silver_Villager_Ranged");
+                                    MakeVillagersWork("BlackMetal_Villager_Ranged");
+                                    MakeVillagersWork("BlackMetal_Villager");
+
 
                                 }
                                 else
@@ -555,7 +566,7 @@ namespace KukusVillagerMod.itemPrefab
                 //See if we can get an instance. We only make those who are nearby follow player
                 GameObject villager = ZNetScene.instance.FindInstance(z.m_uid);
 
-                if (villager != null && ZNetScene.instance.IsAreaReady(villager.transform.position)) 
+                if (villager != null && ZNetScene.instance.IsAreaReady(villager.transform.position))
                 {
                     //Check if playerID matches
 
@@ -564,7 +575,7 @@ namespace KukusVillagerMod.itemPrefab
                         continue;
                     }
 
-                    villager.GetComponent<VillagerAI>().MoveVillagerToLoc(location, true); //Move the villager to the location and also keep the villager as follower
+                    villager.GetComponent<VillagerAI>().MoveVillagerToLoc(location, 2f, true); //Move the villager to the location and also keep the villager as follower
                 }
                 else
                 {
@@ -620,6 +631,42 @@ namespace KukusVillagerMod.itemPrefab
                     MakeVillagersGoToBed(prefabName);
                 }
 
+            }
+        }
+
+
+        private void MakeVillagersWork(string prefabName)
+        {
+            List<ZDO> zdos = new List<ZDO>();
+            ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
+            foreach (ZDO z in zdos)
+            {
+                ZDOID bedZDOID = z.GetZDOID("spawner_id"); //Get BedZDOID Stored in the villager's ZDO
+
+                if (bedZDOID == null || bedZDOID.IsNone()) //Validate if bedZDOID is valid
+                {
+                    KLog.warning($"Villager {z.m_uid.id} Does not have bed ZDOID Stored");
+                    continue;
+                }
+
+                ZDO bedZDO = ZDOMan.instance.GetZDO(bedZDOID); //Get the ZDO of the bed to get the location of the bed
+
+                //Validate bedZDO
+                if (bedZDO == null || bedZDO.IsValid() == false)
+                {
+                    KLog.warning($"BedZDO is invalid for villager {z.m_uid.id}");
+                    continue;
+                }
+
+                GameObject villager = ZNetScene.instance.FindInstance(z.m_uid);  //Get ZNV of the villager
+                if (villager != null && villager.GetComponent<VillagerAI>() != null)
+                {
+                    villager.GetComponent<VillagerAI>().PickupProcessed();
+                }
+                else
+                {
+                    //TP to work location
+                }
             }
         }
     }
