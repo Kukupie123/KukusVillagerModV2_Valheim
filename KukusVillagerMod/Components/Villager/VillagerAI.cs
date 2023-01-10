@@ -55,6 +55,9 @@ namespace KukusVillagerMod.Components.Villager
                     case VillagerState.Defending_Post:
                         DefendPost();
                         break;
+                    case VillagerState.Working:
+                        StartWork();
+                        break;
                     default:
                         GuardBed();
                         break;
@@ -99,7 +102,7 @@ namespace KukusVillagerMod.Components.Villager
                 //Check if villager has been trying to reach target for too long
                 double timeDiff = (ZNet.instance.GetTime() - keepMovingStartTime.Value).TotalSeconds;
 
-                if (timeDiff > 15) //15 sec passed and still hasn't reached path so we tp
+                if (timeDiff > 60) //60 sec passed and still hasn't reached path so we tp
                 {
                     TPToLoc(movePos);
                     SetKeepMoving(false, shouldRun);
@@ -247,6 +250,17 @@ namespace KukusVillagerMod.Components.Villager
             movePos = pos; //update the movePos
             acceptableDistance = radius;
 
+            //check if area is loaded, if not we TP to location
+            if (ZNetScene.instance.IsAreaReady(pos) == false)
+            {
+                SetKeepMoving(false, shouldRun);
+                if (!keepFollower)
+                {
+                    RemoveVillagersFollower();
+                }
+                return true;
+            }
+
             //Check if already within range
             if (Vector3.Distance(transform.position, pos) < radius)
             {
@@ -325,6 +339,37 @@ namespace KukusVillagerMod.Components.Villager
             return true;
         }
 
+        public bool StartWork()
+        {
+            ZDOID wp = villagerGeneral.GetWorkPostID();
+
+            if (wp == null || wp.IsNone())
+            {
+                talk.Say("No Work Post assigned", "Work");
+                return false;
+            }
+
+            if (villagerGeneral.GetWorkZDO() == null || villagerGeneral.GetWorkZDO().IsValid() == false)
+            {
+                talk.Say("My Defense post was destroyed", "Defense");
+                return false;
+            }
+            villagerGeneral.SetVillagerState(VillagerState.Working);
+            GameObject wpi = villagerGeneral.GetWorkInstance();
+            RemoveVillagersFollower();
+
+            //If wpi is invalid we are going to tp the villager to it's work post
+            if (wpi == null)
+            {
+                TPToLoc(villagerGeneral.GetWorkZDO().GetPosition());
+            }
+
+            talk.Say("Working", "Work");
+            return true;
+
+
+        }
+
 
 
 
@@ -341,7 +386,10 @@ namespace KukusVillagerMod.Components.Villager
          * 2. Pickup and store
          */
 
-
+        /// <summary>
+        /// Runs once and never stops until villager is destroyed.
+        /// Used to Handle Actions that need a lot if waiting and ordered execution Eg : Going to Work post and waiting to reach -> Then going to Pickup location and waiting to reach
+        /// </summary>
         async private void WorkAsync()
         {
             while (true)
@@ -355,6 +403,7 @@ namespace KukusVillagerMod.Components.Villager
                     }
 
                     await PickupAndStoreWork();
+                    await RefillWork();
                 }
                 catch (Exception e)
                 {
@@ -442,6 +491,76 @@ namespace KukusVillagerMod.Components.Villager
             }
         }
 
+        async private Task RefillWork()
+        {
+
+            ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
+            Vector3 workPosLoc = WorkPostZDO.GetPosition();
+
+            //Move to workpost
+            MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
+            while (keepMoving)
+            {
+                await Task.Delay(500);
+
+                if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                {
+                    break;
+                }
+            }
+
+            //Reached Work post, Check if still working
+            await Task.Delay(500);
+            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+            {
+                return;
+            }
+
+            //Find smelter
+            Smelter smelter = FindValidSmelter(workPosLoc, 200);
+            if (smelter != null)
+            {
+                //Go to container and remove the fuel or cookable or both
+
+                //Move to container
+                MoveVillagerToLoc(villagerGeneral.GetContainerZDO().GetPosition(), 2f, false, false, false);
+
+                while (keepMoving)
+                {
+                    await Task.Delay(500);
+                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                    {
+                        break;
+                    }
+                }
+
+                await Task.Delay(500);
+                bool tookFuel = false;
+                bool tookCookable = false;
+                //Check and remove fuel/cookable
+
+
+                //Go to smelter
+                MoveVillagerToLoc(smelter.transform.position, 4f, false, false, false);
+
+                while (keepMoving)
+                {
+                    await Task.Delay(500);
+                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                    {
+                        break;
+                    }
+                }
+
+                await Task.Delay(500);
+                //Add fuel to the smelter
+                smelter.GetComponentInParent<ZNetView>().InvokeRPC("AddFuel");
+
+            }
+
+
+        }
+
         private string GetPrefabNameFromHoverName4ItemDrop(string hoverName)
         {
             return "Bronze";
@@ -496,13 +615,59 @@ namespace KukusVillagerMod.Components.Villager
             return pickable;
         }
 
-        public void StartWork()
+        private Smelter FindValidSmelter(Vector3 center, float radius)
         {
-            villagerGeneral.SetVillagerState(VillagerState.Working);
-            return;
+            GameObject container = villagerGeneral.GetContainerInstance();
+            Collider[] colliders = Physics.OverlapSphere(center, radius);
+            Smelter smelter = null;
+            float distance = -1;
+            foreach (Collider c in colliders)
+            {
+                var d = c.gameObject.GetComponent<Smelter>();
+                if (d == null)
+                {
+                    d = c.gameObject.GetComponentInParent<Smelter>();
+                }
+                if (d == null)
+                {
+                    d = c.gameObject.GetComponentInChildren<Smelter>();
+                }
+                if (d == null)
+                {
+                    continue;
+                }
+
+                string fuelName = d.m_fuelItem.m_itemData.m_shared.m_name; //Get the type of fuel it uses
+
+                //Check if contanier has the fuel
+                var inventory = container.GetComponent<Container>().GetInventory();
+                var cookable = d.FindCookableItem(inventory);
+
+                bool fuelPresent = inventory.HaveItem(fuelName);
+                bool cookablePresent = smelter.FindCookableItem(inventory) != null;
+
+                if (fuelPresent || cookablePresent)
+                {
+                    if (smelter == null)
+                    {
+                        distance = Vector3.Distance(d.transform.position, center);
+                        smelter = d;
+                    }
+                    else
+                    {
+                        if (Vector3.Distance(d.transform.position, center) < distance)
+                        {
+                            smelter = d;
+                        }
+                    }
+                }
 
 
+            }
+            return smelter;
         }
+
+
 
     }
 }
