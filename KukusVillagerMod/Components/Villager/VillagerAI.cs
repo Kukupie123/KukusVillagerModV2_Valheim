@@ -74,6 +74,10 @@ namespace KukusVillagerMod.Components.Villager
         private void SetKeepMoving(bool keepMoving)
         {
             this.keepMoving = keepMoving;
+            if (keepMoving == false)
+            {
+                keepMovingStartTime = null;
+            }
         }
 
         float acceptableDistance = 2f;
