@@ -131,6 +131,9 @@ namespace KukusVillagerMod
  * 6. Map marker
  * 7. Disable collision between villager and bed
  * 8. Updating contents of containers, smelters etc using ZDO
+ * 9. Config for AI worker such as wait time, what to pickup etc
+ * 10. Fix Villagers tping to bed when guard bed is called
+ * 11. Huge thing but, virtual refuling and picking using ZDO? Eg for pickup we can get distance of zdo and decide then put those item inside container using zdo serialize deserialize. same concept for fueling and all
  * 
  * How should we go about it hmmm.
  * 
