@@ -421,7 +421,7 @@ namespace KukusVillagerMod.Components.Villager
                 }
                 catch (NullReferenceException e)
                 {
-                    KLog.info($"Exception BUT Nothing serious 80% of the time : Probably Happend cuz the villager tried to pickup an item but it was gone (maybe pickedup by someone else) It's common don't worry but still here is the error message {e.Message} stack : {e.StackTrace}");
+                    KLog.info($"Exception BUT Nothing serious 80% of the time : Probably Happend cuz the villager tried to pickup an item but it was gone (maybe pickedup by someone else) It's common don't worry but still here is the error message {e.Message} \nstack : {e.StackTrace}");
 
                 }
 
@@ -438,7 +438,6 @@ namespace KukusVillagerMod.Components.Villager
             Vector3 workPosLoc = WorkPostZDO.GetPosition();
 
             //Move to workpost
-            talk.Say("Going to Work post", "Work");
             MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
             while (keepMoving)
             {
@@ -463,7 +462,7 @@ namespace KukusVillagerMod.Components.Villager
             //ItemDrop found.
             if (pickable != null)
             {
-                talk.Say($"Going to Pickup {pickable.m_itemData.m_dropPrefab.name}", "Work");
+                talk.Say($"Going to Pickup {pickable.m_itemData.m_shared.m_name}", "Work");
 
                 //Move to the pickable item 
                 MoveVillagerToLoc(pickable.transform.position, 1f, false, false, false);
@@ -484,7 +483,7 @@ namespace KukusVillagerMod.Components.Villager
                 }
 
                 //Fake pickup by storing the prefab, and deleting the GO from world if only 1 stack or else reduce stack by one
-                string prefabName = pickable.m_itemData.m_dropPrefab.name;
+                string prefabName = pickable.m_itemData.m_shared.m_name;
                 int stackCount = pickable.m_itemData.m_stack;
                 var prefab = PrefabManager.Instance.GetPrefab(prefabName);
                 if (prefab == null)
@@ -530,7 +529,6 @@ namespace KukusVillagerMod.Components.Villager
 
             ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
             Vector3 workPosLoc = WorkPostZDO.GetPosition();
-            talk.Say("Moving to Work Post", "Work");
             //Move to workpost
             MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
             while (keepMoving)
@@ -586,24 +584,28 @@ namespace KukusVillagerMod.Components.Villager
                 //Check and remove fuel/cookable
                 var inventory = villagerGeneral.GetContainerInstance().GetComponent<Container>().GetInventory();
 
-                if (inventory.HaveItem(smelter.m_fuelItem.m_itemData.m_shared.m_name))
+                if (inventory == null)
                 {
-                    talk.Say("Found Fuel in container", "");
-                    tookFuel = true;
-                    inventory.RemoveOneItem(smelter.m_fuelItem.m_itemData);
+                    talk.Say("Inventory not found for container", "Work");
+                    return;
                 }
 
-                ItemDrop.ItemData cookableItem = smelter.FindCookableItem(inventory);
-                if (cookableItem != null)
+                if (inventory.HaveItem(smelter.m_fuelItem.m_itemData.m_shared.m_name))
                 {
-                    talk.Say("Found Processable Item in container", "");
+                    tookFuel = true;
+                    inventory.RemoveItem(smelter.m_fuelItem.m_itemData.m_shared.m_name, 1);
+                }
+                ItemDrop.ItemData cookableItem = smelter.FindCookableItem(inventory);
+                if (cookableItem != null && inventory.HaveItem(cookableItem.m_shared.m_name))
+                {
                     tookCookable = true;
-                    inventory.RemoveOneItem(cookableItem);
+                    inventory.RemoveItem(cookableItem.m_shared.m_name, 1);
                 }
 
 
                 if (tookFuel == false && tookCookable == false)
                 {
+                    KLog.info("Woops no processable or fuel in contianer");
                     talk.Say("No processable or fuel in my container", "");
                     return;
                 }
@@ -671,7 +673,7 @@ namespace KukusVillagerMod.Components.Villager
                     continue;
                 }
 
-                string prefabName = d.m_itemData.m_dropPrefab.name;
+                string prefabName = d.m_itemData.m_shared.m_name;
                 if (validPickupPrefabNames.Contains(prefabName))
                 {
                     if (pickable == null) //No pickable item selected so we select this as first
