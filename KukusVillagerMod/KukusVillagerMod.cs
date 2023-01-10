@@ -122,6 +122,7 @@ namespace KukusVillagerMod
 
 /*
  * TODO:
+ * 1. INDIVIDUAL BED/Villager Commands
  * 1. AI Tweaks such as attack rate etc
  * 2. Troll worker villager.
  * 3. When near bed they regen HP. 
@@ -129,6 +130,7 @@ namespace KukusVillagerMod
  * 5. Show how to control bed in bed desc
  * 6. Map marker
  * 7. Disable collision between villager and bed
+ * 8. Updating contents of containers, smelters etc using ZDO
  * 
  * How should we go about it hmmm.
  * 
