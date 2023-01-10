@@ -93,6 +93,8 @@ namespace KukusVillagerMod.Components.Villager
         {
             if (keepMoving == true)
             {
+                ai.ResetPatrolPoint();
+                ai.ResetRandomMovement();
                 //Check if we have set starting timer
                 if (keepMovingStartTime == null)
                 {
@@ -483,7 +485,7 @@ namespace KukusVillagerMod.Components.Villager
                 }
 
                 //Fake pickup by storing the prefab, and deleting the GO from world if only 1 stack or else reduce stack by one
-                string prefabName = pickable.m_itemData.m_shared.m_name;
+                string prefabName = pickable.m_itemData.m_dropPrefab.name;
                 int stackCount = pickable.m_itemData.m_stack;
                 var prefab = PrefabManager.Instance.GetPrefab(prefabName);
                 if (prefab == null)
@@ -673,7 +675,7 @@ namespace KukusVillagerMod.Components.Villager
                     continue;
                 }
 
-                string prefabName = d.m_itemData.m_shared.m_name;
+                string prefabName = d.m_itemData.m_dropPrefab.name; //We need the dropn not shared name
                 if (validPickupPrefabNames.Contains(prefabName))
                 {
                     if (pickable == null) //No pickable item selected so we select this as first
