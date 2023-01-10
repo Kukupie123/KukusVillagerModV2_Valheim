@@ -402,7 +402,7 @@ namespace KukusVillagerMod.Components.Villager
                         continue;
                     }
 
-                    await PickupAndStoreWork();
+                    //await PickupAndStoreWork();
                     await RefillWork();
                 }
                 catch (Exception e)
@@ -538,7 +538,20 @@ namespace KukusVillagerMod.Components.Villager
                 bool tookFuel = false;
                 bool tookCookable = false;
                 //Check and remove fuel/cookable
+                var inventory = villagerGeneral.GetContainerInstance().GetComponent<Inventory>();
+                if (inventory.HaveItem(smelter.m_fuelItem.m_itemData.m_shared.m_name))
+                {
+                    tookFuel = true;
+                    inventory.RemoveItem(smelter.m_fuelItem.m_itemData.m_shared.m_name, 1);
+                }
+                var cookableItem = smelter.FindCookableItem(inventory);
+                if (cookableItem != null)
+                {
+                    tookCookable = true;
+                    inventory.RemoveItem(cookableItem, 1);
+                }
 
+                if (!tookFuel && !tookCookable) return;
 
                 //Go to smelter
                 MoveVillagerToLoc(smelter.transform.position, 4f, false, false, false);
@@ -554,7 +567,15 @@ namespace KukusVillagerMod.Components.Villager
 
                 await Task.Delay(500);
                 //Add fuel to the smelter
-                smelter.GetComponentInParent<ZNetView>().InvokeRPC("AddFuel");
+                if (tookFuel)
+                {
+                    smelter.GetComponentInParent<ZNetView>().InvokeRPC("AddFuel");
+                }
+                if (tookCookable)
+                {
+                    smelter.GetComponentInParent<ZNetView>().InvokeRPC("AddOre", cookableItem.m_dropPrefab.name);
+
+                }
 
             }
 
