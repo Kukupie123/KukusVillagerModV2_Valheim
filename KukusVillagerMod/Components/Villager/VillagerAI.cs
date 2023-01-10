@@ -1,4 +1,5 @@
-﻿using KukusVillagerMod.Components;
+﻿using Jotunn.Managers;
+using KukusVillagerMod.Components;
 using KukusVillagerMod.enums;
 using KukusVillagerMod.enums.Work_Enum;
 using System;
@@ -85,6 +86,7 @@ namespace KukusVillagerMod.Components.Villager
                 {
                     keepMoving = false;
                 }
+                //TODO: Add timer in case they get stuck
             }
 
         }
@@ -340,7 +342,8 @@ namespace KukusVillagerMod.Components.Villager
 
                 //Now search for pickable item
                 ItemDrop pickable = FindClosestPickup(workPosLoc, 250f);
-                if (pickable != null)
+
+                if (pickable != null) //Go to the pickable item and "pick it up"
                 {
                     //Move to the pickable item 
                     MoveVillagerToLoc(pickable.transform.position, 1f, false, false);
@@ -352,9 +355,32 @@ namespace KukusVillagerMod.Components.Villager
                     }
                     talk.Say("Can pickup item now", "work");
                     await Task.Delay(1000);
+
+                    //Fake pickup
+                    string prefabName = GetPrefabNameFromHoverName4ItemDrop(pickable.GetHoverName());
+                    var prefab = PrefabManager.Cache.GetPrefab<GameObject>(prefabName);
+                    KLog.info(prefab.name);
                     ZDOMan.instance.DestroyZDO(pickable.GetComponentInParent<ZNetView>().GetZDO());
+
+                    //Find the container location and move there
+                    Vector3 containerLoc = villagerGeneral.GetContainerZDO().GetPosition();
+                    MoveVillagerToLoc(containerLoc, 3f, false, false);
+
+                    while (keepMoving)
+                    {
+                        talk.Say($"Going to container to keep {prefab.name}", "work");
+                        await Task.Delay(500);
+                    }
+                    talk.Say("Putting Item in storage", "work");
+                    await Task.Delay(1000);
+                    villagerGeneral.GetContainerInstance().GetComponent<Container>().GetInventory().AddItem(prefab, 1);
                 }
             }
+        }
+
+        private string GetPrefabNameFromHoverName4ItemDrop(string hoverName)
+        {
+            return "Bronze";
         }
 
         private ItemDrop FindClosestPickup(Vector3 center, float radius)
@@ -384,8 +410,8 @@ namespace KukusVillagerMod.Components.Villager
                     continue;
                 }
 
-                string prefabName = d.GetHoverName();
-                if (prefabName.Equals("$item_bronze"))
+                string hoverName = d.GetHoverName();
+                if (hoverName.Equals("$item_bronze"))
                 {
                     if (pickable == null) //No pickable item selected so we select this as first
                     {

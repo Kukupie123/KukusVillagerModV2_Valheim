@@ -192,7 +192,7 @@ namespace KukusVillagerMod.Components.Villager
             return ZDOMan.instance.GetZDO(GetContainerID());
         }
 
-        public GameObject GetContainerInstancec()
+        public GameObject GetContainerInstance()
         {
             return ZNetScene.instance.FindInstance(GetContainerID());
         }
