@@ -400,8 +400,8 @@ namespace KukusVillagerMod.Components.Villager
                 }
                 catch (Exception e)
                 {
-                    await Task.Delay(5000);
-                    KLog.warning($"AI UPDATE ERROR IN VILLAGER AI {e.Message}");
+                    await Task.Delay(500);
+                    //KLog.warning($"AI UPDATE ERROR IN VILLAGER AI {e.Message}");
                 }
 
 

@@ -70,6 +70,7 @@ namespace KukusVillagerMod.Patches
                 {
                     bedZDO.Set("container", containerZNV.GetZDO().m_uid);
                     MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Assigned Container {containerZNV.GetZDO().m_uid.id} to Bed {BedVillagerProcessor.SELECTED_BED_ID.Value.id}");
+                    BedVillagerProcessor.SELECTED_BED_ID = null;
                 }
             }
         }
