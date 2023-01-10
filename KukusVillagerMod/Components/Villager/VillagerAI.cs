@@ -70,23 +70,44 @@ namespace KukusVillagerMod.Components.Villager
 
         //Moves the villager to a location if it needs to, eg: Move command by player, Move to nearest tree to cut it, etc
         bool keepMoving = false; //used to determine if villager should keep moving or stop
+
+        private void SetKeepMoving(bool keepMoving)
+        {
+            this.keepMoving = keepMoving;
+        }
+
         float acceptableDistance = 2f;
         Vector3 movePos; //the location to move to
+
+        DateTime? keepMovingStartTime = null;
         private void MovePerUpdateIfDesired()
         {
             if (keepMoving == true)
             {
-                if (ai.HavePath(movePos) == false)
+                //Check if we have set starting timer
+                if (keepMovingStartTime == null)
+                {
+                    keepMovingStartTime = ZNet.instance.GetTime();
+                }
+
+                //Check if villager has been trying to reach target for too long
+                double timeDiff = (ZNet.instance.GetTime() - keepMovingStartTime.Value).TotalSeconds;
+
+                if (timeDiff > 15) //15 sec passed and still hasn't reached path so we tp
                 {
                     TPToLoc(movePos);
-                    keepMoving = false;
-
+                    SetKeepMoving(false);
+                    return;
                 }
-                else if (ai.MoveAndAvoid(ai.GetWorldTimeDelta(), movePos, acceptableDistance, true))
+                if (ai.MoveAndAvoid(ai.GetWorldTimeDelta(), movePos, acceptableDistance, true))
                 {
-                    keepMoving = false;
+                    SetKeepMoving(false);
+                    return;
                 }
-                //TODO: Add timer in case they get stuck
+            }
+            else
+            {
+                keepMovingStartTime = null;
             }
 
         }
@@ -114,7 +135,7 @@ namespace KukusVillagerMod.Components.Villager
         private void StopMoving()
         {
             KLog.info($"{villagerGeneral.ZNV.GetZDO().m_uid.id} Stopped moving");
-            keepMoving = false;
+            SetKeepMoving(false);
         }
 
         /// <summary>
@@ -231,14 +252,14 @@ namespace KukusVillagerMod.Components.Villager
 
                 }
 
-                keepMoving = false;
+                SetKeepMoving(false);
                 if (!keepFollower)
                 {
                     RemoveVillagersFollower();
                 }
                 return false;
             }
-            keepMoving = true;
+            SetKeepMoving(true);
 
             //FUTURE
             if (!keepFollower)
@@ -321,60 +342,69 @@ namespace KukusVillagerMod.Components.Villager
         {
             while (true)
             {
-                if (villagerGeneral.GetVillagerState() != VillagerState.Working || villagerGeneral.GetContainerZDO().IsValid() == false || villagerGeneral.GetWorkZDO().IsValid() == false)
+                try
                 {
-                    await Task.Delay(500);
-                    continue;
-                }
+                    if (villagerGeneral.GetVillagerState() != VillagerState.Working || villagerGeneral.GetContainerZDO().IsValid() == false || villagerGeneral.GetWorkZDO().IsValid() == false)
+                    {
+                        await Task.Delay(500);
+                        continue;
+                    }
 
-                //Go to work post
-                ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
-                Vector3 workPosLoc = WorkPostZDO.GetPosition();
+                    //Go to work post
+                    ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
+                    Vector3 workPosLoc = WorkPostZDO.GetPosition();
 
-                MoveVillagerToLoc(workPosLoc, 3f, false, false);
-                while (keepMoving)
-                {
-                    talk.Say("Going to Work Post", "work");
-                    await Task.Delay(500);
-                }
-                await Task.Delay(500);
-                talk.Say("Reached Work Post", "work");
-
-                //Now search for pickable item
-                ItemDrop pickable = FindClosestPickup(workPosLoc, 250f);
-
-                if (pickable != null) //Go to the pickable item and "pick it up"
-                {
-                    //Move to the pickable item 
-                    MoveVillagerToLoc(pickable.transform.position, 1f, false, false);
-
+                    MoveVillagerToLoc(workPosLoc, 3f, false, false);
                     while (keepMoving)
                     {
-                        talk.Say($"Going to pickup {pickable.GetHoverName()}", "work");
+                        talk.Say("Going to Work Post", "work");
                         await Task.Delay(500);
                     }
-                    talk.Say("Can pickup item now", "work");
-                    await Task.Delay(1000);
+                    await Task.Delay(500);
+                    talk.Say("Reached Work Post", "work");
 
-                    //Fake pickup
-                    string prefabName = GetPrefabNameFromHoverName4ItemDrop(pickable.GetHoverName());
-                    var prefab = PrefabManager.Cache.GetPrefab<GameObject>(prefabName);
-                    KLog.info(prefab.name);
-                    ZDOMan.instance.DestroyZDO(pickable.GetComponentInParent<ZNetView>().GetZDO());
+                    //Now search for pickable item
+                    ItemDrop pickable = FindClosestPickup(workPosLoc, 250f);
 
-                    //Find the container location and move there
-                    Vector3 containerLoc = villagerGeneral.GetContainerZDO().GetPosition();
-                    MoveVillagerToLoc(containerLoc, 3f, false, false);
-
-                    while (keepMoving)
+                    if (pickable != null) //Go to the pickable item and "pick it up"
                     {
-                        talk.Say($"Going to container to keep {prefab.name}", "work");
-                        await Task.Delay(500);
+                        //Move to the pickable item 
+                        MoveVillagerToLoc(pickable.transform.position, 1f, false, false);
+
+                        while (keepMoving)
+                        {
+                            talk.Say($"Going to pickup {pickable.GetHoverName()}", "work");
+                            await Task.Delay(500);
+                        }
+                        talk.Say("Can pickup item now", "work");
+                        await Task.Delay(1000);
+                        //Fake pickup
+                        string prefabName = GetPrefabNameFromHoverName4ItemDrop(pickable.GetHoverName());
+                        var prefab = PrefabManager.Cache.GetPrefab<GameObject>(prefabName);
+                        KLog.info(prefab.name);
+                        ZDOMan.instance.DestroyZDO(pickable.GetComponentInParent<ZNetView>().GetZDO());
+
+                        //Find the container location and move there
+                        Vector3 containerLoc = villagerGeneral.GetContainerZDO().GetPosition();
+                        MoveVillagerToLoc(containerLoc, 3f, false, false);
+
+                        while (keepMoving)
+                        {
+                            talk.Say($"Going to container to keep {prefab.name}", "work");
+                            await Task.Delay(500);
+                        }
+                        talk.Say("Putting Item in storage", "work");
+                        await Task.Delay(1000);
+                        villagerGeneral.GetContainerInstance().GetComponent<Container>().GetInventory().AddItem(prefab, 1);
                     }
-                    talk.Say("Putting Item in storage", "work");
-                    await Task.Delay(1000);
-                    villagerGeneral.GetContainerInstance().GetComponent<Container>().GetInventory().AddItem(prefab, 1);
                 }
+                catch (Exception e)
+                {
+                    await Task.Delay(5000);
+                    KLog.warning($"AI UPDATE ERROR IN VILLAGER AI {e.Message}");
+                }
+
+
             }
         }
 
