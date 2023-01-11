@@ -60,7 +60,7 @@ namespace KukusVillagerMod.Patches
     [HarmonyPatch(typeof(Tameable), nameof(Tameable.UseItem))]
     static class VillagerUseItem
     {
-        public static void Postfix(Tameable __insta nce, ref Humanoid user, ref ItemDrop.ItemData item)
+        public static void Postfix(Tameable __instance, ref Humanoid user, ref ItemDrop.ItemData item)
         {
             VillagerAI ai = __instance.GetComponentInParent<VillagerAI>();
             if (ai == null) return;
@@ -69,12 +69,15 @@ namespace KukusVillagerMod.Patches
             switch (itemName)
             {
                 case "LabourerFruit":
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Villager is going to Work");
                     ai.StartWork();
                     break;
                 case "WatcherFruit":
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Villager is going to Defend Post");
                     ai.DefendPost();
                     break;
                 case "GuardianFruit":
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Villager is going to Guard Bed");
                     ai.GuardBed();
                     break;
             }

@@ -17,8 +17,8 @@ namespace KukusVillagerMod.Components.Villager
         private VillagerGeneral villagerGeneral;
         private NpcTalk talk;
         private MonsterAI ai;
-        public ZDOID followingPlayerZDOID;
         bool updateRanOnce = false;
+        private ZDOID followingObjZDOID;
 
         private void Awake()
         {
@@ -67,34 +67,70 @@ namespace KukusVillagerMod.Components.Villager
             {
                 TPVillagerToFollowerIfNeeded();
                 MovePerUpdateIfDesired();
+                FollowCheckPerUpdate();
             }
 
         }
 
-        //Moves the villager to a location if it needs to, eg: Move command by player, Move to nearest tree to cut it, etc
-        bool keepMoving = false; //used to determine if villager should keep moving or stop
-        bool shouldRun = true;
 
-        private void SetKeepMoving(bool keepMoving, bool shouldRun)
+
+        //Functions that execute every frame---------------------------
+
+        //If we are following a target, this function checks how long have we been following the target for and if it crosses a threshold we tp the villager to that location if acceptable distance has not been reached
+        double? startedFollowingTime = null;
+        float followTargetAcceptableDistance = 2f;
+        private void FollowCheckPerUpdate()
         {
-            this.keepMoving = keepMoving;
-            this.shouldRun = shouldRun;
-            if (keepMoving == false)
+            //Check if followingObjZDOID is valid and that we are not in following state. following state has it's own function to take care of it
+            if (this.followingObjZDOID != null && this.followingObjZDOID.IsNone() == false && villagerGeneral.GetVillagerState() != VillagerState.Following)
             {
-                keepMovingStartTime = null;
+                float distance = Vector3.Distance(transform.position, ZDOMan.instance.GetZDO(followingObjZDOID).GetPosition());
+
+                //If distance is acceptable then we do not proceed
+                if (distance < followTargetAcceptableDistance) return;
+
+                //Check if we started counting already
+                if (startedFollowingTime == null)
+                {
+                    startedFollowingTime = ZNet.instance.GetTimeSeconds();
+                }
+
+                //Calculate time elasped
+                double timeElapsedSec = ZNet.instance.GetTimeSeconds() - startedFollowingTime.Value;
+
+                if (timeElapsedSec > 10) //Time limit reached, TP the villager and reset Timer
+                {
+                    KLog.warning($"Teleporting villager {villagerGeneral.ZNV.GetZDO().m_uid.id} Because he didn't reach following target within the time limit");
+                    TPToLoc(ZDOMan.instance.GetZDO(this.followingObjZDOID).GetPosition());
+                    startedFollowingTime = null;
+                }
+            }
+            else
+            {
+                startedFollowingTime = null;
             }
         }
 
-        float acceptableDistance = 2f;
-        Vector3 movePos; //the location to move to
 
-        DateTime? keepMovingStartTime = null;
+        /*
+         * The function below is going to make sure that if we command a villager to move to a location, it reaches that position.
+         * If certain time elasped and it didn't reach then it will TP the villager to the location.
+         * The variables below needs to be modifed by a function when needed
+         */
+        Vector3 movePos; //The position to move to
+        bool keepMoving = false; //VERY IMPORTANT: Determines if the villager needs to keep moving or not
+        bool shouldRun = true; //Should the villager run
+        float acceptableDistance = 2f; //Acceptable distance to stop
+        DateTime? keepMovingStartTime = null; //Keeps track of how much time has elasped
         private void MovePerUpdateIfDesired()
         {
+            //Only continue if we are moving
             if (keepMoving == true)
             {
+                //Reset AI
                 ai.ResetPatrolPoint();
                 ai.ResetRandomMovement();
+
                 //Check if we have set starting timer
                 if (keepMovingStartTime == null)
                 {
@@ -104,93 +140,79 @@ namespace KukusVillagerMod.Components.Villager
                 //Check if villager has been trying to reach target for too long
                 double timeDiff = (ZNet.instance.GetTime() - keepMovingStartTime.Value).TotalSeconds;
 
-                if (timeDiff > 60) //60 sec passed and still hasn't reached path so we tp
+                if (timeDiff > 10) //60 sec passed and still hasn't reached path so we tp
                 {
+                    keepMoving = false;
                     TPToLoc(movePos);
-                    SetKeepMoving(false, shouldRun);
                     return;
                 }
-                if (ai.MoveAndAvoid(ai.GetWorldTimeDelta(), movePos, acceptableDistance, shouldRun))
+                if (ai.MoveAndAvoid(ai.GetWorldTimeDelta(), movePos, acceptableDistance, shouldRun)) //If time limit threshold not hit keep moving normally. MoveAndAvoid function returns true when it reaches acceptable distance
                 {
-                    SetKeepMoving(false, shouldRun);
+                    keepMoving = false;
                     return;
                 }
             }
             else
             {
+                //Not moving so reset timer
                 keepMovingStartTime = null;
             }
 
         }
 
+
+
+
+
+        /*
+         * This function is going to execute only when it's following a player.
+         * Makes sure to TP the villager to the player if it's Teleporting or If it's too far
+         */
         private void TPVillagerToFollowerIfNeeded()
         {
-            //If following a valid player with valid zdo
+            //Check if villager is following
             if (villagerGeneral.GetVillagerState() == VillagerState.Following)
             {
-                if (followingPlayerZDOID != null && followingPlayerZDOID.IsNone() == false && ZDOMan.instance.GetZDO(followingPlayerZDOID) != null && ZDOMan.instance.GetZDO(followingPlayerZDOID).IsValid() && ai.GetFollowTarget() != null && ai.GetFollowTarget().GetComponent<Player>() != null)
-                {
-                    Vector3 playerPos = ZDOMan.instance.GetZDO(followingPlayerZDOID).GetPosition();
-                    float distance = Vector3.Distance(transform.position, ZDOMan.instance.GetZDO(followingPlayerZDOID).GetPosition());
 
-                    if (distance > 60)
+                //Check if ZDOID is valid and is following this player
+                if (followingObjZDOID != null && followingObjZDOID.IsNone() == false && Player.m_localPlayer.GetZDOID() == followingObjZDOID)
+                {
+                    Vector3 playerPOS = ZDOMan.instance.GetZDO(followingObjZDOID).GetPosition();
+                    float distance = Vector3.Distance(transform.position, playerPOS);
+                    if (distance > 50 || Player.m_localPlayer.IsTeleporting())
                     {
-                        TPToLoc(playerPos);
-                        KLog.info($"Teleported Villager {villagerGeneral.ZNV.GetZDO().m_uid.id} to Player {followingPlayerZDOID.id}");
+                        TPToLoc(playerPOS);
                     }
                 }
             }
         }
 
+        //----------------------------------------------------------------------------------------------------------------------------------
 
-        private void StopMoving()
-        {
-            KLog.info($"{villagerGeneral.ZNV.GetZDO().m_uid.id} Stopped moving");
-            SetKeepMoving(false, shouldRun);
-        }
 
-        /// <summary>
-        /// Follow the given target, if invalid then TP to the backup pos, if backupPos is invalid return false
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="BackupPos"></param>
-        /// <returns></returns>
-        private bool FollowGameObject(GameObject target, Vector3? BackupPos)
+        private bool FollowGameObject(GameObject target)
         {
 
             if (target == null)
             {
-                if (BackupPos != null)
-                {
-                    ai.ResetPatrolPoint();
-                    ai.ResetRandomMovement();
-                    TPToLoc(BackupPos.Value);
-                    KLog.warning($"Teleporting villager {villagerGeneral.ZNV.GetZDO().m_uid.id} to pos {BackupPos.Value} for FollowObject method");
-                    return true;
-                }
-                else
-                {
-                    KLog.warning("Following target & position are null ");
-                    return false;
-                }
-
+                return false;
             }
+
+            ZDOID targetZDOID = target.GetComponentInParent<ZNetView>().GetZDO().m_uid;
+
+            if (targetZDOID == null || targetZDOID.IsNone())
+            {
+                KLog.warning($"FollowGameObject(): Target has invalid ZDOID");
+                return false;
+            }
+
+            this.followingObjZDOID = targetZDOID;
             ai.ResetPatrolPoint();
             ai.ResetRandomMovement();
-            if (ai.HavePath(target.transform.position) == false || Vector3.Distance(transform.position, target.transform.position) > 80 || ai.FindPath(target.transform.position) == false || ZNetScene.instance.IsAreaReady(target.transform.position) == false)
-            {
-                TPToLoc(target.transform.position);
-            }
             ai.SetFollowTarget(target);
-
-
             return true;
         }
 
-        /// <summary>
-        /// Teleports the villager to the given location, doesn't matter if it's loaded or not.
-        /// </summary>
-        /// <param name="pos"></param>
         private bool TPToLoc(Vector3 pos)
         {
             ai.SetFollowTarget(null);
@@ -199,154 +221,146 @@ namespace KukusVillagerMod.Components.Villager
             return true;
         }
 
-        /// <summary>
-        /// Removes the follower from the villager
-        /// </summary>
-        private void RemoveVillagersFollower()
-        {
-            ai.SetFollowTarget(null);
-            followingPlayerZDOID = new ZDOID { m_hash = -1, m_userID = -1 };
-        }
-
-
         public bool FollowPlayer(Player p)
         {
+            /*
+             * Validate if player is valid.
+             * StopMoving
+             * Save player's ZDOID
+             * Update state
+             * Follow target
+             */
+
             if (p == null)
             {
-                talk.Say("Can't follow", nameof(FollowPlayer));
-            }
-
-            //Save player's ZDO
-            followingPlayerZDOID = p.GetZDOID();
-
-            //Get instance of the player
-            GameObject playerInstance = ZNetScene.instance.FindInstance(followingPlayerZDOID);
-
-            //if instance of the player is not valid we do not follow
-            if (playerInstance == null)
-            {
-                talk.Say("Can't follow", nameof(FollowPlayer));
+                talk.Say("Can't follow", "Follow");
                 return false;
             }
 
+            //Stop moving incase the villager was moving earlier
+            keepMoving = false;
+
+            //Save player's ZDO
+            followingObjZDOID = p.GetZDOID();
+
+            //Update state
+            villagerGeneral.SetVillagerState(VillagerState.Following);
+
             //Follow the target and update villager state value stored in bed
-            if (FollowGameObject(p.gameObject, ZDOMan.instance.GetZDO(p.GetZDOID()).GetPosition()))
-            {
-                talk.Say($"Following {p.GetHoverText()}", nameof(FollowPlayer));
-                villagerGeneral.SetVillagerState(VillagerState.Following);
-                return true;
-            }
-            return false;
+            FollowGameObject(p.gameObject);
+
+            return true;
         }
 
 
-        /// <summary>
-        /// Moves the villager to a location
-        /// </summary>
-        /// <param name="pos">The position to move to</param>
-        /// <param name="keepFollower">If true, then will keep the villager as follower of the player. if false, will remove the villager as the follower of the player</param>
-        /// <returns></returns>
-        public bool MoveVillagerToLoc(Vector3 pos, float radius, bool keepFollower = true, bool shouldTalk = true, bool shouldRun = true)
+
+        public bool MoveVillagerToLoc(Vector3 pos, float radius, bool resetFollower, bool shouldTalk, bool shouldRun)
         {
-
-            movePos = pos; //update the movePos
+            /*
+             * Update variabes as needed
+             * If keepFollowers is false then remove follower data
+             */
+            movePos = pos;
             acceptableDistance = radius;
+            this.shouldRun = shouldRun;
 
-            //check if area is loaded, if not we TP to location
-            if (ZNetScene.instance.IsAreaReady(pos) == false)
+            if (resetFollower)
             {
-
-                if (shouldTalk)
-                {
-                    talk.Say("Area is not loaded", "move");
-
-                }
-
-                SetKeepMoving(false, shouldRun);
-                if (!keepFollower)
-                {
-                    RemoveVillagersFollower();
-                }
-                return false;
+                this.followingObjZDOID = new ZDOID { m_hash = -1, m_userID = -1 };
             }
 
-            //Check if already within range
-            if (Vector3.Distance(transform.position, pos) < radius)
-            {
-                if (shouldTalk)
-                {
-                    talk.Say("Already near the move location", "move");
-
-                }
-
-                SetKeepMoving(false, shouldRun);
-
-                if (!keepFollower)
-                {
-                    RemoveVillagersFollower();
-                }
-                return false;
-            }
-            SetKeepMoving(true, shouldRun);
-
-            //FUTURE
-            if (!keepFollower)
-            {
-                RemoveVillagersFollower();
-            }
             if (shouldTalk)
                 talk.Say($"Moving to {pos.ToString()}", "Moving");
             ai.ResetPatrolPoint();
             ai.ResetRandomMovement();
             ai.SetFollowTarget(null);
+            keepMoving = true;
             return true;
         }
 
         public bool GuardBed()
         {
+            /*
+             * Validate if bedZDO is valid, then set state as guarding bed
+             * Check if it has a bed instance.
+             * Make villager move to bed by setting it as follow target. The followTarget Update function will make sure that if villager doesn't reach after certain amount of time. It will TP the villager to the Bed
+             * If bed instance is not valid then we TP the villager to the bed
+             */
 
+            //1. Validate if bed zdo is valid
             ZDO bedZDO = villagerGeneral.GetBedZDO();
-
 
             if (bedZDO == null || bedZDO.IsValid() == false)
             {
                 talk.Say("Couldn't find my bed", "Bed");
                 return false;
             }
+
+            //Stop moving
+            keepMoving = false;
+            //Remove from follower
+            this.followingObjZDOID = new ZDOID { m_hash = -1, m_userID = -1 };
+
+            //Update the state of the villager
             villagerGeneral.SetVillagerState(VillagerState.Guarding_Bed);
-            GameObject bed = villagerGeneral.GetBedInstance();
-            RemoveVillagersFollower();
-            StopMoving();
-            FollowGameObject(bed, villagerGeneral.GetBedZDO().GetPosition());
-            talk.Say("Guarding Bed", "Bed");
-            return true;
+
+            //2. Check if bed has an instance
+            GameObject bedInstance = villagerGeneral.GetBedInstance();
+
+            if (bedInstance != null && bedInstance.gameObject != null)
+            {
+                FollowGameObject(bedInstance);
+                talk.Say("Guarding Bed", "Bed");
+                return true;
+            }
+            else
+            {
+                //3. Bed instance not valid. TP the villager to bed
+                TPToLoc(bedZDO.GetPosition());
+                return true;
+            }
         }
 
         public bool DefendPost()
         {
-            ZDOID dp = villagerGeneral.GetDefensePostID();
+            /*
+             * Validate if DefenseZDO is valid. If valid update state to defending post
+             * Check if defensePost has an instance, if yes then set it as followTarget
+             * If instance not valid then TP to defenseZDO's position
+             */
 
-            if (dp == null || dp.IsNone())
+            ZDO defenseZDO = villagerGeneral.GetDefenseZDO();
+
+            if (defenseZDO == null || defenseZDO.IsValid() == false)
             {
-                talk.Say("No Defense Post assigned", "Defense");
+                talk.Say("Defend Post not assigned or destroyed", "Defend");
+
                 return false;
             }
 
-            if (villagerGeneral.GetDefenseZDO() == null || villagerGeneral.GetDefenseZDO().IsValid() == false)
-            {
-                talk.Say("My Defense post was destroyed", "Defense");
-                return false;
-            }
-            //Update state in ZDO of bed
+            //Stop moving
+            keepMoving = false;
+            //Remove from follower
+            this.followingObjZDOID = new ZDOID { m_hash = -1, m_userID = -1 };
+
+            //Update villager's state
             villagerGeneral.SetVillagerState(VillagerState.Defending_Post);
-            GameObject dpi = villagerGeneral.GetDefensePostInstance();
-            RemoveVillagersFollower(); //Remove the villager from follower in case it was following.
-            StopMoving(); //Sets the keepMoving boolean to false so that the character stops moving
-            FollowGameObject(dpi, villagerGeneral.GetDefenseZDO().GetPosition()); //if bed is not within loaded range then teleport there
-            talk.Say($"Defending post {villagerGeneral.GetDefensePostID().id}", "Defense");
 
+            //Get instance of defensePost and validate
+            GameObject defenseInstance = villagerGeneral.GetDefensePostInstance();
 
-            return true;
+            //Follow defense post
+            if (defenseInstance != null && defenseInstance.gameObject != null)
+            {
+                FollowGameObject(defenseInstance);
+                return true;
+            }
+            else //TP to defense post
+            {
+                TPToLoc(defenseZDO.GetPosition());
+                return true;
+            }
+
         }
 
         public bool StartWork()
@@ -364,9 +378,16 @@ namespace KukusVillagerMod.Components.Villager
                 talk.Say("My Defense post was destroyed", "Defense");
                 return false;
             }
+
+            //Stop moving
+            keepMoving = false;
+            //Remove from follower
+            this.followingObjZDOID = new ZDOID { m_hash = -1, m_userID = -1 };
+
+
             villagerGeneral.SetVillagerState(VillagerState.Working);
+
             GameObject wpi = villagerGeneral.GetWorkInstance();
-            RemoveVillagersFollower();
 
             //If wpi is invalid we are going to tp the villager to it's work post
             if (wpi == null)
@@ -384,21 +405,9 @@ namespace KukusVillagerMod.Components.Villager
 
 
 
-        //Worker AI
-        /*
-         * Need to figure out things hmmm
-         * Things AI needs to be able to do
-         * 1. Pickup valuables and store them in container,
-         * 2. Take coals/ores from container and smelt them
-         * 
-         * Farming:
-         * 1. Cut trees/mine rocks nearby. 
-         * 2. Pickup and store
-         */
-
-
         int minRandomTime = 200;
         int maxRandomTime = 2000;
+
 
         /// <summary>
         /// Runs once and never stops until villager is destroyed.

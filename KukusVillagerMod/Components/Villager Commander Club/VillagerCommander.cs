@@ -571,14 +571,8 @@ namespace KukusVillagerMod.itemPrefab
 
                 if (villager != null && ZNetScene.instance.IsAreaReady(villager.transform.position))
                 {
-                    //Check if playerID matches
 
-                    if (villager.GetComponent<VillagerAI>().followingPlayerZDOID != Player.m_localPlayer.GetZDOID())
-                    {
-                        continue;
-                    }
-
-                    villager.GetComponent<VillagerAI>().MoveVillagerToLoc(location, 2f, true); //Move the villager to the location and also keep the villager as follower
+                    villager.GetComponent<VillagerAI>().MoveVillagerToLoc(location, 2f, false, true, true); //Move the villager to the location and also keep the villager as follower
                 }
                 else
                 {
@@ -619,12 +613,6 @@ namespace KukusVillagerMod.itemPrefab
 
                 if (villager != null && ZNetScene.instance.IsAreaReady(villager.transform.position)) //if instance is valid we call DefendPost function
                 {
-                    //Check if playerID matches
-
-                    if (villager.GetComponent<VillagerAI>().followingPlayerZDOID != Player.m_localPlayer.GetZDOID())
-                    {
-                        continue;
-                    }
 
                     villager.GetComponent<VillagerAI>().FollowPlayer(Player.m_localPlayer);
                 }
