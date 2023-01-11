@@ -22,20 +22,23 @@ namespace KukusVillagerMod.Components.Villager
 
         private void Awake()
         {
-            this.villagerGeneral = GetComponent<VillagerGeneral>();
-            ai = GetComponent<MonsterAI>();
+
             updateRanOnce = false;
         }
 
 
         private void FixedUpdate()
         {
-            if (!KukusVillagerMod.isMapDataLoaded || villagerGeneral.isBedAssigned() == false) return;
-
-
+            //Keeping them in Awake doesn't always guarentee so we do it here instead.
             if (talk == null) talk = GetComponent<NpcTalk>();
 
+            if (villagerGeneral == null) villagerGeneral = GetComponent<VillagerGeneral>();
 
+            if (ai == null) ai = GetComponent<MonsterAI>();
+
+
+
+            if (!KukusVillagerMod.isMapDataLoaded || villagerGeneral.isBedAssigned() == false) return;
 
             if (!updateRanOnce)
             {
@@ -82,7 +85,7 @@ namespace KukusVillagerMod.Components.Villager
         private void FollowCheckPerUpdate()
         {
             //Check if followingObjZDOID is valid and that we are not in following state. following state has it's own function to take care of it
-            if (this.followingObjZDOID != null && this.followingObjZDOID.IsNone() == false && villagerGeneral.GetVillagerState() != VillagerState.Following)
+            if (this.followingObjZDOID != null && this.followingObjZDOID.IsNone() == false && villagerGeneral.GetVillagerState() != VillagerState.Following && ZDOMan.instance.GetZDO(followingObjZDOID) != null && ZDOMan.instance.GetZDO(followingObjZDOID).IsValid())
             {
                 float distance = Vector3.Distance(transform.position, ZDOMan.instance.GetZDO(followingObjZDOID).GetPosition());
 
@@ -417,28 +420,24 @@ namespace KukusVillagerMod.Components.Villager
         {
             while (true)
             {
-
-                if (villagerGeneral.GetVillagerState() != VillagerState.Working || villagerGeneral.GetContainerZDO().IsValid() == false || villagerGeneral.GetWorkZDO().IsValid() == false)
-                {
-                    await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                    continue;
-                }
+                await Task.Delay(500);
                 try
                 {
+                    if (villagerGeneral.GetVillagerState() != VillagerState.Working || villagerGeneral.GetContainerZDO().IsValid() == false || villagerGeneral.GetWorkZDO().IsValid() == false)
+                    {
+                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                        continue;
+                    }
+
                     await PickupAndStoreWork();
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                     await RefillWork();
-
                 }
                 catch (NullReferenceException e)
                 {
-                    KLog.info($"Exception BUT Nothing serious 80% of the time : Probably Happend cuz the villager tried to pickup an item but it was gone (maybe pickedup by someone else) It's common don't worry but still here is the error message {e.Message} \nstack : {e.StackTrace}");
-
+                    await Task.Delay(500);
+                    KLog.info($"Ai->WorkAsync() {e.Message}\nStack: {e.StackTrace}");
                 }
-
-
-
-
             }
         }
 

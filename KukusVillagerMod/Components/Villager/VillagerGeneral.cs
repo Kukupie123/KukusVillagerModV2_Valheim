@@ -14,25 +14,10 @@ namespace KukusVillagerMod.Components.Villager
         public int villagerLevel; //The level of the villager. Has to be set during creature prefab setup
         public int villagerType; //The type of villager. Servers no purpose anymore, will remove soon
         public int health; //The health of the villager. Has to be set during the creature prefab setup.
-
-
-
         private MonsterAI ai;
         private Humanoid humanoid;
 
-        private void Awake()
-        {
-            ZNV = GetComponentInParent<ZNetView>();
-            ZNV.SetPersistent(true); //ZNV has to be persistent
-            ai = GetComponent<MonsterAI>();
 
-            //Setting the values set during prefab setup 
-            humanoid = GetComponent<Humanoid>();
-            humanoid.SetLevel(villagerLevel);
-            //humanoid.SetMaxHealth(health);
-            //humanoid.SetHealth(health);
-
-        }
 
 
         //Ignore collision with player
@@ -54,8 +39,28 @@ namespace KukusVillagerMod.Components.Villager
         private void FixedUpdate()
         {
             if (!KukusVillagerMod.isMapDataLoaded) return;
+
+
+            if (ZNV == null || ZNV.IsValid() == false)
+            {
+                ZNV = GetComponentInParent<ZNetView>();
+                ZNV.SetPersistent(true); //ZNV has to be persistent
+                return;
+            }
+            if (humanoid == null)
+            {
+                humanoid = GetComponent<Humanoid>();
+                humanoid.SetLevel(villagerLevel);
+                return;
+            }
+            if (ai == null)
+            {
+                ai = GetComponent<MonsterAI>();
+                return;
+            }
+
             //Wait for the bed's ID which spawned this villagers to be saved in the zdo of this villager. The threshold is 10 sec. If we fail to find bed in 10 sec then we are going to assume that this villager was spawned without a bed and needs to be destroyed
-            if (!isBedAssigned())
+            if (!isBedAssigned())FOL
             {
                 //Set starting time. Will execute only once
                 if (startingTimeForBedNotFound == null)
@@ -87,7 +92,7 @@ namespace KukusVillagerMod.Components.Villager
         }
 
 
-
+        //Villager state related functions--------------------------------------------------
         public VillagerState GetVillagerState()
         {
             return (VillagerState)GetBedZDO().GetInt("state", (int)VillagerState.Guarding_Bed);
@@ -98,6 +103,8 @@ namespace KukusVillagerMod.Components.Villager
             GetBedZDO().Set("state", (int)newState);
         }
 
+
+        //Bed related functions-------------------------------------------------------------
 
         //Returns true if a bed was assigned to this villager after it spawned
         public bool isBedAssigned()
@@ -132,6 +139,8 @@ namespace KukusVillagerMod.Components.Villager
             return ZDOMan.instance.GetZDO(id);
         }
 
+        //Defense post related functions-------------------------------------------------
+
         public ZDOID GetDefensePostID()
         {
             return GetBedZDO().GetZDOID("defense");
@@ -155,6 +164,8 @@ namespace KukusVillagerMod.Components.Villager
             return ZDOMan.instance.GetZDO(defensePostID);
         }
 
+
+        //Work post related functions----------------------------------------------
         public ZDOID GetWorkPostID()
         {
             return GetBedZDO().GetZDOID("work");
@@ -177,6 +188,7 @@ namespace KukusVillagerMod.Components.Villager
         }
 
 
+        //Container related functions----------------------------------------------------
         public ZDOID GetContainerID()
         {
             return GetBedZDO().GetZDOID("container");
@@ -197,7 +209,11 @@ namespace KukusVillagerMod.Components.Villager
             return ZNetScene.instance.FindInstance(GetContainerID());
         }
 
-        //FUTURE
+
+        //Follower related function
+
+
+        //FUTURE WIP
         public void CutTree()
         {
             Collider[] colliders = Physics.OverlapSphere(transform.position, 5000f);
