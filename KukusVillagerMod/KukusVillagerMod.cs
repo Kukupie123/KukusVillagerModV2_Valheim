@@ -65,6 +65,7 @@ namespace KukusVillagerMod
             new BedPrefab();
             new DefensePostPrefab();
             new WorkPostPrefab();
+            new IndividualVillagerCommandItemPrefab();
             vc = new VillagerCommander();
 
             PrefabManager.OnVanillaPrefabsAvailable -= LoadBedPrefab;

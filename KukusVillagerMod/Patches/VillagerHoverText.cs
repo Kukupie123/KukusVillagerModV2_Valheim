@@ -17,7 +17,7 @@ namespace KukusVillagerMod.Patches
 
     //https://harmony.pardeike.net/articles/patching-injections.html
     [HarmonyPatch(typeof(Tameable), nameof(Tameable.GetHoverText))]
-    static class VillagerPatches
+    static class VillagerHoverText
     {
         public static void Postfix(Tameable __instance, ref string __result) //postfix = after the OG function is run
         {
@@ -53,6 +53,30 @@ namespace KukusVillagerMod.Patches
             else
             {
                 __result = false;
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(Tameable), nameof(Tameable.UseItem))]
+    static class VillagerUseItem
+    {
+        public static void Postfix(Tameable __insta nce, ref Humanoid user, ref ItemDrop.ItemData item)
+        {
+            VillagerAI ai = __instance.GetComponentInParent<VillagerAI>();
+            if (ai == null) return;
+            string itemName = item.m_shared.m_name;
+
+            switch (itemName)
+            {
+                case "LabourerFruit":
+                    ai.StartWork();
+                    break;
+                case "WatcherFruit":
+                    ai.DefendPost();
+                    break;
+                case "GuardianFruit":
+                    ai.GuardBed();
+                    break;
             }
         }
     }

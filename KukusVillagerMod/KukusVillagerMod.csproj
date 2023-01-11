@@ -87,9 +87,10 @@
     <Compile Include="enums\VillagerState.cs" />
     <Compile Include="Components\Villager Commander Club\VillagerCommander.cs" />
     <Compile Include="enums\Work Enum\WorkingState.cs" />
-    <Compile Include="Patches\VillagerPatches.cs" />
+    <Compile Include="Patches\VillagerHoverText.cs" />
     <Compile Include="Prefabs\BedPrefab.cs" />
     <Compile Include="Prefabs\DefensePostPrefab.cs" />
+    <Compile Include="Prefabs\IndividualVillagerCommandItemPrefab.cs" />
     <Compile Include="Prefabs\VillagerPrefab.cs" />
     <Compile Include="Prefabs\WorkPostPrefab.cs" />
     <Compile Include="Properties\IgnoreAccessModifiers.cs" />

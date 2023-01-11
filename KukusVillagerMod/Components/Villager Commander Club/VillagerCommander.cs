@@ -4,16 +4,19 @@ using Jotunn.Entities;
 using Jotunn.Managers;
 using KukusVillagerMod.Configuration;
 using KukusVillagerMod.enums;
-using KukusVillagerMod.Components;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using KukusVillagerMod.Components.Villager;
 using KukusVillagerMod.Components.VillagerBed;
 using KukusVillagerMod.Components.DefensePost;
+
+/*
+ * Commands
+ * 1. All villagers go to Guard Bed
+ * 2. All villagers go to work
+ * 3. All villagers go to defense post
+ * 4. Move Followers to aimed Location
+ */
 
 namespace KukusVillagerMod.itemPrefab
 {
