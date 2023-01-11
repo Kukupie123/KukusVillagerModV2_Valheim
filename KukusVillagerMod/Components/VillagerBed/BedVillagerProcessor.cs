@@ -211,19 +211,14 @@ namespace KukusVillagerMod.Components.VillagerBed
             return ZNetScene.instance.FindInstance(GetContainerID());
         }
 
-
-        public ZDOID GetFollowingPlayerZDOID()
+        public bool GetWorkSkill_CanPickup()
         {
-            return znv.GetZDO().GetZDOID("following");
-        }
-        public ZDO GetFollowingPlayerZDO()
-        {
-            return ZDOMan.instance.GetZDO(GetFollowingPlayerZDOID());
+            return znv.GetZDO().GetBool("CanPickup", false);
         }
 
-        public GameObject GetFollowingPlayerInstance()
+        public bool GetWorkSkill_CanSmelt()
         {
-            return ZNetScene.instance.FindInstance(GetFollowingPlayerZDOID());
+            return znv.GetZDO().GetBool("CanSmelt", false);
         }
 
         //Interface
@@ -273,7 +268,7 @@ namespace KukusVillagerMod.Components.VillagerBed
                 container = GetContainerID().id.ToString();
             }
 
-            return $"{this.name.Replace("(Clone)", "")}\nBed ID : {bedID}\nVillager ID : {villager}\nWork Post ID : {work}\nDefense Post ID :{defense}\nContainer ID : {container}";
+            return $"{this.name.Replace("(Clone)", "")}\nBed ID : {bedID}\nVillager ID : {villager}\nWork Post ID : {work}\nDefense Post ID :{defense}\nContainer ID : {container}\nWork Skills : Pickup = {GetWorkSkill_CanPickup()}, Smelt = {GetWorkSkill_CanSmelt()}";
         }
 
         private string getTimeLeftToSpawn()

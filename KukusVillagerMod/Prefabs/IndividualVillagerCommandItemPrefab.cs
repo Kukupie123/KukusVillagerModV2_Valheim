@@ -24,6 +24,9 @@ namespace KukusVillagerMod.Prefabs
             CreateItem("GuardianFruit", "BreadDough", "Use it on bed or villager to make them guard their bed");
             CreateItem("WatcherFruit", "FirCone", "Use it on bed or villager to make them Defend their post");
             CreateItem("LabourerFruit", "Acorn", "Use it on bed or villager to make them Work");
+            CreateItem("LabourSkill_Pickup", "PineCone", "Use it on Villager to make Villagers Toggle Picking up work skill");
+            CreateItem("LabourSkill_Smelt", "MeadBaseTasty", "Use it on Villager to make Villagers Toggle Smelting work skill");
+
 
         }
 

@@ -135,6 +135,8 @@ namespace KukusVillagerMod
  * 9. Config for AI worker such as wait time, what to pickup etc
  * 10. Fix Villagers tping to bed when guard bed is called
  * 11. Huge thing but, virtual refuling and picking using ZDO? Eg for pickup we can get distance of zdo and decide then put those item inside container using zdo serialize deserialize. same concept for fueling and all
+ * 12. Enable bed interaction for commanding villagers.
+ * 13. Change move to command for work to, follow target.
  * 
  * How should we go about it hmmm.
  * 

@@ -191,6 +191,27 @@ namespace KukusVillagerMod.Components.Villager
             return ZNetScene.instance.FindInstance(GetWorkPostID());
         }
 
+        //Work skill related function
+        public bool GetWorkSkill_CanPickUp()
+        {
+            return GetBedZDO().GetBool("CanPickup", false);
+        }
+
+        public void SetWorkSkill_Pickup(bool canPickup)
+        {
+            GetBedZDO().Set("CanPickup", canPickup);
+        }
+
+        public bool GetWorkSkill_CanSmelt()
+        {
+            return GetBedZDO().GetBool("CanSmelt", false);
+        }
+
+        public void SetWorkSkill_Smelt(bool canSmelt)
+        {
+            GetBedZDO().Set("CanSmelt", canSmelt);
+        }
+
 
         //Container related functions----------------------------------------------------
         public ZDOID GetContainerID()

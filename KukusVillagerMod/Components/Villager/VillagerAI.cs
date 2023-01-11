@@ -43,7 +43,7 @@ namespace KukusVillagerMod.Components.Villager
             if (!updateRanOnce)
             {
                 updateRanOnce = true;
-                WorkAsync();
+                //WorkAsync();
                 {
                     if (talk == null) talk = GetComponent<NpcTalk>();
                 }
@@ -74,6 +74,7 @@ namespace KukusVillagerMod.Components.Villager
                 TPVillagerToFollowerIfNeeded();
                 MovePerUpdateIfDesired();
                 FollowCheckPerUpdate();
+                WorkLoop();
             }
 
         }
@@ -107,7 +108,7 @@ namespace KukusVillagerMod.Components.Villager
                 if (timeElapsedSec > 10) //Time limit reached, TP the villager and reset Timer
                 {
                     KLog.warning($"Teleporting villager {villagerGeneral.ZNV.GetZDO().m_uid.id} Because he didn't reach following target within the time limit");
-                    TPToLoc(ZDOMan.instance.GetZDO(this.followingObjZDOID).GetPosition());
+                    TPToLoc(ZDOMan.instance.GetZDO(this.followingObjZDOID).GetPosition(), false); //We want the villager to still follow it's target after tping so we set false as 2nd parameter
                     startedFollowingTime = null;
                 }
             }
@@ -148,6 +149,7 @@ namespace KukusVillagerMod.Components.Villager
 
                 if (timeDiff > 10) //60 sec passed and still hasn't reached path so we tp
                 {
+                    KLog.warning($"TPing Villager {villagerGeneral.ZNV.GetZDO().m_uid.id} Because time limit reached for moving");
                     keepMoving = false;
                     TPToLoc(movePos);
                     return;
@@ -188,9 +190,26 @@ namespace KukusVillagerMod.Components.Villager
             float distance = Vector3.Distance(transform.position, playerGO.transform.position);
             if (distance > 60 || player.IsTeleporting())
             {
-                TPToLoc(playerGO.transform.position,false); //We want the villager to still keep following the player so we set removefollower to false which is true by default
+                TPToLoc(playerGO.transform.position, false); //We want the villager to still keep following the player so we set removefollower to false which is true by default
             }
 
+        }
+
+        bool canPickup = false;
+        bool canSmelt = false;
+        async private void WorkLoop()
+        {
+            if (villagerGeneral.GetVillagerState() == VillagerState.Working)
+            {
+                if (villagerGeneral.GetWorkSkill_CanPickUp())
+                {
+                    await PickupAndStoreWork();
+                }
+                if (villagerGeneral.GetWorkSkill_CanSmelt())
+                {
+                    await RefillWork();
+                }
+            }
         }
 
         //----------------------------------------------------------------------------------------------------------------------------------
@@ -355,6 +374,7 @@ namespace KukusVillagerMod.Components.Villager
             //Follow defense post
             if (defenseInstance != null && defenseInstance.gameObject != null)
             {
+                talk.Say("Defending Post", "Defend");
                 FollowGameObject(defenseInstance);
                 return true;
             }
@@ -378,7 +398,7 @@ namespace KukusVillagerMod.Components.Villager
 
             if (villagerGeneral.GetWorkZDO() == null || villagerGeneral.GetWorkZDO().IsValid() == false)
             {
-                talk.Say("My Defense post was destroyed", "Defense");
+                talk.Say("My Work post was destroyed", "Work");
                 return false;
             }
 
@@ -445,223 +465,294 @@ namespace KukusVillagerMod.Components.Villager
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                     await RefillWork();
                 }
-                catch (NullReferenceException e)
+                catch (Exception)
                 {
                     await Task.Delay(500);
-                    KLog.info($"Ai->WorkAsync() {e.Message}\nStack: {e.StackTrace}");
                 }
             }
         }
 
+
+
+
+        bool alreadyPickingUp = false;
         async private Task PickupAndStoreWork()
         {
-
-            ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
-            Vector3 workPosLoc = WorkPostZDO.GetPosition();
-
-            //Move to workpost
-            MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
-            while (keepMoving)
+            try
             {
-                await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+
+                if (alreadyPickingUp) return;
+                alreadyPickingUp = true;
+
+                ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
+                Vector3 workPosLoc = WorkPostZDO.GetPosition();
 
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                 {
-                    break;
+                    alreadyPickingUp = false;
+                    return;
                 }
-            }
 
-            //Reached Work post, Check if still working
-            await Task.Delay(500);
-            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-            {
-                return;
-            }
-
-            //Search for pickable item
-            ItemDrop pickable = FindClosestPickup(workPosLoc, 250f);
-
-            //ItemDrop found.
-            if (pickable != null)
-            {
-                talk.Say($"Going to Pickup {pickable.m_itemData.m_shared.m_name}", "Work");
-
-                //Move to the pickable item 
-                MoveVillagerToLoc(pickable.transform.position, 1f, false, false, false);
-
+                //Move to workpost
+                MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
                 while (keepMoving)
                 {
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
                         break;
                     }
                 }
 
-                await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                //Reached Work post, Check if still working
+                await Task.Delay(500);
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                 {
+                    alreadyPickingUp = false;
                     return;
                 }
 
-                //Fake pickup by storing the prefab, and deleting the GO from world if only 1 stack or else reduce stack by one
-                string prefabName = pickable.m_itemData.m_dropPrefab.name;
-                int stackCount = pickable.m_itemData.m_stack;
-                var prefab = PrefabManager.Instance.GetPrefab(prefabName);
-                if (prefab == null)
-                {
-                    return;
-                }
-                if (stackCount == 1)
-                    ZDOMan.instance.DestroyZDO(pickable.GetComponentInParent<ZNetView>().GetZDO());
-                else
-                {
-                    pickable.SetStack(stackCount - 1);
-                    //TODO: TEST IN MP
-                }
+                //Search for pickable item
+                ItemDrop pickable = FindClosestPickup(workPosLoc, 250f);
 
-                Vector3 containerLoc = villagerGeneral.GetContainerZDO().GetPosition();
-                talk.Say($"Going to Put {prefabName} in container", "Work");
-                MoveVillagerToLoc(containerLoc, 3f, false, false, false);
-
-                while (keepMoving)
+                //ItemDrop found.
+                if (pickable != null)
                 {
+                    talk.Say($"Going to Pickup {pickable.m_itemData.m_shared.m_name}", "Work");
+
+                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                    {
+                        alreadyPickingUp = false;
+                        return;
+                    }
+
+                    //Move to the pickable item 
+                    MoveVillagerToLoc(pickable.transform.position, 1f, false, false, false);
+
+                    while (keepMoving)
+                    {
+                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                        {
+                            break;
+                        }
+                    }
+
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
-                        break;
+                        alreadyPickingUp = false;
+                        return;
                     }
+
+                    //Fake pickup by storing the prefab, and deleting the GO from world if only 1 stack or else reduce stack by one
+                    string prefabName = pickable.m_itemData.m_dropPrefab.name;
+                    int stackCount = pickable.m_itemData.m_stack;
+                    var prefab = PrefabManager.Instance.GetPrefab(prefabName);
+                    if (prefab == null)
+                    {
+                        alreadyPickingUp = false;
+                        return;
+                    }
+                    if (stackCount == 1)
+                        ZDOMan.instance.DestroyZDO(pickable.GetComponentInParent<ZNetView>().GetZDO());
+                    else
+                    {
+                        pickable.SetStack(stackCount - 1);
+                        //TODO: TEST IN MP
+                    }
+
+                    Vector3 containerLoc = villagerGeneral.GetContainerZDO().GetPosition();
+                    talk.Say($"Going to Put {prefabName} in container", "Work");
+
+                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                    {
+                        alreadyPickingUp = false;
+                        return;
+                    }
+
+                    MoveVillagerToLoc(containerLoc, 3f, false, false, false);
+
+                    while (keepMoving)
+                    {
+                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                        {
+                            break;
+                        }
+                    }
+
+                    await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                    {
+                        alreadyPickingUp = false;
+                        return;
+                    }
+
+                    villagerGeneral.GetContainerInstance().GetComponent<Container>().GetInventory().AddItem(prefab, 1);
                 }
 
-                await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                {
-                    return;
-                }
+                alreadyPickingUp = false;
 
-                villagerGeneral.GetContainerInstance().GetComponent<Container>().GetInventory().AddItem(prefab, 1);
+
+            }
+            catch (Exception)
+            {
+                alreadyPickingUp = false;
             }
 
 
 
         }
 
+        bool alreadyRefilling = false;
         async private Task RefillWork()
         {
-
-            ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
-            Vector3 workPosLoc = WorkPostZDO.GetPosition();
-            //Move to workpost
-            MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
-            while (keepMoving)
+            try
             {
-                await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                if (alreadyRefilling) return;
+                alreadyRefilling = true;
+                ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
+                Vector3 workPosLoc = WorkPostZDO.GetPosition();
+                //Move to workpost
 
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                 {
-                    break;
+                    alreadyRefilling = false;
+                    return;
                 }
 
-                if (!keepMoving) break;
-            }
-
-
-            //Reached Work post, Check if still working
-            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-            {
-                return;
-            }
-
-
-
-            //Find smelter
-            Smelter smelter = FindValidSmelter(workPosLoc, 500f, true);
-            if (smelter != null)
-            {
-                //Go to container and remove the fuel or cookable or both
-                talk.Say("Going to container to get items for smelting", "Work");
-
-                //Move to container
-                MoveVillagerToLoc(villagerGeneral.GetContainerZDO().GetPosition(), 2f, false, false, false);
-
+                MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
                 while (keepMoving)
                 {
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
                         break;
                     }
+
+                    if (!keepMoving) break;
                 }
 
+
+                //Reached Work post, Check if still working
                 await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                 {
+                    alreadyRefilling = false;
                     return;
                 }
 
-
-                bool tookFuel = false;
-                bool tookCookable = false;
-                //Check and remove fuel/cookable
-                var inventory = villagerGeneral.GetContainerInstance().GetComponent<Container>().GetInventory();
-
-                if (inventory == null)
+                //Find smelter
+                Smelter smelter = FindValidSmelter(workPosLoc, 500f, true);
+                if (smelter != null)
                 {
-                    talk.Say("Inventory not found for container", "Work");
-                    return;
-                }
+                    //Go to container and remove the fuel or cookable or both
+                    talk.Say("Going to container to get items for smelting", "Work");
 
-                if (inventory.HaveItem(smelter.m_fuelItem.m_itemData.m_shared.m_name))
-                {
-                    tookFuel = true;
-                    inventory.RemoveItem(smelter.m_fuelItem.m_itemData.m_shared.m_name, 1);
-                }
-                ItemDrop.ItemData cookableItem = smelter.FindCookableItem(inventory);
-                if (cookableItem != null && inventory.HaveItem(cookableItem.m_shared.m_name))
-                {
-                    tookCookable = true;
-                    inventory.RemoveItem(cookableItem.m_shared.m_name, 1);
-                }
+                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                    {
+                        alreadyRefilling = false;
+                        return;
+                    }
 
+                    //Move to container
+                    MoveVillagerToLoc(villagerGeneral.GetContainerZDO().GetPosition(), 2f, false, false, false);
 
-                if (tookFuel == false && tookCookable == false)
-                {
-                    KLog.info("Woops no processable or fuel in contianer");
-                    talk.Say("No processable or fuel in my container", "");
-                    return;
-                }
+                    while (keepMoving)
+                    {
+                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                        {
+                            break;
+                        }
+                    }
 
-
-                talk.Say("Moving to Smelter to fill it.", "Work");
-
-                //Go to smelter
-                MoveVillagerToLoc(smelter.transform.position, 4f, false, false, false);
-
-                while (keepMoving)
-                {
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
-                        break;
+                        alreadyRefilling = false;
+                        return;
                     }
-                }
 
-                await Task.Delay(500);
-                //Add fuel to the smelter
-                if (tookFuel)
-                {
-                    smelter.GetComponentInParent<ZNetView>().InvokeRPC("AddFuel");
-                }
-                if (tookCookable)
-                {
-                    smelter.GetComponentInParent<ZNetView>().InvokeRPC("AddOre", cookableItem.m_dropPrefab.name);
-                    KLog.warning($"drop name : {cookableItem.m_dropPrefab.name}");
-                }
 
+                    bool tookFuel = false;
+                    bool tookCookable = false;
+                    //Check and remove fuel/cookable
+                    var inventory = villagerGeneral.GetContainerInstance().GetComponent<Container>().GetInventory();
+
+                    if (inventory == null)
+                    {
+                        talk.Say("Inventory not found for container", "Work");
+                        alreadyRefilling = false;
+                        return;
+                    }
+
+                    if (inventory.HaveItem(smelter.m_fuelItem.m_itemData.m_shared.m_name))
+                    {
+                        tookFuel = true;
+                        inventory.RemoveItem(smelter.m_fuelItem.m_itemData.m_shared.m_name, 1);
+                    }
+                    ItemDrop.ItemData cookableItem = smelter.FindCookableItem(inventory);
+                    if (cookableItem != null && inventory.HaveItem(cookableItem.m_shared.m_name))
+                    {
+                        tookCookable = true;
+                        inventory.RemoveItem(cookableItem.m_shared.m_name, 1);
+                    }
+
+
+                    if (tookFuel == false && tookCookable == false)
+                    {
+                        alreadyRefilling = false;
+                        KLog.info("Woops no processable or fuel in contianer");
+                        talk.Say("No processable or fuel in my container", "");
+                        return;
+                    }
+
+
+                    talk.Say("Moving to Smelter to fill it.", "Work");
+
+                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                    {
+                        alreadyRefilling = false;
+                        return;
+                    }
+
+                    //Go to smelter
+                    MoveVillagerToLoc(smelter.transform.position, 4f, false, false, false);
+
+                    while (keepMoving)
+                    {
+                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                        {
+                            break;
+                        }
+                    }
+
+                    await Task.Delay(500);
+                    //Add fuel to the smelter
+                    if (tookFuel)
+                    {
+                        smelter.GetComponentInParent<ZNetView>().InvokeRPC("AddFuel");
+                    }
+                    if (tookCookable)
+                    {
+                        smelter.GetComponentInParent<ZNetView>().InvokeRPC("AddOre", cookableItem.m_dropPrefab.name);
+                        KLog.warning($"drop name : {cookableItem.m_dropPrefab.name}");
+                    }
+
+                }
+                alreadyRefilling = false;
+            }
+            catch (Exception)
+            {
+                alreadyRefilling = false;
             }
 
-            return;
+
 
 
         }

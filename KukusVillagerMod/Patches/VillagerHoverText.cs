@@ -25,7 +25,7 @@ namespace KukusVillagerMod.Patches
 
             if (vls != null)
             {
-                __result = $"Villager : {vls.ZNV.GetZDO().m_uid.id}\nBed : {vls.GetBedZDO().m_uid.id}\nState : {((VillagerState)vls.GetBedZDO().GetInt("state", (int)VillagerState.Guarding_Bed)).ToString().Replace("_", " ")}";
+                __result = $"Villager : {vls.ZNV.GetZDO().m_uid.id}\nBed : {vls.GetBedZDO().m_uid.id}\nState : {((VillagerState)vls.GetBedZDO().GetInt("state", (int)VillagerState.Guarding_Bed)).ToString().Replace("_", " ")}\nWork Skills : Pickup = {vls.GetWorkSkill_CanPickUp()}, Smelt = {vls.GetWorkSkill_CanSmelt()}";
             }
         }
 
@@ -63,7 +63,8 @@ namespace KukusVillagerMod.Patches
         public static void Postfix(Tameable __instance, ref Humanoid user, ref ItemDrop.ItemData item)
         {
             VillagerAI ai = __instance.GetComponentInParent<VillagerAI>();
-            if (ai == null) return;
+            VillagerGeneral v = __instance.GetComponentInParent<VillagerGeneral>();
+            if (ai == null || v == null) return;
             string itemName = item.m_shared.m_name;
 
             switch (itemName)
@@ -79,6 +80,14 @@ namespace KukusVillagerMod.Patches
                 case "GuardianFruit":
                     MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Villager is going to Guard Bed");
                     ai.GuardBed();
+                    break;
+                case "LabourSkill_Pickup":
+                    bool canPick = !v.GetWorkSkill_CanPickUp();
+                    v.SetWorkSkill_Pickup(canPick);
+                    break;
+                case "LabourSkill_Smelt":
+                    bool canSmelt = !v.GetWorkSkill_CanSmelt();
+                    v.SetWorkSkill_Smelt(canSmelt);
                     break;
             }
         }
