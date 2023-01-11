@@ -43,7 +43,6 @@ namespace KukusVillagerMod.Components.Villager
             if (!updateRanOnce)
             {
                 updateRanOnce = true;
-                //WorkAsync();
                 {
                     if (talk == null) talk = GetComponent<NpcTalk>();
                 }
@@ -195,8 +194,6 @@ namespace KukusVillagerMod.Components.Villager
 
         }
 
-        bool canPickup = false;
-        bool canSmelt = false;
         async private void WorkLoop()
         {
             if (villagerGeneral.GetVillagerState() == VillagerState.Working)
@@ -431,50 +428,6 @@ namespace KukusVillagerMod.Components.Villager
         int minRandomTime = 200;
         int maxRandomTime = 2000;
 
-
-        /// <summary>
-        /// Runs once and never stops until villager is destroyed.
-        /// Used to Handle Actions that need a lot if waiting and ordered execution Eg : Going to Work post and waiting to reach -> Then going to Pickup location and waiting to reach
-        /// </summary>
-        async private void WorkAsync()
-        {
-            while (true)
-            {
-                await Task.Delay(500);
-                try
-                {
-                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                    {
-                        await Task.Delay(200);
-                        continue;
-                    }
-
-                    if (villagerGeneral.GetContainerZDO() == null || villagerGeneral.GetContainerZDO().IsValid() == false)
-                    {
-                        await Task.Delay(200);
-                        continue;
-                    }
-
-                    if (villagerGeneral.GetWorkZDO() == null || villagerGeneral.GetWorkZDO().IsValid() == false)
-                    {
-                        await Task.Delay(200);
-                        continue;
-                    }
-
-                    await PickupAndStoreWork();
-                    await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                    await RefillWork();
-                }
-                catch (Exception)
-                {
-                    await Task.Delay(500);
-                }
-            }
-        }
-
-
-
-
         bool alreadyPickingUp = false;
         async private Task PickupAndStoreWork()
         {
@@ -493,17 +446,36 @@ namespace KukusVillagerMod.Components.Villager
                     return;
                 }
 
-                //Move to workpost
-                MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
-                while (keepMoving)
+                GameObject workPostInstance = villagerGeneral.GetWorkInstance();
+                if (workPostInstance != null)
                 {
-                    await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-
-                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                    FollowGameObject(workPostInstance);
+                    while (Vector3.Distance(transform.position, workPostInstance.transform.position) > 3f)
                     {
-                        break;
+                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+
+                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                        {
+                            break;
+                        }
                     }
                 }
+                else
+                {
+                    //Move to workpost
+                    MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
+                    while (keepMoving)
+                    {
+                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+
+                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+
 
                 //Reached Work post, Check if still working
                 await Task.Delay(500);
@@ -527,15 +499,31 @@ namespace KukusVillagerMod.Components.Villager
                         return;
                     }
 
-                    //Move to the pickable item 
-                    MoveVillagerToLoc(pickable.transform.position, 1f, false, false, false);
-
-                    while (keepMoving)
+                    if (pickable.gameObject != null)
                     {
-                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                        FollowGameObject(pickable.gameObject);
+                        while (Vector3.Distance(transform.position, pickable.gameObject.transform.position) > 3f)
                         {
-                            break;
+                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+
+                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //Move to the pickable item 
+                        MoveVillagerToLoc(pickable.transform.position, 1f, false, false, false);
+
+                        while (keepMoving)
+                        {
+                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                            {
+                                break;
+                            }
                         }
                     }
 
@@ -572,16 +560,35 @@ namespace KukusVillagerMod.Components.Villager
                         return;
                     }
 
-                    MoveVillagerToLoc(containerLoc, 3f, false, false, false);
-
-                    while (keepMoving)
+                    GameObject containerInstance = villagerGeneral.GetContainerInstance();
+                    if (containerInstance != null)
                     {
-                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                        FollowGameObject(containerInstance);
+                        while (Vector3.Distance(transform.position, containerInstance.transform.position) > 3f)
                         {
-                            break;
+                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+
+                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                            {
+                                break;
+                            }
                         }
                     }
+                    else
+                    {
+                        MoveVillagerToLoc(containerLoc, 3f, false, false, false);
+
+                        while (keepMoving)
+                        {
+                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                            {
+                                break;
+                            }
+                        }
+                    }
+
+
 
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
@@ -623,19 +630,36 @@ namespace KukusVillagerMod.Components.Villager
                     return;
                 }
 
-                MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
-                while (keepMoving)
+                GameObject workPostInstance = villagerGeneral.GetWorkInstance();
+                if (workPostInstance != null)
                 {
-                    await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-
-                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                    FollowGameObject(workPostInstance);
+                    while (Vector3.Distance(transform.position, workPostInstance.transform.position) > 3f)
                     {
-                        break;
+                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+
+                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                        {
+                            break;
+                        }
                     }
-
-                    if (!keepMoving) break;
                 }
+                else
+                {
 
+                    MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
+                    while (keepMoving)
+                    {
+                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+
+                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                        {
+                            break;
+                        }
+
+                        if (!keepMoving) break;
+                    }
+                }
 
                 //Reached Work post, Check if still working
                 await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
@@ -658,17 +682,36 @@ namespace KukusVillagerMod.Components.Villager
                         return;
                     }
 
-                    //Move to container
-                    MoveVillagerToLoc(villagerGeneral.GetContainerZDO().GetPosition(), 2f, false, false, false);
-
-                    while (keepMoving)
+                    GameObject containerInstance = villagerGeneral.GetContainerInstance();
+                    if (containerInstance != null)
                     {
-                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                        FollowGameObject(containerInstance);
+                        while (Vector3.Distance(transform.position, containerInstance.transform.position) > 3f)
                         {
-                            break;
+                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+
+                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                            {
+                                break;
+                            }
                         }
                     }
+                    else
+                    {
+                        //Move to container
+                        MoveVillagerToLoc(villagerGeneral.GetContainerZDO().GetPosition(), 2f, false, false, false);
+
+                        while (keepMoving)
+                        {
+                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                            {
+                                break;
+                            }
+                        }
+                    }
+
+
 
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
@@ -720,17 +763,35 @@ namespace KukusVillagerMod.Components.Villager
                         return;
                     }
 
-                    //Go to smelter
-                    MoveVillagerToLoc(smelter.transform.position, 4f, false, false, false);
-
-                    while (keepMoving)
+                    if (smelter.gameObject != null)
                     {
-                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                        FollowGameObject(smelter.gameObject);
+                        while (Vector3.Distance(transform.position, smelter.gameObject.transform.position) > 3f)
                         {
-                            break;
+                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+
+                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                            {
+                                break;
+                            }
                         }
                     }
+                    else
+                    {
+                        //Go to smelter
+                        MoveVillagerToLoc(smelter.transform.position, 4f, false, false, false);
+
+                        while (keepMoving)
+                        {
+                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                            {
+                                break;
+                            }
+                        }
+                    }
+
+
 
                     await Task.Delay(500);
                     //Add fuel to the smelter
