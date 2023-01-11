@@ -8,6 +8,7 @@ using KukusVillagerMod.Components;
 using UnityEngine;
 using System.Collections.Generic;
 using static CharacterDrop;
+using System;
 
 namespace KukusVillagerMod.Prefabs
 {
@@ -59,19 +60,18 @@ namespace KukusVillagerMod.Prefabs
             CustomCreature villager = new CustomCreature(villagerName, prefabCloneName, villagerConfig);
 
             //Remove components that we do not need from the villagers
-            //var npcTalk = villager.Prefab.GetComponent<NpcTalk>();
+            var npcTalk = villager.Prefab.GetComponent<NpcTalk>();
             var charDrop = villager.Prefab.GetComponent<CharacterDrop>();
-            //var npcTalkP = villager.Prefab.GetComponentInParent<NpcTalk>();
-            //var charDropP = villager.Prefab.GetComponentInParent<CharacterDrop>();
+            var npcTalkP = villager.Prefab.GetComponentInParent<NpcTalk>();
             var interactionP = villager.Prefab.GetComponentInParent(typeof(Interactable));
             var interaction = villager.Prefab.GetComponent(typeof(Interactable));
 
             //Edit drops
             charDrop.SetDropsEnabled(false);
-            charDrop.m_drops =new List<Drop>();
+            charDrop.m_drops = new List<Drop>();
 
-            //UnityEngine.GameObject.DestroyImmediate(npcTalk);
-            //UnityEngine.GameObject.DestroyImmediate(npcTalkP);
+            UnityEngine.GameObject.DestroyImmediate(npcTalk);
+            UnityEngine.GameObject.DestroyImmediate(npcTalkP);
             UnityEngine.GameObject.DestroyImmediate(interactionP);
             UnityEngine.GameObject.DestroyImmediate(interaction);
 
@@ -82,6 +82,8 @@ namespace KukusVillagerMod.Prefabs
             villager.Prefab.GetComponent<VillagerGeneral>().villagerType = villagerType;
             villager.Prefab.GetComponent<VillagerGeneral>().villagerLevel = level;
             villager.Prefab.GetComponent<VillagerGeneral>().health = health;
+
+            villager.Prefab.GetComponent<Humanoid>().m_health = health;
 
             CreatureManager.Instance.AddCreature(villager);
 

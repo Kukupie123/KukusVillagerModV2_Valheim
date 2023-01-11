@@ -29,8 +29,8 @@ namespace KukusVillagerMod.Components.Villager
             //Setting the values set during prefab setup 
             humanoid = GetComponent<Humanoid>();
             humanoid.SetLevel(villagerLevel);
-            humanoid.SetMaxHealth(health);
-            humanoid.SetHealth(health);
+            //humanoid.SetMaxHealth(health);
+            //humanoid.SetHealth(health);
 
         }
 
