@@ -516,7 +516,7 @@ namespace KukusVillagerMod.itemPrefab
                 //Validate defenseZDOID
                 if (defenseZDOID == null || defenseZDOID.IsNone())
                 {
-                    KLog.warning($"defenseZDOID is invalid for villager {zdo.m_uid.id} & bed {bedZDOID}");
+                    KLog.warning($"defenseZDOID is invalid for villager {zdo.m_uid.id} & bed {bedZDOID.id}");
                     continue;
                 }
 
@@ -614,7 +614,7 @@ namespace KukusVillagerMod.itemPrefab
                 if (villager != null && ZNetScene.instance.IsAreaReady(villager.transform.position)) //if instance is valid we call DefendPost function
                 {
 
-                    villager.GetComponent<VillagerAI>().FollowPlayer(Player.m_localPlayer);
+                    villager.GetComponent<VillagerAI>().FollowPlayer(Player.m_localPlayer.GetZDOID()); ;
                 }
                 else
                 {

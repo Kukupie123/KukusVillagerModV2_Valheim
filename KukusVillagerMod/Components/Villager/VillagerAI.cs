@@ -61,6 +61,9 @@ namespace KukusVillagerMod.Components.Villager
                     case VillagerState.Working:
                         StartWork();
                         break;
+                    case VillagerState.Following:
+                        GuardBed();
+                        break;
                     default:
                         GuardBed();
                         break;
@@ -85,7 +88,7 @@ namespace KukusVillagerMod.Components.Villager
         private void FollowCheckPerUpdate()
         {
             //Check if followingObjZDOID is valid and that we are not in following state. following state has it's own function to take care of it
-            if (this.followingObjZDOID != null && this.followingObjZDOID.IsNone() == false && villagerGeneral.GetVillagerState() != VillagerState.Following && ZDOMan.instance.GetZDO(followingObjZDOID) != null && ZDOMan.instance.GetZDO(followingObjZDOID).IsValid())
+            if (villagerGeneral.GetVillagerState() != VillagerState.Following && ZDOMan.instance.GetZDO(followingObjZDOID) != null && ZDOMan.instance.GetZDO(followingObjZDOID).IsValid())
             {
                 float distance = Vector3.Distance(transform.position, ZDOMan.instance.GetZDO(followingObjZDOID).GetPosition());
 
@@ -174,20 +177,20 @@ namespace KukusVillagerMod.Components.Villager
         private void TPVillagerToFollowerIfNeeded()
         {
             //Check if villager is following
-            if (villagerGeneral.GetVillagerState() == VillagerState.Following)
-            {
+            if (villagerGeneral.GetVillagerState() != VillagerState.Following) return;
+            if (this.followingObjZDOID == null || this.followingObjZDOID.IsNone()) return;
+            GameObject playerGO = ZNetScene.instance.FindInstance(this.followingObjZDOID);
+            if (playerGO == null) return;
+            Player player = playerGO.GetComponent<Player>();
+            if (player == null) return;
 
-                //Check if ZDOID is valid and is following this player
-                if (followingObjZDOID != null && followingObjZDOID.IsNone() == false && Player.m_localPlayer.GetZDOID() == followingObjZDOID)
-                {
-                    Vector3 playerPOS = ZDOMan.instance.GetZDO(followingObjZDOID).GetPosition();
-                    float distance = Vector3.Distance(transform.position, playerPOS);
-                    if (distance > 50 || Player.m_localPlayer.IsTeleporting())
-                    {
-                        TPToLoc(playerPOS);
-                    }
-                }
+            //Following a player
+            float distance = Vector3.Distance(transform.position, playerGO.transform.position);
+            if (distance > 60 || player.IsTeleporting())
+            {
+                TPToLoc(playerGO.transform.position,false); //We want the villager to still keep following the player so we set removefollower to false which is true by default
             }
+
         }
 
         //----------------------------------------------------------------------------------------------------------------------------------
@@ -216,41 +219,38 @@ namespace KukusVillagerMod.Components.Villager
             return true;
         }
 
-        private bool TPToLoc(Vector3 pos)
+        private bool TPToLoc(Vector3 pos, bool RemoveFollowTarget = true)
         {
-            ai.SetFollowTarget(null);
+            if (RemoveFollowTarget)
+                ai.SetFollowTarget(null);
             transform.position = pos; //THIS WORKS. BUT IDK HOW IT'S GOING TO BE IN SERVERS. FUTURE:: CHANGE THIS WITH SOME SERVER CALLS
             villagerGeneral.ZNV.GetZDO().SetPosition(pos); //THIS IS NOT RELIABLE IDK WHY
             return true;
         }
 
-        public bool FollowPlayer(Player p)
+        public bool FollowPlayer(ZDOID playerID)
         {
-            /*
-             * Validate if player is valid.
-             * StopMoving
-             * Save player's ZDOID
-             * Update state
-             * Follow target
-             */
 
-            if (p == null)
+            if (playerID == null || playerID.IsNone())
             {
-                talk.Say("Can't follow", "Follow");
+                talk.Say("Can't follow, invalid ZDOID", "Follow");
                 return false;
             }
 
             //Stop moving incase the villager was moving earlier
             keepMoving = false;
-
-            //Save player's ZDO
-            followingObjZDOID = p.GetZDOID();
-
             //Update state
             villagerGeneral.SetVillagerState(VillagerState.Following);
 
-            //Follow the target and update villager state value stored in bed
-            FollowGameObject(p.gameObject);
+            GameObject playerGO = ZNetScene.instance.FindInstance(playerID);
+            if (playerGO == null)
+            {
+                talk.Say("Failed to find the player, Going to guard bed", "Follow");
+                GuardBed();
+                return false;
+            }
+
+            FollowGameObject(playerGO);
 
             return true;
         }
@@ -423,9 +423,21 @@ namespace KukusVillagerMod.Components.Villager
                 await Task.Delay(500);
                 try
                 {
-                    if (villagerGeneral.GetVillagerState() != VillagerState.Working || villagerGeneral.GetContainerZDO().IsValid() == false || villagerGeneral.GetWorkZDO().IsValid() == false)
+                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
-                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                        await Task.Delay(200);
+                        continue;
+                    }
+
+                    if (villagerGeneral.GetContainerZDO() == null || villagerGeneral.GetContainerZDO().IsValid() == false)
+                    {
+                        await Task.Delay(200);
+                        continue;
+                    }
+
+                    if (villagerGeneral.GetWorkZDO() == null || villagerGeneral.GetWorkZDO().IsValid() == false)
+                    {
+                        await Task.Delay(200);
                         continue;
                     }
 

@@ -211,6 +211,21 @@ namespace KukusVillagerMod.Components.VillagerBed
             return ZNetScene.instance.FindInstance(GetContainerID());
         }
 
+
+        public ZDOID GetFollowingPlayerZDOID()
+        {
+            return znv.GetZDO().GetZDOID("following");
+        }
+        public ZDO GetFollowingPlayerZDO()
+        {
+            return ZDOMan.instance.GetZDO(GetFollowingPlayerZDOID());
+        }
+
+        public GameObject GetFollowingPlayerInstance()
+        {
+            return ZNetScene.instance.FindInstance(GetFollowingPlayerZDOID());
+        }
+
         //Interface
 
         public string GetHoverText()

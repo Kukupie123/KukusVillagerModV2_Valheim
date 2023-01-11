@@ -41,7 +41,7 @@ namespace KukusVillagerMod.Patches
             {
                 if (!hold)
                 {
-                    vAI.FollowPlayer(user.GetComponent<Player>());
+                    vAI.FollowPlayer(user.GetComponent<Player>().GetZDOID());
                     __result = true;
                 }
                 else

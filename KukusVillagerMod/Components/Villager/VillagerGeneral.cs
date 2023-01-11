@@ -1,6 +1,7 @@
 ﻿
 using KukusVillagerMod.enums;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -38,9 +39,6 @@ namespace KukusVillagerMod.Components.Villager
         DateTime? startingTimeForBedNotFound;
         private void FixedUpdate()
         {
-            if (!KukusVillagerMod.isMapDataLoaded) return;
-
-
             if (ZNV == null || ZNV.IsValid() == false)
             {
                 ZNV = GetComponentInParent<ZNetView>();
@@ -59,8 +57,14 @@ namespace KukusVillagerMod.Components.Villager
                 return;
             }
 
+
+            if (!KukusVillagerMod.isMapDataLoaded) return;
+
+
+
+
             //Wait for the bed's ID which spawned this villagers to be saved in the zdo of this villager. The threshold is 10 sec. If we fail to find bed in 10 sec then we are going to assume that this villager was spawned without a bed and needs to be destroyed
-            if (!isBedAssigned())FOL
+            if (!isBedAssigned())
             {
                 //Set starting time. Will execute only once
                 if (startingTimeForBedNotFound == null)
@@ -208,9 +212,6 @@ namespace KukusVillagerMod.Components.Villager
         {
             return ZNetScene.instance.FindInstance(GetContainerID());
         }
-
-
-        //Follower related function
 
 
         //FUTURE WIP
