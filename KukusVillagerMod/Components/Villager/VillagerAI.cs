@@ -816,12 +816,14 @@ namespace KukusVillagerMod.Components.Villager
                     int cookableCap = smelter.m_maxOre;
                     int currentCookableSize = smelter.GetQueueSize();
 
-
+                    bool addedFuel = false;
+                    bool addedCookable = false;
                     if (tookFuel)
                     {
                         //Can we add fuel?
                         if (currentFuel < fuelCapacity)
                         {
+                            addedFuel = true;
                             smelter.GetComponentInParent<ZNetView>().InvokeRPC("AddFuel");
                         }
                         else
@@ -833,15 +835,19 @@ namespace KukusVillagerMod.Components.Villager
                     {
                         if (currentCookableSize < cookableCap)
                         {
+                            addedCookable = true;
                             smelter.GetComponentInParent<ZNetView>().InvokeRPC("AddOre", cookableItem.m_dropPrefab.name);
 
                         }
                         else
                         {
-                            inventory.AddItem(cookableItem);
+                            var cookable = PrefabManager.Instance.GetPrefab(cookableItem.m_dropPrefab.name);
+                            inventory.AddItem(cookable.GetComponent<ItemDrop>().m_itemData);HarmonyXInterop:
 
                         }
                     }
+
+
 
                 }
                 else
