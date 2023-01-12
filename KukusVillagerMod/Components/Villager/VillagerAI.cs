@@ -541,7 +541,7 @@ namespace KukusVillagerMod.Components.Villager
                 }
 
                 //Search for pickable item
-                ItemDrop pickable = FindClosestPickup(workPosLoc, 250f);
+                ItemDrop pickable = FindClosestValidPickup(workPosLoc, 250f);
 
                 //ItemDrop found.
                 if (pickable != null)
@@ -585,6 +585,7 @@ namespace KukusVillagerMod.Components.Villager
                     string prefabName = pickable.m_itemData.m_dropPrefab.name;
                     int stackCount = pickable.m_itemData.m_stack;
                     var prefab = PrefabManager.Instance.GetPrefab(prefabName);
+
                     if (prefab == null)
                     {
                         alreadyPickingUp = false;
@@ -634,7 +635,16 @@ namespace KukusVillagerMod.Components.Villager
                         return;
                     }
 
-                    villagerGeneral.GetContainerInstance().GetComponent<Container>().GetInventory().AddItem(prefab, 1);
+                    if (villagerGeneral.GetContainerInstance().GetComponent<Container>().GetInventory().AddItem(prefab, 1))
+                    {
+                        if (workTalk)
+                            talk.Say($"Added {prefabName} to container", "Work");
+                    }
+                    else
+                    {
+                        if (workTalk)
+                            talk.Say($"Failed to add {prefabName} to container", "Work");
+                    }
                 }
                 else
                 {
@@ -816,14 +826,11 @@ namespace KukusVillagerMod.Components.Villager
                     int cookableCap = smelter.m_maxOre;
                     int currentCookableSize = smelter.GetQueueSize();
 
-                    bool addedFuel = false;
-                    bool addedCookable = false;
                     if (tookFuel)
                     {
                         //Can we add fuel?
                         if (currentFuel < fuelCapacity)
                         {
-                            addedFuel = true;
                             smelter.GetComponentInParent<ZNetView>().InvokeRPC("AddFuel");
                         }
                         else
@@ -835,14 +842,13 @@ namespace KukusVillagerMod.Components.Villager
                     {
                         if (currentCookableSize < cookableCap)
                         {
-                            addedCookable = true;
                             smelter.GetComponentInParent<ZNetView>().InvokeRPC("AddOre", cookableItem.m_dropPrefab.name);
 
                         }
                         else
                         {
                             var cookable = PrefabManager.Instance.GetPrefab(cookableItem.m_dropPrefab.name);
-                            inventory.AddItem(cookable.GetComponent<ItemDrop>().m_itemData);HarmonyXInterop:
+                            inventory.AddItem(cookable.GetComponent<ItemDrop>().m_itemData);
 
                         }
                     }
@@ -867,7 +873,7 @@ namespace KukusVillagerMod.Components.Villager
 
         }
 
-        private ItemDrop FindClosestPickup(Vector3 center, float radius)
+        private ItemDrop FindClosestValidPickup(Vector3 center, float radius)
         {
             //Scan for objects that we can pickup and add it in list
             Collider[] colliders = Physics.OverlapSphere(center, radius);
@@ -913,12 +919,27 @@ namespace KukusVillagerMod.Components.Villager
                     continue;
                 }
 
+
                 string prefabName = d.m_itemData.m_dropPrefab.name; //We need the dropn not shared name
+
+                //validate container and inventory
                 var container = villagerGeneral.GetContainerInstance();
-                if (container == null) return null;
+                if (container == null) continue;
                 var inventory = container.GetComponent<Container>().GetInventory();
-                if (inventory == null) return null;
-                if (!inventory.CanAddItem(PrefabManager.Instance.GetPrefab(prefabName))) return null;
+                if (inventory == null) continue; ;
+
+                //Check if we can store this by adding it temporarily and removing it again
+
+                GameObject itemPrefab = PrefabManager.Instance.GetPrefab(prefabName);
+                if (itemPrefab == null) continue;
+                ItemDrop itemDrop = itemPrefab.GetComponent<ItemDrop>();
+                if (itemDrop == null) continue;
+
+                if (inventory.AddItem(itemDrop.m_itemData) == false) continue;
+                else
+                {
+                    inventory.RemoveItem(itemDrop.m_itemData.m_shared.m_name, 1);
+                }
                 if (pickUpNameList.Contains(prefabName))
                 {
                     if (pickable == null) //No pickable item selected so we select this as first
