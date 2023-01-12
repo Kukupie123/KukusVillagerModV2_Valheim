@@ -111,7 +111,7 @@ namespace KukusVillagerMod.Configuration
                 new ConfigDescription("Villagers will say what their next move is when working", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
                 ).BoxedValue;
 
-            workRun = (bool)Config.Bind("Villager AI Configuration", "Run When Working", false,
+            workRun = (bool)Config.Bind("Villager AI Configuration", "Run When Working", true,
                new ConfigDescription("Should villagers run when they are working?", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
                ).BoxedValue;
 
