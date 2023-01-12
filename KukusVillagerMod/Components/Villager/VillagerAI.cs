@@ -135,7 +135,6 @@ namespace KukusVillagerMod.Components.Villager
             {
                 //Reset AI
                 ai.ResetPatrolPoint();
-                ai.ResetRandomMovement();
 
                 //Check if we have set starting timer
                 if (keepMovingStartTime == null)
@@ -230,7 +229,6 @@ namespace KukusVillagerMod.Components.Villager
 
             this.followingObjZDOID = targetZDOID;
             ai.ResetPatrolPoint();
-            ai.ResetRandomMovement();
             ai.SetFollowTarget(target);
             return true;
         }
@@ -291,7 +289,6 @@ namespace KukusVillagerMod.Components.Villager
             if (shouldTalk)
                 talk.Say($"Moving to {pos.ToString()}", "Moving");
             ai.ResetPatrolPoint();
-            ai.ResetRandomMovement();
             ai.SetFollowTarget(null);
             keepMoving = true;
             return true;
@@ -446,34 +443,20 @@ namespace KukusVillagerMod.Components.Villager
                     return;
                 }
 
-                GameObject workPostInstance = villagerGeneral.GetWorkInstance();
-                if (workPostInstance != null)
-                {
-                    FollowGameObject(workPostInstance);
-                    while (Vector3.Distance(transform.position, workPostInstance.transform.position) > 3f)
-                    {
-                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
 
-                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                        {
-                            break;
-                        }
+
+                //Move to workpost
+                MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
+                while (keepMoving)
+                {
+                    await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+
+                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                    {
+                        break;
                     }
                 }
-                else
-                {
-                    //Move to workpost
-                    MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
-                    while (keepMoving)
-                    {
-                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
 
-                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                        {
-                            break;
-                        }
-                    }
-                }
 
 
 
@@ -499,33 +482,20 @@ namespace KukusVillagerMod.Components.Villager
                         return;
                     }
 
-                    if (pickable.gameObject != null)
-                    {
-                        FollowGameObject(pickable.gameObject);
-                        while (Vector3.Distance(transform.position, pickable.gameObject.transform.position) > 3f)
-                        {
-                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
 
-                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                            {
-                                break;
-                            }
+
+                    //Move to the pickable item 
+                    MoveVillagerToLoc(pickable.transform.position, 1f, false, false, false);
+
+                    while (keepMoving)
+                    {
+                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                        {
+                            break;
                         }
                     }
-                    else
-                    {
-                        //Move to the pickable item 
-                        MoveVillagerToLoc(pickable.transform.position, 1f, false, false, false);
 
-                        while (keepMoving)
-                        {
-                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                            {
-                                break;
-                            }
-                        }
-                    }
 
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
@@ -560,33 +530,19 @@ namespace KukusVillagerMod.Components.Villager
                         return;
                     }
 
-                    GameObject containerInstance = villagerGeneral.GetContainerInstance();
-                    if (containerInstance != null)
-                    {
-                        FollowGameObject(containerInstance);
-                        while (Vector3.Distance(transform.position, containerInstance.transform.position) > 3f)
-                        {
-                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
 
-                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                            {
-                                break;
-                            }
+
+                    MoveVillagerToLoc(containerLoc, 3f, false, false, false);
+
+                    while (keepMoving)
+                    {
+                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                        {
+                            break;
                         }
                     }
-                    else
-                    {
-                        MoveVillagerToLoc(containerLoc, 3f, false, false, false);
 
-                        while (keepMoving)
-                        {
-                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                            {
-                                break;
-                            }
-                        }
-                    }
 
 
 
@@ -630,36 +586,21 @@ namespace KukusVillagerMod.Components.Villager
                     return;
                 }
 
-                GameObject workPostInstance = villagerGeneral.GetWorkInstance();
-                if (workPostInstance != null)
+
+
+                MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
+                while (keepMoving)
                 {
-                    FollowGameObject(workPostInstance);
-                    while (Vector3.Distance(transform.position, workPostInstance.transform.position) > 3f)
+                    await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+
+                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
-                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-
-                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                        {
-                            break;
-                        }
+                        break;
                     }
+
+                    if (!keepMoving) break;
                 }
-                else
-                {
 
-                    MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
-                    while (keepMoving)
-                    {
-                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-
-                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                        {
-                            break;
-                        }
-
-                        if (!keepMoving) break;
-                    }
-                }
 
                 //Reached Work post, Check if still working
                 await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
@@ -682,34 +623,19 @@ namespace KukusVillagerMod.Components.Villager
                         return;
                     }
 
-                    GameObject containerInstance = villagerGeneral.GetContainerInstance();
-                    if (containerInstance != null)
-                    {
-                        FollowGameObject(containerInstance);
-                        while (Vector3.Distance(transform.position, containerInstance.transform.position) > 3f)
-                        {
-                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
 
-                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                            {
-                                break;
-                            }
+                    //Move to container
+                    MoveVillagerToLoc(villagerGeneral.GetContainerZDO().GetPosition(), 2f, false, false, false);
+
+                    while (keepMoving)
+                    {
+                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                        {
+                            break;
                         }
                     }
-                    else
-                    {
-                        //Move to container
-                        MoveVillagerToLoc(villagerGeneral.GetContainerZDO().GetPosition(), 2f, false, false, false);
 
-                        while (keepMoving)
-                        {
-                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                            {
-                                break;
-                            }
-                        }
-                    }
 
 
 
@@ -763,33 +689,18 @@ namespace KukusVillagerMod.Components.Villager
                         return;
                     }
 
-                    if (smelter.gameObject != null)
-                    {
-                        FollowGameObject(smelter.gameObject);
-                        while (Vector3.Distance(transform.position, smelter.gameObject.transform.position) > 3f)
-                        {
-                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                    //Go to smelter
+                    MoveVillagerToLoc(smelter.transform.position, 4f, false, false, false);
 
-                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                            {
-                                break;
-                            }
+                    while (keepMoving)
+                    {
+                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                        {
+                            break;
                         }
                     }
-                    else
-                    {
-                        //Go to smelter
-                        MoveVillagerToLoc(smelter.transform.position, 4f, false, false, false);
 
-                        while (keepMoving)
-                        {
-                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                            {
-                                break;
-                            }
-                        }
-                    }
 
 
 
