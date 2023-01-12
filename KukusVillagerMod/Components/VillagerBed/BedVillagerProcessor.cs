@@ -318,6 +318,48 @@ namespace KukusVillagerMod.Components.VillagerBed
         //Does nothing as of now
         public bool UseItem(Humanoid user, ItemDrop.ItemData item)
         {
+            GameObject villagerGO = ZNetScene.instance.FindInstance(znv.GetZDO().GetZDOID("spawn_id"));
+            if (villagerGO == null)
+            {
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Villager is not nearby or dead, Try Later");
+                return false;
+            }
+            VillagerAI ai = villagerGO.GetComponent<VillagerAI>();
+            VillagerGeneral v = villagerGO.GetComponent<VillagerGeneral>();
+
+            if (ai == null)
+            {
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Villager has no brain, This is not normal");
+                return false;
+            }
+
+            string itemName = item.m_shared.m_name;
+
+            switch (itemName)
+            {
+                case "LabourerFruit":
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Villager is going to Work");
+                    ai.StartWork();
+                    break;
+                case "WatcherFruit":
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Villager is going to Defend Post");
+                    ai.DefendPost();
+                    break;
+                case "GuardianFruit":
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Villager is going to Guard Bed");
+                    ai.GuardBed();
+                    break;
+                case "LabourSkill_Pickup":
+                    bool canPick = !v.GetWorkSkill_CanPickUp();
+                    v.SetWorkSkill_Pickup(canPick);
+                    break;
+                case "LabourSkill_Smelt":
+                    bool canSmelt = !v.GetWorkSkill_CanSmelt();
+                    v.SetWorkSkill_Smelt(canSmelt);
+                    break;
+            }
+
+
             return true;
         }
     }

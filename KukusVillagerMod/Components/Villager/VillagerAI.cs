@@ -85,6 +85,8 @@ namespace KukusVillagerMod.Components.Villager
         //If we are following a target, this function checks how long have we been following the target for and if it crosses a threshold we tp the villager to that location if acceptable distance has not been reached
         double? startedFollowingTime = null;
         float followTargetAcceptableDistance = 2f;
+        int timeLimitFollowCheckPerUpdate = 20;
+        int followDistanceLimit = 5;
         private void FollowCheckPerUpdate()
         {
             //Check if followingObjZDOID is valid and that we are not in following state. following state has it's own function to take care of it
@@ -101,10 +103,10 @@ namespace KukusVillagerMod.Components.Villager
                     startedFollowingTime = ZNet.instance.GetTimeSeconds();
                 }
 
-                //Calculate time elasped
+                //Calculate time elasped and distance between villager and target
                 double timeElapsedSec = ZNet.instance.GetTimeSeconds() - startedFollowingTime.Value;
 
-                if (timeElapsedSec > 10) //Time limit reached, TP the villager and reset Timer
+                if (timeElapsedSec > timeLimitFollowCheckPerUpdate && Vector3.Distance(transform.position, ZDOMan.instance.GetZDO(this.followingObjZDOID).GetPosition()) > followDistanceLimit) //Time limit reached, TP the villager and reset Timer
                 {
                     KLog.warning($"Teleporting villager {villagerGeneral.ZNV.GetZDO().m_uid.id} Because he didn't reach following target within the time limit");
                     TPToLoc(ZDOMan.instance.GetZDO(this.followingObjZDOID).GetPosition(), false); //We want the villager to still follow it's target after tping so we set false as 2nd parameter
@@ -128,6 +130,8 @@ namespace KukusVillagerMod.Components.Villager
         bool shouldRun = true; //Should the villager run
         float acceptableDistance = 2f; //Acceptable distance to stop
         DateTime? keepMovingStartTime = null; //Keeps track of how much time has elasped
+        int timeLimitForMove = 20;
+        int moveDistanceLimit = 5;
         private void MovePerUpdateIfDesired()
         {
             //Only continue if we are moving
@@ -145,7 +149,7 @@ namespace KukusVillagerMod.Components.Villager
                 //Check if villager has been trying to reach target for too long
                 double timeDiff = (ZNet.instance.GetTime() - keepMovingStartTime.Value).TotalSeconds;
 
-                if (timeDiff > 10) //60 sec passed and still hasn't reached path so we tp
+                if (timeDiff > timeLimitForMove && Vector3.Distance(transform.position, movePos) > moveDistanceLimit) //60 sec passed and still hasn't reached path so we tp
                 {
                     KLog.warning($"TPing Villager {villagerGeneral.ZNV.GetZDO().m_uid.id} Because time limit reached for moving");
                     keepMoving = false;
@@ -174,6 +178,7 @@ namespace KukusVillagerMod.Components.Villager
          * This function is going to execute only when it's following a player.
          * Makes sure to TP the villager to the player if it's Teleporting or If it's too far
          */
+        int playerFarDistance = 50;
         private void TPVillagerToFollowerIfNeeded()
         {
             //Check if villager is following
@@ -186,7 +191,7 @@ namespace KukusVillagerMod.Components.Villager
 
             //Following a player
             float distance = Vector3.Distance(transform.position, playerGO.transform.position);
-            if (distance > 60 || player.IsTeleporting())
+            if (distance > playerFarDistance || player.IsTeleporting())
             {
                 TPToLoc(playerGO.transform.position, false); //We want the villager to still keep following the player so we set removefollower to false which is true by default
             }
@@ -195,6 +200,31 @@ namespace KukusVillagerMod.Components.Villager
 
         async private void WorkLoop()
         {
+            ZDOID wp = villagerGeneral.GetWorkPostID();
+
+            if (wp == null || wp.IsNone())
+            {
+                return;
+            }
+
+            if (villagerGeneral.GetWorkZDO() == null || villagerGeneral.GetWorkZDO().IsValid() == false)
+            {
+                return;
+            }
+
+            ZDOID containerID = villagerGeneral.GetContainerID();
+
+            if (containerID == null || containerID.IsNone())
+            {
+                return;
+            }
+
+            ZDO containerZDO = villagerGeneral.GetContainerZDO();
+            if (containerZDO == null || containerZDO.IsValid() == false)
+            {
+                return;
+            }
+
             if (villagerGeneral.GetVillagerState() == VillagerState.Working)
             {
                 if (villagerGeneral.GetWorkSkill_CanPickUp())
@@ -396,6 +426,21 @@ namespace KukusVillagerMod.Components.Villager
                 return false;
             }
 
+            ZDOID containerID = villagerGeneral.GetContainerID();
+
+            if (containerID == null || containerID.IsNone())
+            {
+                talk.Say("Container not assigned", "Work");
+                return false;
+            }
+
+            ZDO containerZDO = villagerGeneral.GetContainerZDO();
+            if (containerZDO == null || containerZDO.IsValid() == false)
+            {
+                talk.Say("Container was destroyed", "Work");
+                return false;
+            }
+
             //Stop moving
             keepMoving = false;
             //Remove from follower
@@ -424,12 +469,14 @@ namespace KukusVillagerMod.Components.Villager
 
         int minRandomTime = 200;
         int maxRandomTime = 2000;
+        bool workTalk = true;
 
         bool alreadyPickingUp = false;
         async private Task PickupAndStoreWork()
         {
             try
             {
+
 
                 if (alreadyPickingUp) return;
                 alreadyPickingUp = true;
@@ -474,7 +521,8 @@ namespace KukusVillagerMod.Components.Villager
                 //ItemDrop found.
                 if (pickable != null)
                 {
-                    talk.Say($"Going to Pickup {pickable.m_itemData.m_shared.m_name}", "Work");
+                    if (workTalk)
+                        talk.Say($"Going to Pickup {pickable.m_itemData.m_shared.m_name}", "Work");
 
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
@@ -522,7 +570,8 @@ namespace KukusVillagerMod.Components.Villager
                     }
 
                     Vector3 containerLoc = villagerGeneral.GetContainerZDO().GetPosition();
-                    talk.Say($"Going to Put {prefabName} in container", "Work");
+                    if (workTalk)
+                        talk.Say($"Going to Put {prefabName} in container", "Work");
 
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
@@ -615,7 +664,9 @@ namespace KukusVillagerMod.Components.Villager
                 if (smelter != null)
                 {
                     //Go to container and remove the fuel or cookable or both
-                    talk.Say("Going to container to get items for smelting", "Work");
+
+                    if (workTalk)
+                        talk.Say("Going to container to get items for smelting", "Work");
 
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
@@ -654,7 +705,8 @@ namespace KukusVillagerMod.Components.Villager
 
                     if (inventory == null)
                     {
-                        talk.Say("Inventory not found for container", "Work");
+                        if (workTalk)
+                            talk.Say("Inventory not found for container", "Work");
                         alreadyRefilling = false;
                         return;
                     }
@@ -675,13 +727,15 @@ namespace KukusVillagerMod.Components.Villager
                     if (tookFuel == false && tookCookable == false)
                     {
                         alreadyRefilling = false;
+
                         KLog.info("Woops no processable or fuel in contianer");
-                        talk.Say("No processable or fuel in my container", "");
+                        if (workTalk)
+                            talk.Say("No processable or fuel in my container", "");
                         return;
                     }
 
-
-                    talk.Say("Moving to Smelter to fill it.", "Work");
+                    if (workTalk)
+                        talk.Say("Moving to Smelter to fill it.", "Work");
 
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
