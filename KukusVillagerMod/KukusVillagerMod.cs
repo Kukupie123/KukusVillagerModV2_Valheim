@@ -128,8 +128,8 @@ namespace KukusVillagerMod
 
 /*
  * BUG:
- * If there are two players and both have followers. If one commands to move his followers the followers of the other villager will move too
- * FIXED BUT NEEDS TESTING
+ * 1. FUEL OVER EXCEED FIX
+ * 2. CHECK CONTAINER FOR THIS ISSUE TOO
  */
 
 /*

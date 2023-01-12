@@ -546,6 +546,7 @@ namespace KukusVillagerMod.Components.Villager
                 //ItemDrop found.
                 if (pickable != null)
                 {
+
                     if (workTalk)
                         talk.Say($"Going to Pickup {pickable.m_itemData.m_shared.m_name}", "Work");
 
@@ -634,6 +635,11 @@ namespace KukusVillagerMod.Components.Villager
                     }
 
                     villagerGeneral.GetContainerInstance().GetComponent<Container>().GetInventory().AddItem(prefab, 1);
+                }
+                else
+                {
+                    if (workTalk)
+                        talk.Say("Found nothing nearby that can be put in container", "Work");
                 }
 
                 alreadyPickingUp = false;
@@ -740,34 +746,38 @@ namespace KukusVillagerMod.Components.Villager
                     //Check and remove fuel/cookable
                     var inventory = villagerGeneral.GetContainerInstance().GetComponent<Container>().GetInventory();
 
-                    if (inventory == null)
+
+                    foreach (var i in inventory.GetAllItems())
                     {
-                        if (workTalk)
-                            talk.Say("Inventory not found for container", "Work");
-                        alreadyRefilling = false;
-                        return;
+                        if (i.m_shared.m_name.Equals(smelter.m_fuelItem.m_itemData.m_shared.m_name))
+                        {
+                            tookFuel = true;
+                            inventory.RemoveItem(smelter.m_fuelItem.m_itemData.m_shared.m_name, 1);
+                            break;
+                        }
                     }
 
-                    if (inventory.HaveItem(smelter.m_fuelItem.m_itemData.m_shared.m_name))
-                    {
-                        tookFuel = true;
-                        inventory.RemoveItem(smelter.m_fuelItem.m_itemData.m_shared.m_name, 1);
-                    }
+
+
                     ItemDrop.ItemData cookableItem = smelter.FindCookableItem(inventory);
-                    if (cookableItem != null && inventory.HaveItem(cookableItem.m_shared.m_name))
-                    {
-                        tookCookable = true;
-                        inventory.RemoveItem(cookableItem.m_shared.m_name, 1);
-                    }
+                    if (cookableItem != null)
+                        foreach (var i in inventory.GetAllItems())
+                        {
+
+                            if (i.m_shared.m_name.Equals(cookableItem.m_shared.m_name))
+                            {
+                                tookCookable = true;
+                                inventory.RemoveItem(cookableItem.m_shared.m_name, 1);
+                                break;
+                            }
+                        }
 
 
                     if (tookFuel == false && tookCookable == false)
                     {
-                        alreadyRefilling = false;
-
-                        KLog.info("Woops no processable or fuel in contianer");
                         if (workTalk)
-                            talk.Say("No processable or fuel in my container", "");
+                            talk.Say("No processable or fuel in my container or the smelter I was going to fill is already full now", "");
+                        alreadyRefilling = false;
                         return;
                     }
 
@@ -800,16 +810,44 @@ namespace KukusVillagerMod.Components.Villager
 
                     await Task.Delay(500);
                     //Add fuel to the smelter
+
+                    int fuelCapacity = smelter.m_maxFuel;
+                    float currentFuel = (int)smelter.GetFuel();
+                    int cookableCap = smelter.m_maxOre;
+                    int currentCookableSize = smelter.GetQueueSize();
+
+
                     if (tookFuel)
                     {
-                        smelter.GetComponentInParent<ZNetView>().InvokeRPC("AddFuel");
+                        //Can we add fuel?
+                        if (currentFuel < fuelCapacity)
+                        {
+                            smelter.GetComponentInParent<ZNetView>().InvokeRPC("AddFuel");
+                        }
+                        else
+                        {
+                            inventory.AddItem(smelter.m_fuelItem.m_itemData);
+                        }
                     }
                     if (tookCookable)
                     {
-                        smelter.GetComponentInParent<ZNetView>().InvokeRPC("AddOre", cookableItem.m_dropPrefab.name);
-                        KLog.warning($"drop name : {cookableItem.m_dropPrefab.name}");
+                        if (currentCookableSize < cookableCap)
+                        {
+                            smelter.GetComponentInParent<ZNetView>().InvokeRPC("AddOre", cookableItem.m_dropPrefab.name);
+
+                        }
+                        else
+                        {
+                            inventory.AddItem(cookableItem);
+
+                        }
                     }
 
+                }
+                else
+                {
+                    if (workTalk)
+                        talk.Say("Found no smelter nearby that needs to be filled", "Work");
                 }
                 alreadyRefilling = false;
             }
@@ -828,7 +866,7 @@ namespace KukusVillagerMod.Components.Villager
             //Scan for objects that we can pickup and add it in list
             Collider[] colliders = Physics.OverlapSphere(center, radius);
 
-            string PickupPrefabNames = VillagerModConfigurations.PickableObjects.Trim() + ",randomstuff"; 
+            string PickupPrefabNames = VillagerModConfigurations.PickableObjects.Trim() + ",randomstuff";
             List<string> pickUpNameList = new List<string>();
             string p = "";
             for (int i = 0; i < PickupPrefabNames.Length; i++)
@@ -870,6 +908,11 @@ namespace KukusVillagerMod.Components.Villager
                 }
 
                 string prefabName = d.m_itemData.m_dropPrefab.name; //We need the dropn not shared name
+                var container = villagerGeneral.GetContainerInstance();
+                if (container == null) return null;
+                var inventory = container.GetComponent<Container>().GetInventory();
+                if (inventory == null) return null;
+                if (!inventory.CanAddItem(PrefabManager.Instance.GetPrefab(prefabName))) return null;
                 if (pickUpNameList.Contains(prefabName))
                 {
                     if (pickable == null) //No pickable item selected so we select this as first
@@ -916,12 +959,32 @@ namespace KukusVillagerMod.Components.Villager
 
                 string fuelName = d.m_fuelItem.m_itemData.m_shared.m_name; //Get the type of fuel it uses
 
+                int fuelCapacity = d.m_maxFuel;
+                float currentFuel = (int)d.GetFuel();
+                int cookableCap = d.m_maxOre;
+                int currentCookable = d.GetQueueSize();
+
+
+
                 //Check if contanier has the fuel
                 var inventory = container.GetComponent<Container>().GetInventory();
+                ItemDrop.ItemData fuel = d.m_fuelItem.m_itemData;
                 var cookable = d.FindCookableItem(inventory);
+                bool fuelPresent = false;
+                bool cookablePresent = false;
 
-                bool fuelPresent = inventory.HaveItem(fuelName);
-                bool cookablePresent = d.FindCookableItem(inventory) != null;
+                //Check if it has fuel or cookable
+                foreach (var i in inventory.GetAllItems())
+                {
+                    if (i.m_shared.m_name.Equals(fuel.m_shared.m_name) && fuelCapacity > currentFuel)
+                    {
+                        fuelPresent = true;
+                    }
+                    if (cookable != null && i.m_shared.m_name.Equals(cookable.m_shared.m_name) && cookableCap > currentCookable)
+                    {
+                        cookablePresent = true;
+                    }
+                }
 
                 if (fuelPresent || cookablePresent)
                 {
