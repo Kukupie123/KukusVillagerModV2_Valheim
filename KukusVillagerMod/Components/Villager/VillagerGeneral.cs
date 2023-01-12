@@ -61,8 +61,6 @@ namespace KukusVillagerMod.Components.Villager
             if (!KukusVillagerMod.isMapDataLoaded) return;
 
 
-
-
             //Wait for the bed's ID which spawned this villagers to be saved in the zdo of this villager. The threshold is 10 sec. If we fail to find bed in 10 sec then we are going to assume that this villager was spawned without a bed and needs to be destroyed
             if (!isBedAssigned())
             {
@@ -118,6 +116,12 @@ namespace KukusVillagerMod.Components.Villager
 
             //if zdoid is not null and it exists then we can say that the bed has been assigned for this villager after it spawned
             if (!zdoid.IsNone() && ZDOMan.instance.GetZDO(zdoid) != null)
+            {
+                return true;
+            }
+
+            //Check if the bed ZDO also has spawn_id of this zdo
+            if (ZDOMan.instance.GetZDO(zdoid).GetZDOID("spawn_id") != null && ZDOMan.instance.GetZDO(zdoid).GetZDOID("spawn_id").IsNone() == false && ZDOMan.instance.GetZDO(zdoid).GetZDOID("spawn_id").id == this.ZNV.GetZDO().m_uid.id)
             {
                 return true;
             }

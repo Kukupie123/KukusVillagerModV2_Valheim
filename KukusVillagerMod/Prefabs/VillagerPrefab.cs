@@ -47,11 +47,6 @@ namespace KukusVillagerMod.Prefabs
 
         void createCreature2(string villagerName, string prefabCloneName, int villagerType, int level, int health)
         {
-            var rrr = PrefabManager.Instance.GetPrefab("RRR_Hostile_T1");
-            if (rrr == null)
-            {
-                KLog.warning("RRRNPC IS INVALID FOR COMPANION");
-            }
             CreatureConfig villagerConfig = new CreatureConfig();
             villagerConfig.Name = villagerName.Replace("_", " "); //Replace the "_" with " " Eg: Weak_Mage becomes Weak Mage
             villagerConfig.Faction = Character.Faction.Players;

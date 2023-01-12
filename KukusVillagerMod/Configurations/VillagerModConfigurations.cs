@@ -69,11 +69,127 @@ namespace KukusVillagerMod.Configuration
         public static string deleteVillagerKey;
         public static string deleteBedsKey;
         public static string moveToKey;
-        public static string showStatKey;
+        public static string WorkKey;
+
+        //Villager configuration
+        public static int FollowerMaxDistance;
+        public static int AcceptedFollowDistance;
+        public static int FollowTimeLimit;
+        public static int MoveTimeLimit;
+        public static int MinWaitTimeWork;
+        public static int MaxWaitTimeWork;
+        public static bool TalkWhileWorking;
+
 
         public static void LoadConfig(ConfigFile Config)
         {
             Config.SaveOnConfigSet = true;
+            //Villager AI Configuration
+            FollowerMaxDistance = (int)Config.Bind("Villager AI Configuration", "Follower Max Distance", 60,
+                new ConfigDescription("If the distance between the player and the villagers following the player exteed this value. They are teleported to the Player.", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
+                ).BoxedValue;
+
+            AcceptedFollowDistance = (int)Config.Bind("Villager AI Configuration", "Accepted Follow Distance", 5,
+                new ConfigDescription("When following a object (Bed, Defense Post, Work Post), The villagers will stop once they are within this distance", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
+                ).BoxedValue;
+
+            FollowTimeLimit = (int)Config.Bind("Villager AI Configuration", "Follow TP Time Limit (Seconds)", 30,
+                new ConfigDescription("When Following objects(Bed, Defense Post, Work Post), If the villager does not reach the Accepted Follow Distance of the object wthin this time limit, the villager will be Teleported to the location. This is to prevent AI getting stuck", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
+                ).BoxedValue;
+
+            MoveTimeLimit = (int)Config.Bind("Villager AI Configuration", "Move TP Time Limit (Seconds)", 30,
+                new ConfigDescription("When Moving to a location (Pickup item, Going to smelter for smelting), If the villager does not reach acceptable range of the target wthin this time limit, the villager will be Teleported to the location. This is to prevent AI getting stuck", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
+                ).BoxedValue;
+            MinWaitTimeWork = (int)Config.Bind("Villager AI Configuration", "Min Work Wait Time (Milliseconds)", 250,
+                new ConfigDescription("Minimum time the villager should wait after one task is complete", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
+                ).BoxedValue;
+            MaxWaitTimeWork = (int)Config.Bind("Villager AI Configuration", "Max Work Wait Time (Milliseconds)", 3000,
+                new ConfigDescription("Maximum time the villager should wait after one task is complete", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
+                ).BoxedValue;
+
+            TalkWhileWorking = (bool)Config.Bind("Villager AI Configuration", "Talk while Working", true,
+                new ConfigDescription("Villagers will say what their next move is when working", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
+                ).BoxedValue;
+
+
+
+            //Villagers health
+
+            weak_villager_health = (int)Config.Bind("Villagers Health", "Weak_Villager_Health", 400, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            weak_villager_ranged_health = (int)Config.Bind("Villagers Health", "Weak_Villager_Ranged_Health", 200, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            bronze_villager_health = (int)Config.Bind("Villagers Health", "Bronze_Villager_Health", 600, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            bronze_villager_ranged_health = (int)Config.Bind("Villagers Health", "Bronze_Villager_Ranged_Health", 300, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            iron_villager_health = (int)Config.Bind("Villagers Health", "Iron_Villager_Health", 800, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            iron_villager_ranged_health = (int)Config.Bind("Villagers Health", "Iron_Villager_Ranged_Health", 400, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            silver_villager_health = (int)Config.Bind("Villagers Health", "Silver_Villager_Health", 1000, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            silver_villager_ranged_health = (int)Config.Bind("Villagers Health", "Silver_Villager_Ranged_Health", 500, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            bm_villager_health = (int)Config.Bind("Villagers Health", "BM_Villager_Health", 1200, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            bm_villager_ranged_health = (int)Config.Bind("Villagers Health", "BM_Villager_Ranged_Health", 600, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+
+
+            //Villager level
+
+            weak_villager_level = (int)Config.Bind("Villagers Level", "Weak_Villager_Level", 0,
+       new ConfigDescription("",
+       null,
+       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            weak_villager_ranged_level = (int)Config.Bind("Villagers Level", "Weak_Villager_Ranged_Level", 0,
+       new ConfigDescription("",
+       null,
+       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+
+            bronze_villager_level = (int)Config.Bind("Villagers Level", "Bronze_Villager_Level", 0,
+       new ConfigDescription("",
+       null,
+       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            bronze_villager_ranged_level = (int)Config.Bind("Villagers Level", "Bronze_Villager_Ranged_Level", 0,
+       new ConfigDescription("",
+       null,
+       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+
+            iron_villager_level = (int)Config.Bind("Villagers Level", "Iron_Villager_Level", 1,
+       new ConfigDescription("",
+       null,
+       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            iron_villager_ranged_level = (int)Config.Bind("Villagers Level", "Iron_Villager_Ranged_Level", 1,
+       new ConfigDescription("",
+       null,
+       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+
+            silver_villager_level = (int)Config.Bind("Villagers Level", "Silver_Villager_Level", 1,
+       new ConfigDescription("",
+       null,
+       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            silver_villager_ranged_level = (int)Config.Bind("Villagers Level", "Silver_Villager_Ranged_Level", 1,
+       new ConfigDescription("",
+       null,
+       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+
+            bm_villager_level = (int)Config.Bind("Villagers Level", "BM_Villager_Level", 2,
+       new ConfigDescription("",
+       null,
+       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            bm_villager_ranged_level = (int)Config.Bind("Villagers Level", "BM_Villager_Ranged_Level", 2,
+       new ConfigDescription("",
+       null,
+       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+
+
+            //Bed Respawn timer
+            weak_bed_respawn = (float)Config.Bind("Bed respawn timer", "Weak_Bed_Melee_RT (Minute)", 1f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            bronze_bed_respawn = (float)Config.Bind("Bed respawn timer", "Bronze_Bed_Melee_RT (Minute)", 3f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            iron_bed_respawn = (float)Config.Bind("Bed respawn timer", "Iron_Bed_Melee_RT (Minute)", 5f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            silver_bed_respawn = (float)Config.Bind("Bed respawn timer", "Silver_Bed_Melee_RT (Minute)", 7f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+            bm_bed_respawn = (float)Config.Bind("Bed respawn timer", "BM_Bed_Melee_RT (Minute)", 9f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
+
+            //Villager Commander Club keys
+            guardBedKey = (string)Config.Bind("Commander Club keybinds", "Guard Bed Key", "Keypad1").BoxedValue;
+            CallFollowers = (string)Config.Bind("Commander Club keybinds", "Call Back Followers", "Keypad2").BoxedValue;
+            defendPostKey = (string)Config.Bind("Commander Club keybinds", "Defend Posts Key", "Keypad3").BoxedValue;
+            moveToKey = (string)Config.Bind("Commander Club keybinds", "Move to Key", "Keypad4").BoxedValue;
+            WorkKey = (string)Config.Bind("Commander Club keybinds", "Start Working Key", "Keypad5").BoxedValue;
+
+
 
             //Villager prefab
             weak_villager_melee_prefab = (string)Config.Bind("Villager Prefab", "Weak_Villager_Melee", "Skeleton",
@@ -128,66 +244,8 @@ namespace KukusVillagerMod.Configuration
 
 
 
-            //Villager level
 
-            weak_villager_level = (int)Config.Bind("Villagers Level", "Weak_Villager_Level", 0,
-       new ConfigDescription("",
-       null,
-       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            weak_villager_ranged_level = (int)Config.Bind("Villagers Level", "Weak_Villager_Ranged_Level", 0,
-       new ConfigDescription("",
-       null,
-       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
 
-            bronze_villager_level = (int)Config.Bind("Villagers Level", "Bronze_Villager_Level", 0,
-       new ConfigDescription("",
-       null,
-       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            bronze_villager_ranged_level = (int)Config.Bind("Villagers Level", "Bronze_Villager_Ranged_Level", 0,
-       new ConfigDescription("",
-       null,
-       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-
-            iron_villager_level = (int)Config.Bind("Villagers Level", "Iron_Villager_Level", 1,
-       new ConfigDescription("",
-       null,
-       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            iron_villager_ranged_level = (int)Config.Bind("Villagers Level", "Iron_Villager_Ranged_Level", 1,
-       new ConfigDescription("",
-       null,
-       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-
-            silver_villager_level = (int)Config.Bind("Villagers Level", "Silver_Villager_Level", 1,
-       new ConfigDescription("",
-       null,
-       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            silver_villager_ranged_level = (int)Config.Bind("Villagers Level", "Silver_Villager_Ranged_Level", 1,
-       new ConfigDescription("",
-       null,
-       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-
-            bm_villager_level = (int)Config.Bind("Villagers Level", "BM_Villager_Level", 2,
-       new ConfigDescription("",
-       null,
-       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            bm_villager_ranged_level = (int)Config.Bind("Villagers Level", "BM_Villager_Ranged_Level", 2,
-       new ConfigDescription("",
-       null,
-       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-
-            //Villagers health
-          
-            weak_villager_health = (int)Config.Bind("Villagers Health", "Weak_Villager_Health", 400, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            weak_villager_ranged_health = (int)Config.Bind("Villagers Health", "Weak_Villager_Ranged_Health", 200, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            bronze_villager_health = (int)Config.Bind("Villagers Health", "Bronze_Villager_Health", 600, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            bronze_villager_ranged_health = (int)Config.Bind("Villagers Health", "Bronze_Villager_Ranged_Health", 300, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            iron_villager_health = (int)Config.Bind("Villagers Health", "Iron_Villager_Health", 800, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            iron_villager_ranged_health = (int)Config.Bind("Villagers Health", "Iron_Villager_Ranged_Health", 400, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            silver_villager_health = (int)Config.Bind("Villagers Health", "Silver_Villager_Health", 1000, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            silver_villager_ranged_health = (int)Config.Bind("Villagers Health", "Silver_Villager_Ranged_Health", 500, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            bm_villager_health = (int)Config.Bind("Villagers Health", "BM_Villager_Health", 1200, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            bm_villager_ranged_health = (int)Config.Bind("Villagers Health", "BM_Villager_Ranged_Health", 600, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            
 
             //Bed model
 
@@ -235,35 +293,6 @@ namespace KukusVillagerMod.Configuration
        new ConfigDescription("",
        null,
        new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-
-
-            //Bed Respawn timer
-            weak_bed_respawn = (float)Config.Bind("Bed respawn timer", "Weak_Bed_Melee_RT (Minute)", 1f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            bronze_bed_respawn = (float)Config.Bind("Bed respawn timer", "Bronze_Bed_Melee_RT (Minute)", 3f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            iron_bed_respawn = (float)Config.Bind("Bed respawn timer", "Iron_Bed_Melee_RT (Minute)", 5f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            silver_bed_respawn = (float)Config.Bind("Bed respawn timer", "Silver_Bed_Melee_RT (Minute)", 7f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-            bm_bed_respawn = (float)Config.Bind("Bed respawn timer", "BM_Bed_Melee_RT (Minute)", 9f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-
-
-
-
-            //Villager Commander Club keys
-            guardBedKey = (string)Config.Bind("Commander Club keybinds", "Guard Bed Key", "Keypad1").BoxedValue;
-            CallFollowers = (string)Config.Bind("Commander Club keybinds", "Call Back Followers", "Keypad2").BoxedValue;
-            defendPostKey = (string)Config.Bind("Commander Club keybinds", "Defend Posts Key", "Keypad3").BoxedValue;
-            deletePostKey = (string)Config.Bind("Commander Club keybinds", "Delete Defend Posts", "Keypad4").BoxedValue;
-            deleteVillagerKey = (string)Config.Bind("Commander Club keybinds", "Delete Villagers Key", "Keypad5").BoxedValue;
-            deleteBedsKey = (string)Config.Bind("Commander Club keybinds", "Delete Beds Key", "Keypad6").BoxedValue;
-            moveToKey = (string)Config.Bind("Commander Club keybinds", "Move to Key", "Keypad7").BoxedValue;
-            showStatKey = (string)Config.Bind("Commander Club keybinds", "Show stats Key", "Keypad8").BoxedValue;
-
         }
-
-
-
     }
-
-
-
-
 }

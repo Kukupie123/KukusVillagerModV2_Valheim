@@ -17,7 +17,7 @@ namespace KukusVillagerMod.Patches
 
     //https://harmony.pardeike.net/articles/patching-injections.html
     [HarmonyPatch(typeof(Tameable), nameof(Tameable.GetHoverText))]
-    static class VillagerHoverText
+    static class Patches
     {
         public static void Postfix(Tameable __instance, ref string __result) //postfix = after the OG function is run
         {

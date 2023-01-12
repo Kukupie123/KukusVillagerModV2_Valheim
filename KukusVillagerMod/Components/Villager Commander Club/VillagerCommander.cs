@@ -288,7 +288,7 @@ namespace KukusVillagerMod.itemPrefab
                                     MakeVillagersDefend("BlackMetal_Villager_Ranged");
                                     MakeVillagersDefend("BlackMetal_Villager");
                                 }
-                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.deletePostKey)
+                                else if (ZInput.instance.GetPressedKey().ToString() == "VillagerModConfigurations.deletePostKey")
                                 {
 
 
@@ -312,7 +312,7 @@ namespace KukusVillagerMod.itemPrefab
 
 
                                 }
-                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.deleteVillagerKey)
+                                else if (ZInput.instance.GetPressedKey().ToString() == "VillagerModConfigurations.deleteVillagerKey")
                                 {
 
 
@@ -335,7 +335,7 @@ namespace KukusVillagerMod.itemPrefab
                                     }
 
                                 }
-                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.deleteBedsKey)
+                                else if (ZInput.instance.GetPressedKey().ToString() == "VillagerModConfigurations.deleteBedsKey")
                                 {
 
                                     if (deleteBedsPressed) return;
@@ -394,7 +394,7 @@ namespace KukusVillagerMod.itemPrefab
 
 
                                 }
-                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.showStatKey)
+                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.WorkKey)
                                 {
                                     if (showStatsPressed) return;
                                     guardBedPressed = false;

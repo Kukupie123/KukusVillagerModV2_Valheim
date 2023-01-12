@@ -16,8 +16,6 @@ using System.Collections.Generic;
 
 namespace KukusVillagerMod
 {
-    [BepInDependency("com.alexanderstrada.rrrnpcs", BepInDependency.DependencyFlags.HardDependency)]
-
     [BepInDependency(Jotunn.Main.ModGuid)]
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     //[NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
@@ -40,7 +38,7 @@ namespace KukusVillagerMod
             CreatureManager.OnVanillaCreaturesAvailable += LoadVillagerPrefab;
             MinimapManager.OnVanillaMapDataLoaded += OnMapDataLoaded;
 
-            harmony.PatchAll(); 
+            harmony.PatchAll();
 
         }
 
@@ -97,19 +95,6 @@ namespace KukusVillagerMod
             Jotunn.Logger.LogWarning(msg);
         }
     }
-
-    class Util
-    {
-        private Util()
-        {
-        }
-        public const string uid = "UID";
-        public const string bedID = "bedUID";
-        public const string villagerID = "villagerUID";
-        public const string villagerState = "vilState";
-
-
-    }
 }
 
 /*
@@ -130,13 +115,10 @@ namespace KukusVillagerMod
  * 4. Show commands in commander desc
  * 5. Show how to control bed in bed desc
  * 6. Map marker
- * 7. Disable collision between villager and bed
  * 8. Updating contents of containers, smelters etc using ZDO
- * 9. Config for AI worker such as wait time, what to pickup etc
- * 10. Fix Villagers tping to bed when guard bed is called
+ * 9. Config for AI worker such as wait time, what to pickup etc~DONE
  * 11. Huge thing but, virtual refuling and picking using ZDO? Eg for pickup we can get distance of zdo and decide then put those item inside container using zdo serialize deserialize. same concept for fueling and all
- * 12. Enable bed interaction for commanding villagers.
- * 13. Change move to command for work to, follow target.
+ * 12. Enable bed interaction for commanding villagers.~DONE
  * 
  * How should we go about it hmmm.
  * 

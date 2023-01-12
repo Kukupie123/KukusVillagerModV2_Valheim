@@ -1,5 +1,6 @@
 ﻿using Jotunn.Managers;
 using KukusVillagerMod.Components;
+using KukusVillagerMod.Configuration;
 using KukusVillagerMod.enums;
 using KukusVillagerMod.enums.Work_Enum;
 using System;
@@ -84,9 +85,8 @@ namespace KukusVillagerMod.Components.Villager
 
         //If we are following a target, this function checks how long have we been following the target for and if it crosses a threshold we tp the villager to that location if acceptable distance has not been reached
         double? startedFollowingTime = null;
-        float followTargetAcceptableDistance = 2f;
-        int timeLimitFollowCheckPerUpdate = 20;
-        int followDistanceLimit = 5;
+        float AcceptedFollowDistance = VillagerModConfigurations.AcceptedFollowDistance;
+        int FollowTimeLimit = VillagerModConfigurations.FollowTimeLimit;
         private void FollowCheckPerUpdate()
         {
             //Check if followingObjZDOID is valid and that we are not in following state. following state has it's own function to take care of it
@@ -95,7 +95,11 @@ namespace KukusVillagerMod.Components.Villager
                 float distance = Vector3.Distance(transform.position, ZDOMan.instance.GetZDO(followingObjZDOID).GetPosition());
 
                 //If distance is acceptable then we do not proceed
-                if (distance < followTargetAcceptableDistance) return;
+                if (distance < AcceptedFollowDistance)
+                {
+                    startedFollowingTime = null;
+                    return;
+                }
 
                 //Check if we started counting already
                 if (startedFollowingTime == null)
@@ -106,7 +110,7 @@ namespace KukusVillagerMod.Components.Villager
                 //Calculate time elasped and distance between villager and target
                 double timeElapsedSec = ZNet.instance.GetTimeSeconds() - startedFollowingTime.Value;
 
-                if (timeElapsedSec > timeLimitFollowCheckPerUpdate && Vector3.Distance(transform.position, ZDOMan.instance.GetZDO(this.followingObjZDOID).GetPosition()) > followDistanceLimit) //Time limit reached, TP the villager and reset Timer
+                if (timeElapsedSec > FollowTimeLimit) //Time limit reached, TP the villager and reset Timer
                 {
                     KLog.warning($"Teleporting villager {villagerGeneral.ZNV.GetZDO().m_uid.id} Because he didn't reach following target within the time limit");
                     TPToLoc(ZDOMan.instance.GetZDO(this.followingObjZDOID).GetPosition(), false); //We want the villager to still follow it's target after tping so we set false as 2nd parameter
@@ -130,8 +134,7 @@ namespace KukusVillagerMod.Components.Villager
         bool shouldRun = true; //Should the villager run
         float acceptableDistance = 2f; //Acceptable distance to stop
         DateTime? keepMovingStartTime = null; //Keeps track of how much time has elasped
-        int timeLimitForMove = 20;
-        int moveDistanceLimit = 5;
+        int timeLimitForMove = VillagerModConfigurations.MoveTimeLimit;
         private void MovePerUpdateIfDesired()
         {
             //Only continue if we are moving
@@ -149,7 +152,7 @@ namespace KukusVillagerMod.Components.Villager
                 //Check if villager has been trying to reach target for too long
                 double timeDiff = (ZNet.instance.GetTime() - keepMovingStartTime.Value).TotalSeconds;
 
-                if (timeDiff > timeLimitForMove && Vector3.Distance(transform.position, movePos) > moveDistanceLimit) //60 sec passed and still hasn't reached path so we tp
+                if (timeDiff > timeLimitForMove && Vector3.Distance(transform.position, movePos) > acceptableDistance) //60 sec passed and still hasn't reached path so we tp
                 {
                     KLog.warning($"TPing Villager {villagerGeneral.ZNV.GetZDO().m_uid.id} Because time limit reached for moving");
                     keepMoving = false;
@@ -178,7 +181,7 @@ namespace KukusVillagerMod.Components.Villager
          * This function is going to execute only when it's following a player.
          * Makes sure to TP the villager to the player if it's Teleporting or If it's too far
          */
-        int playerFarDistance = 50;
+        int playerFarDistance = VillagerModConfigurations.FollowerMaxDistance;
         private void TPVillagerToFollowerIfNeeded()
         {
             //Check if villager is following
@@ -412,6 +415,8 @@ namespace KukusVillagerMod.Components.Villager
 
         public bool StartWork()
         {
+            alreadyPickingUp = false;
+            alreadyRefilling = false;
             ZDOID wp = villagerGeneral.GetWorkPostID();
 
             if (wp == null || wp.IsNone())
@@ -463,13 +468,9 @@ namespace KukusVillagerMod.Components.Villager
 
         }
 
-
-
-
-
-        int minRandomTime = 200;
-        int maxRandomTime = 2000;
-        bool workTalk = true;
+        int minRandomTime = VillagerModConfigurations.MinWaitTimeWork;
+        int maxRandomTime = VillagerModConfigurations.MaxWaitTimeWork;
+        bool workTalk = VillagerModConfigurations.TalkWhileWorking;
 
         bool alreadyPickingUp = false;
         async private Task PickupAndStoreWork()
@@ -478,7 +479,7 @@ namespace KukusVillagerMod.Components.Villager
             {
 
 
-                if (alreadyPickingUp) return;
+                if (alreadyPickingUp || alreadyRefilling) return;
                 alreadyPickingUp = true;
 
                 ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
@@ -496,6 +497,7 @@ namespace KukusVillagerMod.Components.Villager
                 MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
                 while (keepMoving)
                 {
+                    movePos = workPosLoc;
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
 
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
@@ -503,9 +505,6 @@ namespace KukusVillagerMod.Components.Villager
                         break;
                     }
                 }
-
-
-
 
                 //Reached Work post, Check if still working
                 await Task.Delay(500);
@@ -537,6 +536,7 @@ namespace KukusVillagerMod.Components.Villager
 
                     while (keepMoving)
                     {
+                        movePos = pickable.transform.position;
                         await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                         if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                         {
@@ -585,6 +585,7 @@ namespace KukusVillagerMod.Components.Villager
 
                     while (keepMoving)
                     {
+                        movePos = containerLoc;
                         await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                         if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                         {
@@ -623,7 +624,7 @@ namespace KukusVillagerMod.Components.Villager
         {
             try
             {
-                if (alreadyRefilling) return;
+                if (alreadyRefilling || alreadyPickingUp) return;
                 alreadyRefilling = true;
                 ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
                 Vector3 workPosLoc = WorkPostZDO.GetPosition();
@@ -640,6 +641,7 @@ namespace KukusVillagerMod.Components.Villager
                 MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
                 while (keepMoving)
                 {
+                    movePos = workPosLoc;
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
 
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
@@ -680,6 +682,7 @@ namespace KukusVillagerMod.Components.Villager
 
                     while (keepMoving)
                     {
+                        movePos = villagerGeneral.GetContainerZDO().GetPosition();
                         await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                         if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                         {
@@ -748,6 +751,7 @@ namespace KukusVillagerMod.Components.Villager
 
                     while (keepMoving)
                     {
+                        movePos = smelter.transform.position;
                         await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                         if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                         {
