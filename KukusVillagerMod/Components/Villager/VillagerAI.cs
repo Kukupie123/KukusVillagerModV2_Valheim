@@ -650,9 +650,8 @@ namespace KukusVillagerMod.Components.Villager
                 else
                 {
                     if (workTalk)
-                        talk.Say("Found nothing nearby that can be put in container", "Work");
+                        talk.Say("Found nothing nearby that can be put in container or container is full", "Work");
 
-                    KLog.info("Found nothing to pickup");
                 }
 
                 alreadyPickingUp = false;
