@@ -495,7 +495,7 @@ namespace KukusVillagerMod.Components.Villager
         int minRandomTime = VillagerModConfigurations.MinWaitTimeWork;
         int maxRandomTime = VillagerModConfigurations.MaxWaitTimeWork;
         bool workTalk = VillagerModConfigurations.TalkWhileWorking;
-
+        bool workRun = VillagerModConfigurations.workRun;
         bool alreadyPickingUp = false;
         async private Task PickupAndStoreWork()
         {
@@ -518,7 +518,7 @@ namespace KukusVillagerMod.Components.Villager
 
 
                 //Move to workpost
-                MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
+                MoveVillagerToLoc(workPosLoc, 3f, false, false, workRun);
                 while (keepMoving)
                 {
                     ai.ResetPatrolPoint();
@@ -559,7 +559,7 @@ namespace KukusVillagerMod.Components.Villager
 
 
                     //Move to the pickable item 
-                    MoveVillagerToLoc(pickable.transform.position, 1f, false, false, false);
+                    MoveVillagerToLoc(pickable.transform.position, 1f, false, false, workRun);
 
                     while (keepMoving)
                     {
@@ -611,7 +611,7 @@ namespace KukusVillagerMod.Components.Villager
 
 
 
-                    MoveVillagerToLoc(containerLoc, 3f, false, false, false);
+                    MoveVillagerToLoc(containerLoc, 3f, false, false, workRun);
 
                     while (keepMoving)
                     {
@@ -684,7 +684,7 @@ namespace KukusVillagerMod.Components.Villager
 
 
 
-                MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
+                MoveVillagerToLoc(workPosLoc, 3f, false, false, workRun);
                 while (keepMoving)
                 {
                     ai.ResetPatrolPoint();
@@ -726,7 +726,7 @@ namespace KukusVillagerMod.Components.Villager
 
 
                     //Move to container
-                    MoveVillagerToLoc(villagerGeneral.GetContainerZDO().GetPosition(), 2f, false, false, false);
+                    MoveVillagerToLoc(villagerGeneral.GetContainerZDO().GetPosition(), 2f, false, false, workRun);
 
                     while (keepMoving)
                     {
@@ -801,7 +801,7 @@ namespace KukusVillagerMod.Components.Villager
                     }
 
                     //Go to smelter
-                    MoveVillagerToLoc(smelter.transform.position, 4f, false, false, false);
+                    MoveVillagerToLoc(smelter.transform.position, 4f, false, false, workRun);
 
                     while (keepMoving)
                     {

@@ -78,6 +78,7 @@ namespace KukusVillagerMod.Configuration
         public static int MaxWaitTimeWork;
         public static bool TalkWhileWorking;
         public static string PickableObjects;
+        public static bool workRun;
 
 
         public static void LoadConfig(ConfigFile Config)
@@ -110,7 +111,11 @@ namespace KukusVillagerMod.Configuration
                 new ConfigDescription("Villagers will say what their next move is when working", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
                 ).BoxedValue;
 
-            PickableObjects = (string) Config.Bind("Villager AI Configuration", "Pickable Objects", "Bronze, Iron, Silver, IronScrap, BronzeScrap, SilverScrap, Coal",
+            workRun = (bool)Config.Bind("Villager AI Configuration", "Run When Working", false,
+               new ConfigDescription("Should villagers run when they are working?", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
+               ).BoxedValue;
+
+            PickableObjects = (string)Config.Bind("Villager AI Configuration", "Pickable Objects", "Bronze, Iron, Silver, IronScrap, BronzeScrap, SilverScrap, Coal",
                 new ConfigDescription("List of items that the worker villager with pickup skill can pickup. Each entries must be separated using ','\nTo add items paste the prefab name from here : https://valheim-modding.github.io/Jotunn/data/prefabs/prefab-list.html", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
                 ).BoxedValue;
 
