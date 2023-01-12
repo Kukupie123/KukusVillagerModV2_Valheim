@@ -78,8 +78,9 @@ namespace KukusVillagerMod.Components.Villager
                 if (timeElasped.TotalSeconds > 10)
                 {
                     //if we crossed 10 sec of waiting we are destroying thezdo
+                    startingTimeForBedNotFound = null;
                     ZDO zdo = base.GetComponent<ZNetView>().GetZDO();
-                    KLog.warning("10 sec passed since the villager has not found a bed. Destroying");
+                    KLog.warning("The villager has not found a bed. Destroying");
                     ZDOMan.instance.DestroyZDO(zdo);
                 }
                 return;
@@ -111,21 +112,28 @@ namespace KukusVillagerMod.Components.Villager
         //Returns true if a bed was assigned to this villager after it spawned
         public bool isBedAssigned()
         {
-
-            ZDOID zdoid = this.ZNV.GetZDO().GetZDOID("spawner_id");
-
-            //if zdoid is not null and it exists then we can say that the bed has been assigned for this villager after it spawned
-            if (!zdoid.IsNone() && ZDOMan.instance.GetZDO(zdoid) != null)
+            try
             {
-                return true;
+                ZDOID zdoid = this.ZNV.GetZDO().GetZDOID("spawner_id");
+
+                //if zdoid is not null and it exists then we can say that the bed has been assigned for this villager after it spawned
+                if (!zdoid.IsNone() && ZDOMan.instance.GetZDO(zdoid) != null)
+                {
+                    return true;
+                }
+
+                //Check if the bed ZDO also has spawn_id of this zdo
+                if (ZDOMan.instance.GetZDO(zdoid).GetZDOID("spawn_id") != null && ZDOMan.instance.GetZDO(zdoid).GetZDOID("spawn_id").IsNone() == false && ZDOMan.instance.GetZDO(zdoid).GetZDOID("spawn_id").id == this.ZNV.GetZDO().m_uid.id)
+                {
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception)
+            {
+                return false;
             }
 
-            //Check if the bed ZDO also has spawn_id of this zdo
-            if (ZDOMan.instance.GetZDO(zdoid).GetZDOID("spawn_id") != null && ZDOMan.instance.GetZDO(zdoid).GetZDOID("spawn_id").IsNone() == false && ZDOMan.instance.GetZDO(zdoid).GetZDOID("spawn_id").id == this.ZNV.GetZDO().m_uid.id)
-            {
-                return true;
-            }
-            return false;
         }
 
         public ZDOID GetBedZDOID()

@@ -310,7 +310,7 @@ namespace KukusVillagerMod.Components.VillagerBed
             else
             {
                 SELECTED_BED_ID = this.znv.GetZDO().m_uid;
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Bed {SELECTED_BED_ID.Value.id} selected. Interact with a Defense/Work Post or a container to assign.");
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Bed {SELECTED_BED_ID.Value.id} selected. Interact with a DefensePost/WorkPost/Container to assign it to the villager.");
                 return true;
             }
         }
@@ -348,6 +348,9 @@ namespace KukusVillagerMod.Components.VillagerBed
                 case "GuardianFruit":
                     MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Villager is going to Guard Bed");
                     ai.GuardBed();
+                    break;
+                case "FreeSpiritFruit":
+                    ai.RoamAround();
                     break;
                 case "LabourSkill_Pickup":
                     bool canPick = !v.GetWorkSkill_CanPickUp();

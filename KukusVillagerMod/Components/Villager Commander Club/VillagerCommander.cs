@@ -35,7 +35,7 @@ namespace KukusVillagerMod.itemPrefab
         {
             ItemConfig commanderConfig = new ItemConfig();
             commanderConfig.Name = "Village Commander";
-            commanderConfig.Description = $"Command the villagers in your village.\nCommands:\n{VillagerModConfigurations.guardBedKey} : Guard Bed\n{VillagerModConfigurations.CallFollowers} : Call Followers back to the commander\n{VillagerModConfigurations.defendPostKey} : Defend Defend Post\n{VillagerModConfigurations.moveToKey} : Move followers to aimed location";
+            commanderConfig.Description = $"Command all villagers\n{VillagerModConfigurations.guardBedKey} : Guard Bed\n{VillagerModConfigurations.defendPostKey} : Defend Assigned post\n{VillagerModConfigurations.WorkKey} : Start Work\n{VillagerModConfigurations.RoamKey} : Roam around current position\n{VillagerModConfigurations.CallFollowers} : Call followers back\n{VillagerModConfigurations.moveToKey} : Move followers to aimed location";
             commanderConfig.CraftingStation = null;
             commanderConfig.AddRequirement(new RequirementConfig("Wood", 1, 0, false));
             commander = new CustomItem("Village_Commander", "Club", commanderConfig);
@@ -162,13 +162,13 @@ namespace KukusVillagerMod.itemPrefab
 
         //Keeps track of which key has been pressed down.
         bool guardBedPressed = false;
-        bool followPlayerPressed = false;
+        bool callFollowersKeyPressed = false;
         bool defendPostPressed = false;
-        bool deletePostPressed = false;
+        bool RandomRoamPressed = false;
         bool deleteVillagersPressed = false;
         bool deleteBedsPressed = false;
         bool moveToPressed = false;
-        bool showStatsPressed = false;
+        bool workKeyPressed = false;
 
         private ButtonConfig guardBedbtn;
         private ButtonConfig followPlayerBtn;
@@ -213,13 +213,13 @@ namespace KukusVillagerMod.itemPrefab
                                     //go to bed point
                                     if (guardBedPressed) return;
                                     guardBedPressed = true;
-                                    followPlayerPressed = false;
+                                    callFollowersKeyPressed = false;
                                     defendPostPressed = false;
-                                    deletePostPressed = false;
+                                    RandomRoamPressed = false;
                                     deleteVillagersPressed = false;
                                     deleteBedsPressed = false;
                                     moveToPressed = false;
-                                    showStatsPressed = false;
+                                    workKeyPressed = false;
 
 
                                     MakeVillagersGoToBed("Weak_Villager_Ranged");
@@ -239,15 +239,15 @@ namespace KukusVillagerMod.itemPrefab
                                 {
 
                                     //Follow Player
-                                    if (followPlayerPressed) return;
+                                    if (callFollowersKeyPressed) return;
                                     guardBedPressed = false;
-                                    followPlayerPressed = true;
+                                    callFollowersKeyPressed = true;
                                     defendPostPressed = false;
-                                    deletePostPressed = false;
+                                    RandomRoamPressed = false;
                                     deleteVillagersPressed = false;
                                     deleteBedsPressed = false;
                                     moveToPressed = false;
-                                    showStatsPressed = false;
+                                    workKeyPressed = false;
 
                                     MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Calling back followers");
                                     MakeFollowersComeBack("Weak_Villager_Ranged");
@@ -269,13 +269,13 @@ namespace KukusVillagerMod.itemPrefab
                                     //Go defensive position
                                     if (defendPostPressed) return;
                                     guardBedPressed = false;
-                                    followPlayerPressed = false;
+                                    callFollowersKeyPressed = false;
                                     defendPostPressed = true;
-                                    deletePostPressed = false;
+                                    RandomRoamPressed = false;
                                     deleteVillagersPressed = false;
                                     deleteBedsPressed = false;
                                     moveToPressed = false;
-                                    showStatsPressed = false;
+                                    workKeyPressed = false;
 
                                     MakeVillagersDefend("Weak_Villager_Ranged");
                                     MakeVillagersDefend("Weak_Villager");
@@ -288,28 +288,29 @@ namespace KukusVillagerMod.itemPrefab
                                     MakeVillagersDefend("BlackMetal_Villager_Ranged");
                                     MakeVillagersDefend("BlackMetal_Villager");
                                 }
-                                else if (ZInput.instance.GetPressedKey().ToString() == "VillagerModConfigurations.deletePostKey")
+                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.RoamKey)
                                 {
-
-
-                                    //Go to aiming location
-                                    if (deletePostPressed) return;
+                                    //Roam around
+                                    if (RandomRoamPressed) return;
                                     guardBedPressed = false;
-                                    followPlayerPressed = false;
+                                    callFollowersKeyPressed = false;
                                     defendPostPressed = false;
-                                    deletePostPressed = true;
+                                    RandomRoamPressed = true;
                                     deleteVillagersPressed = false;
                                     deleteBedsPressed = false;
                                     moveToPressed = false;
-                                    showStatsPressed = false;
+                                    workKeyPressed = false;
 
-                                    foreach (DefenseState v in UnityEngine.GameObject.FindObjectsOfType<DefenseState>())
-                                    {
-                                        //if (v == null || v.znv == null || v.znv.GetZDO() == null)
-                                        ZNetScene.instance.Destroy(v.gameObject);
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all Post");
-                                    }
-
+                                    MakeVillagersRoam("Weak_Villager_Ranged");
+                                    MakeVillagersRoam("Weak_Villager");
+                                    MakeVillagersRoam("Bronze_Villager_Ranged");
+                                    MakeVillagersRoam("Bronze_Villager");
+                                    MakeVillagersRoam("Iron_Villager_Ranged");
+                                    MakeVillagersRoam("Iron_Villager");
+                                    MakeVillagersRoam("Silver_Villager");
+                                    MakeVillagersRoam("Silver_Villager_Ranged");
+                                    MakeVillagersRoam("BlackMetal_Villager_Ranged");
+                                    MakeVillagersRoam("BlackMetal_Villager");
 
                                 }
                                 else if (ZInput.instance.GetPressedKey().ToString() == "VillagerModConfigurations.deleteVillagerKey")
@@ -319,13 +320,13 @@ namespace KukusVillagerMod.itemPrefab
                                     //Destroy all villagers
                                     if (deleteVillagersPressed) return;
                                     guardBedPressed = false;
-                                    followPlayerPressed = false;
+                                    callFollowersKeyPressed = false;
                                     defendPostPressed = false;
-                                    deletePostPressed = false;
+                                    RandomRoamPressed = false;
                                     deleteVillagersPressed = true;
                                     deleteBedsPressed = false;
                                     moveToPressed = false;
-                                    showStatsPressed = false;
+                                    workKeyPressed = false;
 
                                     foreach (VillagerGeneral v in UnityEngine.GameObject.FindObjectsOfType<VillagerGeneral>())
                                     {
@@ -340,13 +341,13 @@ namespace KukusVillagerMod.itemPrefab
 
                                     if (deleteBedsPressed) return;
                                     guardBedPressed = false;
-                                    followPlayerPressed = false;
+                                    callFollowersKeyPressed = false;
                                     defendPostPressed = false;
-                                    deletePostPressed = false;
+                                    RandomRoamPressed = false;
                                     deleteVillagersPressed = false;
                                     deleteBedsPressed = true;
                                     moveToPressed = false;
-                                    showStatsPressed = false;
+                                    workKeyPressed = false;
 
                                     foreach (BedVillagerProcessor v in UnityEngine.GameObject.FindObjectsOfType<BedVillagerProcessor>())
                                     {
@@ -358,13 +359,13 @@ namespace KukusVillagerMod.itemPrefab
                                 {
                                     if (moveToPressed) return;
                                     guardBedPressed = false;
-                                    followPlayerPressed = false;
+                                    callFollowersKeyPressed = false;
                                     defendPostPressed = false;
-                                    deletePostPressed = false;
+                                    RandomRoamPressed = false;
                                     deleteVillagersPressed = false;
                                     deleteBedsPressed = false;
                                     moveToPressed = true;
-                                    showStatsPressed = false;
+                                    workKeyPressed = false;
 
 
                                     //Ray cast and see if that area is available
@@ -396,15 +397,15 @@ namespace KukusVillagerMod.itemPrefab
                                 }
                                 else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.WorkKey)
                                 {
-                                    if (showStatsPressed) return;
+                                    if (workKeyPressed) return;
                                     guardBedPressed = false;
-                                    followPlayerPressed = false;
+                                    callFollowersKeyPressed = false;
                                     defendPostPressed = false;
-                                    deletePostPressed = false;
+                                    RandomRoamPressed = false;
                                     deleteVillagersPressed = false;
                                     deleteBedsPressed = false;
                                     moveToPressed = false;
-                                    showStatsPressed = true;
+                                    workKeyPressed = true;
 
                                     MakeVillagersWork("Weak_Villager_Ranged");
                                     MakeVillagersWork("Weak_Villager");
@@ -422,13 +423,13 @@ namespace KukusVillagerMod.itemPrefab
                                 else
                                 {
                                     guardBedPressed = false;
-                                    followPlayerPressed = false;
+                                    callFollowersKeyPressed = false;
                                     defendPostPressed = false;
-                                    deletePostPressed = false;
+                                    RandomRoamPressed = false;
                                     deleteVillagersPressed = false;
                                     deleteBedsPressed = false;
                                     moveToPressed = false;
-                                    showStatsPressed = false;
+                                    workKeyPressed = false;
                                 }
 
                             }
@@ -649,6 +650,36 @@ namespace KukusVillagerMod.itemPrefab
                     continue;
                 }
 
+                //Validate WorkPost location
+                ZDOID workID = bedZDO.GetZDOID("work");
+                if (workID == null || workID.IsNone())
+                {
+                    KLog.warning($"Villager {z.m_uid.id} has no work post assigned");
+                    continue;
+                }
+
+                ZDO workZDO = ZDOMan.instance.GetZDO(workID);
+                if (workZDO == null || workZDO.IsValid() == false)
+                {
+                    KLog.warning($"Villager {z.m_uid.id} has invalid work post assigned");
+                    continue;
+                }
+
+                //validate container
+                ZDOID containerID = bedZDO.GetZDOID("container");
+                if (containerID == null || containerID.IsNone())
+                {
+                    KLog.warning($"Villager {z.m_uid.id} has no container assigned");
+                    continue;
+                }
+
+                ZDO containerZDO = ZDOMan.instance.GetZDO(containerID);
+                if (containerZDO == null || containerZDO.IsValid() == false)
+                {
+                    KLog.warning($"Villager {z.m_uid.id} has invalid container assigned");
+                    continue;
+                }
+
                 GameObject villager = ZNetScene.instance.FindInstance(z.m_uid);  //Get ZNV of the villager
                 if (villager != null && villager.GetComponent<VillagerAI>() != null)
                 {
@@ -657,6 +688,44 @@ namespace KukusVillagerMod.itemPrefab
                 else
                 {
                     //TP to work location
+                    bedZDO.Set("state", (int)VillagerState.Working); //Update the state of the villager's ZDO Manually. The ORDER IS IMP. Or else if loaded in memory before State is set, it will go back to it's old state and overwrite this
+                    z.SetPosition(workZDO.GetPosition());
+                }
+            }
+        }
+
+        private void MakeVillagersRoam(string prefabName)
+        {
+            List<ZDO> zdos = new List<ZDO>();
+            ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
+            foreach (ZDO z in zdos)
+            {
+
+                ZDOID bedZDOID = z.GetZDOID("spawner_id"); //Get BedZDOID Stored in the villager's ZDO
+
+                if (bedZDOID == null || bedZDOID.IsNone()) //Validate if bedZDOID is valid
+                {
+                    KLog.warning($"Villager {z.m_uid.id} Does not have bed ZDOID Stored");
+                    continue;
+                }
+
+                ZDO bedZDO = ZDOMan.instance.GetZDO(bedZDOID); //Get the ZDO of the bed to get the location of the bed
+
+                //Validate bedZDO
+                if (bedZDO == null || bedZDO.IsValid() == false)
+                {
+                    KLog.warning($"BedZDO is invalid for villager {z.m_uid.id}");
+                    continue;
+                }
+
+                GameObject villager = ZNetScene.instance.FindInstance(z.m_uid);  //Get ZNV of the villager
+                if (villager != null && villager.GetComponent<VillagerAI>() != null)
+                {
+                    villager.GetComponent<VillagerAI>().RoamAround();
+                }
+                else
+                {
+                    bedZDO.Set("state", (int)VillagerState.Roaming); //Update the state of the villager's ZDO Manually. The ORDER IS IMP. Or else if loaded in memory before State is set, it will go back to it's old state and overwrite this
                 }
             }
         }

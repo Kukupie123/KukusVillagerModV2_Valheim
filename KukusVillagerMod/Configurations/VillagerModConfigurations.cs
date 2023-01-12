@@ -65,11 +65,9 @@ namespace KukusVillagerMod.Configuration
         public static string guardBedKey;
         public static string CallFollowers;
         public static string defendPostKey;
-        public static string deletePostKey;
-        public static string deleteVillagerKey;
-        public static string deleteBedsKey;
         public static string moveToKey;
         public static string WorkKey;
+        public static string RoamKey;
 
         //Villager configuration
         public static int FollowerMaxDistance;
@@ -79,6 +77,7 @@ namespace KukusVillagerMod.Configuration
         public static int MinWaitTimeWork;
         public static int MaxWaitTimeWork;
         public static bool TalkWhileWorking;
+        public static string PickableObjects;
 
 
         public static void LoadConfig(ConfigFile Config)
@@ -111,6 +110,9 @@ namespace KukusVillagerMod.Configuration
                 new ConfigDescription("Villagers will say what their next move is when working", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
                 ).BoxedValue;
 
+            PickableObjects = (string) Config.Bind("Villager AI Configuration", "Pickable Objects", "Bronze, Iron, Silver, IronScrap, BronzeScrap, SilverScrap, Coal",
+                new ConfigDescription("List of items that the worker villager with pickup skill can pickup. Each entries must be separated using ','\nTo add items paste the prefab name from here : https://valheim-modding.github.io/Jotunn/data/prefabs/prefab-list.html", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
+                ).BoxedValue;
 
 
             //Villagers health
@@ -183,11 +185,12 @@ namespace KukusVillagerMod.Configuration
             bm_bed_respawn = (float)Config.Bind("Bed respawn timer", "BM_Bed_Melee_RT (Minute)", 9f, new ConfigDescription("", null, new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
 
             //Villager Commander Club keys
-            guardBedKey = (string)Config.Bind("Commander Club keybinds", "Guard Bed Key", "Keypad1").BoxedValue;
-            CallFollowers = (string)Config.Bind("Commander Club keybinds", "Call Back Followers", "Keypad2").BoxedValue;
-            defendPostKey = (string)Config.Bind("Commander Club keybinds", "Defend Posts Key", "Keypad3").BoxedValue;
-            moveToKey = (string)Config.Bind("Commander Club keybinds", "Move to Key", "Keypad4").BoxedValue;
-            WorkKey = (string)Config.Bind("Commander Club keybinds", "Start Working Key", "Keypad5").BoxedValue;
+            guardBedKey = (string)Config.Bind("Commander Club keybinds", "Guard Bed Key", "Keypad1", new ConfigDescription("Key list : https://docs.unity3d.com/ScriptReference/KeyCode.html")).BoxedValue;
+            defendPostKey = (string)Config.Bind("Commander Club keybinds", "Defend Posts Key", "Keypad2").BoxedValue;
+            WorkKey = (string)Config.Bind("Commander Club keybinds", "Start Working Key", "Keypad3").BoxedValue;
+            RoamKey = (string)Config.Bind("Commander Club keybinds", "Start Roaming Key", "Keypad4").BoxedValue;
+            CallFollowers = (string)Config.Bind("Commander Club keybinds", "Call Back Followers", "Keypad5").BoxedValue;
+            moveToKey = (string)Config.Bind("Commander Club keybinds", "Move to Key", "Keypad6").BoxedValue;
 
 
 

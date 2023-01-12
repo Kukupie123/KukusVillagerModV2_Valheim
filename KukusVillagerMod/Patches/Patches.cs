@@ -81,6 +81,9 @@ namespace KukusVillagerMod.Patches
                     MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Villager is going to Guard Bed");
                     ai.GuardBed();
                     break;
+                case "FreeSpiritFruit":
+                    ai.RoamAround();
+                    break;
                 case "LabourSkill_Pickup":
                     bool canPick = !v.GetWorkSkill_CanPickUp();
                     v.SetWorkSkill_Pickup(canPick);
@@ -89,6 +92,7 @@ namespace KukusVillagerMod.Patches
                     bool canSmelt = !v.GetWorkSkill_CanSmelt();
                     v.SetWorkSkill_Smelt(canSmelt);
                     break;
+
             }
         }
     }

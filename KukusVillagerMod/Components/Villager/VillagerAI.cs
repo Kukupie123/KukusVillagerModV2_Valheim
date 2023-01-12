@@ -61,8 +61,8 @@ namespace KukusVillagerMod.Components.Villager
                     case VillagerState.Working:
                         StartWork();
                         break;
-                    case VillagerState.Following:
-                        GuardBed();
+                    case VillagerState.Roaming:
+                        RoamAround();
                         break;
                     default:
                         GuardBed();
@@ -370,6 +370,26 @@ namespace KukusVillagerMod.Components.Villager
             }
         }
 
+        public bool RoamAround(bool shouldTalk = true)
+        {
+
+            //Stop moving
+            keepMoving = false;
+            //Remove from follower
+            ai.SetFollowTarget(null);
+            this.followingObjZDOID = new ZDOID { m_hash = -1, m_userID = -1 };
+
+            //Update the state of the villager
+            villagerGeneral.SetVillagerState(VillagerState.Roaming);
+
+            ai.ResetPatrolPoint();
+            ai.ResetRandomMovement();
+            if (shouldTalk)
+                talk.Say("Roaming Around", "Roam");
+            ai.RandomMovement(ai.GetWorldTimeDelta(), transform.position);
+            return true;
+        }
+
         public bool DefendPost()
         {
             /*
@@ -422,12 +442,14 @@ namespace KukusVillagerMod.Components.Villager
             if (wp == null || wp.IsNone())
             {
                 talk.Say("No Work Post assigned", "Work");
+                RoamAround(false);
                 return false;
             }
 
             if (villagerGeneral.GetWorkZDO() == null || villagerGeneral.GetWorkZDO().IsValid() == false)
             {
                 talk.Say("My Work post was destroyed", "Work");
+                RoamAround(false);
                 return false;
             }
 
@@ -436,6 +458,7 @@ namespace KukusVillagerMod.Components.Villager
             if (containerID == null || containerID.IsNone())
             {
                 talk.Say("Container not assigned", "Work");
+                RoamAround(false);
                 return false;
             }
 
@@ -443,6 +466,7 @@ namespace KukusVillagerMod.Components.Villager
             if (containerZDO == null || containerZDO.IsValid() == false)
             {
                 talk.Say("Container was destroyed", "Work");
+                RoamAround(false);
                 return false;
             }
 
@@ -497,6 +521,8 @@ namespace KukusVillagerMod.Components.Villager
                 MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
                 while (keepMoving)
                 {
+                    ai.ResetPatrolPoint();
+                    ai.LookAt(workPosLoc);
                     movePos = workPosLoc;
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
 
@@ -536,6 +562,8 @@ namespace KukusVillagerMod.Components.Villager
 
                     while (keepMoving)
                     {
+                        ai.ResetPatrolPoint();
+                        ai.LookAt(workPosLoc);
                         movePos = pickable.transform.position;
                         await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                         if (villagerGeneral.GetVillagerState() != VillagerState.Working)
@@ -585,6 +613,8 @@ namespace KukusVillagerMod.Components.Villager
 
                     while (keepMoving)
                     {
+                        ai.ResetPatrolPoint();
+                        ai.LookAt(workPosLoc);
                         movePos = containerLoc;
                         await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                         if (villagerGeneral.GetVillagerState() != VillagerState.Working)
@@ -641,6 +671,8 @@ namespace KukusVillagerMod.Components.Villager
                 MoveVillagerToLoc(workPosLoc, 3f, false, false, false);
                 while (keepMoving)
                 {
+                    ai.ResetPatrolPoint();
+                    ai.LookAt(workPosLoc);
                     movePos = workPosLoc;
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
 
@@ -682,6 +714,8 @@ namespace KukusVillagerMod.Components.Villager
 
                     while (keepMoving)
                     {
+                        ai.ResetPatrolPoint();
+                        ai.LookAt(workPosLoc);
                         movePos = villagerGeneral.GetContainerZDO().GetPosition();
                         await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                         if (villagerGeneral.GetVillagerState() != VillagerState.Working)
@@ -751,6 +785,8 @@ namespace KukusVillagerMod.Components.Villager
 
                     while (keepMoving)
                     {
+                        ai.ResetPatrolPoint();
+                        ai.LookAt(workPosLoc);
                         movePos = smelter.transform.position;
                         await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                         if (villagerGeneral.GetVillagerState() != VillagerState.Working)
@@ -792,7 +828,24 @@ namespace KukusVillagerMod.Components.Villager
             //Scan for objects that we can pickup and add it in list
             Collider[] colliders = Physics.OverlapSphere(center, radius);
 
-            string[] validPickupPrefabNames = new[] { "Bronze", "Iron", "Silver", "IronScrap", "BronzeScrap", "SilverScrap", "Coal" };
+            string PickupPrefabNames = VillagerModConfigurations.PickableObjects;
+            List<string> pickUpNameList = new List<string>();
+            string p = "";
+            for (int i = 0; i < PickupPrefabNames.Length; i++)
+            {
+                char c = PickupPrefabNames[i];
+                if (c.Equals(' ')) continue;
+                if (c.Equals(','))
+                {
+                    if (p.Length == 0) continue;
+                    pickUpNameList.Add(p);
+                    KLog.info($"Pickup item {i + 1} = {p}");
+                    p = "";
+                    continue;
+                }
+                p = p + c;
+            }
+
 
             ItemDrop pickable = null;
 
@@ -817,7 +870,7 @@ namespace KukusVillagerMod.Components.Villager
                 }
 
                 string prefabName = d.m_itemData.m_dropPrefab.name; //We need the dropn not shared name
-                if (validPickupPrefabNames.Contains(prefabName))
+                if (pickUpNameList.Contains(prefabName))
                 {
                     if (pickable == null) //No pickable item selected so we select this as first
                     {
