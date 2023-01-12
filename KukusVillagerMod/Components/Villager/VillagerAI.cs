@@ -828,7 +828,7 @@ namespace KukusVillagerMod.Components.Villager
             //Scan for objects that we can pickup and add it in list
             Collider[] colliders = Physics.OverlapSphere(center, radius);
 
-            string PickupPrefabNames = VillagerModConfigurations.PickableObjects;
+            string PickupPrefabNames = VillagerModConfigurations.PickableObjects.Trim() + ",randomstuff"; 
             List<string> pickUpNameList = new List<string>();
             string p = "";
             for (int i = 0; i < PickupPrefabNames.Length; i++)

@@ -1,7 +1,7 @@
 {
   "name": "Kukus_Village",
-  "description": "Fill your base with villagers who will guard your base by taking defensive positions or go on journeys with you",
-  "version_number": "2.0.0",
+  "description": "Villagers who will work and guard your base. You can take them for adventures along with you too",
+  "version_number": "2.1.0a",
   "website_url": "https://github.com/Kukupie123/KukusVillagerModV2_Valheim",
   "dependencies": [
     "ValheimModding-Jotunn-2.7.9"
