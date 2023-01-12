@@ -546,6 +546,7 @@ namespace KukusVillagerMod.Components.Villager
                 //ItemDrop found.
                 if (pickable != null)
                 {
+                    KLog.warning($"PICKING UP {pickable.m_itemData.m_shared.m_name}");
 
                     if (workTalk)
                         talk.Say($"Going to Pickup {pickable.m_itemData.m_shared.m_name}", "Work");
@@ -650,6 +651,8 @@ namespace KukusVillagerMod.Components.Villager
                 {
                     if (workTalk)
                         talk.Say("Found nothing nearby that can be put in container", "Work");
+
+                    KLog.info("Found nothing to pickup");
                 }
 
                 alreadyPickingUp = false;
@@ -915,7 +918,6 @@ namespace KukusVillagerMod.Components.Villager
                 }
                 if (d == null)
                 {
-
                     continue;
                 }
 
@@ -923,11 +925,12 @@ namespace KukusVillagerMod.Components.Villager
                 string prefabName = d.m_itemData.m_dropPrefab.name; //We need the dropn not shared name
 
                 //validate container and inventory
-                var container = villagerGeneral.GetContainerInstance();
+                var containerGO = villagerGeneral.GetContainerInstance();
+                if (containerGO == null) continue;
+                var container = containerGO.GetComponent<Container>();
                 if (container == null) continue;
-                var inventory = container.GetComponent<Container>().GetInventory();
-                if (inventory == null) continue; ;
-
+                var inventory = container.GetInventory();
+                if (inventory == null) continue;
                 //Check if we can store this by adding it temporarily and removing it again
 
                 GameObject itemPrefab = PrefabManager.Instance.GetPrefab(prefabName);
@@ -935,11 +938,21 @@ namespace KukusVillagerMod.Components.Villager
                 ItemDrop itemDrop = itemPrefab.GetComponent<ItemDrop>();
                 if (itemDrop == null) continue;
 
-                if (inventory.AddItem(itemDrop.m_itemData) == false) continue;
-                else
+                //Worst nest ever but i am too tired to see which one is the right way now.
+                if (!inventory.CanAddItem(d.gameObject))
                 {
-                    inventory.RemoveItem(itemDrop.m_itemData.m_shared.m_name, 1);
+                    if (!inventory.CanAddItem(itemPrefab))
+                    {
+                        if (!inventory.CanAddItem(d.m_itemData))
+                        {
+                            if (!inventory.CanAddItem(itemPrefab.GetComponent<ItemDrop>().m_itemData))
+                            {
+                                continue;
+                            }
+                        }
+                    }
                 }
+
                 if (pickUpNameList.Contains(prefabName))
                 {
                     if (pickable == null) //No pickable item selected so we select this as first
