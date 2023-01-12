@@ -49,10 +49,11 @@ Use this item on the villager the same way you use items in original items objec
 -Doesn't work in Multiplayer Scenario. Don't have any idea how multiplayer works in unity&valheim so I can not do anything without guidance :)
 
 ## Changelog
-<h3>2.1.1</h3>
+<h3>2.1.2</h3>
+- Silly Bug I overlooked fix<br>
 - Fixed Discovered Pickup bug<br>
 - Fixed Smelting work bug where villagers would fill up smelts even when not needed<br>
-- Added a boolean config variable that will decide if the villagers should run or walk when working
+- Added a boolean config variable that will decide if the villagers should run or walk when working<br>
 <h3>2.1.0</h3>
 - Worker Villagers Added
 - Two work skills : Pickup and store & Fill Smelter
