@@ -159,6 +159,7 @@ namespace KukusVillagerMod.Components.Villager
                 }
                 if (ai.MoveAndAvoid(ai.GetWorldTimeDelta(), movePos, acceptableDistance, shouldRun)) //If time limit threshold not hit keep moving normally. MoveAndAvoid function returns true when it reaches acceptable distance
                 {
+                    KLog.info($"Villager {villagerGeneral.ZNV.GetZDO().m_uid.id} reached destination {movePos}");
                     keepMoving = false;
                     return;
                 }
@@ -521,7 +522,7 @@ namespace KukusVillagerMod.Components.Villager
                 TPToLoc(villagerGeneral.GetWorkZDO().GetPosition());
             }
 
-            talk.Say("Working", "Work");
+            talk.Say("Working....", "Work");
             return true;
 
 
@@ -550,7 +551,6 @@ namespace KukusVillagerMod.Components.Villager
                     AlreadyPickingUp = false;
                     return;
                 }
-
 
 
                 //Move to workpost
@@ -712,6 +712,7 @@ namespace KukusVillagerMod.Components.Villager
             string p = "";
             for (int i = 0; i < PickupPrefabNames.Length; i++)
             {
+
                 char c = PickupPrefabNames[i];
                 if (c.Equals(' ')) continue;
                 if (c.Equals(','))
@@ -732,70 +733,79 @@ namespace KukusVillagerMod.Components.Villager
 
             foreach (var c in colliders)
             {
-                var d = c?.gameObject?.GetComponent<ItemDrop>();
-
-                if (d == null)
+                try
                 {
-                    d = c?.gameObject?.GetComponentInChildren<ItemDrop>();
-                }
-                if (d == null)
-                {
-                    d = c?.gameObject?.GetComponentInParent<ItemDrop>();
-                }
-                if (d == null)
-                {
-                    continue;
-                }
 
+                    var d = c?.gameObject?.GetComponent<ItemDrop>();
 
-                string prefabName = d.m_itemData.m_dropPrefab.name; //We need the dropn not shared name
-
-                //validate container and inventory
-                var containerGO = villagerGeneral.GetContainerInstance();
-                if (containerGO == null) continue;
-                var container = containerGO.GetComponent<Container>();
-                if (container == null) continue;
-                var inventory = container.GetInventory();
-                if (inventory == null) continue;
-                //Check if we can store this by adding it temporarily and removing it again
-
-                GameObject itemPrefab = PrefabManager.Instance.GetPrefab(prefabName);
-                if (itemPrefab == null) continue;
-                ItemDrop itemDrop = itemPrefab.GetComponent<ItemDrop>();
-                if (itemDrop == null) continue;
-
-                //Worst nest ever but i am too tired to see which one is the right way now.
-                if (!inventory.CanAddItem(d.gameObject))
-                {
-                    if (!inventory.CanAddItem(itemPrefab))
+                    if (d == null)
                     {
-                        if (!inventory.CanAddItem(d.m_itemData))
+                        d = c?.gameObject?.GetComponentInChildren<ItemDrop>();
+                    }
+                    if (d == null)
+                    {
+                        d = c?.gameObject?.GetComponentInParent<ItemDrop>();
+                    }
+                    if (d == null)
+                    {
+                        continue;
+                    }
+
+
+                    string prefabName = d.m_itemData.m_dropPrefab.name; //We need the dropn not shared name
+
+                    //validate container and inventory
+                    var containerGO = villagerGeneral.GetContainerInstance();
+                    if (containerGO == null) continue;
+                    var container = containerGO.GetComponent<Container>();
+                    if (container == null) continue;
+                    var inventory = container.GetInventory();
+                    if (inventory == null) continue;
+                    //Check if we can store this by adding it temporarily and removing it again
+
+                    GameObject itemPrefab = PrefabManager.Instance.GetPrefab(prefabName);
+                    if (itemPrefab == null) continue;
+                    ItemDrop itemDrop = itemPrefab.GetComponent<ItemDrop>();
+                    if (itemDrop == null) continue;
+
+                    //Worst nest ever but i am too tired to see which one is the right way now.
+                    if (!inventory.CanAddItem(d.gameObject))
+                    {
+                        if (!inventory.CanAddItem(itemPrefab))
                         {
-                            if (!inventory.CanAddItem(itemPrefab.GetComponent<ItemDrop>().m_itemData))
+                            if (!inventory.CanAddItem(d.m_itemData))
                             {
-                                continue;
+                                if (!inventory.CanAddItem(itemPrefab.GetComponent<ItemDrop>().m_itemData))
+                                {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+
+                    if (pickUpNameList.Contains(prefabName))
+                    {
+                        if (pickable == null) //No pickable item selected so we select this as first
+                        {
+                            pickable = d;
+                            distance = Vector3.Distance(center, d.transform.position);
+                        }
+                        else //Pickable object exist we check for distance
+                        {
+                            float thisDistance = Vector3.Distance(center, d.transform.position);
+                            if (thisDistance < distance)
+                            {
+                                pickable = d;
+                                distance = thisDistance;
                             }
                         }
                     }
                 }
-
-                if (pickUpNameList.Contains(prefabName))
+                catch (Exception)
                 {
-                    if (pickable == null) //No pickable item selected so we select this as first
-                    {
-                        pickable = d;
-                        distance = Vector3.Distance(center, d.transform.position);
-                    }
-                    else //Pickable object exist we check for distance
-                    {
-                        float thisDistance = Vector3.Distance(center, d.transform.position);
-                        if (thisDistance < distance)
-                        {
-                            pickable = d;
-                            distance = thisDistance;
-                        }
-                    }
+
                 }
+
             }
             return pickable;
         }
@@ -809,6 +819,7 @@ namespace KukusVillagerMod.Components.Villager
                 AlreadyFillingSmelter = true;
                 ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
                 Vector3 workPosLoc = WorkPostZDO.GetPosition();
+
                 //Move to workpost
 
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
@@ -822,17 +833,15 @@ namespace KukusVillagerMod.Components.Villager
                 MoveVillagerToLoc(workPosLoc, 3f, false, false, workRun);
                 while (keepMoving)
                 {
+
                     ai.ResetPatrolPoint();
                     ai.LookAt(workPosLoc);
                     movePos = workPosLoc;
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
                         break;
                     }
-
-                    if (!keepMoving) break;
                 }
 
 
@@ -996,10 +1005,12 @@ namespace KukusVillagerMod.Components.Villager
                     if (workTalk)
                         talk.Say("Found no smelter nearby that needs to be filled", "Work");
                 }
+
                 AlreadyFillingSmelter = false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                KLog.warning($"Exception for villager : {villagerGeneral.ZNV.GetZDO().m_uid.id}\n{e.Message}\n{e.StackTrace}");
                 AlreadyFillingSmelter = false;
             }
 
@@ -1016,69 +1027,83 @@ namespace KukusVillagerMod.Components.Villager
             float distance = -1;
             foreach (Collider c in colliders)
             {
-                var d = c.gameObject.GetComponent<Smelter>();
-                if (d == null)
+                try
                 {
-                    d = c.gameObject.GetComponentInParent<Smelter>();
-                }
-                if (d == null)
-                {
-                    d = c.gameObject.GetComponentInChildren<Smelter>();
-                }
-                if (d == null)
-                {
-                    continue;
-                }
-
-                string fuelName = d.m_fuelItem.m_itemData.m_shared.m_name; //Get the type of fuel it uses
-
-                int fuelCapacity = d.m_maxFuel;
-                float currentFuel = (int)d.GetFuel();
-                int cookableCap = d.m_maxOre;
-                int currentCookable = d.GetQueueSize();
-
-
-
-                //Check if contanier has the fuel
-                var inventory = container.GetComponent<Container>().GetInventory();
-                ItemDrop.ItemData fuel = d.m_fuelItem.m_itemData;
-                var cookable = d.FindCookableItem(inventory);
-                bool fuelPresent = false;
-                bool cookablePresent = false;
-
-                //Check if it has fuel or cookable
-                foreach (var i in inventory.GetAllItems())
-                {
-                    if (i.m_shared.m_name.Equals(fuel.m_shared.m_name) && fuelCapacity > currentFuel)
+                    var d = c.gameObject.GetComponent<Smelter>();
+                    if (d == null)
                     {
-                        fuelPresent = true;
+                        d = c.gameObject.GetComponentInParent<Smelter>();
                     }
-                    if (cookable != null && i.m_shared.m_name.Equals(cookable.m_shared.m_name) && cookableCap > currentCookable)
+                    if (d == null)
                     {
-                        cookablePresent = true;
+                        d = c.gameObject.GetComponentInChildren<Smelter>();
                     }
-                }
-
-                if (fuelPresent || cookablePresent)
-                {
-                    if (getRandom) //If getRandom is true we add this smelter to the vaildSmelters list and then send one randomly at the end
+                    if (d == null)
                     {
-                        validSmelters.Add(d);
                         continue;
                     }
 
-                    if (smelter == null)
+                    ItemDrop fuelItem = d.m_fuelItem;
+                    if (fuelItem == null) continue;
+
+                    ItemDrop.ItemData fuelItemData = fuelItem.m_itemData;
+                    if (fuelItemData == null) continue;
+
+                    string fuelName = fuelItemData.m_shared.m_name; //Get the type of fuel it uses
+
+                    int fuelCapacity = d.m_maxFuel;
+                    float currentFuel = (int)d.GetFuel();
+                    int cookableCap = d.m_maxOre;
+                    int currentCookable = d.GetQueueSize();
+
+
+
+                    //Check if contanier has the fuel
+                    var inventory = container.GetComponent<Container>().GetInventory();
+                    ItemDrop.ItemData fuel = d.m_fuelItem.m_itemData;
+                    var cookable = d.FindCookableItem(inventory);
+                    bool fuelPresent = false;
+                    bool cookablePresent = false;
+
+                    //Check if it has fuel or cookable
+                    foreach (var i in inventory.GetAllItems())
                     {
-                        distance = Vector3.Distance(d.transform.position, center);
-                        smelter = d;
-                    }
-                    else
-                    {
-                        if (Vector3.Distance(d.transform.position, center) < distance)
+                        if (i.m_shared.m_name.Equals(fuel.m_shared.m_name) && fuelCapacity > currentFuel)
                         {
-                            smelter = d;
+                            fuelPresent = true;
+                        }
+                        if (cookable != null && i.m_shared.m_name.Equals(cookable.m_shared.m_name) && cookableCap > currentCookable)
+                        {
+                            cookablePresent = true;
                         }
                     }
+
+                    if (fuelPresent || cookablePresent)
+                    {
+                        if (getRandom) //If getRandom is true we add this smelter to the vaildSmelters list and then send one randomly at the end
+                        {
+                            validSmelters.Add(d);
+                            continue;
+                        }
+
+                        if (smelter == null)
+                        {
+                            distance = Vector3.Distance(d.transform.position, center);
+                            smelter = d;
+                        }
+                        else
+                        {
+                            if (Vector3.Distance(d.transform.position, center) < distance)
+                            {
+                                smelter = d;
+                            }
+                        }
+                    }
+
+
+                }
+                catch (Exception)
+                {
                 }
 
 
