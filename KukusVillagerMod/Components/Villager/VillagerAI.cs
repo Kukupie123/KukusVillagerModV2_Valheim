@@ -1080,6 +1080,11 @@ namespace KukusVillagerMod.Components.Villager
         bool alreadyMining = false;
         async private Task MiningFarm()
         {
+            //Destructible component has a enum destructible type, TreeBase too is ez
+            //HitRock is part of destrucible item
+
+            HitData hd = new HitData();
+            hd.m_damage.m_blunt = 12;
 
             if (alreadyMining || AlreadyFillingSmelter || AlreadyPickingUp) return;
             alreadyMining = true;

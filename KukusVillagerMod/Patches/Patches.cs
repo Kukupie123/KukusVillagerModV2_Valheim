@@ -13,6 +13,9 @@ namespace KukusVillagerMod.Patches
 {
     /*
      * Hijack methods and do stuff
+     * __instance = the object
+     * ref Object name = method
+     * ref Object __name = class var
      */
 
     //https://harmony.pardeike.net/articles/patching-injections.html
@@ -117,6 +120,56 @@ namespace KukusVillagerMod.Patches
                     znv.GetZDO().Set("height", __instance.m_height);
                     BedVillagerProcessor.SELECTED_BED_ID = null;
                 }
+            }
+        }
+    }
+
+
+
+    [HarmonyPatch(typeof(Humanoid), nameof(Humanoid.GetCurrentWeapon))]
+    static class VillagerDamageModifier
+    {
+        public static void Postfix(Humanoid __instance, ref ItemDrop.ItemData __result, ref ItemDrop.ItemData ___m_rightItem, ref ItemDrop.ItemData ___m_leftItem, ref ItemDrop ___m_unarmedWeapon)
+        {
+            if (__instance.GetComponentInParent<VillagerAI>())
+
+            {
+                ItemDrop.ItemData weapon = null;
+                if (___m_rightItem != null && ___m_rightItem.IsWeapon())
+                {
+                    weapon = ___m_rightItem;
+                }
+                if (___m_leftItem != null && ___m_leftItem.IsWeapon() && ___m_leftItem.m_shared.m_itemType != ItemDrop.ItemData.ItemType.Torch)
+                {
+                    weapon = ___m_leftItem;
+                }
+                if (___m_unarmedWeapon)
+                {
+                    weapon = ___m_unarmedWeapon.m_itemData;
+                }
+
+                if (weapon != null)
+                {
+                    weapon.m_shared.m_damages = new HitData.DamageTypes();
+                    weapon.m_shared.m_damages.m_damage = 0f;
+                    weapon.m_shared.m_damages.m_slash = 0f;
+                    weapon.m_shared.m_damages.m_blunt = 0f;
+                    weapon.m_shared.m_damages.m_chop = 0f;
+                    weapon.m_shared.m_damages.m_fire = 0f;
+                    weapon.m_shared.m_damages.m_frost = 0f;
+                    weapon.m_shared.m_damages.m_lightning = 0f;
+                    weapon.m_shared.m_damages.m_pickaxe = 0f;
+                    weapon.m_shared.m_damages.m_pierce = 0f;
+                    weapon.m_shared.m_damages.m_poison = 0f;
+                    weapon.m_shared.m_damages.m_slash = 0f;
+                    weapon.m_shared.m_damages.m_spirit = 0f;
+                    __result = weapon;
+                }
+                else
+                {
+                    KLog.warning($"Failed to modify weapon damage for {__instance.gameObject.name}. Please use a different Prefab for villager");
+                };
+
             }
         }
     }
