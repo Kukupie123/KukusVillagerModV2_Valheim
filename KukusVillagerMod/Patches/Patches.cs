@@ -15,7 +15,7 @@ namespace KukusVillagerMod.Patches
      * Hijack methods and do stuff
      * __instance = the object
      * ref Object name = method
-     * ref Object __name = class var
+     * ref Object ___name = class var
      */
 
     //https://harmony.pardeike.net/articles/patching-injections.html

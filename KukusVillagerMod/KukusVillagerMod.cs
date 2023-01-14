@@ -103,6 +103,63 @@ namespace KukusVillagerMod
 }
 
 /*
+ * Huge overhaul incomming
+ * Villagers are now going to be personal. They will have traits which is going to get better as you level them up. And if they die, they will no longer respawn.
+ * Beds no longer spawn villagers instead you will have to find villagers in the wild and bring them with you and assign them a bed.
+ * Villagers will have these traits which are going to be divided into section:
+ * 
+ * Wild villagers can be found all over valheim. Their ZDO will not be persistent.
+ * And each villager whose ZDO is not persistent will have random stats.
+ * When tamed, they will have persistent ZDO and their stats will be saved in ZDO. They will also be marked in map.
+ * They will have no beds assigned by default. Which is valid.
+ * You will be using FollowerFruit to make them follow you. 
+ * You can then bring them to your base and craft them a bed. 
+ * Interact with the bed first and then with the villager to assign them the bed.
+ * Protect the bed at any cost as it's where every crucial data is going to be stored.
+ * 
+ * 
+ * 
+ * 
+ * 1st section (General)
+ * 1. Name (Can be changed)
+ * 2. Health/MaxHealth (can be upgraded till cap) health updrage = (currenthealth + efficiency/2)
+ * 4. Advancement : Weak, Bronze, Iron, Silver, Black metal. Decides the cap for farming. Damages should not be capped but is super slow to upgrade
+ * 3. Efficiency (scale 1 to 10 ) (NOT UPGRADABLE) Decides how much a villager should get better at damage and farming
+ * 
+ * 2nd section (Strength)
+ * 1. Listing all damage it does
+ * slash = 0f;
+ * blunt = 0f;
+ * chop = 0f;
+ * fire = 0f;
+ * frost = 0f;
+ * lightning = 0f;
+ * pickaxe = 0f;
+ * pierce = 0f;
+ * poison = 0f;
+ * slash = 0f;
+ * 
+ * The modifiers are age, efficiency
+ * Upgrading them is going to be = (currentDmg + efficiency ) * age
+ * These damages are to be normalised and scaled based on efficiency. Initially villagers in wilderness needs to have random stats. Good stats but less efficiency & Vice versa
+ * RARELY YOU WILL FIND ELITE Villagers with good efficiency and stats both
+ * 
+ * Leveling up:
+ * Villagers can improve till a cap. This cap is going to be huge. 
+ * Players can manually upgrade the villagers or by villagers can upgrade in 25% of manual upgrade when working and fighting.
+ * Working will improve their Chop & Pickaxe skill BUT will be capped until you give them items to progress to the next age
+ * 
+ * Special damage:
+ * Villagers can have special dmg such as fire, poison, lightning
+ */
+
+/*
+ * Technical overhaul.
+ * 1. Make common functions static to avoid conflicts such as GetContainer() GetBed() GetWorkpost()
+ * 2. Normalise damages so that we can apply modifiers nicely
+ */
+
+/*
  * Notes : 
  * To delete scene objects we need to use ZNetScene.instance.delete
  * We use ZDO to save persistent data, ZNetView of the component has to have persistent set to true
