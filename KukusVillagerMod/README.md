@@ -52,6 +52,8 @@ Use this item on the villager the same way you use items in original items objec
 -Doesn't work in Multiplayer Scenario. Don't have any idea how multiplayer works in unity&valheim so I can not do anything without guidance :) <br>
 
 ## Changelog
+<h3>2.1.4</h3>
+- Improved Logic for smelting and pickup job. Now the container and the work post can be far away from each other and still work. <br>
 <h3>2.1.3</h3>
 Hot fix update <br>
 - Bug fixed where villager won't fill upblast furnace <br>
