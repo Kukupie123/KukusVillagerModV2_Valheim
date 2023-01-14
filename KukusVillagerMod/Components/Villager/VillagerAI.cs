@@ -722,7 +722,7 @@ namespace KukusVillagerMod.Components.Villager
         {
             //Scan for objects that we can pickup and add it in list
             Collider[] colliders = Physics.OverlapSphere(center, radius);
-
+            var inventory = villagerGeneral.GetContainerInventory();
             string PickupPrefabNames = VillagerModConfigurations.PickableObjects.Trim() + ",randomstuff";
             List<string> pickUpNameList = new List<string>();
             string p = "";
@@ -772,7 +772,6 @@ namespace KukusVillagerMod.Components.Villager
 
                     string prefabName = d.m_itemData.m_dropPrefab.name; //We need the dropn not shared name
 
-                    var inventory = villagerGeneral.GetContainerInventory();
                     if (inventory == null)
                     {
                         KLog.warning("Inventory is null!");
@@ -1023,15 +1022,15 @@ namespace KukusVillagerMod.Components.Villager
                         string talkString = "";
                         if (tookFuel)
                         {
-                            talkString = talkString + "Fuel";
-                            if (addedFuel) talkString.Concat(" Added");
-                            else talkString.Concat("Not added.");
+                            talkString = talkString + "Fuel ";
+                            if (addedFuel) talkString = talkString + "Added. ";
+                            else talkString = talkString + "Not added. ";
                         }
                         if (tookCookable)
                         {
-                            talkString.Concat(" Processable Item ");
-                            if (addedCookable) talkString.Concat("Added");
-                            else talkString.Concat("Not added.");
+                            talkString = talkString + "Processable Item ";
+                            if (addedCookable) talkString = talkString + "Added";
+                            else talkString = talkString + "Not added.";
                         }
 
                         talk.Say(talkString, "Work");
@@ -1060,6 +1059,7 @@ namespace KukusVillagerMod.Components.Villager
         {
             Collider[] colliders = Physics.OverlapSphere(center, radius);
             List<Smelter> validSmelters = new List<Smelter>();
+            Inventory inventory = villagerGeneral.GetContainerInventory();
             Smelter smelter = null;
             float distance = -1;
             foreach (Collider c in colliders)
@@ -1096,7 +1096,6 @@ namespace KukusVillagerMod.Components.Villager
 
 
                     //Check if contanier has the fuel
-                    Inventory inventory = villagerGeneral.GetContainerInventory();
                     ItemDrop.ItemData fuel = d.m_fuelItem.m_itemData;
                     var cookable = d.FindCookableItem(inventory);
                     bool fuelPresent = false;

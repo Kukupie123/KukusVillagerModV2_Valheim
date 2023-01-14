@@ -53,6 +53,7 @@ Use this item on the villager the same way you use items in original items objec
 
 ## Changelog
 <h3>2.1.4</h3>
+- IMPORTANT! YOU WILL HAVE TO REASSIGN YOUR CONTAINERS OR ELSE THINGS WILL NOT WORK PROPERLY.
 - Improved Logic for smelting and pickup job. Now the container and the work post can be far away from each other and still work. <br>
 <h3>2.1.3</h3>
 Hot fix update <br>

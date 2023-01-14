@@ -13,6 +13,7 @@ using KukusVillagerMod.itemPrefab;
 using KukusVillagerMod.Prefabs;
 using KukusVillagerMod.Components;
 using System.Collections.Generic;
+using KukusVillagerMod.VirtualWorker;
 
 namespace KukusVillagerMod
 {
@@ -27,7 +28,7 @@ namespace KukusVillagerMod
         public const string PluginVersion = "2.0.0";
         public static CustomLocalization Localization = LocalizationManager.Instance.GetLocalization();
         private VillagerCommander vc;
-
+        private VirtualWork vw;
         public static bool isMapDataLoaded = false;
 
         private readonly Harmony harmony = new Harmony("kukuvillager");
@@ -53,6 +54,10 @@ namespace KukusVillagerMod
             {
                 vc.HandleInputs();
             }
+            if(vw != null)
+            {
+                vw.vw();
+            }
         }
 
 
@@ -65,7 +70,7 @@ namespace KukusVillagerMod
             new WorkPostPrefab();
             new IndividualVillagerCommandItemPrefab();
             vc = new VillagerCommander();
-
+            vw = new VirtualWork();
             PrefabManager.OnVanillaPrefabsAvailable -= LoadBedPrefab;
         }
 
