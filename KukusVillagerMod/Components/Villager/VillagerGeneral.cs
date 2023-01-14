@@ -246,6 +246,33 @@ namespace KukusVillagerMod.Components.Villager
             return ZNetScene.instance.FindInstance(GetContainerID());
         }
 
+        public Inventory GetContainerInventory()
+        {
+            //Container stores inventory items in "items" key
+            ZDO containerZDO = GetContainerZDO();
+            string m_name = containerZDO.GetString("m_name", "");
+            int w = containerZDO.GetInt("width", 0);
+            int h = containerZDO.GetInt("height", 0);
+            string items = GetContainerZDO().GetString("items", ""); //Get items from container ZDO
+            var pkg = new ZPackage(items); //Load items into zpackage
+            var dummySprite = Sprite.Create(Texture2D.whiteTexture, Rect.zero, Vector2.zero);
+            Inventory inv = new Inventory(m_name, dummySprite, w, h); //create new inventory
+            if (!string.IsNullOrEmpty(items))
+                inv.Load(pkg);
+            return inv;
+
+
+
+        }
+
+        public void SaveContainerInventory(Inventory inv)
+        {
+            ZPackage pkg = new ZPackage();
+            inv.Save(pkg);
+            string encodedItem = pkg.GetBase64();
+            GetContainerZDO().Set("items", encodedItem);
+        }
+
 
         //FUTURE WIP
         public void CutTree()

@@ -110,6 +110,11 @@ namespace KukusVillagerMod.Patches
                 {
                     bedZDO.Set("container", containerZNV.GetZDO().m_uid);
                     MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Assigned Container {containerZNV.GetZDO().m_uid.id} to Bed {BedVillagerProcessor.SELECTED_BED_ID.Value.id}");
+                    //Save name, width, height in zdo for use in villager AI to load inventory without container instance
+                    var znv = __instance.GetComponentInParent<ZNetView>();
+                    znv.GetZDO().Set("m_name", __instance.m_name);
+                    znv.GetZDO().Set("width", __instance.m_width);
+                    znv.GetZDO().Set("height", __instance.m_height);
                     BedVillagerProcessor.SELECTED_BED_ID = null;
                 }
             }

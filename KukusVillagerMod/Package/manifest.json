@@ -1,7 +1,7 @@
 {
   "name": "Kukus_Village",
-  "description": "Villagers who will work and guard your base. You can take them for adventures along with you too",
-  "version_number": "2.1.1",
+  "description": "Villagers who will work by picking up items, filling smelters and guard your base in assigned positions. You can take them for adventures along with you too",
+  "version_number": "2.1.3",
   "website_url": "https://github.com/Kukupie123/KukusVillagerModV2_Valheim",
   "dependencies": [
     "ValheimModding-Jotunn-2.7.9"

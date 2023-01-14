@@ -636,35 +636,8 @@ namespace KukusVillagerMod.Components.Villager
                         //TODO: TEST IN MP
                     }
 
-                    Vector3 containerLoc = villagerGeneral.GetContainerZDO().GetPosition();
-                    if (workTalk)
-                        talk.Say($"Going to Put {prefabName} in container", "Work");
 
-                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                    {
-                        AlreadyPickingUp = false;
-                        return;
-                    }
-
-
-
-                    MoveVillagerToLoc(containerLoc, 3f, false, false, workRun);
-
-                    while (keepMoving)
-                    {
-                        ai.ResetPatrolPoint();
-                        ai.LookAt(workPosLoc);
-                        movePos = containerLoc;
-                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                        {
-                            break;
-                        }
-                    }
-
-
-
-
+                    //Wait for a while before putting item in container
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
@@ -672,16 +645,62 @@ namespace KukusVillagerMod.Components.Villager
                         return;
                     }
 
-                    if (villagerGeneral.GetContainerInstance().GetComponent<Container>().GetInventory().AddItem(prefab, 1))
+                    //Save item in container then pretend to move to container instance, this is to make sure that if villager is unloaded from memory, then the item that the villager is carrying is not lost
+                    Inventory inv = villagerGeneral.GetContainerInventory();
+                    bool added = inv.AddItem(prefab, 1);
+                    villagerGeneral.SaveContainerInventory(inv);
+
+                    //Check if container is in memory, if not in memory then we will simply say we transferred. Else we move to it to make it look like we put item in it
+                    GameObject containerInstance = villagerGeneral.GetContainerInstance();
+                    if (containerInstance != null)
                     {
+
+                        Vector3 containerLoc = villagerGeneral.GetContainerZDO().GetPosition();
+
                         if (workTalk)
-                            talk.Say($"Added {prefabName} to container", "Work");
+                            talk.Say($"Going to Put {prefabName} in container", "Work");
+
+                        MoveVillagerToLoc(containerLoc, 3f, false, false, workRun);
+
+                        while (keepMoving)
+                        {
+                            ai.ResetPatrolPoint();
+                            ai.LookAt(workPosLoc);
+                            movePos = containerLoc;
+                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                            {
+                                break;
+                            }
+                        }
+
+                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                        {
+                            AlreadyPickingUp = false;
+                            return;
+                        }
+
+                        if (added)
+                        {
+                            if (workTalk)
+                                talk.Say($"Added {prefabName} to container", "Work");
+                        }
+
+                        else
+                        {
+                            if (workTalk)
+                                talk.Say($"Failed to add {prefabName} to container", "Work");
+                        }
+
+
                     }
                     else
                     {
                         if (workTalk)
-                            talk.Say($"Failed to add {prefabName} to container", "Work");
+                            talk.Say($"Transferred {prefabName} to container", "Work");
                     }
+
                 }
                 else
                 {
@@ -710,6 +729,7 @@ namespace KukusVillagerMod.Components.Villager
             string PickupPrefabNames = VillagerModConfigurations.PickableObjects.Trim() + ",randomstuff";
             List<string> pickUpNameList = new List<string>();
             string p = "";
+            string itemPickups = "";
             for (int i = 0; i < PickupPrefabNames.Length; i++)
             {
 
@@ -719,12 +739,13 @@ namespace KukusVillagerMod.Components.Villager
                 {
                     if (p.Length == 0) continue;
                     pickUpNameList.Add(p);
-                    KLog.info($"Pickup item {i + 1} = {p}");
+                    itemPickups = itemPickups + ", " + p;
                     p = "";
                     continue;
                 }
                 p = p + c;
             }
+            KLog.info($"Items pickup list : {itemPickups}");
 
 
             ItemDrop pickable = null;
@@ -754,13 +775,12 @@ namespace KukusVillagerMod.Components.Villager
 
                     string prefabName = d.m_itemData.m_dropPrefab.name; //We need the dropn not shared name
 
-                    //validate container and inventory
-                    var containerGO = villagerGeneral.GetContainerInstance();
-                    if (containerGO == null) continue;
-                    var container = containerGO.GetComponent<Container>();
-                    if (container == null) continue;
-                    var inventory = container.GetInventory();
-                    if (inventory == null) continue;
+                    var inventory = villagerGeneral.GetContainerInventory();
+                    if (inventory == null)
+                    {
+                        KLog.warning("Inventory is null!");
+                        continue;
+                    }
                     //Check if we can store this by adding it temporarily and removing it again
 
                     GameObject itemPrefab = PrefabManager.Instance.GetPrefab(prefabName);
@@ -801,9 +821,9 @@ namespace KukusVillagerMod.Components.Villager
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-
+                    KLog.warning($"{e.Message}\n{e.StackTrace}");
                 }
 
             }
