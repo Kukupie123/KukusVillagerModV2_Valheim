@@ -637,7 +637,6 @@ namespace KukusVillagerMod.Components.Villager
                     }
 
 
-                    //Wait for a while before putting item in container
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
@@ -645,14 +644,12 @@ namespace KukusVillagerMod.Components.Villager
                         return;
                     }
 
-                    //Save item in container then pretend to move to container instance, this is to make sure that if villager is unloaded from memory, then the item that the villager is carrying is not lost
                     Inventory inv = villagerGeneral.GetContainerInventory();
                     bool added = inv.AddItem(prefab, 1);
                     villagerGeneral.SaveContainerInventory(inv);
 
-                    //Check if container is in memory, if not in memory then we will simply say we transferred. Else we move to it to make it look like we put item in it
                     GameObject containerInstance = villagerGeneral.GetContainerInstance();
-                    if (containerInstance != null)
+                    if (containerInstance != null) //Pretend to go to container then talk
                     {
 
                         Vector3 containerLoc = villagerGeneral.GetContainerZDO().GetPosition();
@@ -695,7 +692,7 @@ namespace KukusVillagerMod.Components.Villager
 
 
                     }
-                    else
+                    else //Container instance not valid so we will not move villager
                     {
                         if (workTalk)
                             talk.Say($"Transferred {prefabName} to container", "Work");
@@ -877,36 +874,37 @@ namespace KukusVillagerMod.Components.Villager
                 Smelter smelter = FindValidSmelter(workPosLoc, 500f, true);
                 if (smelter != null)
                 {
-                    //Go to container and remove the fuel or cookable or both
 
-                    if (workTalk)
-                        talk.Say("Going to container to get items for smelting", "Work");
-
-                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                    //Check if container instance is valid, if not we will remove items needed from it virtually using zdo
+                    GameObject container = villagerGeneral.GetContainerInstance();
+                    Inventory inv = villagerGeneral.GetContainerInventory();
+                    if (container == null) //if instance not VALID we will skip moving to the container
                     {
-                        AlreadyFillingSmelter = false;
-                        return;
+                        if (workTalk)
+                            talk.Say("Transferring items from container to me", "Work");
+
+
                     }
-
-
-                    //Move to container
-                    MoveVillagerToLoc(villagerGeneral.GetContainerZDO().GetPosition(), 2f, false, false, workRun);
-
-                    while (keepMoving)
+                    else //if instance valid we will move to the container
                     {
-                        ai.ResetPatrolPoint();
-                        ai.LookAt(workPosLoc);
-                        movePos = villagerGeneral.GetContainerZDO().GetPosition();
-                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                        if (workTalk)
+                            talk.Say("Going to container to get items for smelting", "Work");
+
+                        //Move to container
+                        MoveVillagerToLoc(villagerGeneral.GetContainerZDO().GetPosition(), 2f, false, false, workRun);
+
+                        while (keepMoving)
                         {
-                            break;
+                            ai.ResetPatrolPoint();
+                            ai.LookAt(workPosLoc);
+                            movePos = villagerGeneral.GetContainerZDO().GetPosition();
+                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                            {
+                                break;
+                            }
                         }
                     }
-
-
-
-
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
@@ -918,30 +916,28 @@ namespace KukusVillagerMod.Components.Villager
                     bool tookFuel = false;
                     bool tookCookable = false;
                     //Check and remove fuel/cookable
-                    var inventory = villagerGeneral.GetContainerInstance().GetComponent<Container>().GetInventory();
 
-
-                    foreach (var i in inventory.GetAllItems())
+                    foreach (var i in inv.GetAllItems())
                     {
                         if (i.m_shared.m_name.Equals(smelter.m_fuelItem.m_itemData.m_shared.m_name))
                         {
                             tookFuel = true;
-                            inventory.RemoveItem(smelter.m_fuelItem.m_itemData.m_shared.m_name, 1);
+                            inv.RemoveItem(smelter.m_fuelItem.m_itemData.m_shared.m_name, 1);
                             break;
                         }
                     }
 
 
 
-                    ItemDrop.ItemData cookableItem = smelter.FindCookableItem(inventory);
+                    ItemDrop.ItemData cookableItem = smelter.FindCookableItem(inv);
                     if (cookableItem != null)
-                        foreach (var i in inventory.GetAllItems())
+                        foreach (var i in inv.GetAllItems())
                         {
 
                             if (i.m_shared.m_name.Equals(cookableItem.m_shared.m_name))
                             {
                                 tookCookable = true;
-                                inventory.RemoveItem(cookableItem.m_shared.m_name, 1);
+                                inv.RemoveItem(cookableItem.m_shared.m_name, 1);
                                 break;
                             }
                         }
@@ -990,34 +986,56 @@ namespace KukusVillagerMod.Components.Villager
                     int cookableCap = smelter.m_maxOre;
                     int currentCookableSize = smelter.GetQueueSize();
 
+                    bool addedFuel = false;
+                    bool addedCookable = false;
                     if (tookFuel)
                     {
                         //Can we add fuel?
                         if (currentFuel < fuelCapacity)
                         {
+                            addedFuel = true;
                             smelter.GetComponentInParent<ZNetView>().InvokeRPC("AddFuel");
                         }
                         else
                         {
-                            inventory.AddItem(smelter.m_fuelItem.m_itemData);
+                            inv.AddItem(smelter.m_fuelItem.m_itemData);
                         }
                     }
                     if (tookCookable)
                     {
                         if (currentCookableSize < cookableCap)
                         {
+                            addedCookable = true;
                             smelter.GetComponentInParent<ZNetView>().InvokeRPC("AddOre", cookableItem.m_dropPrefab.name);
 
                         }
                         else
                         {
                             var cookable = PrefabManager.Instance.GetPrefab(cookableItem.m_dropPrefab.name);
-                            inventory.AddItem(cookable.GetComponent<ItemDrop>().m_itemData);
+                            inv.AddItem(cookable.GetComponent<ItemDrop>().m_itemData);
 
                         }
                     }
 
 
+                    if (workTalk)
+                    {
+                        string talkString = "";
+                        if (tookFuel)
+                        {
+                            talkString = talkString + "Fuel";
+                            if (addedFuel) talkString.Concat(" Added");
+                            else talkString.Concat("Not added.");
+                        }
+                        if (tookCookable)
+                        {
+                            talkString.Concat(" Processable Item ");
+                            if (addedCookable) talkString.Concat("Added");
+                            else talkString.Concat("Not added.");
+                        }
+
+                        talk.Say(talkString, "Work");
+                    }
 
                 }
                 else
@@ -1040,7 +1058,6 @@ namespace KukusVillagerMod.Components.Villager
         }
         private Smelter FindValidSmelter(Vector3 center, float radius, bool getRandom)
         {
-            GameObject container = villagerGeneral.GetContainerInstance();
             Collider[] colliders = Physics.OverlapSphere(center, radius);
             List<Smelter> validSmelters = new List<Smelter>();
             Smelter smelter = null;
@@ -1079,7 +1096,7 @@ namespace KukusVillagerMod.Components.Villager
 
 
                     //Check if contanier has the fuel
-                    var inventory = container.GetComponent<Container>().GetInventory();
+                    Inventory inventory = villagerGeneral.GetContainerInventory();
                     ItemDrop.ItemData fuel = d.m_fuelItem.m_itemData;
                     var cookable = d.FindCookableItem(inventory);
                     bool fuelPresent = false;
