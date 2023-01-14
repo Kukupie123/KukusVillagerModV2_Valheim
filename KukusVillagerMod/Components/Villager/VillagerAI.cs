@@ -533,40 +533,39 @@ namespace KukusVillagerMod.Components.Villager
         bool workTalk = VillagerModConfigurations.TalkWhileWorking; //should talk while working
         bool workRun = VillagerModConfigurations.workRun; //should villager run while working
 
+
+        async private Task GoToLocationAwaitWork(Vector3 location)
+        {
+
+            //Move to workpost
+            MoveVillagerToLoc(location, 3f, false, false, workRun);
+            while (keepMoving)
+            {
+                ai.ResetPatrolPoint();
+                ai.LookAt(location);
+                movePos = location;
+                await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+
+                if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                {
+                    break;
+                }
+            }
+        }
+
         bool AlreadyPickingUp = false;
         async private Task PickupAndStoreWork()
         {
             try
             {
-
-
                 if (AlreadyPickingUp || AlreadyFillingSmelter) return;
                 AlreadyPickingUp = true;
 
                 ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
                 Vector3 workPosLoc = WorkPostZDO.GetPosition();
 
-                if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                {
-                    AlreadyPickingUp = false;
-                    return;
-                }
-
-
-                //Move to workpost
-                MoveVillagerToLoc(workPosLoc, 3f, false, false, workRun);
-                while (keepMoving)
-                {
-                    ai.ResetPatrolPoint();
-                    ai.LookAt(workPosLoc);
-                    movePos = workPosLoc;
-                    await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-
-                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                    {
-                        break;
-                    }
-                }
+                //Go to work post
+                await GoToLocationAwaitWork(workPosLoc);
 
                 //Reached Work post, Check if still working
                 await Task.Delay(500);
@@ -582,35 +581,13 @@ namespace KukusVillagerMod.Components.Villager
                 //ItemDrop found.
                 if (pickable != null)
                 {
-                    KLog.warning($"PICKING UP {pickable.m_itemData.m_shared.m_name}");
-
                     if (workTalk)
                         talk.Say($"Going to Pickup {pickable.m_itemData.m_shared.m_name}", "Work");
 
-                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                    {
-                        AlreadyPickingUp = false;
-                        return;
-                    }
+                    //Go to item
+                    await GoToLocationAwaitWork(pickable.transform.position);
 
-
-
-                    //Move to the pickable item 
-                    MoveVillagerToLoc(pickable.transform.position, 1f, false, false, workRun);
-
-                    while (keepMoving)
-                    {
-                        ai.ResetPatrolPoint();
-                        ai.LookAt(workPosLoc);
-                        movePos = pickable.transform.position;
-                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                        {
-                            break;
-                        }
-                    }
-
-
+                    //Reached item, check if still working
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
@@ -619,57 +596,39 @@ namespace KukusVillagerMod.Components.Villager
                     }
 
                     //Fake pickup by storing the prefab, and deleting the GO from world if only 1 stack or else reduce stack by one
-                    string prefabName = pickable.m_itemData.m_dropPrefab.name;
-                    int stackCount = pickable.m_itemData.m_stack;
-                    var prefab = PrefabManager.Instance.GetPrefab(prefabName);
+                    string prefabName = pickable.m_itemData.m_dropPrefab.name; //Get prefab name
+                    int stackCount = pickable.m_itemData.m_stack; //Get stack count
+                    var prefab = PrefabManager.Instance.GetPrefab(prefabName); //Get prefab using prefabname
 
-                    if (prefab == null)
+                    if (prefab == null) //if prefab not found we exit pickup
                     {
                         AlreadyPickingUp = false;
                         return;
                     }
-                    if (stackCount == 1)
+                    if (stackCount == 1) //if only 1 stack then we destroy the pickup item
                         ZDOMan.instance.DestroyZDO(pickable.GetComponentInParent<ZNetView>().GetZDO());
-                    else
+                    else //If more than 1 stack available we decrement by 1
                     {
                         pickable.SetStack(stackCount - 1);
-                        //TODO: TEST IN MP
                     }
 
-
-                    await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                    {
-                        AlreadyPickingUp = false;
-                        return;
-                    }
-
+                    //Get inventory ZDO of the container
                     Inventory inv = villagerGeneral.GetContainerInventory();
-                    bool added = inv.AddItem(prefab, 1);
-                    villagerGeneral.SaveContainerInventory(inv);
+                    bool added = inv.AddItem(prefab, 1); //Try to add item and store result boolean
+                    villagerGeneral.SaveContainerInventory(inv); //Save the inventory to container's ZDO
 
+                    //Get instance of container
                     GameObject containerInstance = villagerGeneral.GetContainerInstance();
-                    if (containerInstance != null) //Pretend to go to container then talk
+                    if (containerInstance != null) //Pretend to go to container and put item
                     {
 
-                        Vector3 containerLoc = villagerGeneral.GetContainerZDO().GetPosition();
+                        Vector3 containerLoc = villagerGeneral.GetContainerZDO().GetPosition(); //Get location of container
 
                         if (workTalk)
                             talk.Say($"Going to Put {prefabName} in container", "Work");
 
-                        MoveVillagerToLoc(containerLoc, 3f, false, false, workRun);
-
-                        while (keepMoving)
-                        {
-                            ai.ResetPatrolPoint();
-                            ai.LookAt(workPosLoc);
-                            movePos = containerLoc;
-                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                            {
-                                break;
-                            }
-                        }
+                        //Go to container
+                        await GoToLocationAwaitWork(containerLoc);
 
                         await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                         if (villagerGeneral.GetVillagerState() != VillagerState.Working)
@@ -689,7 +648,6 @@ namespace KukusVillagerMod.Components.Villager
                             if (workTalk)
                                 talk.Say($"Failed to add {prefabName} to container", "Work");
                         }
-
 
                     }
                     else //Container instance not valid so we will not move villager
@@ -833,32 +791,12 @@ namespace KukusVillagerMod.Components.Villager
             {
                 if (AlreadyFillingSmelter || AlreadyPickingUp) return;
                 AlreadyFillingSmelter = true;
+
                 ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
                 Vector3 workPosLoc = WorkPostZDO.GetPosition();
 
-                //Move to workpost
-
-                if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                {
-                    AlreadyFillingSmelter = false;
-                    return;
-                }
-
-
-
-                MoveVillagerToLoc(workPosLoc, 3f, false, false, workRun);
-                while (keepMoving)
-                {
-
-                    ai.ResetPatrolPoint();
-                    ai.LookAt(workPosLoc);
-                    movePos = workPosLoc;
-                    await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                    {
-                        break;
-                    }
-                }
+                //Go to work post
+                await GoToLocationAwaitWork(workPosLoc);
 
 
                 //Reached Work post, Check if still working
@@ -869,7 +807,7 @@ namespace KukusVillagerMod.Components.Villager
                     return;
                 }
 
-                //Find smelter
+                //Find smelter that can be filled
                 Smelter smelter = FindValidSmelter(workPosLoc, 500f, true);
                 if (smelter != null)
                 {
@@ -877,6 +815,7 @@ namespace KukusVillagerMod.Components.Villager
                     //Check if container instance is valid, if not we will remove items needed from it virtually using zdo
                     GameObject container = villagerGeneral.GetContainerInstance();
                     Inventory inv = villagerGeneral.GetContainerInventory();
+
                     if (container == null) //if instance not VALID we will skip moving to the container
                     {
                         if (workTalk)
@@ -890,20 +829,11 @@ namespace KukusVillagerMod.Components.Villager
                             talk.Say("Going to container to get items for smelting", "Work");
 
                         //Move to container
-                        MoveVillagerToLoc(villagerGeneral.GetContainerZDO().GetPosition(), 2f, false, false, workRun);
+                        await GoToLocationAwaitWork(villagerGeneral.GetContainerZDO().GetPosition());
 
-                        while (keepMoving)
-                        {
-                            ai.ResetPatrolPoint();
-                            ai.LookAt(workPosLoc);
-                            movePos = villagerGeneral.GetContainerZDO().GetPosition();
-                            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                            {
-                                break;
-                            }
-                        }
                     }
+
+
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
@@ -914,22 +844,20 @@ namespace KukusVillagerMod.Components.Villager
 
                     bool tookFuel = false;
                     bool tookCookable = false;
-                    //Check and remove fuel/cookable
-
                     foreach (var i in inv.GetAllItems())
                     {
                         if (i.m_shared.m_name.Equals(smelter.m_fuelItem.m_itemData.m_shared.m_name))
                         {
                             tookFuel = true;
                             inv.RemoveItem(smelter.m_fuelItem.m_itemData.m_shared.m_name, 1);
+                            villagerGeneral.SaveContainerInventory(inv);
                             break;
                         }
                     }
 
-
-
+                    //Find item that can be processed by the smelter and store it
                     ItemDrop.ItemData cookableItem = smelter.FindCookableItem(inv);
-                    if (cookableItem != null)
+                    if (cookableItem != null) //if processable item found remove it from inventory
                         foreach (var i in inv.GetAllItems())
                         {
 
@@ -937,6 +865,7 @@ namespace KukusVillagerMod.Components.Villager
                             {
                                 tookCookable = true;
                                 inv.RemoveItem(cookableItem.m_shared.m_name, 1);
+                                villagerGeneral.SaveContainerInventory(inv);
                                 break;
                             }
                         }
@@ -960,26 +889,15 @@ namespace KukusVillagerMod.Components.Villager
                     }
 
                     //Go to smelter
-                    MoveVillagerToLoc(smelter.transform.position, 4f, false, false, workRun);
-
-                    while (keepMoving)
-                    {
-                        ai.ResetPatrolPoint();
-                        ai.LookAt(workPosLoc);
-                        movePos = smelter.transform.position;
-                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                        if (villagerGeneral.GetVillagerState() != VillagerState.Working)
-                        {
-                            break;
-                        }
-                    }
-
-
-
+                    await GoToLocationAwaitWork(smelter.transform.position);
 
                     await Task.Delay(500);
+                    if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                    {
+                        AlreadyFillingSmelter = false;
+                        return;
+                    }
                     //Add fuel to the smelter
-
                     int fuelCapacity = smelter.m_maxFuel;
                     float currentFuel = (int)smelter.GetFuel();
                     int cookableCap = smelter.m_maxOre;
@@ -998,6 +916,7 @@ namespace KukusVillagerMod.Components.Villager
                         else
                         {
                             inv.AddItem(smelter.m_fuelItem.m_itemData);
+                            villagerGeneral.SaveContainerInventory(inv);
                         }
                     }
                     if (tookCookable)
@@ -1012,6 +931,7 @@ namespace KukusVillagerMod.Components.Villager
                         {
                             var cookable = PrefabManager.Instance.GetPrefab(cookableItem.m_dropPrefab.name);
                             inv.AddItem(cookable.GetComponent<ItemDrop>().m_itemData);
+                            villagerGeneral.SaveContainerInventory(inv);
 
                         }
                     }
@@ -1040,7 +960,7 @@ namespace KukusVillagerMod.Components.Villager
                 else
                 {
                     if (workTalk)
-                        talk.Say("Found no smelter nearby that needs to be filled", "Work");
+                        talk.Say("Found no smelter nearby that can be filled based on items in container", "Work");
                 }
 
                 AlreadyFillingSmelter = false;
@@ -1154,5 +1074,28 @@ namespace KukusVillagerMod.Components.Villager
 
 
 
+
+        //Farming
+
+        bool alreadyMining = false;
+        async private Task MiningFarm()
+        {
+
+            if (alreadyMining || AlreadyFillingSmelter || AlreadyPickingUp) return;
+            alreadyMining = true;
+
+            //Go to WorkPost
+            ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
+            Vector3 workPosLoc = WorkPostZDO.GetPosition();
+
+            await GoToLocationAwaitWork(workPosLoc);
+
+            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+            {
+                alreadyMining = false;
+                return;
+            }
+        }
     }
 }
