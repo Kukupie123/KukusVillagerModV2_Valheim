@@ -14,14 +14,14 @@ namespace KukusVillagerMod.Components.UI
     }
     class VillagerGUI
     {
-        static GameObject MAINBG;
-        static GameObject NameTextGO;
-        private static ZDOID selected_villager = ZDOID.None;
+        static GameObject MAINBG; //The root UI component
+        private static ZDOID selected_villager = ZDOID.None; //The villager we are interacting with
 
-        private static VUITab currentTab = VUITab.Stats;
+        private static VUITab currentTab = VUITab.Stats; //The current tab we are at
 
-        static List<GameObject> SubUIs = new List<GameObject>();
+        static List<GameObject> SubUIs = new List<GameObject>(); //Store all the child UI components
 
+        //Remove all child components
         private static void RemoveSubUIs()
         {
             foreach (var v in SubUIs)
@@ -30,29 +30,35 @@ namespace KukusVillagerMod.Components.UI
             }
         }
 
+        //Sets up essential UI that persisnt first, then sets up tab based UI
         private static void UpdateUI()
         {
-            //Root UI needs to be true
+            //Disable root ui first
             if (MAINBG != null)
             {
                 MAINBG.SetActive(false);
                 GUIManager.BlockInput(false);
             }
+
             RemoveSubUIs(); //Remove existing UI
             SetupEssentialUI(); //Setup UI again, first the basics
+
+            //Setup UI again, now tab based UI components
             switch (currentTab)
             {
                 case VUITab.Stats:
-                    SetupVillagerStatUI();
+                    SetupVillagerStatUITab();
                     break;
                 default:
                     break;
             }
+
+            //View the UI
             MAINBG.SetActive(true);
             GUIManager.BlockInput(true);
         }
 
-        private static void SetupVillagerStatUI()
+        private static void SetupVillagerStatUITab()
         {
 
 
@@ -354,6 +360,8 @@ namespace KukusVillagerMod.Components.UI
             OrderTabBtn.GetComponent<Button>().onClick.AddListener(() => { currentTab = VUITab.Orders; UpdateUI(); });
 
         }
+
+        //Called by interacting with a villager
         public static void OnShowMenu(ZDOID villagerZDOID)
         {
 
@@ -376,16 +384,20 @@ namespace KukusVillagerMod.Components.UI
             }
 
             UpdateUI();
-
-
-
         }
 
         private static void CloseVillagerMenu()
         {
+            //Hide Main component
             if (MAINBG != null) MAINBG.SetActive(false);
+
+            //Reset tab
             currentTab = VUITab.Stats;
+
+            //Remove sub components
             RemoveSubUIs();
+
+            //Destroy main component
             UnityEngine.GameObject.Destroy(MAINBG);
             GUIManager.BlockInput(false);
         }
