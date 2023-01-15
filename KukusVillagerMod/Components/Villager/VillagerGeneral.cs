@@ -550,6 +550,41 @@ namespace KukusVillagerMod.Components.Villager
         {
             SetVillagerState(ZNV.GetZDO().m_uid, newState);
         }
+
+        //Work skills
+        public static bool GetWorkSkill_Pickup(ZDOID villagerZDOID)
+        {
+            return Util.GetZDO(villagerZDOID).GetBool("work_skill_pickup", false);
+        }
+        public bool GetWorkSkill_Pickup()
+        {
+            return GetWorkSkill_Pickup(ZNV.GetZDO().m_uid);
+        }
+        public static void SetWorkSkill_Pickup(ZDOID villagerZDOID, bool canPickup)
+        {
+            Util.GetZDO(villagerZDOID).Set("work_skill_pickup", canPickup);
+        }
+        public void SetWorkSkill_Pickup(bool canPickup)
+        {
+            SetWorkSkill_Pickup(ZNV.GetZDO().m_uid, canPickup);
+        }
+        public static bool GetWorkSkill_Smelter(ZDOID villagerZDOID)
+        {
+            return Util.GetZDO(villagerZDOID).GetBool("work_skill_smelt", false);
+        }
+        public bool GetWorkSkill_Smelter()
+        {
+            return GetWorkSkill_Smelter(ZNV.GetZDO().m_uid);
+        }
+        public static void SetWorkSkill_Smelter(ZDOID villagerZDOID, bool canSmelt)
+        {
+            Util.GetZDO(villagerZDOID).Set("work_skill_smelt", canSmelt);
+        }
+        public void SetWorkSkill_Smelter(bool canSmelt)
+        {
+            SetWorkSkill_Smelter(ZNV.GetZDO().m_uid, canSmelt);
+        }
+
         //Object methods and members-------------------------------
 
         public ZNetView ZNV;
@@ -594,27 +629,6 @@ namespace KukusVillagerMod.Components.Villager
             }
 
 
-        }
-
-        //Work skill related function
-        public bool GetWorkSkill_CanPickUp()
-        {
-            return GetBedZDO().GetBool("CanPickup", false);
-        }
-
-        public void SetWorkSkill_Pickup(bool canPickup)
-        {
-            GetBedZDO().Set("CanPickup", canPickup);
-        }
-
-        public bool GetWorkSkill_CanSmelt()
-        {
-            return GetBedZDO().GetBool("CanSmelt", false);
-        }
-
-        public void SetWorkSkill_Smelt(bool canSmelt)
-        {
-            GetBedZDO().Set("CanSmelt", canSmelt);
         }
 
         //FUTURE WIP
