@@ -49,6 +49,9 @@ namespace KukusVillagerMod.Components.UI
                 case VUITab.Stats:
                     SetupVillagerStatUITab();
                     break;
+                case VUITab.Orders:
+                    SetupVillagerOrderTab();
+                    break;
                 default:
                     break;
             }
@@ -267,7 +270,76 @@ namespace KukusVillagerMod.Components.UI
             SubUIs.Add(PierceTextbtn);
 
         }
+        private static void SetupVillagerOrderTab()
+        {
+            if (!VillagerGeneral.IsVillagerTamed(selected_villager))
+            {
+                GameObject Recruit = GUIManager.Instance.CreateButton(
+                    text: "Recruit Villager",
+                    parent: MAINBG.transform,
+                    anchorMin: new Vector2(0.5f, 0.1f),
+                    anchorMax: new Vector2(0.5f, 0.5f),
+                    position: new Vector2(-200f, 100f), // width & height
+                    width: 250f,
+                    height: 60f
+                    );
+                SubUIs.Add(Recruit);
+                Recruit.GetComponent<Button>().onClick.AddListener(() => { KLog.info($"Villager is going to be recruited"); });
+            }
+            else
+            {
+                //LEFT
+                GameObject FollowMeBtn = GUIManager.Instance.CreateButton(
+                  text: "Follow Me",
+                  parent: MAINBG.transform,
+                  anchorMin: new Vector2(0.5f, 0.1f),
+                  anchorMax: new Vector2(0.5f, 0.5f),
+                  position: new Vector2(-200f, 150f), // Left Top
+                  width: 250f,
+                  height: 60f
+                  );
+                SubUIs.Add(FollowMeBtn);
+                FollowMeBtn.GetComponent<Button>().onClick.AddListener(() => { KLog.info($"Villager is following"); });
 
+                GameObject GuardBedBtn = GUIManager.Instance.CreateButton(
+                  text: "Guard Bed",
+                  parent: MAINBG.transform,
+                  anchorMin: new Vector2(0.5f, 0.1f),
+                  anchorMax: new Vector2(0.5f, 0.5f),
+                  position: new Vector2(-200f, 100f), // LEFT MID
+                  width: 250f,
+                  height: 60f
+                  );
+                SubUIs.Add(GuardBedBtn);
+                GuardBedBtn.GetComponent<Button>().onClick.AddListener(() => { KLog.info($"Villager is Guarding Bed"); });
+
+
+
+                GameObject DefendPostBtn = GUIManager.Instance.CreateButton(
+                  text: "Defend Post",
+                  parent: MAINBG.transform,
+                  anchorMin: new Vector2(0.5f, 0.1f),
+                  anchorMax: new Vector2(0.5f, 0.5f),
+                  position: new Vector2(200f, 150f), // width & height
+                  width: 250f,
+                  height: 60f
+                  );
+                SubUIs.Add(DefendPostBtn);
+                DefendPostBtn.GetComponent<Button>().onClick.AddListener(() => { KLog.info($"Defend Post"); });
+
+                GameObject WorkBtn = GUIManager.Instance.CreateButton(
+                 text: "Start Working",
+                 parent: MAINBG.transform,
+                 anchorMin: new Vector2(0.5f, 0.1f),
+                 anchorMax: new Vector2(0.5f, 0.5f),
+                 position: new Vector2(200f, 100f), // width & height
+                 width: 250f,
+                 height: 60f
+                 );
+                SubUIs.Add(WorkBtn);
+                WorkBtn.GetComponent<Button>().onClick.AddListener(() => { KLog.info($"Working  Post"); });
+            }
+        }
         private static void SetupEssentialUI()
         {
             if (MAINBG == null)
