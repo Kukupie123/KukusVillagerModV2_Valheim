@@ -46,7 +46,7 @@ namespace KukusVillagerMod.Components.Villager
         public bool TameVillager()
         {
             tameable.Tame();
-            LoadStatsFromZDO();NPOTSupport of 
+            LoadStatsFromZDO();
             return TameVillager(ZNV.GetZDO().m_uid);
         }
         public static bool IsVillagerTamed(ZDOID villagerZDOID)
