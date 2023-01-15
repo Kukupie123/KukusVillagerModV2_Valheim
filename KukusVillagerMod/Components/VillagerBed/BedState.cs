@@ -114,10 +114,10 @@ namespace KukusVillagerMod.Components.VillagerBed
 
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
-            if (VillagerGeneral.SELECTED_VILLAGER_ID != null && !VillagerGeneral.SELECTED_VILLAGER_ID.IsNone())
+            if (VillagerGeneral.SELECTED_VILLAGER_ID != null && !VillagerGeneral.SELECTED_VILLAGER_ID.Value.IsNone())
             {
-                VillagerGeneral.AssignBed(VillagerGeneral.SELECTED_VILLAGER_ID, znv.GetZDO().m_uid);
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Assigned bed {znv.GetZDO().m_uid.id} for {VillagerGeneral.GetName(VillagerGeneral.SELECTED_VILLAGER_ID)}");
+                VillagerGeneral.AssignBed(VillagerGeneral.SELECTED_VILLAGER_ID.Value, znv.GetZDO().m_uid);
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Assigned bed {znv.GetZDO().m_uid.id} for {VillagerGeneral.GetName(VillagerGeneral.SELECTED_VILLAGER_ID.Value)}");
             }
             else
             {

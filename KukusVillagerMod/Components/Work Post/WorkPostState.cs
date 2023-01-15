@@ -74,17 +74,17 @@ namespace KukusVillagerMod.Components.Work_Post
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
             //Check if user has a bed uid
-            ZDOID villagerZDOID = VillagerGeneral.SELECTED_VILLAGER_ID;
+            ZDOID? villagerZDOID = VillagerGeneral.SELECTED_VILLAGER_ID;
 
-            if (villagerZDOID == null || villagerZDOID.IsNone())
+            if (villagerZDOID == null || villagerZDOID.Value.IsNone())
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Please Select a villager to assign first.");
                 return false;
             }
             else
             {
-                VillagerGeneral.AssignWorkPost(VillagerGeneral.SELECTED_VILLAGER_ID, znv.GetZDO().m_uid);
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Assigned Work Post {znv.GetZDO().m_uid.id} for {VillagerGeneral.GetName(VillagerGeneral.SELECTED_VILLAGER_ID)}");
+                VillagerGeneral.AssignWorkPost(VillagerGeneral.SELECTED_VILLAGER_ID.Value, znv.GetZDO().m_uid);
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Assigned Work Post {znv.GetZDO().m_uid.id} for {VillagerGeneral.GetName(VillagerGeneral.SELECTED_VILLAGER_ID.Value)}");
                 return true;
             }
 

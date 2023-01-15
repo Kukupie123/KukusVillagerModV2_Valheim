@@ -1,4 +1,5 @@
 ﻿
+using KukusVillagerMod.Components.VillagerBed;
 using KukusVillagerMod.enums;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace KukusVillagerMod.Components.Villager
         {
             return ZNetScene.instance.FindInstance(villagerZDOID);
         }
-        public static ZDOID SELECTED_VILLAGER_ID = ZDOID.None;
+        public static ZDOID? SELECTED_VILLAGER_ID = null;
         //Taming
         public static bool TameVillager(ZDOID villagerZDOID)
         {
@@ -45,6 +46,7 @@ namespace KukusVillagerMod.Components.Villager
         public bool TameVillager()
         {
             tameable.Tame();
+            LoadStatsFromZDO();NPOTSupport of 
             return TameVillager(ZNV.GetZDO().m_uid);
         }
         public static bool IsVillagerTamed(ZDOID villagerZDOID)
@@ -141,7 +143,7 @@ namespace KukusVillagerMod.Components.Villager
         {
             if (IsVillagerTamed())
                 humanoid.m_name = "Villager " + GetName();
-            else humanoid.m_name = "wanderer " + GetName();
+            else humanoid.m_name = "Wanderer " + GetName();
             //Set up health
             humanoid.SetMaxHealth(GetHealth());
             //If not recruited then set current hp to max
@@ -347,7 +349,7 @@ namespace KukusVillagerMod.Components.Villager
         }
         public static ZDO GetBedZDO(ZDOID villagerZDOID)
         {
-            return ZDOMan.instance.GetZDO(GetBedZDOID(villagerZDOID));
+            return Util.GetZDO(GetBedZDOID(villagerZDOID));
         }
         public ZDO GetBedZDO()
         {
@@ -371,14 +373,19 @@ namespace KukusVillagerMod.Components.Villager
         }
         public static void AssignBed(ZDOID villagerZDOID, ZDOID bedZDOID)
         {
+            if (!Util.ValidateZDOID(bedZDOID))
+            {
+                KLog.warning("BedZDOID invalid for assignBed()");
+                return;
+            }
             //Check if bed already had a villager
-            if (!GetBedZDO(bedZDOID).GetZDOID("villager").IsNone())
+            if (BedState.IsVillagerAssigned(bedZDOID))
             {
                 //Remove bed from the villager
-                RemoveBedForVillager(villagerZDOID);
+                RemoveBedForVillager(BedState.GetVillagerZDOID(bedZDOID));
             }
             Util.GetZDO(villagerZDOID).Set("bed", bedZDOID);
-            GetBedZDO(bedZDOID).Set("villager", villagerZDOID);
+            Util.GetZDO(bedZDOID).Set("villager", villagerZDOID);
         }
         public static void RemoveBedForVillager(ZDOID villagerZDOID)
         {

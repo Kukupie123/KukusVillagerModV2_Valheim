@@ -72,12 +72,12 @@ namespace KukusVillagerMod.Patches
     {
         public static void Postfix(Container __instance)
         {
-            ZDOID villagerZDOID = VillagerGeneral.SELECTED_VILLAGER_ID;
-            if (villagerZDOID != null && villagerZDOID.IsNone() == false)
+            ZDOID? villagerZDOID = VillagerGeneral.SELECTED_VILLAGER_ID;
+            if (villagerZDOID != null && villagerZDOID.Value.IsNone() == false)
             {
                 ZNetView containerZNV = __instance.GetComponentInParent<ZNetView>();
-                VillagerGeneral.AssignContainer(VillagerGeneral.SELECTED_VILLAGER_ID, containerZNV.GetZDO().m_uid);
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Container {containerZNV.GetZDO().m_uid.id} Assigned to {VillagerGeneral.GetName(villagerZDOID)}");
+                VillagerGeneral.AssignContainer(VillagerGeneral.SELECTED_VILLAGER_ID.Value, containerZNV.GetZDO().m_uid);
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Container {containerZNV.GetZDO().m_uid.id} Assigned to {VillagerGeneral.GetName(villagerZDOID.Value)}");
 
             }
         }
