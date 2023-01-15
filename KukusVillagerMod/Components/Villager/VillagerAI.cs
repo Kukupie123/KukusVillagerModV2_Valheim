@@ -38,7 +38,7 @@ namespace KukusVillagerMod.Components.Villager
 
             if (ai == null) ai = GetComponent<MonsterAI>();
 
-
+            if (!villagerGeneral.IsVillagerTamed()) return;
 
             //Runs only once
             if (!updateRanOnce)
@@ -204,19 +204,19 @@ namespace KukusVillagerMod.Components.Villager
          */
         async private void WorkLoop()
         {
-            ZDOID wp = villagerGeneral.GetWorkPostID();
+            ZDOID wp = villagerGeneral.GetWorkPostZDOID();
 
             if (wp == null || wp.IsNone())
             {
                 return;
             }
 
-            if (villagerGeneral.GetWorkZDO() == null || villagerGeneral.GetWorkZDO().IsValid() == false)
+            if (villagerGeneral.GetWorkPostZDO() == null || villagerGeneral.GetWorkPostZDO().IsValid() == false)
             {
                 return;
             }
 
-            ZDOID containerID = villagerGeneral.GetContainerID();
+            ZDOID containerID = villagerGeneral.GetContainerZDOID();
 
             if (containerID == null || containerID.IsNone())
             {
@@ -231,11 +231,11 @@ namespace KukusVillagerMod.Components.Villager
 
             if (villagerGeneral.GetVillagerState() == VillagerState.Working)
             {
-                if (villagerGeneral.GetWorkSkill_CanPickUp())
+                if (villagerGeneral.GetWorkSkill_Pickup())
                 {
                     await PickupAndStoreWork();
                 }
-                if (villagerGeneral.GetWorkSkill_CanSmelt())
+                if (villagerGeneral.GetWorkSkill_Smelter())
                 {
                     await RefillWork();
                 }
@@ -442,7 +442,7 @@ namespace KukusVillagerMod.Components.Villager
             villagerGeneral.SetVillagerState(VillagerState.Defending_Post);
 
             //Get instance of defensePost and validate
-            GameObject defenseInstance = villagerGeneral.GetDefensePostInstance();
+            GameObject defenseInstance = villagerGeneral.GetDefenseInstance();
 
             //Follow defense post
             if (defenseInstance != null && defenseInstance.gameObject != null)
@@ -470,7 +470,7 @@ namespace KukusVillagerMod.Components.Villager
             AlreadyFillingSmelter = false;
 
             //Validate work post
-            ZDOID wp = villagerGeneral.GetWorkPostID();
+            ZDOID wp = villagerGeneral.GetWorkPostZDOID();
 
             if (wp == null || wp.IsNone())
             {
@@ -479,7 +479,7 @@ namespace KukusVillagerMod.Components.Villager
                 return false;
             }
 
-            if (villagerGeneral.GetWorkZDO() == null || villagerGeneral.GetWorkZDO().IsValid() == false)
+            if (villagerGeneral.GetWorkPostZDO() == null || villagerGeneral.GetWorkPostZDO().IsValid() == false)
             {
                 talk.Say("My Work post was destroyed", "Work");
                 RoamAround(false);
@@ -487,7 +487,7 @@ namespace KukusVillagerMod.Components.Villager
             }
 
             //Validate container
-            ZDOID containerID = villagerGeneral.GetContainerID();
+            ZDOID containerID = villagerGeneral.GetContainerZDOID();
 
             if (containerID == null || containerID.IsNone())
             {
@@ -513,12 +513,12 @@ namespace KukusVillagerMod.Components.Villager
             villagerGeneral.SetVillagerState(VillagerState.Working);
 
             //Get Work post's instance
-            GameObject wpi = villagerGeneral.GetWorkInstance();
+            GameObject wpi = villagerGeneral.GetWorkPostInstance();
 
             //If wpi is invalid we are going to tp the villager to it's work post. It its valid then villagers will automatically move to it cuz of "WorkLoop" function
             if (wpi == null)
             {
-                TPToLoc(villagerGeneral.GetWorkZDO().GetPosition());
+                TPToLoc(villagerGeneral.GetWorkPostZDO().GetPosition());
             }
 
             talk.Say("Working....", "Work");
@@ -560,7 +560,7 @@ namespace KukusVillagerMod.Components.Villager
                 if (AlreadyPickingUp || AlreadyFillingSmelter) return;
                 AlreadyPickingUp = true;
 
-                ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
+                ZDO WorkPostZDO = villagerGeneral.GetWorkPostZDO();
                 Vector3 workPosLoc = WorkPostZDO.GetPosition();
 
                 //Go to work post
@@ -791,7 +791,7 @@ namespace KukusVillagerMod.Components.Villager
                 if (AlreadyFillingSmelter || AlreadyPickingUp) return;
                 AlreadyFillingSmelter = true;
 
-                ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
+                ZDO WorkPostZDO = villagerGeneral.GetWorkPostZDO();
                 Vector3 workPosLoc = WorkPostZDO.GetPosition();
 
                 //Go to work post
@@ -1089,7 +1089,7 @@ namespace KukusVillagerMod.Components.Villager
             alreadyMining = true;
 
             //Go to WorkPost
-            ZDO WorkPostZDO = villagerGeneral.GetWorkZDO();
+            ZDO WorkPostZDO = villagerGeneral.GetWorkPostZDO();
             Vector3 workPosLoc = WorkPostZDO.GetPosition();
 
             await GoToLocationAwaitWork(workPosLoc);
