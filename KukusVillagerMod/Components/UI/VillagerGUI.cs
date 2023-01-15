@@ -175,7 +175,7 @@ namespace KukusVillagerMod.Components.UI
              outline: false,
              outlineColor: Color.white,
              font: GUIManager.Instance.AveriaSerif,
-             fontSize: 20,
+             fontSize: 15,
              addContentSizeFitter: false
              );
             SubUIs.Add(WorkSkillPickup);
@@ -185,14 +185,14 @@ namespace KukusVillagerMod.Components.UI
             parent: MAINBG.transform,
             anchorMin: new Vector2(0.5f, 0.1f),
             anchorMax: new Vector2(0.5f, 0.5f),
-            position: new Vector2(-200f, -150f), // width & height
+            position: new Vector2(-200f, -200f), // width & height
             width: 250f,
             height: 60f,
             color: Color.yellow,
             outline: false,
             outlineColor: Color.white,
             font: GUIManager.Instance.AveriaSerif,
-            fontSize: 20,
+            fontSize: 15,
             addContentSizeFitter: false
             );
             SubUIs.Add(WorkSkillSmelt);
@@ -414,12 +414,12 @@ namespace KukusVillagerMod.Components.UI
                  parent: MAINBG.transform,
                  anchorMin: new Vector2(0.5f, 0.1f),
                  anchorMax: new Vector2(0.5f, 0.5f),
-                 position: new Vector2(200f, 150f), // width & height
+                 position: new Vector2(200f, 50f), // width & height
                  width: 250f,
                  height: 60f
                  );
                     SubUIs.Add(pickupWorkBtn);
-                    pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Pickup(selected_villager, false); });
+                    pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Pickup(selected_villager, false); UpdateUI(); });
                 }
                 else
                 {
@@ -429,12 +429,12 @@ namespace KukusVillagerMod.Components.UI
                  parent: MAINBG.transform,
                  anchorMin: new Vector2(0.5f, 0.1f),
                  anchorMax: new Vector2(0.5f, 0.5f),
-                 position: new Vector2(200f, 150f), // width & height
+                 position: new Vector2(200f, 50f), // width & height
                  width: 250f,
                  height: 60f
                  );
                     SubUIs.Add(pickupWorkBtn);
-                    pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Pickup(selected_villager, true); });
+                    pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Pickup(selected_villager, true);UpdateUI(); });
                 }
                 if (VillagerGeneral.GetWorkSkill_Smelter(selected_villager))
                 {
@@ -444,12 +444,12 @@ namespace KukusVillagerMod.Components.UI
                  parent: MAINBG.transform,
                  anchorMin: new Vector2(0.5f, 0.1f),
                  anchorMax: new Vector2(0.5f, 0.5f),
-                 position: new Vector2(-200f, 150f), // width & height
+                 position: new Vector2(-200f, 50f), // width & height
                  width: 250f,
                  height: 60f
                  );
                     SubUIs.Add(pickupWorkBtn);
-                    pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Smelter(selected_villager, false); });
+                    pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Smelter(selected_villager, false); UpdateUI(); });
                 }
                 else
                 {
@@ -458,12 +458,12 @@ namespace KukusVillagerMod.Components.UI
                 parent: MAINBG.transform,
                 anchorMin: new Vector2(0.5f, 0.1f),
                 anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(-200f, 150f), // width & height
+                position: new Vector2(-200f, 50f), // width & height
                 width: 250f,
                 height: 60f
                 );
                     SubUIs.Add(pickupWorkBtn);
-                    pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Smelter(selected_villager, false); });
+                    pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Smelter(selected_villager, true); UpdateUI(); });
                 }
             }
         }
