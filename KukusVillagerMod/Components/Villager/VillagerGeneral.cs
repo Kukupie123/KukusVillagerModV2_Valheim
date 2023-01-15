@@ -23,8 +23,9 @@ namespace KukusVillagerMod.Components.Villager
      */
     class VillagerGeneral : MonoBehaviour
     {
+        //Methods
         public static ZDOID SELECTED_VILLAGER_ID = ZDOID.None;
-
+        //Taming
         public static bool TameVillager(ZDOID villagerZDOID)
         {
             if (!Util.ValidateZDOID(villagerZDOID)) return false;
@@ -53,6 +54,8 @@ namespace KukusVillagerMod.Components.Villager
         {
             return IsVillagerTamed(ZNV.GetZDO().m_uid);
         }
+
+        //Stats
         public static void SetRandomStats(ZNetView ZNV)
         {
 
@@ -130,7 +133,6 @@ namespace KukusVillagerMod.Components.Villager
 
             }
         }
-
         private void LoadStatsFromZDO()
         {
             if (IsVillagerTamed())
@@ -144,7 +146,6 @@ namespace KukusVillagerMod.Components.Villager
                 humanoid.SetHealth(GetHealth());
             }
         }
-
         public static float GetDamage(ZDOID villagerZDOID)
         {
             var zdo = Util.GetZDO(villagerZDOID);
@@ -286,7 +287,6 @@ namespace KukusVillagerMod.Components.Villager
         {
             return GetMiningLevel(this.ZNV.GetZDO().m_uid);
         }
-
         public static float GetEfficiency(ZDOID villagerZDOID)
         {
             var zdo = Util.GetZDO(villagerZDOID);
@@ -297,7 +297,6 @@ namespace KukusVillagerMod.Components.Villager
         {
             return GetEfficiency(this.ZNV.GetZDO().m_uid);
         }
-
         public static Tuple<HitData.DamageType, float> GetSpecialSkill(ZDOID villagerZDOID)
         {
             var zdo = Util.GetZDO(villagerZDOID);
@@ -331,6 +330,53 @@ namespace KukusVillagerMod.Components.Villager
         {
             return GetSpecialSkill(ZNV.GetZDO().m_uid);
         }
+        //Bed
+        public static ZDOID GetBedZDOID(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return ZDOID.None;
+            return zdo.GetZDOID("bed");
+        }
+        public ZDOID GetBedZDOID()
+        {
+            return GetBedZDOID(ZNV.GetZDO().m_uid);
+        }
+        public static ZDO GetBedZDO(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return null;
+            return zdo;
+        }
+        public ZDO GetBedZDO()
+        {
+            return GetBedZDO(ZNV.GetZDO().m_uid);
+        }
+        public static bool IsBedAssigned(ZDOID villagerZDOID)
+        {
+            return Util.ValidateZDOID(GetBedZDOID(villagerZDOID)) && Util.ValidateZDO(GetBedZDO(villagerZDOID));
+        }
+        public bool IsBedAssigned()
+        {
+            return IsBedAssigned(ZNV.GetZDO().m_uid);
+        }
+        public static GameObject GetBedInstance(ZDOID villagerZDOID)
+        {
+            return ZNetScene.instance.FindInstance(villagerZDOID);
+        }
+        public GameObject GetBedInstance()
+        {
+            return GetBedInstance(ZNV.GetZDO().m_uid);
+        }
+        public static void AssignBed(ZDOID villagerZDOID, ZDOID bedZDOID)
+        {
+            Util.GetZDO(villagerZDOID).Set("bed", bedZDOID);
+        }
+        public void AssignBed(ZDOID bedZDOID)
+        {
+            return AssignBed(ZNV.GetZDO().m_uid, bedZDOID);
+        }
+        //Defense post
+
 
 
         //Object methods and members-------------------------------

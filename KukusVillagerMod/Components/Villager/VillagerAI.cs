@@ -15,6 +15,7 @@ namespace KukusVillagerMod.Components.Villager
 {
     class VillagerAI : MonoBehaviour
     {
+
         private VillagerGeneral villagerGeneral;
         private NpcTalk talk;
         private MonsterAI ai;
