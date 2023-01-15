@@ -31,7 +31,7 @@ namespace KukusVillagerMod.Patches
                 string finalText = "";
 
                 //Health
-                finalText = $"{finalText}\nHealth : { vls.GetHealth()}";
+                finalText = $"{finalText}\nHealth : { vls.GetHealth(true)}";
 
                 //Efficiency
                 float efficiency = (vls.GetEfficiency() * 100.0f);

@@ -32,9 +32,25 @@ namespace KukusVillagerMod.Components.Villager
             //Get ZNV of the villager
             ZNetView villagerZNV = ZNetScene.instance.FindInstance(villagerZDO);
             if (!Util.ValidateZNetView(villagerZNV)) return false;
-
             villagerZNV.SetPersistent(true);
+            villagerZDO.Set("tamed", true);
             return true;
+        }
+        public bool TameVillager()
+        {
+            tameable.Tame();
+            return TameVillager(ZNV.GetZDO().m_uid);
+        }
+        public static bool IsVillagerTamed(ZDOID villagerZDOID)
+        {
+            if (!Util.ValidateZDOID(villagerZDOID)) return false;
+            ZDO villagerZDO = ZDOMan.instance.GetZDO(villagerZDOID);
+            if (!Util.ValidateZDO(villagerZDO)) return false;
+            return villagerZDO.GetBool("tamed", false);
+        }
+        public bool IsVillagerTamed()
+        {
+            return IsVillagerTamed(ZNV.GetZDO().m_uid);
         }
         public static void SetRandomStats(ZNetView ZNV)
         {
@@ -110,11 +126,24 @@ namespace KukusVillagerMod.Components.Villager
             else
             {
                 SetRandomStats(this.ZNV);
-                humanoid.SetMaxHealth(GetHealth());
-                humanoid.SetHealth(GetHealth());
-                humanoid.m_name = GetName();
+
             }
         }
+
+        private void LoadStatsFromZDO()
+        {
+            if (IsVillagerTamed())
+                humanoid.m_name = "Villager " + GetName();
+            else humanoid.m_name = "wanderer " + GetName(); 
+            //Set up health
+            humanoid.SetMaxHealth(GetHealth());
+            //If not recruited then set current hp to max
+            if (!IsVillagerTamed())
+            {
+                humanoid.SetHealth(GetHealth());
+            }
+        }
+
         public static float GetDamage(ZDOID villagerZDOID)
         {
             var zdo = Util.GetZDO(villagerZDOID);
@@ -241,8 +270,9 @@ namespace KukusVillagerMod.Components.Villager
             if (Util.ValidateZDO(zdo) == false) return 0;
             return zdo.GetFloat("health");
         }
-        public float GetHealth()
+        public float GetHealth(bool fromAI = false)
         {
+            if (fromAI) return humanoid.GetHealth();
             return GetHealth(this.ZNV.GetZDO().m_uid);
         }
         public static float GetEfficiency(ZDOID villagerZDOID)
@@ -298,14 +328,23 @@ namespace KukusVillagerMod.Components.Villager
 
         private void Awake()
         {
+            //Get necessary components
             ZNV = GetComponent<ZNetView>();
             ai = GetComponent<MonsterAI>();
             humanoid = GetComponent<Humanoid>();
             tameable = GetComponent<Tameable>();
             ai.m_attackPlayerObjects = false;
-            SetRandomStats();
+
+            //Generate and load stats
+            if (!IsVillagerTamed())
+            {
+                SetRandomStats();
+            }
+            LoadStatsFromZDO();
 
         }
+
+
 
         //Ignore collision with player
         private void OnCollisionEnter(Collision collision)
