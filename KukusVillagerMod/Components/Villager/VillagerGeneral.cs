@@ -343,9 +343,7 @@ namespace KukusVillagerMod.Components.Villager
         }
         public static ZDO GetBedZDO(ZDOID villagerZDOID)
         {
-            var zdo = Util.GetZDO(villagerZDOID);
-            if (Util.ValidateZDO(zdo) == false) return null;
-            return zdo;
+            return ZDOMan.instance.GetZDO(GetBedZDOID(villagerZDOID));
         }
         public ZDO GetBedZDO()
         {
@@ -361,7 +359,7 @@ namespace KukusVillagerMod.Components.Villager
         }
         public static GameObject GetBedInstance(ZDOID villagerZDOID)
         {
-            return ZNetScene.instance.FindInstance(villagerZDOID);
+            return ZNetScene.instance.FindInstance(GetBedZDOID(villagerZDOID));
         }
         public GameObject GetBedInstance()
         {
@@ -373,12 +371,185 @@ namespace KukusVillagerMod.Components.Villager
         }
         public void AssignBed(ZDOID bedZDOID)
         {
-            return AssignBed(ZNV.GetZDO().m_uid, bedZDOID);
+            AssignBed(ZNV.GetZDO().m_uid, bedZDOID);
         }
         //Defense post
+        public static ZDOID GetDefenseZDOID(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return ZDOID.None;
+            return zdo.GetZDOID("defense");
+        }
+        public ZDOID GetDefenseZDOID()
+        {
+            return GetDefenseZDOID(ZNV.GetZDO().m_uid);
+        }
+        public static ZDO GetDefenseZDO(ZDOID villagerZDOID)
+        {
+            return ZDOMan.instance.GetZDO(GetDefenseZDOID(villagerZDOID));
+        }
+        public ZDO GetDefenseZDO()
+        {
+            return GetDefenseZDO(ZNV.GetZDO().m_uid);
+        }
+        public static bool IsDefenseAssigned(ZDOID villagerZDOID)
+        {
+            return Util.ValidateZDOID(GetDefenseZDOID(villagerZDOID)) && Util.ValidateZDO(GetDefenseZDO(villagerZDOID));
+        }
+        public bool IsDefenseAssigned()
+        {
+            return IsDefenseAssigned(ZNV.GetZDO().m_uid);
+        }
+        public static GameObject GetDefenseInstance(ZDOID villagerZDOID)
+        {
+            return ZNetScene.instance.FindInstance(GetDefenseZDOID(villagerZDOID));
+        }
+        public GameObject GetDefenseInstance()
+        {
+            return GetDefenseInstance(ZNV.GetZDO().m_uid);
+        }
+        public static void AssignDefense(ZDOID villagerZDOID, ZDOID defenseZDOID)
+        {
+            Util.GetZDO(villagerZDOID).Set("defense", defenseZDOID);
+        }
+        public void AssignDefense(ZDOID defenseZDOID)
+        {
+            AssignDefense(ZNV.GetZDO().m_uid, defenseZDOID);
+        }
+        //Container
+        public static ZDOID GetContainerZDOID(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return ZDOID.None;
+            return zdo.GetZDOID("container");
+        }
+        public ZDOID GetContainerZDOID()
+        {
+            return GetContainerZDOID(ZNV.GetZDO().m_uid);
+        }
+        public static ZDO GetContainerZDO(ZDOID villagerZDOID)
+        {
+            return ZDOMan.instance.GetZDO(GetContainerZDOID(villagerZDOID));
+        }
+        public ZDO GetContainerZDO()
+        {
+            return GetContainerZDO(ZNV.GetZDO().m_uid);
+        }
+        public static bool IsContainerAssigned(ZDOID villagerZDOID)
+        {
+            return Util.ValidateZDOID(GetContainerZDOID(villagerZDOID)) && Util.ValidateZDO(GetContainerZDO(villagerZDOID));
+        }
+        public bool IsContainerAssigned()
+        {
+            return IsContainerAssigned(ZNV.GetZDO().m_uid);
+        }
+        public static GameObject GetContainerInstance(ZDOID villagerZDOID)
+        {
+            return ZNetScene.instance.FindInstance(GetContainerZDOID(villagerZDOID));
+        }
+        public GameObject GetContainerInstance()
+        {
+            return GetContainerInstance(ZNV.GetZDO().m_uid);
+        }
+        public static void SetContainer(ZDOID villagerZDOID, ZDOID containerZDOID)
+        {
+            Util.GetZDO(villagerZDOID).Set("container", containerZDOID);
+        }
+        public void SetContainer(ZDOID containerZDOID)
+        {
+            SetContainer(ZNV.GetZDO().m_uid, containerZDOID);
+        }
+        public static Inventory GetContainerInventory(ZDOID villagerZDOID)
+        {
+            //Container stores inventory items in "items" key
+            ZDO containerZDO = GetContainerZDO(villagerZDOID);
+            string m_name = containerZDO.GetString("m_name", "");
+            int w = containerZDO.GetInt("width", 0);
+            int h = containerZDO.GetInt("height", 0);
+            string items = containerZDO.GetString("items", ""); //Get items from container ZDO
+            var pkg = new ZPackage(items); //Load items into zpackage
+            var dummySprite = Sprite.Create(Texture2D.whiteTexture, Rect.zero, Vector2.zero);
+            Inventory inv = new Inventory(m_name, dummySprite, w, h); //create new inventory
+            if (!string.IsNullOrEmpty(items))
+                inv.Load(pkg);
+            return inv;
+        }
+        public Inventory GetContainerInventory()
+        {
+            return GetContainerInventory(ZNV.GetZDO().m_uid);
+        }
 
-
-
+        public static void SaveContainerInventory(ZDOID villagerZDOID, Inventory inv)
+        {
+            ZPackage pkg = new ZPackage();
+            inv.Save(pkg);
+            string encodedItem = pkg.GetBase64();
+            GetContainerZDO(villagerZDOID).Set("items", encodedItem);
+        }
+        public void SaveContainerInventory(Inventory inv)
+        {
+            SaveContainerInventory(ZNV.GetZDO().m_uid, inv);
+        }
+        //Work post
+        public static ZDOID GetWorkPostZDOID(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return ZDOID.None;
+            return zdo.GetZDOID("workpost");
+        }
+        public ZDOID GetWorkPostZDOID()
+        {
+            return GetWorkPostZDOID(ZNV.GetZDO().m_uid);
+        }
+        public static ZDO GetWorkPostZDO(ZDOID villagerZDOID)
+        {
+            return ZDOMan.instance.GetZDO(GetWorkPostZDOID(villagerZDOID));
+        }
+        public ZDO GetWorkPostZDO()
+        {
+            return GetWorkPostZDO(ZNV.GetZDO().m_uid);
+        }
+        public static bool IsWorkPostAssigned(ZDOID villagerZDOID)
+        {
+            return Util.ValidateZDOID(GetWorkPostZDOID(villagerZDOID)) && Util.ValidateZDO(GetWorkPostZDO(villagerZDOID));
+        }
+        public bool IsWorkPostAssigned()
+        {
+            return IsWorkPostAssigned(ZNV.GetZDO().m_uid);
+        }
+        public static GameObject GetWorkPostInstance(ZDOID villagerZDOID)
+        {
+            return ZNetScene.instance.FindInstance(GetWorkPostZDOID(villagerZDOID));
+        }
+        public GameObject GetWorkPostInstance()
+        {
+            return GetWorkPostInstance(ZNV.GetZDO().m_uid);
+        }
+        public static void AssignWorkPost(ZDOID villagerZDOID, ZDOID defenseZDOID)
+        {
+            Util.GetZDO(villagerZDOID).Set("workpost", defenseZDOID);
+        }
+        public void AssignWorkPost(ZDOID defenseZDOID)
+        {
+            AssignWorkPost(ZNV.GetZDO().m_uid, defenseZDOID);
+        }
+        //Villager state
+        public static VillagerState GetVillagerState(ZDOID villagerZDOID)
+        {
+            return (VillagerState)Util.GetZDO(villagerZDOID).GetInt("work", (int)VillagerState.Roaming);
+        }
+        public VillagerState GetVillagerState()
+        {
+            return GetVillagerState(ZNV.GetZDO().m_uid);
+        }
+        public static void SetVillagerState(ZDOID villagerZDOID, VillagerState state)
+        {
+            Util.GetZDO(villagerZDOID).Set("work", (int)state);
+        }
+        public void SetVillagerState(VillagerState newState)
+        {
+            SetVillagerState(ZNV.GetZDO().m_uid, newState);
+        }
         //Object methods and members-------------------------------
 
         public ZNetView ZNV;
@@ -425,91 +596,6 @@ namespace KukusVillagerMod.Components.Villager
 
         }
 
-
-        //Stats section--------------
-
-
-        //Villager state related functions--------------------------------------------------
-        public VillagerState GetVillagerState()
-        {
-            return (VillagerState)GetBedZDO().GetInt("state", (int)VillagerState.Guarding_Bed);
-        }
-
-        public void SetVillagerState(VillagerState newState)
-        {
-            GetBedZDO().Set("state", (int)newState);
-        }
-
-
-        //Bed related functions-------------------------------------------------------------
-
-        public ZDOID GetBedZDOID()
-        {
-            return this.ZNV.GetZDO().GetZDOID("spawner_id");
-        }
-
-        //Returns GO based on the ZDOID of the bed saved in the ZDO of this creature, will return null if not loaded in memory
-        public GameObject GetBedInstance()
-        {
-            ZDOID zdoid = GetBedZDOID();
-            return ZNetScene.instance.FindInstance(zdoid);
-        }
-
-        //Returns the ZDO of the bed that spawned this creature
-        public ZDO GetBedZDO()
-        {
-            ZDOID id = GetBedZDOID();
-            return ZDOMan.instance.GetZDO(id);
-        }
-
-        //Defense post related functions-------------------------------------------------
-
-        public ZDOID GetDefensePostID()
-        {
-            return GetBedZDO().GetZDOID("defense");
-        }
-
-        public bool isDefensePostAssigned()
-        {
-            ZDOID defensePostID = GetDefensePostID();
-            return !defensePostID.IsNone();
-        }
-
-        public GameObject GetDefensePostInstance()
-        {
-            ZDOID defensePostID = GetDefensePostID();
-            return ZNetScene.instance.FindInstance(defensePostID);
-        }
-
-        public ZDO GetDefenseZDO()
-        {
-            ZDOID defensePostID = GetDefensePostID();
-            return ZDOMan.instance.GetZDO(defensePostID);
-        }
-
-
-        //Work post related functions----------------------------------------------
-        public ZDOID GetWorkPostID()
-        {
-            return GetBedZDO().GetZDOID("work");
-        }
-
-
-        public bool isWorkPostAssigned()
-        {
-            return !GetWorkPostID().IsNone();
-        }
-
-        public ZDO GetWorkZDO()
-        {
-            return ZDOMan.instance.GetZDO(GetWorkPostID());
-        }
-
-        public GameObject GetWorkInstance()
-        {
-            return ZNetScene.instance.FindInstance(GetWorkPostID());
-        }
-
         //Work skill related function
         public bool GetWorkSkill_CanPickUp()
         {
@@ -530,56 +616,6 @@ namespace KukusVillagerMod.Components.Villager
         {
             GetBedZDO().Set("CanSmelt", canSmelt);
         }
-
-
-        //Container related functions----------------------------------------------------
-        public ZDOID GetContainerID()
-        {
-            return GetBedZDO().GetZDOID("container");
-        }
-
-        public bool IsContainerAssigned()
-        {
-            return !GetContainerID().IsNone();
-        }
-
-        public ZDO GetContainerZDO()
-        {
-            return ZDOMan.instance.GetZDO(GetContainerID());
-        }
-
-        public GameObject GetContainerInstance()
-        {
-            return ZNetScene.instance.FindInstance(GetContainerID());
-        }
-
-        public Inventory GetContainerInventory()
-        {
-            //Container stores inventory items in "items" key
-            ZDO containerZDO = GetContainerZDO();
-            string m_name = containerZDO.GetString("m_name", "");
-            int w = containerZDO.GetInt("width", 0);
-            int h = containerZDO.GetInt("height", 0);
-            string items = GetContainerZDO().GetString("items", ""); //Get items from container ZDO
-            var pkg = new ZPackage(items); //Load items into zpackage
-            var dummySprite = Sprite.Create(Texture2D.whiteTexture, Rect.zero, Vector2.zero);
-            Inventory inv = new Inventory(m_name, dummySprite, w, h); //create new inventory
-            if (!string.IsNullOrEmpty(items))
-                inv.Load(pkg);
-            return inv;
-
-
-
-        }
-
-        public void SaveContainerInventory(Inventory inv)
-        {
-            ZPackage pkg = new ZPackage();
-            inv.Save(pkg);
-            string encodedItem = pkg.GetBase64();
-            GetContainerZDO().Set("items", encodedItem);
-        }
-
 
         //FUTURE WIP
         public void CutTree()
