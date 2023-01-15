@@ -23,6 +23,7 @@ namespace KukusVillagerMod.Components.Villager
      */
     class VillagerGeneral : MonoBehaviour
     {
+        public static ZDOID SELECTED_VILLAGER_ID = ZDOID.None;
 
         public static bool TameVillager(ZDOID villagerZDOID)
         {
@@ -134,7 +135,7 @@ namespace KukusVillagerMod.Components.Villager
         {
             if (IsVillagerTamed())
                 humanoid.m_name = "Villager " + GetName();
-            else humanoid.m_name = "wanderer " + GetName(); 
+            else humanoid.m_name = "wanderer " + GetName();
             //Set up health
             humanoid.SetMaxHealth(GetHealth());
             //If not recruited then set current hp to max
@@ -275,6 +276,17 @@ namespace KukusVillagerMod.Components.Villager
             if (fromAI) return humanoid.GetHealth();
             return GetHealth(this.ZNV.GetZDO().m_uid);
         }
+        public static int GetMiningLevel(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return 0;
+            return zdo.GetInt("mining");
+        }
+        public int GetMiningLevel()
+        {
+            return GetMiningLevel(this.ZNV.GetZDO().m_uid);
+        }
+
         public static float GetEfficiency(ZDOID villagerZDOID)
         {
             var zdo = Util.GetZDO(villagerZDOID);
@@ -319,6 +331,8 @@ namespace KukusVillagerMod.Components.Villager
         {
             return GetSpecialSkill(ZNV.GetZDO().m_uid);
         }
+
+
         //Object methods and members-------------------------------
 
         public ZNetView ZNV;
