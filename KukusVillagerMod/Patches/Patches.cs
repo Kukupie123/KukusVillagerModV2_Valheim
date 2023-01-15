@@ -87,6 +87,7 @@ namespace KukusVillagerMod.Patches
         }
     }
 
+    //Villager interaction
     [HarmonyPatch(typeof(Tameable), nameof(Tameable.UseItem))]
     static class VillagerUseItem
     {
@@ -95,35 +96,6 @@ namespace KukusVillagerMod.Patches
             VillagerAI ai = __instance.GetComponentInParent<VillagerAI>();
             VillagerGeneral v = __instance.GetComponentInParent<VillagerGeneral>();
             if (ai == null || v == null) return;
-            string itemName = item.m_shared.m_name;
-
-            switch (itemName)
-            {
-                case "LabourerFruit":
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Villager is going to Work");
-                    ai.StartWork();
-                    break;
-                case "WatcherFruit":
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Villager is going to Defend Post");
-                    ai.DefendPost();
-                    break;
-                case "GuardianFruit":
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Villager is going to Guard Bed");
-                    ai.GuardBed();
-                    break;
-                case "FreeSpiritFruit":
-                    ai.RoamAround();
-                    break;
-                case "LabourSkill_Pickup":
-                    bool canPick = !v.GetWorkSkill_CanPickUp();
-                    v.SetWorkSkill_Pickup(canPick);
-                    break;
-                case "LabourSkill_Smelt":
-                    bool canSmelt = !v.GetWorkSkill_CanSmelt();
-                    v.SetWorkSkill_Smelt(canSmelt);
-                    break;
-
-            }
         }
     }
 
@@ -132,20 +104,20 @@ namespace KukusVillagerMod.Patches
     {
         public static void Postfix(Container __instance)
         {
-            if (BedVillagerProcessor.SELECTED_BED_ID != null && BedVillagerProcessor.SELECTED_BED_ID.Value.IsNone() == false)
+            if (BedState.SELECTED_BED_ID != null && BedState.SELECTED_BED_ID.Value.IsNone() == false)
             {
                 ZNetView containerZNV = __instance.GetComponentInParent<ZNetView>();
-                ZDO bedZDO = ZDOMan.instance.GetZDO(BedVillagerProcessor.SELECTED_BED_ID.Value);
+                ZDO bedZDO = ZDOMan.instance.GetZDO(BedState.SELECTED_BED_ID.Value);
                 if (bedZDO != null && bedZDO.IsValid())
                 {
                     bedZDO.Set("container", containerZNV.GetZDO().m_uid);
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Assigned Container {containerZNV.GetZDO().m_uid.id} to Bed {BedVillagerProcessor.SELECTED_BED_ID.Value.id}");
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Assigned Container {containerZNV.GetZDO().m_uid.id} to Bed {BedState.SELECTED_BED_ID.Value.id}");
                     //Save name, width, height in zdo for use in villager AI to load inventory without container instance
                     var znv = __instance.GetComponentInParent<ZNetView>();
                     znv.GetZDO().Set("m_name", __instance.m_name);
                     znv.GetZDO().Set("width", __instance.m_width);
                     znv.GetZDO().Set("height", __instance.m_height);
-                    BedVillagerProcessor.SELECTED_BED_ID = null;
+                    BedState.SELECTED_BED_ID = null;
                 }
             }
         }

@@ -284,7 +284,19 @@ namespace KukusVillagerMod.Components.UI
                     height: 60f
                     );
                 SubUIs.Add(Recruit);
-                Recruit.GetComponent<Button>().onClick.AddListener(() => { KLog.info($"Villager is going to be recruited"); });
+                Recruit.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    var villager = ZNetScene.instance.FindInstance(selected_villager);
+                    if (villager == null)
+                    {
+                        VillagerGeneral.TameVillager(selected_villager);
+                        return;
+                    }
+                    VillagerGeneral vg = villager.GetComponent<VillagerGeneral>();
+                    vg.TameVillager();
+                    UpdateUI();
+                    return;
+                });
             }
             else
             {

@@ -354,6 +354,10 @@ namespace KukusVillagerMod.Components.Villager
             {
                 SetRandomStats();
             }
+            else //In case it was tamed when it was not in memory
+            {
+                tameable.Tame();
+            }
             LoadStatsFromZDO();
 
         }

@@ -54,7 +54,7 @@ namespace KukusVillagerMod.Prefabs
 
 
             //Add BedState component
-            var spawner = bed.PiecePrefab.GetOrAddComponent<BedVillagerProcessor>();
+            var spawner = bed.PiecePrefab.GetOrAddComponent<BedState>();
             //bedState.respawnDuration = respawnDuration;
             //Add the piece to PieceManager
             PieceManager.Instance.AddPiece(bed);

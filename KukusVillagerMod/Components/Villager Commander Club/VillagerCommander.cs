@@ -349,7 +349,7 @@ namespace KukusVillagerMod.itemPrefab
                                     moveToPressed = false;
                                     workKeyPressed = false;
 
-                                    foreach (BedVillagerProcessor v in UnityEngine.GameObject.FindObjectsOfType<BedVillagerProcessor>())
+                                    foreach (BedState v in UnityEngine.GameObject.FindObjectsOfType<BedState>())
                                     {
                                         ZNetScene.instance.Destroy(v.gameObject);
                                         MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all Beds");

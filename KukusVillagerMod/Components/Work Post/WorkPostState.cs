@@ -73,7 +73,7 @@ namespace KukusVillagerMod.Components.Work_Post
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
             //Check if user has a bed uid
-            var bedID = BedVillagerProcessor.SELECTED_BED_ID;
+            var bedID = BedState.SELECTED_BED_ID;
 
             if (bedID == null)
             {
@@ -86,7 +86,7 @@ namespace KukusVillagerMod.Components.Work_Post
                 var bedZDO = ZDOMan.instance.GetZDO(bedID.Value);
                 bedZDO.Set("work", znv.GetZDO().m_uid);
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Work {znv.GetZDO().m_uid} Linked with Bed {bedID.Value.id}");
-                BedVillagerProcessor.SELECTED_BED_ID = null;
+                BedState.SELECTED_BED_ID = null;
                 return true;
             }
 
