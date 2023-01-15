@@ -29,19 +29,26 @@ namespace KukusVillagerMod.Patches
             if (vls != null)
             {
                 string finalText = "";
-                string name = vls.GetName();
-                if (!string.IsNullOrEmpty(name))
-                {
-                    finalText = $"{finalText}Name : {name}";
-                }
+
+                //Health
                 finalText = $"{finalText}\nHealth : { vls.GetHealth()}";
+
+                //Efficiency
                 float efficiency = (vls.GetEfficiency() * 100.0f);
+
+                //Special skill
                 finalText = $"{finalText}\nEfficiency : {(int)efficiency}";
                 Tuple<HitData.DamageType, float> specialSkill = vls.GetSpecialSkill();
                 if (specialSkill != null)
                 {
-                    finalText = $"{finalText}\nSpecial Skill : {specialSkill.Item1} ({specialSkill.Item2})";
+                    finalText = $"{finalText}\nSkill : {specialSkill.Item1} ({specialSkill.Item2})";
                 }
+
+                //Damage stats
+                finalText = $"{finalText}\nDamage : {vls.GetDamage()}";
+                finalText = $"{finalText}\nSlash : {vls.GetSlash()}";
+                finalText = $"{finalText}\nBlunt : {vls.GetBlunt()}";
+                finalText = $"{finalText}\nPierce : {vls.GetPierce()}";
                 __result = finalText;
             }
         }
