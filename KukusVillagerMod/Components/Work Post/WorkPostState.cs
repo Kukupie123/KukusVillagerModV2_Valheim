@@ -1,4 +1,5 @@
-﻿using KukusVillagerMod.Components.VillagerBed;
+﻿using KukusVillagerMod.Components.Villager;
+using KukusVillagerMod.Components.VillagerBed;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,20 +74,17 @@ namespace KukusVillagerMod.Components.Work_Post
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
             //Check if user has a bed uid
-            var bedID = BedState.SELECTED_BED_ID;
+            ZDOID villagerZDOID = VillagerGeneral.SELECTED_VILLAGER_ID;
 
-            if (bedID == null)
+            if (villagerZDOID == null || villagerZDOID.IsNone())
             {
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Please Select a bed first by interacting with a bed.");
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Please Select a villager to assign first.");
                 return false;
             }
             else
             {
-                //Save the id of the defense post in the bed and then empty the bed value from the static variable
-                var bedZDO = ZDOMan.instance.GetZDO(bedID.Value);
-                bedZDO.Set("work", znv.GetZDO().m_uid);
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Work {znv.GetZDO().m_uid} Linked with Bed {bedID.Value.id}");
-                BedState.SELECTED_BED_ID = null;
+                VillagerGeneral.AssignWorkPost(VillagerGeneral.SELECTED_VILLAGER_ID, znv.GetZDO().m_uid);
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Assigned Work Post {znv.GetZDO().m_uid.id} for {VillagerGeneral.GetName(VillagerGeneral.SELECTED_VILLAGER_ID)}");
                 return true;
             }
 

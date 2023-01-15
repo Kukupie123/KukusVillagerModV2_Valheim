@@ -9,13 +9,11 @@ namespace KukusVillagerMod.Components.VillagerBed
     class BedState : MonoBehaviour, Hoverable, Interactable
     {
         private ZNetView znv;
-        public float respawnTimeInMinute = 1f; //The respawn time for the villager. Has to be set during prefab creation
         private Piece piece;
 
         /*
          * When assigning posts and containers for a bed we need to keep track of the bed we interacted with. We store that bed's ZDO in this static variable
          */
-        public static ZDOID? SELECTED_BED_ID;
 
 
         private void Awake()
@@ -78,11 +76,34 @@ namespace KukusVillagerMod.Components.VillagerBed
 
 
 
+        public static ZDOID GetVillagerZDOID(ZDOID bedZDOID)
+        {
+            return Util.GetZDO(bedZDOID).GetZDOID("villager");
+        }
+        public ZDOID GetVillagerZDOID()
+        {
+            return GetVillagerZDOID(znv.GetZDO().m_uid);
+        }
+        public static bool IsVillagerAssigned(ZDOID bedZDOID)
+        {
+            var villagerZDOID = Util.GetZDO(bedZDOID).GetZDOID("villager");
+            if (!Util.ValidateZDO(Util.GetZDO(villagerZDOID)) || !Util.ValidateZDOID(villagerZDOID)) return false;
+            return true;
+        }
+        public bool IsVillagerAssigned()
+        {
+            return IsVillagerAssigned(znv.GetZDO().m_uid);
+        }
+
         //Interface
 
         public string GetHoverText()
         {
-            return "WIP";
+            if (IsVillagerAssigned())
+            {
+                return $"Belongs to {VillagerGeneral.GetName(GetVillagerZDOID())}({Util.GetZDO(GetVillagerZDOID()).m_uid.id})";
+            }
+            return "Empty bed";
         }
 
         public string GetHoverName()
@@ -93,6 +114,15 @@ namespace KukusVillagerMod.Components.VillagerBed
 
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
+            if (VillagerGeneral.SELECTED_VILLAGER_ID != null && !VillagerGeneral.SELECTED_VILLAGER_ID.IsNone())
+            {
+                VillagerGeneral.AssignBed(VillagerGeneral.SELECTED_VILLAGER_ID, znv.GetZDO().m_uid);
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Assigned bed {znv.GetZDO().m_uid.id} for {VillagerGeneral.GetName(VillagerGeneral.SELECTED_VILLAGER_ID)}");
+            }
+            else
+            {
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Please Select a villager first");
+            }
             return true;
         }
 

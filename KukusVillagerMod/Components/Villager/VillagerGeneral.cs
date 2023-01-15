@@ -371,7 +371,26 @@ namespace KukusVillagerMod.Components.Villager
         }
         public static void AssignBed(ZDOID villagerZDOID, ZDOID bedZDOID)
         {
+            //Check if bed already had a villager
+            if (!GetBedZDO(bedZDOID).GetZDOID("villager").IsNone())
+            {
+                //Remove bed from the villager
+                RemoveBedForVillager(villagerZDOID);
+            }
             Util.GetZDO(villagerZDOID).Set("bed", bedZDOID);
+            GetBedZDO(bedZDOID).Set("villager", villagerZDOID);
+        }
+        public static void RemoveBedForVillager(ZDOID villagerZDOID)
+        {
+            //Remove villager from bed
+            GetBedZDO(villagerZDOID).Set("villager", ZDOID.None);
+            //Remove bed from villager
+            Util.GetZDO(villagerZDOID).Set("bed", ZDOID.None);
+
+        }
+        public void RemoveBedForVillager()
+        {
+            RemoveBedForVillager(ZNV.GetZDO().m_uid);
         }
         public void AssignBed(ZDOID bedZDOID)
         {
@@ -455,13 +474,13 @@ namespace KukusVillagerMod.Components.Villager
         {
             return GetContainerInstance(ZNV.GetZDO().m_uid);
         }
-        public static void SetContainer(ZDOID villagerZDOID, ZDOID containerZDOID)
+        public static void AssignContainer(ZDOID villagerZDOID, ZDOID containerZDOID)
         {
             Util.GetZDO(villagerZDOID).Set("container", containerZDOID);
         }
-        public void SetContainer(ZDOID containerZDOID)
+        public void AssignContainer(ZDOID containerZDOID)
         {
-            SetContainer(ZNV.GetZDO().m_uid, containerZDOID);
+            AssignContainer(ZNV.GetZDO().m_uid, containerZDOID);
         }
         public static Inventory GetContainerInventory(ZDOID villagerZDOID)
         {

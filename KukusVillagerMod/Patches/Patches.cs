@@ -72,21 +72,13 @@ namespace KukusVillagerMod.Patches
     {
         public static void Postfix(Container __instance)
         {
-            if (BedState.SELECTED_BED_ID != null && BedState.SELECTED_BED_ID.Value.IsNone() == false)
+            ZDOID villagerZDOID = VillagerGeneral.SELECTED_VILLAGER_ID;
+            if (villagerZDOID != null && villagerZDOID.IsNone() == false)
             {
                 ZNetView containerZNV = __instance.GetComponentInParent<ZNetView>();
-                ZDO bedZDO = ZDOMan.instance.GetZDO(BedState.SELECTED_BED_ID.Value);
-                if (bedZDO != null && bedZDO.IsValid())
-                {
-                    bedZDO.Set("container", containerZNV.GetZDO().m_uid);
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Assigned Container {containerZNV.GetZDO().m_uid.id} to Bed {BedState.SELECTED_BED_ID.Value.id}");
-                    //Save name, width, height in zdo for use in villager AI to load inventory without container instance
-                    var znv = __instance.GetComponentInParent<ZNetView>();
-                    znv.GetZDO().Set("m_name", __instance.m_name);
-                    znv.GetZDO().Set("width", __instance.m_width);
-                    znv.GetZDO().Set("height", __instance.m_height);
-                    BedState.SELECTED_BED_ID = null;
-                }
+                VillagerGeneral.AssignContainer(VillagerGeneral.SELECTED_VILLAGER_ID, containerZNV.GetZDO().m_uid);
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Container {containerZNV.GetZDO().m_uid.id} Assigned to {VillagerGeneral.GetName(villagerZDOID)}");
+
             }
         }
     }
