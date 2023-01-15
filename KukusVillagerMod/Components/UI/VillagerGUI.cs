@@ -163,6 +163,40 @@ namespace KukusVillagerMod.Components.UI
                );
             SubUIs.Add(MiningSkillBtn);
 
+            GameObject WorkSkillPickup = GUIManager.Instance.CreateText(
+             text: $"Can Do Pickup work : {VillagerGeneral.GetWorkSkill_Pickup(selected_villager)}",
+             parent: MAINBG.transform,
+             anchorMin: new Vector2(0.5f, 0.1f),
+             anchorMax: new Vector2(0.5f, 0.5f),
+             position: new Vector2(-200f, -150f), // width & height
+             width: 250f,
+             height: 60f,
+             color: Color.yellow,
+             outline: false,
+             outlineColor: Color.white,
+             font: GUIManager.Instance.AveriaSerif,
+             fontSize: 20,
+             addContentSizeFitter: false
+             );
+            SubUIs.Add(WorkSkillPickup);
+
+            GameObject WorkSkillSmelt = GUIManager.Instance.CreateText(
+            text: $"Can Do Smelt Fillup work : {VillagerGeneral.GetWorkSkill_Smelter(selected_villager)}",
+            parent: MAINBG.transform,
+            anchorMin: new Vector2(0.5f, 0.1f),
+            anchorMax: new Vector2(0.5f, 0.5f),
+            position: new Vector2(-200f, -150f), // width & height
+            width: 250f,
+            height: 60f,
+            color: Color.yellow,
+            outline: false,
+            outlineColor: Color.white,
+            font: GUIManager.Instance.AveriaSerif,
+            fontSize: 20,
+            addContentSizeFitter: false
+            );
+            SubUIs.Add(WorkSkillSmelt);
+
             /*
              *  weapon.m_shared.m_damages = new HitData.DamageTypes();
                 weapon.m_shared.m_damages.m_damage = villagerGeneral.GetDamage();
@@ -306,7 +340,7 @@ namespace KukusVillagerMod.Components.UI
                   parent: MAINBG.transform,
                   anchorMin: new Vector2(0.5f, 0.1f),
                   anchorMax: new Vector2(0.5f, 0.5f),
-                  position: new Vector2(-200f, 150f), // Left Top
+                  position: new Vector2(-200f, 200f), // Left Top
                   width: 250f,
                   height: 60f
                   );
@@ -318,7 +352,7 @@ namespace KukusVillagerMod.Components.UI
                   parent: MAINBG.transform,
                   anchorMin: new Vector2(0.5f, 0.1f),
                   anchorMax: new Vector2(0.5f, 0.5f),
-                  position: new Vector2(-200f, 100f), // LEFT MID
+                  position: new Vector2(-200f, 150f), // LEFT MID
                   width: 250f,
                   height: 60f
                   );
@@ -332,7 +366,7 @@ namespace KukusVillagerMod.Components.UI
                   parent: MAINBG.transform,
                   anchorMin: new Vector2(0.5f, 0.1f),
                   anchorMax: new Vector2(0.5f, 0.5f),
-                  position: new Vector2(200f, 150f), // width & height
+                  position: new Vector2(200f, 200f), // width & height
                   width: 250f,
                   height: 60f
                   );
@@ -344,12 +378,93 @@ namespace KukusVillagerMod.Components.UI
                  parent: MAINBG.transform,
                  anchorMin: new Vector2(0.5f, 0.1f),
                  anchorMax: new Vector2(0.5f, 0.5f),
-                 position: new Vector2(200f, 100f), // width & height
+                 position: new Vector2(200f, 150f), // width & height
                  width: 250f,
                  height: 60f
                  );
                 SubUIs.Add(WorkBtn);
                 WorkBtn.GetComponent<Button>().onClick.AddListener(() => { KLog.info($"Working  Post"); });
+
+
+                //WORK SKILLS
+                GameObject WorkSkill = GUIManager.Instance.CreateText(
+                 text: "Work Skills",
+                 parent: MAINBG.transform,
+                 anchorMin: new Vector2(0.5f, 0.1f),
+                 anchorMax: new Vector2(0.5f, 0.5f),
+                 position: new Vector2(0f, 70f), // width & height
+                 width: 250f,
+                 height: 60f,
+                 font: GUIManager.Instance.AveriaSerifBold,
+                 color: Color.black,
+                 fontSize: 25,
+                 outline: false,
+                 outlineColor: Color.black,
+                 addContentSizeFitter: false
+                 );
+                WorkSkill.GetComponent<Text>().alignment = TextAnchor.MiddleCenter;
+                SubUIs.Add(WorkSkill);
+                WorkBtn.GetComponent<Button>().onClick.AddListener(() => { KLog.info($"Working  Post"); });
+
+
+                if (VillagerGeneral.GetWorkSkill_Pickup(selected_villager))
+                {
+                    GameObject pickupWorkBtn = GUIManager.Instance.CreateButton(
+                 text: "Disable Pickup Work Skill",
+                 parent: MAINBG.transform,
+                 anchorMin: new Vector2(0.5f, 0.1f),
+                 anchorMax: new Vector2(0.5f, 0.5f),
+                 position: new Vector2(200f, 150f), // width & height
+                 width: 250f,
+                 height: 60f
+                 );
+                    SubUIs.Add(pickupWorkBtn);
+                    pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Pickup(selected_villager, false); });
+                }
+                else
+                {
+
+                    GameObject pickupWorkBtn = GUIManager.Instance.CreateButton(
+                 text: "Enable Pickup Work Skill",
+                 parent: MAINBG.transform,
+                 anchorMin: new Vector2(0.5f, 0.1f),
+                 anchorMax: new Vector2(0.5f, 0.5f),
+                 position: new Vector2(200f, 150f), // width & height
+                 width: 250f,
+                 height: 60f
+                 );
+                    SubUIs.Add(pickupWorkBtn);
+                    pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Pickup(selected_villager, true); });
+                }
+                if (VillagerGeneral.GetWorkSkill_Smelter(selected_villager))
+                {
+
+                    GameObject pickupWorkBtn = GUIManager.Instance.CreateButton(
+                 text: "Disable Smelter Fillup Work Skill",
+                 parent: MAINBG.transform,
+                 anchorMin: new Vector2(0.5f, 0.1f),
+                 anchorMax: new Vector2(0.5f, 0.5f),
+                 position: new Vector2(-200f, 150f), // width & height
+                 width: 250f,
+                 height: 60f
+                 );
+                    SubUIs.Add(pickupWorkBtn);
+                    pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Smelter(selected_villager, false); });
+                }
+                else
+                {
+                    GameObject pickupWorkBtn = GUIManager.Instance.CreateButton(
+                text: "Enable Smelter Fillup Work Skill",
+                parent: MAINBG.transform,
+                anchorMin: new Vector2(0.5f, 0.1f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(-200f, 150f), // width & height
+                width: 250f,
+                height: 60f
+                );
+                    SubUIs.Add(pickupWorkBtn);
+                    pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Smelter(selected_villager, false); });
+                }
             }
         }
         private static void SetupEssentialUI()
@@ -374,7 +489,7 @@ namespace KukusVillagerMod.Components.UI
                 parent: MAINBG.transform,
                  anchorMin: new Vector2(0.5f, 0.5f),
                 anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(0f, 150f), // width & height
+                position: new Vector2(0f, 200f), // width & height
                 width: 250f,
                 height: 60f,
                 color: Color.black,
@@ -384,6 +499,7 @@ namespace KukusVillagerMod.Components.UI
                 fontSize: 30,
                 addContentSizeFitter: false
                 );
+            NameTextGO.GetComponent<Text>().alignment = TextAnchor.MiddleCenter;
             SubUIs.Add(NameTextGO);
             //Close button
             GameObject closeBtn = GUIManager.Instance.CreateButton(

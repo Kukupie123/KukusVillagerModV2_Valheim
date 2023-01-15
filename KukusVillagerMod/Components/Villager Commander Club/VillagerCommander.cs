@@ -330,7 +330,6 @@ namespace KukusVillagerMod.itemPrefab
 
                                     foreach (VillagerGeneral v in UnityEngine.GameObject.FindObjectsOfType<VillagerGeneral>())
                                     {
-                                        //if (v == null || v.znv == null || v.znv.GetZDO() == null)
                                         ZNetScene.instance.Destroy(v.gameObject);
                                         MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all Villagers");
                                     }

@@ -29,42 +29,10 @@ namespace KukusVillagerMod.Patches
 
             if (vls != null)
             {
-                string finalText = "";
-
-                //Health
-                finalText = $"{finalText}\nHealth : { vls.GetHealth(true)}";
-
-                //Efficiency
-                float efficiency = (vls.GetEfficiency() * 100.0f);
-
-                //Special skill
-                finalText = $"{finalText}\nEfficiency : {(int)efficiency}";
-                Tuple<HitData.DamageType, float> specialSkill = vls.GetSpecialSkill();
-                if (specialSkill != null)
-                {
-                    finalText = $"{finalText}\nSkill : {specialSkill.Item1} ({specialSkill.Item2})";
-                }
-
-                //Damage stats
-                finalText = $"{finalText}\nDamage : {vls.GetDamage()}";
-                finalText = $"{finalText}\nSlash : {vls.GetSlash()}";
-                finalText = $"{finalText}\nBlunt : {vls.GetBlunt()}";
-                finalText = $"{finalText}\nPierce : {vls.GetPierce()}";
-
                 if (vls.IsVillagerTamed())
-                {
-                    string mining = "";
-
-                    switch (vls.GetMiningLevel())
-                    {
-                        case 0: mining = "Newbie"; break;
-                        case 1: mining = "Rokie"; break;
-                        case 2: mining = "Iron Arms"; break;
-                        case 3: mining = "Veteran"; break;
-                    }
-                    finalText = $"{finalText}\n[{mining}] Chopping : {vls.GetChop()}, Mining : {vls.GetPickaxe()}";
-                }
-                __result = finalText;
+                    __result = vls.GetVillagerState().ToString();
+                else
+                    __result = "Roaming in the wild";
             }
         }
 
