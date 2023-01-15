@@ -78,7 +78,7 @@ namespace KukusVillagerMod.Patches
             var vls = __instance.GetComponentInParent<VillagerGeneral>(); //instance is the object
             if (vls != null)
             {
-                VillagerGUI.ShowVillagerStatsUI(vls.ZNV.GetZDO().m_uid);
+                VillagerGUI.OnShowMenu(vls.ZNV.GetZDO().m_uid);
             }
             else
             {
