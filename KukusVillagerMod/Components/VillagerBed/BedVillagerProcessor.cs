@@ -10,7 +10,6 @@ namespace KukusVillagerMod.Components.VillagerBed
     {
         private ZNetView znv;
         public float respawnTimeInMinute = 1f; //The respawn time for the villager. Has to be set during prefab creation
-        public string VillagerPrefabName; //Name of the villager it has to spawn, has to be set during prefab creation
         private Piece piece;
 
         /*
@@ -46,100 +45,13 @@ namespace KukusVillagerMod.Components.VillagerBed
                         fixedUpdateRanOnce = true;
                         return;
                     }
-                    base.InvokeRepeating("UpdateSpawner", 1f, 1f);
-
                     fixedUpdateRanOnce = true;
                 }
 
             }
         }
 
-        /// <summary>
-        /// Determines if we need to spawn a new villager or not.
-        /// </summary>
-        private void UpdateSpawner()
-        {
-            if (!this.znv.IsOwner())
-            {
-                return;
-            }
 
-            ZDOID villagerZDOID = this.znv.GetZDO().GetZDOID("spawn_id");
-
-            //If respawn timer is less than 0 and villager is valid we simply return. IDK why tho, this is from the game's official CreatureSpawner class
-            if (this.respawnTimeInMinute <= 0f && !villagerZDOID.IsNone())
-            {
-                return;
-            }
-
-            //If villager is valid and the ZDO of the villager we got from villagerZDOID is valid we update the alive time variable. Pretty sure we do not need this. Part of official code
-            if (!villagerZDOID.IsNone() && ZDOMan.instance.GetZDO(villagerZDOID) != null)
-            {
-                this.znv.GetZDO().Set("alive_time", ZNet.instance.GetTime().Ticks);
-                return;
-            }
-
-
-            //If respawnTimerInMin is greater than 0 we check the alive_time count. And if alive time - currentTime is invalid then we can assume that the villager is dead and spawn if enough time has passed after the villager died
-            if (this.respawnTimeInMinute > 0f)
-            {
-                DateTime time = ZNet.instance.GetTime();
-                DateTime d = new DateTime(this.znv.GetZDO().GetLong("alive_time", 0L));
-                if ((time - d).TotalMinutes < (double)this.respawnTimeInMinute)
-                {
-                    return;
-                }
-            }
-
-
-            this.Spawn();
-
-        }
-
-
-        /// <summary>
-        /// Checks if this bed has a villager spawned
-        /// </summary>
-        /// <returns>true if it has a villager </returns>
-        private bool HasSpawned()
-        {
-            return !(this.znv == null) && this.znv.GetZDO() != null && !this.znv.GetZDO().GetZDOID("spawn_id").IsNone();
-        }
-
-
-        /// <summary>
-        /// Spawns a villager and saves essential data
-        /// </summary>
-        /// <returns></returns>
-        private ZNetView Spawn()
-        {
-            KLog.warning("Spawning CREATURE!");
-            Vector3 position = base.transform.position;
-            float y;
-
-            //Finding the best spawn location
-            if (ZoneSystem.instance.FindFloor(position, out y))
-            {
-                position.y = y;
-            }
-
-
-            var villagerPrefab = CreatureManager.Instance.GetCreaturePrefab(VillagerPrefabName); //Getting prefab of the villager
-            Quaternion rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f); //Random rotation along the YAW
-            GameObject villager = UnityEngine.Object.Instantiate<GameObject>(villagerPrefab, position, rotation); //spawning a villager
-
-
-            ZNetView component = villager.GetComponent<ZNetView>();
-            BaseAI component2 = villager.GetComponent<BaseAI>();
-            Tameable tameable = villager.GetComponent<Tameable>();
-            tameable.Tame(); //Taming the spawned villager
-
-            component.GetZDO().Set("spawner_id", this.znv.GetZDO().m_uid); //Save the bed's ID in the villager's ZDO
-            component.GetZDO().SetPGWVersion(this.znv.GetZDO().GetPGWVersion()); //not sure that this is for
-            this.znv.GetZDO().Set("spawn_id", component.GetZDO().m_uid); //Save the villager's ID in this bed's ZDO
-            this.znv.GetZDO().Set("alive_time", ZNet.instance.GetTime().Ticks); //Save alive time in this bed's ZDO
-            return component;
-        }
 
 
         //Ignore collision with player

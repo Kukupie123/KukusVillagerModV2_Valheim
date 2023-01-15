@@ -38,8 +38,6 @@ namespace KukusVillagerMod.Components.Villager
             if (ai == null) ai = GetComponent<MonsterAI>();
 
 
-            //Wait for bed to be assigned and map to be loaded before proceeding, if bed has not been assigned for certain amount of time then destroy the villager.
-            if (!KukusVillagerMod.isMapDataLoaded || villagerGeneral.isBedAssigned() == false) return;
 
             //Runs only once
             if (!updateRanOnce)

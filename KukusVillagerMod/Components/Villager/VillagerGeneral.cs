@@ -7,19 +7,305 @@ using UnityEngine;
 
 namespace KukusVillagerMod.Components.Villager
 {
+    /*
+     * Stats of villager. Stored in ZDO
+     * 1. Name
+     * 2. Health (Upgradable, upgrades as they fight)
+     * 3. Special Damage (None, Fire, Frost, Poison)
+     * 4. Efficiency% (For upgrading)
+     * 5. Random base damage stats
+     * 6. Mining Level : (Simple, Bronze, Iron, Silver, BM)
+     * 
+     * Upgrades:
+     * Health and damage can be upgraded : (current * efficiency rate ) : Eg 36 + 36 * 0.2. You will be using items to upgrade them. Different trophy created item will provide different multiplier for efficiency.
+     * Passive slow upgrade for working and fighting
+     * Chop & pickaxe will be capped and will be uncapped by feeding them bronze to unlock bronze chop&pickaxe and so on
+     */
     class VillagerGeneral : MonoBehaviour
     {
-        public ZNetView ZNV; //ZNetView of the Villager Creature
+
+        public static bool TameVillager(ZDOID villagerZDOID)
+        {
+            if (!Util.ValidateZDOID(villagerZDOID)) return false;
+            ZDO villagerZDO = ZDOMan.instance.GetZDO(villagerZDOID);
+            if (!Util.ValidateZDO(villagerZDO)) return false;
+            //Get ZNV of the villager
+            ZNetView villagerZNV = ZNetScene.instance.FindInstance(villagerZDO);
+            if (!Util.ValidateZNetView(villagerZNV)) return false;
+
+            villagerZNV.SetPersistent(true);
+            return true;
+        }
+        public static void SetRandomStats(ZNetView ZNV)
+        {
+
+            //Basics
+            var n = Util.RandomName();
+            ZNV.GetZDO().Set("name", n);
+            ZNV.GetZDO().Set("health", UnityEngine.Random.Range(50f, 150f));
+            ZNV.GetZDO().Set("efficiency", UnityEngine.Random.Range(0.1f, 1.0f)); //Percentage stuff
+
+            KLog.warning($"Villager {ZNV.GetZDO().m_uid.id} has name {n} ");
+
+            //Farming stuff
+            ZNV.GetZDO().Set("pickaxe", 15.0f);
+            ZNV.GetZDO().Set("chop", 20.0f);
+            ZNV.GetZDO().Set("mining", 0);
+            //15 should be base pickaxe, 20 chop
+
+            //Damage
+            /*
+        *  weapon.m_shared.m_damages = new HitData.DamageTypes();
+               weapon.m_shared.m_damages.m_damage = 0f;
+               weapon.m_shared.m_damages.m_slash = 0f;
+               weapon.m_shared.m_damages.m_blunt = 0f;
+               weapon.m_shared.m_damages.m_fire = 0f;
+               weapon.m_shared.m_damages.m_frost = 0f;
+               weapon.m_shared.m_damages.m_lightning = 0f;
+               weapon.m_shared.m_damages.m_pierce = 0f;
+               weapon.m_shared.m_damages.m_poison = 0f;
+               weapon.m_shared.m_damages.m_spirit = 0f;
+        */
+            ZNV.GetZDO().Set("damage", UnityEngine.Random.Range(0f, 20f));
+            ZNV.GetZDO().Set("slash", UnityEngine.Random.Range(0f, 20f));
+            ZNV.GetZDO().Set("blunt", UnityEngine.Random.Range(0f, 20f));
+            ZNV.GetZDO().Set("fire", 0f); //special
+            ZNV.GetZDO().Set("frost", 0f); //special
+            ZNV.GetZDO().Set("lightning", 0f); //special
+            ZNV.GetZDO().Set("pierce", UnityEngine.Random.Range(0f, 20f));
+            ZNV.GetZDO().Set("poison", 0f); //special
+            ZNV.GetZDO().Set("spirit", 0f); //special
+
+            if (UnityEngine.Random.Range(0, 3) == 2)
+            {
+
+                ZNV.GetZDO().Set("special", true);
+                //Speciality
+                switch (UnityEngine.Random.Range(0, 4))
+                {
+                    case 0:
+                        ZNV.GetZDO().Set("fire", UnityEngine.Random.Range(0f, 10f));
+                        break;
+                    case 1:
+                        ZNV.GetZDO().Set("frost", UnityEngine.Random.Range(0f, 10f));
+                        break;
+                    case 2:
+                        ZNV.GetZDO().Set("lightning", UnityEngine.Random.Range(0f, 10f));
+                        break;
+                    case 3:
+                        ZNV.GetZDO().Set("poison", UnityEngine.Random.Range(0f, 10f));
+                        break;
+                    case 4:
+                        ZNV.GetZDO().Set("spirit", UnityEngine.Random.Range(0f, 10f));
+                        break;
+                }
+            }
 
 
-        public int villagerLevel; //The level of the villager. Has to be set during creature prefab setup
-        public int villagerType; //The type of villager. Servers no purpose anymore, will remove soon
-        public int health; //The health of the villager. Has to be set during the creature prefab setup.
+
+        }
+        private void SetRandomStats()
+        {
+            if (humanoid.IsTamed()) KLog.warning("Villager is tamed, aborting setting up random values");
+            else
+            {
+                SetRandomStats(this.ZNV);
+                humanoid.SetMaxHealth(GetHealth());
+                humanoid.SetHealth(GetHealth());
+                humanoid.m_name = GetName();
+            }
+        }
+        public static float GetDamage(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return 0;
+            return zdo.GetFloat("damage", 0f);
+        }
+        public float GetDamage()
+        {
+            return GetDamage(this.ZNV.GetZDO().m_uid);
+        }
+        public static float GetSlash(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return 0;
+            return zdo.GetFloat("slash", 0f);
+        }
+        public float GetSlash()
+        {
+            return GetSlash(this.ZNV.GetZDO().m_uid);
+        }
+        public static float GetBlunt(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return 0;
+            return zdo.GetFloat("blunt", 0f);
+        }
+        public float GetBlunt()
+        {
+            return GetBlunt(this.ZNV.GetZDO().m_uid);
+        }
+        public static float GetFire(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return 0;
+            return zdo.GetFloat("fire", 0f);
+        }
+        public float GetFire()
+        {
+            return GetFire(this.ZNV.GetZDO().m_uid);
+        }
+        public static float GetFrost(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return 0;
+            return zdo.GetFloat("frost", 0f);
+        }
+        public float GetFrost()
+        {
+            return GetFrost(this.ZNV.GetZDO().m_uid);
+        }
+        public static float Getlightning(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return 0;
+            return zdo.GetFloat("lightning", 0f);
+        }
+        public float Getlightning()
+        {
+            return Getlightning(this.ZNV.GetZDO().m_uid);
+        }
+        public static float GetPierce(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return 0;
+            return zdo.GetFloat("pierce", 0f);
+        }
+        public float GetPierce()
+        {
+            return GetPierce(this.ZNV.GetZDO().m_uid);
+        }
+        public static float GetPoison(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return 0;
+            return zdo.GetFloat("GetPoison", 0f);
+        }
+        public float GetPoison()
+        {
+            return GetPoison(this.ZNV.GetZDO().m_uid);
+        }
+        public static float GetSpirit(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return 0;
+            return zdo.GetFloat("spirit", 0f);
+        }
+        public float GetSpirit()
+        {
+            return GetSpirit(this.ZNV.GetZDO().m_uid);
+        }
+        public static float GetChop(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return 0;
+            return zdo.GetFloat("chop", 0f);
+        }
+        public float GetChop()
+        {
+            return GetChop(this.ZNV.GetZDO().m_uid);
+        }
+        public static float GetPickaxe(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return 0;
+            return zdo.GetFloat("pickaxe", 0f);
+        }
+        public float GetPickaxe()
+        {
+            return GetPickaxe(this.ZNV.GetZDO().m_uid);
+        }
+        public static string GetName(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return null;
+            return zdo.GetString("name");
+        }
+        public string GetName()
+        {
+            return GetName(this.ZNV.GetZDO().m_uid);
+        }
+        public static float GetHealth(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return 0;
+            return zdo.GetFloat("health");
+        }
+        public float GetHealth()
+        {
+            return GetHealth(this.ZNV.GetZDO().m_uid);
+        }
+        public static float GetEfficiency(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return 0;
+            return zdo.GetFloat("efficiency");
+        }
+        public float GetEfficiency()
+        {
+            return GetEfficiency(this.ZNV.GetZDO().m_uid);
+        }
+
+        public static Tuple<HitData.DamageType, float> GetSpecialSkill(ZDOID villagerZDOID)
+        {
+            var zdo = Util.GetZDO(villagerZDOID);
+            if (Util.ValidateZDO(zdo) == false) return null;
+
+            var dmg = 0f;
+            dmg = GetFrost(villagerZDOID);
+            if (dmg != 0)
+            {
+                return new Tuple<HitData.DamageType, float>(HitData.DamageType.Frost, dmg);
+            }
+            dmg = Getlightning(villagerZDOID);
+            if (dmg != 0)
+            {
+                return new Tuple<HitData.DamageType, float>(HitData.DamageType.Lightning, dmg);
+            }
+            dmg = GetPoison(villagerZDOID);
+            if (dmg != 0)
+            {
+                return new Tuple<HitData.DamageType, float>(HitData.DamageType.Poison, dmg);
+            }
+            dmg = GetSpirit(villagerZDOID);
+            if (dmg != 0)
+            {
+                return new Tuple<HitData.DamageType, float>(HitData.DamageType.Spirit, dmg);
+            }
+            return null;
+            //frost, lightning,poison,spirit
+        }
+        public Tuple<HitData.DamageType, float> GetSpecialSkill()
+        {
+            return GetSpecialSkill(ZNV.GetZDO().m_uid);
+        }
+        //Object methods and members-------------------------------
+
+        public ZNetView ZNV;
         private MonsterAI ai;
         private Humanoid humanoid;
+        private Tameable tameable;
 
+        private void Awake()
+        {
+            ZNV = GetComponent<ZNetView>();
+            ai = GetComponent<MonsterAI>();
+            humanoid = GetComponent<Humanoid>();
+            tameable = GetComponent<Tameable>();
+            ai.m_attackPlayerObjects = false;
+            SetRandomStats();
 
-
+        }
 
         //Ignore collision with player
         private void OnCollisionEnter(Collision collision)
@@ -36,63 +322,8 @@ namespace KukusVillagerMod.Components.Villager
 
         }
 
-        DateTime? startingTimeForBedNotFound;
-        private void FixedUpdate()
-        {
-            if (ZNV == null || ZNV.IsValid() == false)
-            {
-                ZNV = GetComponentInParent<ZNetView>();
-                ZNV.SetPersistent(true); //ZNV has to be persistent
-                return;
-            }
-            if (humanoid == null)
-            {
-                humanoid = GetComponent<Humanoid>();
-                humanoid.SetLevel(villagerLevel);
-                return;
-            }
-            if (ai == null)
-            {
-                ai = GetComponent<MonsterAI>();
-                return;
-            }
 
-
-            if (!KukusVillagerMod.isMapDataLoaded) return;
-
-
-            //Wait for the bed's ID which spawned this villagers to be saved in the zdo of this villager. The threshold is 10 sec. If we fail to find bed in 10 sec then we are going to assume that this villager was spawned without a bed and needs to be destroyed
-            if (!isBedAssigned())
-            {
-                //Set starting time. Will execute only once
-                if (startingTimeForBedNotFound == null)
-                {
-                    KLog.warning("SET STARTING TIME FOR BED NOT ASSIGNED");
-                    startingTimeForBedNotFound = ZNet.instance.GetTime();
-                }
-
-                DateTime currentTime = DateTime.Now;
-
-                TimeSpan timeElasped = currentTime - startingTimeForBedNotFound.Value;
-
-                if (timeElasped.TotalSeconds > 10)
-                {
-                    //if we crossed 10 sec of waiting we are destroying thezdo
-                    startingTimeForBedNotFound = null;
-                    ZDO zdo = base.GetComponent<ZNetView>().GetZDO();
-                    KLog.warning("The villager has not found a bed. Destroying");
-                    ZDOMan.instance.DestroyZDO(zdo);
-                }
-                return;
-            }
-
-            //Check if the bed assigned is valid, if not valid destroy
-            if (!GetBedZDO().IsValid())
-            {
-                ZDOMan.instance.DestroyZDO(ZNV.GetZDO());
-            }
-
-        }
+        //Stats section--------------
 
 
         //Villager state related functions--------------------------------------------------
@@ -108,33 +339,6 @@ namespace KukusVillagerMod.Components.Villager
 
 
         //Bed related functions-------------------------------------------------------------
-
-        //Returns true if a bed was assigned to this villager after it spawned
-        public bool isBedAssigned()
-        {
-            try
-            {
-                ZDOID zdoid = this.ZNV.GetZDO().GetZDOID("spawner_id");
-
-                //if zdoid is not null and it exists then we can say that the bed has been assigned for this villager after it spawned
-                if (!zdoid.IsNone() && ZDOMan.instance.GetZDO(zdoid) != null)
-                {
-                    return true;
-                }
-
-                //Check if the bed ZDO also has spawn_id of this zdo
-                if (ZDOMan.instance.GetZDO(zdoid).GetZDOID("spawn_id") != null && ZDOMan.instance.GetZDO(zdoid).GetZDOID("spawn_id").IsNone() == false && ZDOMan.instance.GetZDO(zdoid).GetZDOID("spawn_id").id == this.ZNV.GetZDO().m_uid.id)
-                {
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-        }
 
         public ZDOID GetBedZDOID()
         {

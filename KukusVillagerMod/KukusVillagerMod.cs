@@ -17,6 +17,7 @@ using KukusVillagerMod.VirtualWorker;
 
 namespace KukusVillagerMod
 {
+    [BepInDependency("com.alexanderstrada.rrrnpcs")]
     [BepInDependency(Jotunn.Main.ModGuid)]
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     //[NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
@@ -54,7 +55,7 @@ namespace KukusVillagerMod
             {
                 vc.HandleInputs();
             }
-            if(vw != null)
+            if (vw != null)
             {
                 vw.vw();
             }
@@ -83,10 +84,41 @@ namespace KukusVillagerMod
 
     }
 
-    class Global
+    class Util
     {
-        private Global() { }
+        private Util() { }
+        public static bool ValidateZDOID(ZDOID zdoid)
+        {
+            if (zdoid == null || zdoid.IsNone()) return false;
+            return true;
+        }
+        public static bool ValidateZDO(ZDO zdo)
+        {
+            if (zdo == null || !zdo.IsValid()) return false;
+            return true;
+        }
+        public static bool ValidateZNetView(ZNetView ZNV)
+        {
+            if (ZNV == null || ZNV.IsValid() == false || ZNV.GetZDO() == null || ZNV.GetZDO().IsValid() == false) return false;
+            return true;
+        }
 
+        public static ZDO GetZDO(ZDOID zdoid)
+        {
+            if (ValidateZDOID(zdoid) == false)
+            {
+                return null;
+            }
+            return ZDOMan.instance.GetZDO(zdoid);
+        }
+
+        public static string RandomName()
+        {
+            var firstNames = new[] { "Kuku", "Hoezae", "Jeff", "Klint", "Druftes", "Fver", "Qanzop", "Lufty" };
+            var lastNames = new[] { "Deb", "Barma", "Hoster", "Ward", "Bap", "Cergate" };
+            string name = firstNames[UnityEngine.Random.Range(0, firstNames.Length - 1)] + " " + lastNames[UnityEngine.Random.Range(0, lastNames.Length - 1)];
+            return name;
+        }
     }
 
     class KLog

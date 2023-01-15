@@ -28,7 +28,21 @@ namespace KukusVillagerMod.Patches
 
             if (vls != null)
             {
-                __result = $"Villager : {vls.ZNV.GetZDO().m_uid.id}\nBed : {vls.GetBedZDO().m_uid.id}\nState : {((VillagerState)vls.GetBedZDO().GetInt("state", (int)VillagerState.Guarding_Bed)).ToString().Replace("_", " ")}\nWork Skills : Pickup = {vls.GetWorkSkill_CanPickUp()}, Smelt = {vls.GetWorkSkill_CanSmelt()}";
+                string finalText = "";
+                string name = vls.GetName();
+                if (!string.IsNullOrEmpty(name))
+                {
+                    finalText = $"{finalText}Name : {name}";
+                }
+                finalText = $"{finalText}\nHealth : { vls.GetHealth()}";
+                float efficiency = (vls.GetEfficiency() * 100.0f);
+                finalText = $"{finalText}\nEfficiency : {(int)efficiency}";
+                Tuple<HitData.DamageType, float> specialSkill = vls.GetSpecialSkill();
+                if (specialSkill != null)
+                {
+                    finalText = $"{finalText}\nSpecial Skill : {specialSkill.Item1} ({specialSkill.Item2})";
+                }
+                __result = finalText;
             }
         }
 
@@ -131,9 +145,10 @@ namespace KukusVillagerMod.Patches
     {
         public static void Postfix(Humanoid __instance, ref ItemDrop.ItemData __result, ref ItemDrop.ItemData ___m_rightItem, ref ItemDrop.ItemData ___m_leftItem, ref ItemDrop ___m_unarmedWeapon)
         {
-            if (__instance.GetComponentInParent<VillagerAI>())
+            if (__instance.GetComponentInParent<VillagerGeneral>())
 
             {
+                var villagerGeneral = __instance.GetComponentInParent<VillagerGeneral>();
                 ItemDrop.ItemData weapon = null;
                 if (___m_rightItem != null && ___m_rightItem.IsWeapon())
                 {
@@ -151,18 +166,17 @@ namespace KukusVillagerMod.Patches
                 if (weapon != null)
                 {
                     weapon.m_shared.m_damages = new HitData.DamageTypes();
-                    weapon.m_shared.m_damages.m_damage = 0f;
-                    weapon.m_shared.m_damages.m_slash = 0f;
-                    weapon.m_shared.m_damages.m_blunt = 0f;
-                    weapon.m_shared.m_damages.m_chop = 0f;
-                    weapon.m_shared.m_damages.m_fire = 0f;
-                    weapon.m_shared.m_damages.m_frost = 0f;
-                    weapon.m_shared.m_damages.m_lightning = 0f;
-                    weapon.m_shared.m_damages.m_pickaxe = 0f;
-                    weapon.m_shared.m_damages.m_pierce = 0f;
-                    weapon.m_shared.m_damages.m_poison = 0f;
-                    weapon.m_shared.m_damages.m_slash = 0f;
-                    weapon.m_shared.m_damages.m_spirit = 0f;
+                    weapon.m_shared.m_damages.m_damage = villagerGeneral.GetDamage();
+                    weapon.m_shared.m_damages.m_slash = villagerGeneral.GetSlash();
+                    weapon.m_shared.m_damages.m_blunt = villagerGeneral.GetBlunt();
+                    weapon.m_shared.m_damages.m_chop = villagerGeneral.GetChop();
+                    weapon.m_shared.m_damages.m_fire = villagerGeneral.GetFire();
+                    weapon.m_shared.m_damages.m_frost = villagerGeneral.GetFrost();
+                    weapon.m_shared.m_damages.m_lightning = villagerGeneral.Getlightning();
+                    weapon.m_shared.m_damages.m_pickaxe = villagerGeneral.GetPickaxe();
+                    weapon.m_shared.m_damages.m_pierce = villagerGeneral.GetPickaxe();
+                    weapon.m_shared.m_damages.m_poison = villagerGeneral.GetPoison();
+                    weapon.m_shared.m_damages.m_spirit = villagerGeneral.GetSpirit();
                     __result = weapon;
                 }
                 else

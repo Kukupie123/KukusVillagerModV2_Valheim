@@ -18,34 +18,11 @@ namespace KukusVillagerMod.Prefabs
 
         public VillagerPrefab()
         {
-            //Weak
-            createCreature2("Weak_Villager_Ranged", VillagerModConfigurations.weak_villager_ranged_prefab, 2, VillagerModConfigurations.weak_villager_ranged_level, VillagerModConfigurations.weak_villager_ranged_health);
-            createCreature2("Weak_Villager", VillagerModConfigurations.weak_villager_melee_prefab, 1, VillagerModConfigurations.weak_villager_level, VillagerModConfigurations.weak_villager_health);
-
-            //Bronze
-            createCreature2("Bronze_Villager_Ranged", VillagerModConfigurations.bronze_villager_ranged_prefab, 2, VillagerModConfigurations.bronze_villager_ranged_level, VillagerModConfigurations.bronze_villager_ranged_health);
-            createCreature2("Bronze_Villager", VillagerModConfigurations.bronze_villager_melee_prefab, 1, VillagerModConfigurations.bronze_villager_level, VillagerModConfigurations.bronze_villager_health);
-
-            //Iron
-            createCreature2("Iron_Villager_Ranged", VillagerModConfigurations.iron_villager_ranged_prefab, 2, VillagerModConfigurations.iron_villager_ranged_level, VillagerModConfigurations.iron_villager_ranged_health);
-            createCreature2("Iron_Villager", VillagerModConfigurations.iron_villager_melee_prefab, 1, VillagerModConfigurations.iron_villager_level, VillagerModConfigurations.iron_villager_health);
-
-            //Silver
-            createCreature2("Silver_Villager_Ranged", VillagerModConfigurations.silver_villager_ranged_prefab, 2, VillagerModConfigurations.silver_villager_ranged_level, VillagerModConfigurations.silver_villager_ranged_health);
-            createCreature2("Silver_Villager", VillagerModConfigurations.silver_villager_melee_prefab, 1, VillagerModConfigurations.silver_villager_level, VillagerModConfigurations.silver_villager_health);
-
-            //BM
-            createCreature2("BlackMetal_Villager_Ranged", VillagerModConfigurations.bm_villager_ranged_prefab, 2, VillagerModConfigurations.bm_villager_ranged_level, VillagerModConfigurations.bm_villager_ranged_health);
-            createCreature2("BlackMetal_Villager", VillagerModConfigurations.bm_villager_melee_prefab, 1, VillagerModConfigurations.bm_villager_level, VillagerModConfigurations.bm_villager_health);
-
-            //test
-            //testHuman();
-
-            //Worker
-            //createCreature2("Worker_Troll", "Troll", 3, 0, 100);
+            createCreature2("Villager_Ranged", "GoblinArcher");
+            createCreature2("Villager_Melee", "Goblin");
         }
 
-        void createCreature2(string villagerName, string prefabCloneName, int villagerType, int level, int health)
+        void createCreature2(string villagerName, string prefabCloneName)
         {
             CreatureConfig villagerConfig = new CreatureConfig();
             villagerConfig.Name = villagerName.Replace("_", " "); //Replace the "_" with " " Eg: Weak_Mage becomes Weak Mage
@@ -60,6 +37,7 @@ namespace KukusVillagerMod.Prefabs
             var npcTalkP = villager.Prefab.GetComponentInParent<NpcTalk>();
             var interactionP = villager.Prefab.GetComponentInParent(typeof(Interactable));
             var interaction = villager.Prefab.GetComponent(typeof(Interactable));
+            var randAnim = villager.Prefab.GetComponent<RandomAnimation>();
 
             //Edit drops
             charDrop.SetDropsEnabled(false);
@@ -69,17 +47,12 @@ namespace KukusVillagerMod.Prefabs
             UnityEngine.GameObject.DestroyImmediate(npcTalkP);
             UnityEngine.GameObject.DestroyImmediate(interactionP);
             UnityEngine.GameObject.DestroyImmediate(interaction);
+            UnityEngine.GameObject.DestroyImmediate(randAnim);
 
             villager.Prefab.AddComponent<NpcTalk>(); //Add our custom talk component
             villager.Prefab.AddComponent<Tameable>(); //Add taming component to be able to tame it
             villager.Prefab.AddComponent<VillagerGeneral>(); //Add villager General component 
-            villager.Prefab.AddComponent<VillagerAI>();
-            villager.Prefab.GetComponent<VillagerGeneral>().villagerType = villagerType;
-            villager.Prefab.GetComponent<VillagerGeneral>().villagerLevel = level;
-            villager.Prefab.GetComponent<VillagerGeneral>().health = health;
-
-            villager.Prefab.GetComponent<Humanoid>().m_health = health;
-
+            //villager.Prefab.AddComponent<VillagerAI>();
             CreatureManager.Instance.AddCreature(villager);
 
             KLog.info($"Created Creature with Name : {villagerName}");
