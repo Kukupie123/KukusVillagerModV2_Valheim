@@ -18,7 +18,7 @@ namespace KukusVillagerMod.Prefabs
 
         public VillagerPrefab()
         {
-            createCreature2("Villager_Ranged", "Dverger");
+            createCreature2("Villager_Ranged", "GoblinArcher");
             createCreature2("Villager_Melee", "Goblin");
         }
 
