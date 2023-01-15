@@ -364,6 +364,7 @@ namespace KukusVillagerMod.Components.Villager
             if (bedZDO == null || bedZDO.IsValid() == false)
             {
                 talk.Say("Couldn't find my bed", "Bed");
+                RoamAround(false);
                 return false;
             }
 
@@ -429,7 +430,7 @@ namespace KukusVillagerMod.Components.Villager
             if (defenseZDO == null || defenseZDO.IsValid() == false)
             {
                 talk.Say("Defend Post not assigned or destroyed", "Defend");
-
+                RoamAround(false);
                 return false;
             }
 
@@ -474,6 +475,7 @@ namespace KukusVillagerMod.Components.Villager
 
             if (wp == null || wp.IsNone())
             {
+                RoamAround(false);
                 talk.Say("No Work Post assigned", "Work");
                 RoamAround(false);
                 return false;
@@ -481,6 +483,7 @@ namespace KukusVillagerMod.Components.Villager
 
             if (villagerGeneral.GetWorkPostZDO() == null || villagerGeneral.GetWorkPostZDO().IsValid() == false)
             {
+                RoamAround(false);
                 talk.Say("My Work post was destroyed", "Work");
                 RoamAround(false);
                 return false;
@@ -491,6 +494,7 @@ namespace KukusVillagerMod.Components.Villager
 
             if (containerID == null || containerID.IsNone())
             {
+                RoamAround(false);
                 talk.Say("Container not assigned", "Work");
                 RoamAround(false);
                 return false;
@@ -499,6 +503,7 @@ namespace KukusVillagerMod.Components.Villager
             ZDO containerZDO = villagerGeneral.GetContainerZDO();
             if (containerZDO == null || containerZDO.IsValid() == false)
             {
+                RoamAround(false);
                 talk.Say("Container was destroyed", "Work");
                 RoamAround(false);
                 return false;

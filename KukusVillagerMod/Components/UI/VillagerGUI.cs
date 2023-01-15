@@ -52,6 +52,9 @@ namespace KukusVillagerMod.Components.UI
                 case VUITab.Orders:
                     SetupVillagerOrderTab();
                     break;
+                case VUITab.ItemAssignment:
+                    SetupVillagerItemAssignmentTab();
+                    break;
                 default:
                     break;
             }
@@ -313,7 +316,7 @@ namespace KukusVillagerMod.Components.UI
                     parent: MAINBG.transform,
                     anchorMin: new Vector2(0.5f, 0.1f),
                     anchorMax: new Vector2(0.5f, 0.5f),
-                    position: new Vector2(-200f, 100f), // width & height
+                    position: new Vector2(0f, 100f), // width & height
                     width: 250f,
                     height: 60f
                     );
@@ -353,6 +356,7 @@ namespace KukusVillagerMod.Components.UI
                     if (ai == null) return;
                     ai.FollowPlayer(Player.m_localPlayer.GetZDOID());
                     KLog.info($"Villager is following");
+                    CloseVillagerMenu();
                 });
 
                 GameObject GuardBedBtn = GUIManager.Instance.CreateButton(
@@ -373,6 +377,7 @@ namespace KukusVillagerMod.Components.UI
                     if (ai == null) return;
                     ai.GuardBed();
                     KLog.info($"Villager is Guarding Bed");
+                    CloseVillagerMenu();
                 });
 
 
@@ -395,6 +400,7 @@ namespace KukusVillagerMod.Components.UI
                     if (ai == null) return;
                     ai.DefendPost();
                     KLog.info($"Defend Post");
+                    CloseVillagerMenu();
                 });
 
                 GameObject WorkBtn = GUIManager.Instance.CreateButton(
@@ -415,6 +421,7 @@ namespace KukusVillagerMod.Components.UI
                     if (ai == null) return;
                     ai.StartWork();
                     KLog.info($"Villager is Starting to Work");
+                    CloseVillagerMenu();
                 });
 
                 GameObject RoamBtn = GUIManager.Instance.CreateButton(
@@ -435,6 +442,7 @@ namespace KukusVillagerMod.Components.UI
                     if (ai == null) return;
                     ai.RoamAround();
                     KLog.info($"Villager is Roaming Around");
+                    CloseVillagerMenu();
                 });
 
 
@@ -518,6 +526,128 @@ namespace KukusVillagerMod.Components.UI
                     pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Smelter(selected_villager, true); UpdateUI(); });
                 }
             }
+        }
+
+        private static void SetupVillagerItemAssignmentTab()
+        {
+            if (!VillagerGeneral.IsVillagerTamed(selected_villager))
+            {
+                GameObject Recruit = GUIManager.Instance.CreateButton(
+                    text: "Recruit Villager",
+                    parent: MAINBG.transform,
+                    anchorMin: new Vector2(0.5f, 0.1f),
+                    anchorMax: new Vector2(0.5f, 0.5f),
+                    position: new Vector2(0f, 100f), // width & height
+                    width: 250f,
+                    height: 60f
+                    );
+                SubUIs.Add(Recruit);
+                Recruit.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    var villager = ZNetScene.instance.FindInstance(selected_villager);
+                    if (villager == null)
+                    {
+                        VillagerGeneral.TameVillager(selected_villager);
+                        return;
+                    }
+                    VillagerGeneral vg = villager.GetComponent<VillagerGeneral>();
+                    vg.TameVillager();
+                    UpdateUI();
+                    return;
+                });
+            }
+            else
+            {
+                GameObject AssignBedBtn = GUIManager.Instance.CreateButton(
+                  text: "Assign (Bed, Defense Post, Work Post, Container)",
+                  parent: MAINBG.transform,
+                  anchorMin: new Vector2(0.5f, 0.1f),
+                  anchorMax: new Vector2(0.5f, 0.5f),
+                  position: new Vector2(0f, 100f),
+                  width: 250f,
+                  height: 60f
+                  );
+                SubUIs.Add(AssignBedBtn);
+                AssignBedBtn.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    VillagerGeneral.SELECTED_VILLAGER_ID = selected_villager;
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Interact with a Bed/Defense Post/Work Post/Container to assign it to {VillagerGeneral.GetName(selected_villager)}");
+                    UpdateUI();
+                    CloseVillagerMenu();
+                });
+
+                GameObject BedText = GUIManager.Instance.CreateText(
+                text: $"Assigned Bed ID : {VillagerGeneral.GetBedZDOID(selected_villager).id}",
+                parent: MAINBG.transform,
+                 anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(-200f, 150f), // width & height
+                width: 250f,
+                height: 60f,
+                color: Color.black,
+                outline: true,
+                outlineColor: Color.white,
+                font: GUIManager.Instance.AveriaSerif,
+                fontSize: 15,
+                addContentSizeFitter: false
+                );
+                SubUIs.Add(BedText);
+
+                GameObject DPText = GUIManager.Instance.CreateText(
+                text: $"Assigned Defense Post ID : {VillagerGeneral.GetDefenseZDOID(selected_villager).id}",
+                parent: MAINBG.transform,
+                 anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(200f, 150f), // width & height
+                width: 250f,
+                height: 60f,
+                color: Color.black,
+                outline: true,
+                outlineColor: Color.white,
+                font: GUIManager.Instance.AveriaSerif,
+                fontSize: 15,
+                addContentSizeFitter: false
+                );
+                DPText.GetComponent<Text>().alignment = TextAnchor.UpperRight;
+                SubUIs.Add(DPText);
+
+                GameObject WPText = GUIManager.Instance.CreateText(
+                text: $"Assigned Work Post ID : {VillagerGeneral.GetWorkPostZDOID(selected_villager).id}",
+                parent: MAINBG.transform,
+                 anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(-200f, 50f), // width & height
+                width: 250f,
+                height: 60f,
+                color: Color.black,
+                outline: true,
+                outlineColor: Color.white,
+                font: GUIManager.Instance.AveriaSerif,
+                fontSize: 15,
+                addContentSizeFitter: false
+                );
+                SubUIs.Add(WPText);
+
+                GameObject ContainerText = GUIManager.Instance.CreateText(
+                text: $"Assigned Container ID : {VillagerGeneral.GetContainerZDOID(selected_villager).id}",
+                parent: MAINBG.transform,
+                 anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(200f, 50f), // width & height
+                width: 250f,
+                height: 60f,
+                color: Color.black,
+                outline: true,
+                outlineColor: Color.white,
+                font: GUIManager.Instance.AveriaSerif,
+                fontSize: 15,
+                addContentSizeFitter: false
+                );
+                ContainerText.GetComponent<Text>().alignment = TextAnchor.UpperRight;
+                SubUIs.Add(ContainerText);
+
+            }
+
         }
         private static void SetupEssentialUI()
         {
@@ -612,6 +742,7 @@ namespace KukusVillagerMod.Components.UI
             OrderTabBtn.GetComponent<Button>().onClick.AddListener(() => { currentTab = VUITab.Orders; UpdateUI(); });
 
         }
+
 
         //Called by interacting with a villager
         public static void OnShowMenu(ZDOID villagerZDOID)
