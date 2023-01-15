@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using KukusVillagerMod.Components.Villager;
 using KukusVillagerMod.Components.VillagerBed;
+using KukusVillagerMod.Components.UI;
 
 namespace KukusVillagerMod.Patches
 {
@@ -74,19 +75,10 @@ namespace KukusVillagerMod.Patches
     {
         public static void Postfix(Tameable __instance, ref Humanoid user, ref bool hold, ref bool alt, ref bool __result)
         {
-            var vAI = __instance.GetComponentInParent<VillagerAI>(); //instance is the object
-            if (vAI != null)
+            var vls = __instance.GetComponentInParent<VillagerGeneral>(); //instance is the object
+            if (vls != null)
             {
-                if (!hold)
-                {
-                    vAI.FollowPlayer(user.GetComponent<Player>().GetZDOID());
-                    __result = true;
-                }
-                else
-                {
-                    vAI.GuardBed();
-                    __result = true;
-                }
+                VillagerGUI.ShowVillagerStatsUI(vls.ZNV.GetZDO().m_uid);
             }
             else
             {

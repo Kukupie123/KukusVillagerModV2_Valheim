@@ -81,6 +81,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\UI\VillagerGUI.cs" />
     <Compile Include="Components\Villager\VillagerAI.cs" />
     <Compile Include="Components\Work Post\WorkPostState.cs" />
     <Compile Include="Configurations\VillagerModConfigurations.cs" />
