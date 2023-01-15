@@ -24,6 +24,10 @@ namespace KukusVillagerMod.Components.Villager
     class VillagerGeneral : MonoBehaviour
     {
         //Methods
+        public static GameObject GetVillagerInstance(ZDOID villagerZDOID)
+        {
+            return ZNetScene.instance.FindInstance(villagerZDOID);
+        }
         public static ZDOID SELECTED_VILLAGER_ID = ZDOID.None;
         //Taming
         public static bool TameVillager(ZDOID villagerZDOID)

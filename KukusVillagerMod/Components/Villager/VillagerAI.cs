@@ -312,7 +312,7 @@ namespace KukusVillagerMod.Components.Villager
                 GuardBed();
                 return false;
             }
-
+            talk.Say("Following","Follow");
             //Follow the player instance
             FollowGameObject(playerGO);
 
@@ -355,7 +355,7 @@ namespace KukusVillagerMod.Components.Villager
         /// Main command to make the villager guard bed
         /// </summary>
         /// <returns></returns>
-        public bool GuardBed()
+        public bool     ()
         {
 
             //1. Validate if bed zdo is valid

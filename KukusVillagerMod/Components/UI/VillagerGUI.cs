@@ -345,7 +345,15 @@ namespace KukusVillagerMod.Components.UI
                   height: 60f
                   );
                 SubUIs.Add(FollowMeBtn);
-                FollowMeBtn.GetComponent<Button>().onClick.AddListener(() => { KLog.info($"Villager is following"); });
+                FollowMeBtn.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    GameObject villagerGO = VillagerGeneral.GetVillagerInstance(selected_villager);
+                    if (!villagerGO) return;
+                    VillagerAI ai = villagerGO.GetComponent<VillagerAI>();
+                    if (ai == null) return;
+                    ai.FollowPlayer(Player.m_localPlayer.GetZDOID());
+                    KLog.info($"Villager is following");
+                });
 
                 GameObject GuardBedBtn = GUIManager.Instance.CreateButton(
                   text: "Guard Bed",
@@ -357,7 +365,15 @@ namespace KukusVillagerMod.Components.UI
                   height: 60f
                   );
                 SubUIs.Add(GuardBedBtn);
-                GuardBedBtn.GetComponent<Button>().onClick.AddListener(() => { KLog.info($"Villager is Guarding Bed"); });
+                GuardBedBtn.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    GameObject villagerGO = VillagerGeneral.GetVillagerInstance(selected_villager);
+                    if (!villagerGO) return;
+                    VillagerAI ai = villagerGO.GetComponent<VillagerAI>();
+                    if (ai == null) return;
+                    ai.GuardBed();
+                    KLog.info($"Villager is Guarding Bed");
+                });
 
 
 
@@ -371,7 +387,15 @@ namespace KukusVillagerMod.Components.UI
                   height: 60f
                   );
                 SubUIs.Add(DefendPostBtn);
-                DefendPostBtn.GetComponent<Button>().onClick.AddListener(() => { KLog.info($"Defend Post"); });
+                DefendPostBtn.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    GameObject villagerGO = VillagerGeneral.GetVillagerInstance(selected_villager);
+                    if (!villagerGO) return;
+                    VillagerAI ai = villagerGO.GetComponent<VillagerAI>();
+                    if (ai == null) return;
+                    ai.DefendPost();
+                    KLog.info($"Defend Post");
+                });
 
                 GameObject WorkBtn = GUIManager.Instance.CreateButton(
                  text: "Start Working",
@@ -383,7 +407,35 @@ namespace KukusVillagerMod.Components.UI
                  height: 60f
                  );
                 SubUIs.Add(WorkBtn);
-                WorkBtn.GetComponent<Button>().onClick.AddListener(() => { KLog.info($"Working  Post"); });
+                WorkBtn.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    GameObject villagerGO = VillagerGeneral.GetVillagerInstance(selected_villager);
+                    if (!villagerGO) return;
+                    VillagerAI ai = villagerGO.GetComponent<VillagerAI>();
+                    if (ai == null) return;
+                    ai.StartWork();
+                    KLog.info($"Villager is Starting to Work");
+                });
+
+                GameObject RoamBtn = GUIManager.Instance.CreateButton(
+                 text: "Roam",
+                 parent: MAINBG.transform,
+                 anchorMin: new Vector2(0.5f, 0.1f),
+                 anchorMax: new Vector2(0.5f, 0.5f),
+                 position: new Vector2(200f, 50f), // width & height
+                 width: 250f,
+                 height: 60f
+                 );
+                SubUIs.Add(RoamBtn);
+                RoamBtn.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    GameObject villagerGO = VillagerGeneral.GetVillagerInstance(selected_villager);
+                    if (!villagerGO) return;
+                    VillagerAI ai = villagerGO.GetComponent<VillagerAI>();
+                    if (ai == null) return;
+                    ai.RoamAround();
+                    KLog.info($"Villager is Roaming Around");
+                });
 
 
                 //WORK SKILLS
@@ -434,7 +486,7 @@ namespace KukusVillagerMod.Components.UI
                  height: 60f
                  );
                     SubUIs.Add(pickupWorkBtn);
-                    pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Pickup(selected_villager, true);UpdateUI(); });
+                    pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Pickup(selected_villager, true); UpdateUI(); });
                 }
                 if (VillagerGeneral.GetWorkSkill_Smelter(selected_villager))
                 {
