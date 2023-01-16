@@ -356,66 +356,77 @@ namespace KukusVillagerMod.Components.Villager
             var dmg = GetDamage(villagerZDOID);
             if (dmg != 0f)
             {
-                zdo.Set("damage", dmg * GetEfficiency(villagerZDOID) * multiplier);
+                zdo.Set("damage", dmg + (GetEfficiency(villagerZDOID) * multiplier));
+                KLog.warning($"New Damage : {dmg}");
             }
             dmg = GetSlash(villagerZDOID);
             if (dmg != 0f)
             {
-                zdo.Set("slash", dmg * GetEfficiency(villagerZDOID) * multiplier);
+                zdo.Set("slash", dmg + (GetEfficiency(villagerZDOID) * multiplier));
+                KLog.warning($"New slash : {dmg}");
 
-            }
-            dmg = GetBlunt(villagerZDOID);
-            if (dmg != 0f)
-            {
-                zdo.Set("blunt", dmg * GetEfficiency(villagerZDOID) * multiplier);
 
             }
             dmg = GetPierce(villagerZDOID);
             if (dmg != 0f)
             {
-                zdo.Set("pierce", dmg * GetEfficiency(villagerZDOID) * multiplier);
+                zdo.Set("pierce", dmg + (GetEfficiency(villagerZDOID) * multiplier));
+                KLog.warning($"New Pierce : {dmg}");
 
             }
             dmg = GetBlunt(villagerZDOID);
             if (dmg != 0f)
             {
-                zdo.Set("blunt", dmg * GetEfficiency(villagerZDOID) * multiplier);
+                zdo.Set("blunt", dmg + (GetEfficiency(villagerZDOID) * multiplier));
+                KLog.warning($"New Blunt : {dmg}");
 
             }
             //special damages
             dmg = GetFire(villagerZDOID);
             if (dmg != 0f)
             {
-                zdo.Set("fire", dmg * GetEfficiency(villagerZDOID) * multiplier);
+                zdo.Set("fire", dmg + (GetEfficiency(villagerZDOID) * multiplier));
+                KLog.warning($"New Fire : {dmg}");
+
 
             }
             dmg = GetFrost(villagerZDOID);
             if (dmg != 0f)
             {
-                zdo.Set("frost", dmg * GetEfficiency(villagerZDOID) * multiplier);
+                zdo.Set("frost", dmg + (GetEfficiency(villagerZDOID) * multiplier));
+                KLog.warning($"New Frost : {dmg}");
+
 
             }
             dmg = Getlightning(villagerZDOID);
             if (dmg != 0f)
             {
-                zdo.Set("lightning", dmg * GetEfficiency(villagerZDOID) * multiplier);
+                zdo.Set("lightning", dmg + (GetEfficiency(villagerZDOID) * multiplier));
+                KLog.warning($"New Lightning : {dmg}");
+
 
             }
             dmg = GetPoison(villagerZDOID);
             if (dmg != 0f)
             {
-                zdo.Set("poison", dmg * GetEfficiency(villagerZDOID) * multiplier);
+                zdo.Set("poison", dmg + (GetEfficiency(villagerZDOID) * multiplier));
+                KLog.warning($"New Poison : {dmg}");
+
 
             }
             dmg = GetSpirit(villagerZDOID);
             if (dmg != 0f)
             {
-                zdo.Set("spirit", dmg * GetEfficiency(villagerZDOID) * multiplier);
+                zdo.Set("spirit", dmg + (GetEfficiency(villagerZDOID) * multiplier));
+                KLog.warning($"New Spirit : {dmg}");
+
             }
-
-            int workLevel = GetWorkLevel(villagerZDOID);
         }
-
+        public void UpgradeVillagerDamage(float multiplier = 1)
+        {
+            UpgradeVillagerDamage(ZNV.GetZDO().m_uid, multiplier);
+            LoadStatsFromZDO();
+        }
         //Bed
         public static ZDOID GetBedZDOID(ZDOID villagerZDOID)
         {

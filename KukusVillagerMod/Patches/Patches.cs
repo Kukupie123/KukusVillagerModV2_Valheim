@@ -63,7 +63,16 @@ namespace KukusVillagerMod.Patches
         {
             VillagerAI ai = __instance.GetComponentInParent<VillagerAI>();
             VillagerGeneral v = __instance.GetComponentInParent<VillagerGeneral>();
-            if (ai == null || v == null) return;
+            if (ai == null || v == null || !v.IsVillagerTamed()) return;
+
+            //Upgrade villager if using the right item
+            if (item.m_shared.m_name.Equals("GuardianFruit"))
+            {
+                KLog.warning("Upgrading villager");
+                v.UpgradeVillagerDamage(10);
+            }
+            //Upgrade working skill level 
+            //Upgrade health
         }
     }
 
