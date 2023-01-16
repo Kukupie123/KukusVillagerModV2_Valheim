@@ -21,23 +21,22 @@ namespace KukusVillagerMod.Prefabs
     {
         public IndividualVillagerCommandItemPrefab()
         {
-            CreateItem("GuardianFruit", "BreadDough", "Use it on bed or villager to make them guard their bed");
-            CreateItem("WatcherFruit", "FirCone", "Use it on bed or villager to make them Defend their post");
-            CreateItem("LabourerFruit", "Acorn", "Use it on bed or villager to make them Work");
-            CreateItem("FreeSpiritFruit", "Mandible", "Use it on bed or villager to roam around");
-            CreateItem("LabourSkill_Pickup", "PineCone", "Use it on Villager to make Villagers Toggle Picking up work skill");
-            CreateItem("LabourSkill_Smelt", "MeadBaseTasty", "Use it on Villager to make Villagers Toggle Smelting work skill");
+            List<RequirementConfig> requirements = new List<RequirementConfig> { new RequirementConfig("Wood", 1, 1, false), };
+            CreateItem("GuardianFruit", "BreadDough", "Use it on bed or villager to make them guard their bed", requirements);
 
 
         }
 
-        private void CreateItem(string name, string cloneName, string desc)
+        private void CreateItem(string name, string cloneName, string desc, List<RequirementConfig> reqs)
         {
             ItemConfig commanderConfig = new ItemConfig();
             commanderConfig.Name = name;
             commanderConfig.Description = desc;
             commanderConfig.CraftingStation = null;
-            commanderConfig.AddRequirement(new RequirementConfig("Wood", 1, 0, false));
+            foreach (var r in reqs)
+            {
+                commanderConfig.AddRequirement(r);
+            }
             var commander = new CustomItem(name, cloneName, commanderConfig);
             ItemManager.Instance.AddItem(commander);
         }

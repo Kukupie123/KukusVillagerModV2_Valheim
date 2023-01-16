@@ -104,7 +104,7 @@ namespace KukusVillagerMod.Components.UI
 
             string mining = "";
 
-            switch (VillagerGeneral.GetMiningLevel(selected_villager))
+            switch (VillagerGeneral.GetWorkLevel(selected_villager))
             {
                 case 0: mining = "Newbie"; break;
                 case 1: mining = "Rokie"; break;

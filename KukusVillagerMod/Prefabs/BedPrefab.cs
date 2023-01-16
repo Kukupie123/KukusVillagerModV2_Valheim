@@ -23,7 +23,7 @@ namespace KukusVillagerMod.Prefabs
             weakReq.Add(new RequirementConfig("Wood", 30, 0, false));
             var weakReqM = new List<RequirementConfig>();
             weakReqM.Add(new RequirementConfig("Wood", 10, 0, false));
-            createBed("Weak_Bed_Ranged", "Bed for Weak Villagers with ranged weapons", "bed", weakReq);
+            createBed("Villager_Bed", "Bed for villager to use", "bed", weakReq);
         }
 
         private void createBed(string bedID, string bedDesc, string cloneName, List<RequirementConfig> requirements)
@@ -41,11 +41,12 @@ namespace KukusVillagerMod.Prefabs
             }
 
 
-            bedConfig.Description = bedDesc + "\nTo Assign a defense post for the bed, Interact with the bed first then go to your desired defense post and interact with it.";
+            bedConfig.Description = bedDesc;
 
 
             //Create the Bed Piece (Custom Piece)
             var bed = new CustomPiece(bedID, cloneName, bedConfig);
+            bed.Piece.m_name = bedID.Replace("_", " ");
 
             //Remove default interactions of the bed
             UnityEngine.Object.DestroyImmediate(bed.PiecePrefab.GetComponent(typeof(Interactable)));
@@ -54,8 +55,7 @@ namespace KukusVillagerMod.Prefabs
 
 
             //Add BedState component
-            var spawner = bed.PiecePrefab.GetOrAddComponent<BedState>();
-            //bedState.respawnDuration = respawnDuration;
+            bed.PiecePrefab.GetOrAddComponent<BedState>();
             //Add the piece to PieceManager
             PieceManager.Instance.AddPiece(bed);
         }

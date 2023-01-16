@@ -16,6 +16,13 @@ using KukusVillagerMod.Components.DefensePost;
  * 2. All villagers go to work
  * 3. All villagers go to defense post
  * 4. Move Followers to aimed Location
+ * 
+ * 
+ * This needs to see a massive change.
+ * 1. List all the villagers you recruited.
+ * 2. Selection of villagers and commanding them. or command all!
+ * 3. Selection of villagers and editing their properties such as Work SKill, Defense Post, Work Post
+ * 4. Follwoers action will still be button based such as call back and go there
  */
 
 namespace KukusVillagerMod.itemPrefab
@@ -25,7 +32,6 @@ namespace KukusVillagerMod.itemPrefab
         public VillagerCommander()
         {
             createCommanderPrefab();
-            //createCommanderButtons();
             CreateEmptyKH();
         }
 
