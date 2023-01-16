@@ -21,7 +21,7 @@ namespace KukusVillagerMod.Configuration
         public static string VillagerRangedPrefabName;
 
         public static string VillagerBedPrefab;
-        public static string guardBedKey;
+        public static string OpenMenuKey;
         public static string CallFollowers;
         public static string defendPostKey;
         public static string moveToKey;
@@ -81,7 +81,7 @@ namespace KukusVillagerMod.Configuration
 
 
             //Villager Commander Club keys
-            guardBedKey = (string)Config.Bind("Commander Club keybinds", "Guard Bed Key", "Keypad1", new ConfigDescription("Key list : https://docs.unity3d.com/ScriptReference/KeyCode.html")).BoxedValue;
+            OpenMenuKey = (string)Config.Bind("Commander Club keybinds", "Open Menu Key", "Keypad1", new ConfigDescription("Key list : https://docs.unity3d.com/ScriptReference/KeyCode.html")).BoxedValue;
             defendPostKey = (string)Config.Bind("Commander Club keybinds", "Defend Posts Key", "Keypad2").BoxedValue;
             WorkKey = (string)Config.Bind("Commander Club keybinds", "Start Working Key", "Keypad3").BoxedValue;
             RoamKey = (string)Config.Bind("Commander Club keybinds", "Start Roaming Key", "Keypad4").BoxedValue;

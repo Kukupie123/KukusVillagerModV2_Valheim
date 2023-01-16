@@ -9,6 +9,7 @@ using UnityEngine;
 using KukusVillagerMod.Components.Villager;
 using KukusVillagerMod.Components.VillagerBed;
 using KukusVillagerMod.Components.DefensePost;
+using KukusVillagerMod.Components.UI;
 
 /*
  * Commands
@@ -36,12 +37,12 @@ namespace KukusVillagerMod.itemPrefab
         }
 
         CustomItem commander;
-
+        private string name = "Runik Kuchuk Tablet";
         void createCommanderPrefab()
         {
             ItemConfig commanderConfig = new ItemConfig();
-            commanderConfig.Name = "Village Commander";
-            commanderConfig.Description = $"Command all villagers\n{VillagerModConfigurations.guardBedKey} : Guard Bed\n{VillagerModConfigurations.defendPostKey} : Defend Assigned post\n{VillagerModConfigurations.WorkKey} : Start Work\n{VillagerModConfigurations.RoamKey} : Roam around current position\n{VillagerModConfigurations.CallFollowers} : Call followers back\n{VillagerModConfigurations.moveToKey} : Move followers to aimed location";
+            commanderConfig.Name = name;
+            commanderConfig.Description = $"";
             commanderConfig.CraftingStation = null;
             commanderConfig.AddRequirement(new RequirementConfig("Wood", 1, 0, false));
             commander = new CustomItem("Village_Commander", "Club", commanderConfig);
@@ -167,7 +168,7 @@ namespace KukusVillagerMod.itemPrefab
         }
 
         //Keeps track of which key has been pressed down.
-        bool guardBedPressed = false;
+        bool OpenMenuPressed = false;
         bool callFollowersKeyPressed = false;
         bool defendPostPressed = false;
         bool RandomRoamPressed = false;
@@ -210,15 +211,15 @@ namespace KukusVillagerMod.itemPrefab
 
                         if (e == allItems[i] || e.Equals(allItems[i]))
                         {
-                            if (e.TokenName().Equals("Village Commander"))
+                            if (e.TokenName().Equals(name))
                             {
-                                if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.guardBedKey)
+                                if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.OpenMenuKey)
                                 {
 
 
                                     //go to bed point
-                                    if (guardBedPressed) return;
-                                    guardBedPressed = true;
+                                    if (OpenMenuPressed) return;
+                                    OpenMenuPressed = true;
                                     callFollowersKeyPressed = false;
                                     defendPostPressed = false;
                                     RandomRoamPressed = false;
@@ -226,19 +227,7 @@ namespace KukusVillagerMod.itemPrefab
                                     deleteBedsPressed = false;
                                     moveToPressed = false;
                                     workKeyPressed = false;
-
-
-                                    MakeVillagersGoToBed("Weak_Villager_Ranged");
-                                    MakeVillagersGoToBed("Weak_Villager");
-                                    MakeVillagersGoToBed("Bronze_Villager_Ranged");
-                                    MakeVillagersGoToBed("Bronze_Villager");
-                                    MakeVillagersGoToBed("Iron_Villager_Ranged");
-                                    MakeVillagersGoToBed("Iron_Villager");
-                                    MakeVillagersGoToBed("Silver_Villager");
-                                    MakeVillagersGoToBed("Silver_Villager_Ranged");
-                                    MakeVillagersGoToBed("BlackMetal_Villager_Ranged");
-                                    MakeVillagersGoToBed("BlackMetal_Villager");
-
+                                    KuchukGUI.ShowMenu();
 
                                 }
                                 else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.CallFollowers)
@@ -246,7 +235,7 @@ namespace KukusVillagerMod.itemPrefab
 
                                     //Follow Player
                                     if (callFollowersKeyPressed) return;
-                                    guardBedPressed = false;
+                                    OpenMenuPressed = false;
                                     callFollowersKeyPressed = true;
                                     defendPostPressed = false;
                                     RandomRoamPressed = false;
@@ -274,7 +263,7 @@ namespace KukusVillagerMod.itemPrefab
 
                                     //Go defensive position
                                     if (defendPostPressed) return;
-                                    guardBedPressed = false;
+                                    OpenMenuPressed = false;
                                     callFollowersKeyPressed = false;
                                     defendPostPressed = true;
                                     RandomRoamPressed = false;
@@ -298,7 +287,7 @@ namespace KukusVillagerMod.itemPrefab
                                 {
                                     //Roam around
                                     if (RandomRoamPressed) return;
-                                    guardBedPressed = false;
+                                    OpenMenuPressed = false;
                                     callFollowersKeyPressed = false;
                                     defendPostPressed = false;
                                     RandomRoamPressed = true;
@@ -325,7 +314,7 @@ namespace KukusVillagerMod.itemPrefab
 
                                     //Destroy all villagers
                                     if (deleteVillagersPressed) return;
-                                    guardBedPressed = false;
+                                    OpenMenuPressed = false;
                                     callFollowersKeyPressed = false;
                                     defendPostPressed = false;
                                     RandomRoamPressed = false;
@@ -345,7 +334,7 @@ namespace KukusVillagerMod.itemPrefab
                                 {
 
                                     if (deleteBedsPressed) return;
-                                    guardBedPressed = false;
+                                    OpenMenuPressed = false;
                                     callFollowersKeyPressed = false;
                                     defendPostPressed = false;
                                     RandomRoamPressed = false;
@@ -363,7 +352,7 @@ namespace KukusVillagerMod.itemPrefab
                                 else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.moveToKey)
                                 {
                                     if (moveToPressed) return;
-                                    guardBedPressed = false;
+                                    OpenMenuPressed = false;
                                     callFollowersKeyPressed = false;
                                     defendPostPressed = false;
                                     RandomRoamPressed = false;
@@ -403,7 +392,7 @@ namespace KukusVillagerMod.itemPrefab
                                 else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.WorkKey)
                                 {
                                     if (workKeyPressed) return;
-                                    guardBedPressed = false;
+                                    OpenMenuPressed = false;
                                     callFollowersKeyPressed = false;
                                     defendPostPressed = false;
                                     RandomRoamPressed = false;
@@ -427,7 +416,7 @@ namespace KukusVillagerMod.itemPrefab
                                 }
                                 else
                                 {
-                                    guardBedPressed = false;
+                                    OpenMenuPressed = false;
                                     callFollowersKeyPressed = false;
                                     defendPostPressed = false;
                                     RandomRoamPressed = false;
