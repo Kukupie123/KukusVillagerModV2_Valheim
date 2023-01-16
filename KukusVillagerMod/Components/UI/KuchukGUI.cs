@@ -30,7 +30,7 @@ namespace KukusVillagerMod.Components.UI
         static List<ZDO> tamedRangedVillagers = new List<ZDO>(); //stored outside because when we switch pages we still need to keep existing villagers list
         static List<ZDO> tamedMeleeVillagers = new List<ZDO>();
         static int rangedVillagerListstartingIndex = 0; //for switching pages
-
+        static int meleeVillagerListstartingIndex = 0; //for switching pages
         public static void ShowMenu()
         {
             if (GUIManager.Instance == null) return;
@@ -121,6 +121,8 @@ namespace KukusVillagerMod.Components.UI
             //Scan for villagers only if we need to
             if (findVillagersAgain)
             {
+                tamedMeleeVillagers.Clear();
+                tamedRangedVillagers.Clear();
                 rangedVillagerListstartingIndex = 0; //reset page count
                 ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Ranged", foundRangedVillagers);
                 ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Melee", foundMeleeVillagers);
@@ -128,11 +130,15 @@ namespace KukusVillagerMod.Components.UI
                 {
                     try
                     {
-                        if (!Util.ValidateZDO(z)) continue;
-                        if (VillagerGeneral.IsVillagerTamed(z.m_uid))
+                        if (!Util.ValidateZDO(z) || !Util.ValidateZDOID(z.m_uid) || z.m_uid.id == 0) { }
+                        else
                         {
-                            tamedRangedVillagers.Add(z);
+                            if (VillagerGeneral.IsVillagerTamed(z.m_uid))
+                            {
+                                tamedRangedVillagers.Add(z);
+                            }
                         }
+
                     }
                     catch (Exception)
                     {
@@ -144,11 +150,15 @@ namespace KukusVillagerMod.Components.UI
                 {
                     try
                     {
-                        if (!Util.ValidateZDO(z)) continue;
-                        if (VillagerGeneral.IsVillagerTamed(z.m_uid))
+                        if (!Util.ValidateZDO(z) || !Util.ValidateZDOID(z.m_uid) || z.m_uid.id == 0) { }
+                        else
                         {
-                            tamedMeleeVillagers.Add(z);
+                            if (VillagerGeneral.IsVillagerTamed(z.m_uid))
+                            {
+                                tamedMeleeVillagers.Add(z);
+                            }
                         }
+
                     }
                     catch (Exception e)
                     {
@@ -160,7 +170,7 @@ namespace KukusVillagerMod.Components.UI
             }
 
 
-
+            //RANGED VILLAGERS LIST
 
             GameObject RangedVillagersList = GUIManager.Instance.CreateText(
                 text: $"Ranged Villagers :",
@@ -179,29 +189,8 @@ namespace KukusVillagerMod.Components.UI
                 );
             SubUis.Add(RangedVillagersList);
 
+            GenerateVillagersList(tamedRangedVillagers, rangedVillagerListstartingIndex, -200f);
 
-            float startingY = 200f;
-            int endingIndex = rangedVillagerListstartingIndex + 8;
-            //If we exceed ending index we need to adjust ending index to the last index of the list
-            if ((tamedRangedVillagers.Count - 1) < endingIndex)
-            {
-                endingIndex = tamedRangedVillagers.Count - 1;
-            }
-            for (int i = rangedVillagerListstartingIndex; i < endingIndex; i++)
-            {
-                //Villager button
-                GameObject villagerBtn = GUIManager.Instance.CreateButton(
-                    text: $"{VillagerGeneral.GetName(tamedRangedVillagers[i].m_uid)}({tamedRangedVillagers[i].m_uid.id})",
-                    parent: MainBG.transform,
-                    anchorMin: new Vector2(0.5f, 0.5f),
-                    anchorMax: new Vector2(0.5f, 0.5f),
-                    position: new Vector2(-200, startingY),
-                    width: 250f,
-                    height: 60f
-                    );
-                SubUis.Add(villagerBtn);
-                startingY = startingY - 50;
-            }
             //Add next and last page button
             GameObject goBackButton = GUIManager.Instance.CreateButton(
                     text: $"<",
@@ -246,6 +235,98 @@ namespace KukusVillagerMod.Components.UI
                 KLog.warning("RangedVillager Staring count : " + rangedVillagerListstartingIndex);
                 UpdateUI();
             });
+
+            //Melee villagers list
+            GameObject MeleeVillagersText = GUIManager.Instance.CreateText(
+               text: $"Melee Villagers",
+               parent: MainBG.transform,
+               anchorMin: new Vector2(0.5f, 0.1f),
+               anchorMax: new Vector2(0.5f, 0.5f),
+               position: new Vector2(0f, 250f), // width & height
+               width: 250f,
+               height: 60f,
+               color: Color.yellow,
+               outline: false,
+               outlineColor: Color.white,
+               font: GUIManager.Instance.AveriaSerif,
+               fontSize: 20,
+               addContentSizeFitter: false
+               );
+            MeleeVillagersText.GetComponent<Text>().alignment = TextAnchor.UpperCenter;
+            SubUis.Add(MeleeVillagersText);
+
+            GenerateVillagersList(tamedMeleeVillagers, meleeVillagerListstartingIndex, 50f);
+
+            //Add next and last page button
+            GameObject goBackButtonMelee = GUIManager.Instance.CreateButton(
+                    text: $"<",
+                    parent: MainBG.transform,
+                    anchorMin: new Vector2(0.5f, 0.5f),
+                    anchorMax: new Vector2(0.5f, 0.5f),
+                    position: new Vector2(-0, -200),
+                    width: 100f,
+                    height: 60f
+                    );
+            SubUis.Add(goBackButtonMelee);
+            GameObject goFwdBtnMelee = GUIManager.Instance.CreateButton(
+                    text: $">",
+                    parent: MainBG.transform,
+                    anchorMin: new Vector2(0.5f, 0.5f),
+                    anchorMax: new Vector2(0.5f, 0.5f),
+                    position: new Vector2(100f, -200),
+                    width: 100f,
+                    height: 60f
+                    );
+            SubUis.Add(goFwdBtnMelee);
+            goBackButtonMelee.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                meleeVillagerListstartingIndex = meleeVillagerListstartingIndex - 7;
+                if (meleeVillagerListstartingIndex < 0)
+                {
+                    meleeVillagerListstartingIndex = 0;
+                }
+                UpdateUI();
+            });
+            goFwdBtnMelee.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                if ((tamedMeleeVillagers.Count - 1) < meleeVillagerListstartingIndex + 9)
+                {
+                    return;
+                }
+                meleeVillagerListstartingIndex = meleeVillagerListstartingIndex + 9;
+                if (meleeVillagerListstartingIndex > tamedMeleeVillagers.Count - 1)
+                {
+                    meleeVillagerListstartingIndex = tamedMeleeVillagers.Count - 1;
+                }
+                KLog.warning("RangedVillager Staring count : " + meleeVillagerListstartingIndex);
+                UpdateUI();
+            });
+        }
+
+        private static void GenerateVillagersList(List<ZDO> villagerList, int startindIndex, float pos)
+        {
+            int endingIndex = startindIndex + 8;
+            float startingY = 200f;
+            //If we exceed ending index we need to adjust ending index to the last index of the list
+            if ((villagerList.Count - 1) < endingIndex)
+            {
+                endingIndex = villagerList.Count - 1;
+            }
+            for (int i = startindIndex; i < endingIndex; i++)
+            {
+                //Villager button
+                GameObject villagerBtn = GUIManager.Instance.CreateButton(
+                    text: $"{VillagerGeneral.GetName(villagerList[i].m_uid)}({villagerList[i].m_uid.id})",
+                    parent: MainBG.transform,
+                    anchorMin: new Vector2(0.5f, 0.5f),
+                    anchorMax: new Vector2(0.5f, 0.5f),
+                    position: new Vector2(pos, startingY),
+                    width: 250f,
+                    height: 60f
+                    );
+                SubUis.Add(villagerBtn);
+                startingY = startingY - 50;
+            }
         }
     }
 }
