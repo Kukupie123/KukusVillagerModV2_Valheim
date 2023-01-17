@@ -272,6 +272,16 @@ namespace KukusVillagerMod.Components.Villager
         {
             return GetName(this.ZNV.GetZDO().m_uid);
         }
+
+        public static void SetName(ZDOID villagerZDOID, string name)
+        {
+            Util.GetZDO(villagerZDOID).Set("name", name);
+        }
+        public void SetName(string name)
+        {
+            SetName(ZNV.GetZDO().m_uid, name);
+            LoadStatsFromZDO();
+        }
         public static float GetHealth(ZDOID villagerZDOID)
         {
             var zdo = Util.GetZDO(villagerZDOID);

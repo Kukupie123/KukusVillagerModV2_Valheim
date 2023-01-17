@@ -684,24 +684,32 @@ namespace KukusVillagerMod.Components.UI
                 //Hide it
                 MAINBG.SetActive(false);
             }
-            //Name text
-            GameObject NameTextGO = GUIManager.Instance.CreateText(
-                text: VillagerGeneral.GetName(selected_villager),
+            //NAME OF VILLAGER
+            GameObject inputField = GUIManager.Instance.CreateInputField(
                 parent: MAINBG.transform,
                  anchorMin: new Vector2(0.5f, 0.5f),
                 anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(0f, 200f), // width & height
-                width: 250f,
+                position: new Vector2(0f, 150f), // width & height
+                 width: 250f,
                 height: 60f,
-                color: Color.black,
-                outline: true,
-                outlineColor: Color.white,
-                font: GUIManager.Instance.AveriaSerif,
                 fontSize: 30,
-                addContentSizeFitter: false
+                placeholderText: VillagerGeneral.GetName(selected_villager)
                 );
-            NameTextGO.GetComponent<Text>().alignment = TextAnchor.MiddleCenter;
-            SubUIs.Add(NameTextGO);
+            inputField.GetComponent<InputField>().onEndEdit.AddListener((name) =>
+            {
+                GameObject villager = ZNetScene.instance.FindInstance(selected_villager);
+                if (villager)
+                {
+                    villager.GetComponent<VillagerGeneral>().SetName(name);
+                    UpdateUI();
+                }
+                else
+                {
+                    VillagerGeneral.SetName(selected_villager, name);
+                    UpdateUI();
+                }
+            });
+
             //Close button
             GameObject closeBtn = GUIManager.Instance.CreateButton(
                 text: "Close",

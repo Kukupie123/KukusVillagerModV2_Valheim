@@ -115,8 +115,8 @@ namespace KukusVillagerMod
 
         public static string RandomName()
         {
-            var firstNames = new[] { "Kuku", "Hoezae", "Jeff", "Klint", "Druftes", "Fver", "Qanzop", "Lufty" };
-            var lastNames = new[] { "Deb", "Barma", "Hoster", "Ward", "Bap", "Cergate" };
+            var firstNames = new[] { "Kuku", "Hoezae", "Jeff", "Klint", "Druftes", "Fver", "Qanzop", "Lufty", "Khaku", "Dodo" };
+            var lastNames = new[] { "Deb", "Barma", "Hoster", "Ward", "Bap", "Cergate","Jamatiya", "Astovert", "JoeMama","Lund" };
             string name = firstNames[UnityEngine.Random.Range(0, firstNames.Length - 1)] + " " + lastNames[UnityEngine.Random.Range(0, lastNames.Length - 1)];
             return name;
         }
@@ -140,6 +140,7 @@ namespace KukusVillagerMod
  * TODO:
  * Ability to change villager's name
  * Comand GUI for villager commander
+ * MAP PIN WHEN CLIKING ON VILLAGER TO SHOW LOCATION TEMPORARILY
  * Huge overhaul incomming
  * Villagers are now going to be personal. They will have traits which is going to get better as you level them up. And if they die, they will no longer respawn.
  * Beds no longer spawn villagers instead you will have to find villagers in the wild and bring them with you and assign them a bed.
