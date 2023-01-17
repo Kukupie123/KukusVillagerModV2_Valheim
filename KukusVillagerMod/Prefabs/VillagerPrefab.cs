@@ -34,12 +34,12 @@ namespace KukusVillagerMod.Prefabs
                     Name = villagerName,
                     Biome = ZoneManager.AnyBiomeOf(Heightmap.Biome.BlackForest, Heightmap.Biome.DeepNorth, Heightmap.Biome.Meadows, Heightmap.Biome.Mistlands, Heightmap.Biome.Mountain, Heightmap.Biome.Plains, Heightmap.Biome.Swamp, Heightmap.Biome.Ocean),
                     HuntPlayer = false,
-                    GroupRadius = 1f,
+                    GroupRadius = 3f,
                     MaxGroupSize = 50,
-                    MaxSpawned = 50,
+                    MaxSpawned = 20,
                     MinGroupSize = 3,
-                    SpawnChance = 100f,
-                    SpawnDistance = 3f
+                    SpawnChance = 70f,
+                    SpawnDistance = 10f
                 }
 
                 );

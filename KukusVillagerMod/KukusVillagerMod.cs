@@ -138,9 +138,13 @@ namespace KukusVillagerMod
 /*
  * 
  * TODO:
- * Ability to change villager's name
- * Comand GUI for villager commander
- * MAP PIN WHEN CLIKING ON VILLAGER TO SHOW LOCATION TEMPORARILY
+ * Ability to change villager's name ~ DONE
+ * Comand GUI for villager commander ~ DONE
+ * UPGRADE WORKING :
+ * Upgrade items for dmage and working :
+ * CONFIG FOR SPAWNS    and multipliers of upgrade etc etc
+ * 
+ * 
  * Huge overhaul incomming
  * Villagers are now going to be personal. They will have traits which is going to get better as you level them up. And if they die, they will no longer respawn.
  * Beds no longer spawn villagers instead you will have to find villagers in the wild and bring them with you and assign them a bed.
