@@ -53,6 +53,7 @@ namespace KukusVillagerMod.Components.UI
                     SetupVillagersListTab(findVillagersAgain);
                     break;
                 case KUITab.Commands:
+                    SetupVillagerOrderTab();
                     break;
             }
             MainBG.SetActive(true);
@@ -94,6 +95,43 @@ namespace KukusVillagerMod.Components.UI
             //Add listener to the button
             Button button = closeBtn.GetComponent<Button>();
             button.onClick.AddListener(CloseMenu);
+
+            GameObject UniversalCommandBtn = GUIManager.Instance.CreateButton(
+                text: "Universal Command",
+                parent: MainBG.transform,
+                anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(200, -250f),
+                width: 250f,
+                height: 60f
+                );
+            SubUis.Add(UniversalCommandBtn);
+
+            //Add listener to the button
+            UniversalCommandBtn.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                currentTab = KUITab.Commands;
+                UpdateUI(true);
+            });
+
+            var villagersListbtn = GUIManager.Instance.CreateButton(
+                text: "View Villagers",
+                parent: MainBG.transform,
+                anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(-200, -250f),
+                width: 250f,
+                height: 60f
+                );
+            SubUis.Add(villagersListbtn);
+
+            //Add listener to the button
+            villagersListbtn.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                currentTab = KUITab.VillagersList;
+                UpdateUI(true);
+            });
+
         }
         private static void CloseMenu()
         {
@@ -259,7 +297,7 @@ namespace KukusVillagerMod.Components.UI
                parent: MainBG.transform,
                anchorMin: new Vector2(0.5f, 0.1f),
                anchorMax: new Vector2(0.5f, 0.5f),
-               position: new Vector2(0f, 250f), // width & height
+               position: new Vector2(250f, 250f), // width & height
                width: 250f,
                height: 60f,
                color: Color.yellow,
@@ -269,7 +307,7 @@ namespace KukusVillagerMod.Components.UI
                fontSize: 20,
                addContentSizeFitter: false
                );
-            MeleeVillagersText.GetComponent<Text>().alignment = TextAnchor.UpperCenter;
+            MeleeVillagersText.GetComponent<Text>().alignment = TextAnchor.UpperRighter;
             SubUis.Add(MeleeVillagersText);
 
             GenerateVillagersList(tamedMeleeVillagers, meleeVillagerListstartingIndex, 200f);
@@ -280,7 +318,7 @@ namespace KukusVillagerMod.Components.UI
                     parent: MainBG.transform,
                     anchorMin: new Vector2(0.5f, 0.5f),
                     anchorMax: new Vector2(0.5f, 0.5f),
-                    position: new Vector2(-0, -200),
+                    position: new Vector2(150, -200),
                     width: 100f,
                     height: 60f
                     );
@@ -290,7 +328,7 @@ namespace KukusVillagerMod.Components.UI
                     parent: MainBG.transform,
                     anchorMin: new Vector2(0.5f, 0.5f),
                     anchorMax: new Vector2(0.5f, 0.5f),
-                    position: new Vector2(100f, -200),
+                    position: new Vector2(250f, -200),
                     width: 100f,
                     height: 60f
                     );
@@ -347,6 +385,199 @@ namespace KukusVillagerMod.Components.UI
                    );
                 startingY = startingY - 100;
             }
+        }
+
+        private static void SetupVillagerOrderTab()
+        {
+            List<ZDO> foundRangedVillagers = new List<ZDO>();
+            List<ZDO> foundMeleeVillagers = new List<ZDO>();
+
+            List<ZDO> tamedVillagers = new List<ZDO>();
+
+            ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Ranged", foundRangedVillagers);
+            ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Melee", foundMeleeVillagers);
+            foreach (ZDO z in foundRangedVillagers)
+            {
+                try
+                {
+                    if (!Util.ValidateZDO(z) || !Util.ValidateZDOID(z.m_uid) || z.m_uid.id == 0) { }
+                    else
+                    {
+                        if (VillagerGeneral.IsVillagerTamed(z.m_uid))
+                        {
+                            tamedVillagers.Add(z);
+                        }
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    KLog.warning($"{e.Message} in kuchuk GUI find villager");
+                    continue;
+                }
+
+            }
+            foreach (ZDO z in foundMeleeVillagers)
+            {
+                try
+                {
+                    if (!Util.ValidateZDO(z) || !Util.ValidateZDOID(z.m_uid) || z.m_uid.id == 0) { }
+                    else
+                    {
+                        if (VillagerGeneral.IsVillagerTamed(z.m_uid))
+                        {
+                            tamedVillagers.Add(z);
+                        }
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    KLog.warning($"{e.Message} in kuchuk GUI");
+                    continue;
+                }
+
+            }
+
+
+            //LEFT
+            GameObject FollowMeBtn = GUIManager.Instance.CreateButton(
+              text: "Follow Me(Only nearby villagers)",
+              parent: MainBG.transform,
+              anchorMin: new Vector2(0.5f, 0.1f),
+              anchorMax: new Vector2(0.5f, 0.5f),
+              position: new Vector2(-200f, 200f), // Left Top
+              width: 250f,
+              height: 60f
+              );
+            SubUis.Add(FollowMeBtn);
+            FollowMeBtn.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                foreach (var v in tamedVillagers)
+                {
+                    var villager = ZNetScene.instance.FindInstance(v.m_uid);
+                    if (villager)
+                    {
+                        villager.GetComponent<VillagerAI>().FollowPlayer(Player.m_localPlayer.GetZDOID());
+                    }
+
+                }
+
+            });
+
+            GameObject GuardBedBtn = GUIManager.Instance.CreateButton(
+              text: "Guard Bed",
+              parent: MainBG.transform,
+              anchorMin: new Vector2(0.5f, 0.1f),
+              anchorMax: new Vector2(0.5f, 0.5f),
+              position: new Vector2(-200f, 150f), // LEFT MID
+              width: 250f,
+              height: 60f
+              );
+            SubUis.Add(GuardBedBtn);
+            GuardBedBtn.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                foreach (var v in tamedVillagers)
+                {
+                    var villager = ZNetScene.instance.FindInstance(v.m_uid);
+                    if (villager)
+                    {
+                        villager.GetComponent<VillagerAI>().GuardBed();
+                    }
+                    else
+                    {
+                        VillagerGeneral.SetVillagerState(v.m_uid, enums.VillagerState.Guarding_Bed);
+                    }
+
+                }
+            });
+
+
+
+            GameObject DefendPostBtn = GUIManager.Instance.CreateButton(
+              text: "Defend Post",
+              parent: MainBG.transform,
+              anchorMin: new Vector2(0.5f, 0.1f),
+              anchorMax: new Vector2(0.5f, 0.5f),
+              position: new Vector2(200f, 200f), // width & height
+              width: 250f,
+              height: 60f
+              );
+            SubUis.Add(DefendPostBtn);
+            DefendPostBtn.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                foreach (var v in tamedVillagers)
+                {
+                    var villager = ZNetScene.instance.FindInstance(v.m_uid);
+                    if (villager)
+                    {
+                        villager.GetComponent<VillagerAI>().DefendPost();
+                    }
+                    else
+                    {
+                        VillagerGeneral.SetVillagerState(v.m_uid, enums.VillagerState.Defending_Post);
+                    }
+
+                }
+            });
+
+            GameObject WorkBtn = GUIManager.Instance.CreateButton(
+             text: "Start Working",
+             parent: MainBG.transform,
+             anchorMin: new Vector2(0.5f, 0.1f),
+             anchorMax: new Vector2(0.5f, 0.5f),
+             position: new Vector2(200f, 150f), // width & height
+             width: 250f,
+             height: 60f
+             );
+            SubUis.Add(WorkBtn);
+            WorkBtn.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                foreach (var v in tamedVillagers)
+                {
+                    var villager = ZNetScene.instance.FindInstance(v.m_uid);
+                    if (villager)
+                    {
+                        villager.GetComponent<VillagerAI>().StartWork();
+                    }
+                    else
+                    {
+                        VillagerGeneral.SetVillagerState(v.m_uid, enums.VillagerState.Working);
+                    }
+
+                }
+            });
+
+            GameObject RoamBtn = GUIManager.Instance.CreateButton(
+             text: "Roam",
+             parent: MainBG.transform,
+             anchorMin: new Vector2(0.5f, 0.1f),
+             anchorMax: new Vector2(0.5f, 0.5f),
+             position: new Vector2(200f, 50f), // width & height
+             width: 250f,
+             height: 60f
+             );
+            SubUis.Add(RoamBtn);
+            RoamBtn.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                foreach (var v in tamedVillagers)
+                {
+                    var villager = ZNetScene.instance.FindInstance(v.m_uid);
+                    if (villager)
+                    {
+                        villager.GetComponent<VillagerAI>().RoamAround();
+                    }
+                    else
+                    {
+                        VillagerGeneral.SetVillagerState(v.m_uid, enums.VillagerState.Roaming);
+                    }
+
+                }
+            });
+
+
+
+
         }
     }
 }
