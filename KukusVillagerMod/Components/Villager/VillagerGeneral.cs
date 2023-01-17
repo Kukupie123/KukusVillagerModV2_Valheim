@@ -74,7 +74,7 @@ namespace KukusVillagerMod.Components.Villager
             KLog.warning($"Villager {ZNV.GetZDO().m_uid.id} has name {n} ");
 
             //Farming stuff
-            ZNV.GetZDO().Set("pickaxe", 15.0f);
+            ZNV.GetZDO().Set("pickaxe", 15.0f); //15 is base, 18 is antler
             ZNV.GetZDO().Set("chop", 20.0f);
             ZNV.GetZDO().Set("mining", 0);
             //15 should be base pickaxe, 20 chop
@@ -713,6 +713,10 @@ namespace KukusVillagerMod.Components.Villager
                     {
                         Util.GetZDO(villagerZDOID).Set("work", (int)VillagerState.Roaming);
                     }
+                    break;
+                case VillagerState.Following:
+                    Util.GetZDO(villagerZDOID).Set("work", (int)VillagerState.Following);
+
                     break;
             }
         }

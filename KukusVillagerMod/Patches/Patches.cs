@@ -106,46 +106,50 @@ namespace KukusVillagerMod.Patches
     {
         public static void Postfix(Humanoid __instance, ref ItemDrop.ItemData __result, ref ItemDrop.ItemData ___m_rightItem, ref ItemDrop.ItemData ___m_leftItem, ref ItemDrop ___m_unarmedWeapon)
         {
-            if (__instance.GetComponentInParent<VillagerGeneral>())
-
+            try
             {
-                var villagerGeneral = __instance.GetComponentInParent<VillagerGeneral>();
-                ItemDrop.ItemData weapon = null;
-                if (___m_rightItem != null && ___m_rightItem.IsWeapon())
-                {
-                    weapon = ___m_rightItem;
-                }
-                if (___m_leftItem != null && ___m_leftItem.IsWeapon() && ___m_leftItem.m_shared.m_itemType != ItemDrop.ItemData.ItemType.Torch)
-                {
-                    weapon = ___m_leftItem;
-                }
-                if (___m_unarmedWeapon)
-                {
-                    weapon = ___m_unarmedWeapon.m_itemData;
-                }
+                if (__instance.GetComponentInParent<VillagerGeneral>())
 
-                if (weapon != null)
                 {
-                    weapon.m_shared.m_damages = new HitData.DamageTypes();
-                    weapon.m_shared.m_damages.m_damage = villagerGeneral.GetDamage();
-                    weapon.m_shared.m_damages.m_slash = villagerGeneral.GetSlash();
-                    weapon.m_shared.m_damages.m_blunt = villagerGeneral.GetBlunt();
-                    weapon.m_shared.m_damages.m_chop = villagerGeneral.GetChop();
-                    weapon.m_shared.m_damages.m_fire = villagerGeneral.GetFire();
-                    weapon.m_shared.m_damages.m_frost = villagerGeneral.GetFrost();
-                    weapon.m_shared.m_damages.m_lightning = villagerGeneral.Getlightning();
-                    weapon.m_shared.m_damages.m_pickaxe = villagerGeneral.GetPickaxe();
-                    weapon.m_shared.m_damages.m_pierce = villagerGeneral.GetPickaxe();
-                    weapon.m_shared.m_damages.m_poison = villagerGeneral.GetPoison();
-                    weapon.m_shared.m_damages.m_spirit = villagerGeneral.GetSpirit();
-                    __result = weapon;
+                    var villagerGeneral = __instance.GetComponentInParent<VillagerGeneral>();
+                    ItemDrop.ItemData weapon = null;
+                    if (___m_rightItem != null && ___m_rightItem.IsWeapon())
+                    {
+                        weapon = ___m_rightItem;
+                    }
+                    if (___m_leftItem != null && ___m_leftItem.IsWeapon() && ___m_leftItem.m_shared.m_itemType != ItemDrop.ItemData.ItemType.Torch)
+                    {
+                        weapon = ___m_leftItem;
+                    }
+                    if (___m_unarmedWeapon)
+                    {
+                        weapon = ___m_unarmedWeapon.m_itemData;
+                    }
+
+                    if (weapon != null)
+                    {
+                        weapon.m_shared.m_damages = new HitData.DamageTypes();
+                        weapon.m_shared.m_damages.m_damage = villagerGeneral.GetDamage();
+                        weapon.m_shared.m_damages.m_slash = villagerGeneral.GetSlash();
+                        weapon.m_shared.m_damages.m_blunt = villagerGeneral.GetBlunt();
+                        weapon.m_shared.m_damages.m_chop = villagerGeneral.GetChop();
+                        weapon.m_shared.m_damages.m_fire = villagerGeneral.GetFire();
+                        weapon.m_shared.m_damages.m_frost = villagerGeneral.GetFrost();
+                        weapon.m_shared.m_damages.m_lightning = villagerGeneral.Getlightning();
+                        weapon.m_shared.m_damages.m_pickaxe = villagerGeneral.GetPickaxe();
+                        weapon.m_shared.m_damages.m_pierce = villagerGeneral.GetPickaxe();
+                        weapon.m_shared.m_damages.m_poison = villagerGeneral.GetPoison();
+                        weapon.m_shared.m_damages.m_spirit = villagerGeneral.GetSpirit();
+                        __result = weapon;
+                    }
+
                 }
-                else
-                {
-                    KLog.warning($"Failed to modify weapon damage for {__instance.gameObject.name}. Please use a different Prefab for villager");
-                };
+            }
+            catch (Exception)
+            {
 
             }
+
         }
     }
     //[HarmonyPatch(typeof(ObjectDB), nameof(ObjectDB.UpdateItemHashes))]

@@ -35,8 +35,8 @@ namespace KukusVillagerMod.Prefabs
                     Biome = ZoneManager.AnyBiomeOf(Heightmap.Biome.BlackForest, Heightmap.Biome.DeepNorth, Heightmap.Biome.Meadows, Heightmap.Biome.Mistlands, Heightmap.Biome.Mountain, Heightmap.Biome.Plains, Heightmap.Biome.Swamp, Heightmap.Biome.Ocean),
                     HuntPlayer = false,
                     GroupRadius = 3f,
-                    MaxGroupSize = 50,
-                    MaxSpawned = 20,
+                    MaxGroupSize = 5,
+                    MaxSpawned = 50,
                     MinGroupSize = 3,
                     SpawnChance = 70f,
                     SpawnDistance = 10f
