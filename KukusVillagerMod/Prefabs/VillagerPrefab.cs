@@ -52,10 +52,10 @@ namespace KukusVillagerMod.Prefabs
             villager.Prefab.AddComponent<NpcTalk>(); //Add our custom talk component
             villager.Prefab.AddComponent<Tameable>(); //Add taming component to be able to tame it
             villager.Prefab.AddComponent<VillagerGeneral>(); //Add villager General component 
-            villager.Prefab.AddComponent<VillagerAI>();
+            villager.Prefab.AddComponent<VillagerAI>(); 
             CreatureManager.Instance.AddCreature(villager);
 
-            KLog.info($"Created Creature with Name : {villagerName}");
+            KLog.info($"Created Creature with Name : {villagerName} cloned from {prefabCloneName}");
 
         }
     }

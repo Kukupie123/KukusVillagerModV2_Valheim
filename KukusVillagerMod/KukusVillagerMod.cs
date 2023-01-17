@@ -35,11 +35,12 @@ namespace KukusVillagerMod
         private readonly Harmony harmony = new Harmony("kukuvillager");
         private void Awake()
         {
+
+
             VillagerModConfigurations.LoadConfig(Config);
             PrefabManager.OnVanillaPrefabsAvailable += LoadBedPrefab;
             CreatureManager.OnVanillaCreaturesAvailable += LoadVillagerPrefab;
             MinimapManager.OnVanillaMapDataLoaded += OnMapDataLoaded;
-
             harmony.PatchAll();
 
         }

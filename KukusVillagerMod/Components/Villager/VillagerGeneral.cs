@@ -665,7 +665,46 @@ namespace KukusVillagerMod.Components.Villager
         }
         public static void SetVillagerState(ZDOID villagerZDOID, VillagerState state)
         {
-            Util.GetZDO(villagerZDOID).Set("work", (int)state);
+
+            switch (state)
+            {
+                case VillagerState.Guarding_Bed:
+                    if (IsBedAssigned(villagerZDOID))
+                    {
+                        Util.GetZDO(villagerZDOID).Set("work", (int)VillagerState.Guarding_Bed);
+                        Util.GetZDO(villagerZDOID).SetPosition(GetBedZDO(villagerZDOID).GetPosition());
+                    }
+                    else
+                    {
+                        Util.GetZDO(villagerZDOID).Set("work", (int)VillagerState.Roaming);
+                    }
+                    break;
+                case VillagerState.Defending_Post:
+                    if (IsDefenseAssigned(villagerZDOID))
+                    {
+                        Util.GetZDO(villagerZDOID).Set("work", (int)VillagerState.Defending_Post);
+                        Util.GetZDO(villagerZDOID).SetPosition(GetDefenseZDO(villagerZDOID).GetPosition());
+                    }
+                    else
+                    {
+                        Util.GetZDO(villagerZDOID).Set("work", (int)VillagerState.Roaming);
+                    }
+                    break;
+                case VillagerState.Roaming:
+                    Util.GetZDO(villagerZDOID).Set("work", (int)VillagerState.Roaming);
+                    break;
+                case VillagerState.Working:
+                    if (IsWorkPostAssigned(villagerZDOID) && IsContainerAssigned(villagerZDOID))
+                    {
+                        Util.GetZDO(villagerZDOID).Set("work", (int)VillagerState.Working);
+                        Util.GetZDO(villagerZDOID).SetPosition(GetWorkPostZDO(villagerZDOID).GetPosition());
+                    }
+                    else
+                    {
+                        Util.GetZDO(villagerZDOID).Set("work", (int)VillagerState.Roaming);
+                    }
+                    break;
+            }
         }
         public void SetVillagerState(VillagerState newState)
         {

@@ -15,7 +15,7 @@ namespace KukusVillagerMod.Components.UI
     class VillagerGUI
     {
         static GameObject MAINBG; //The root UI component
-        private static ZDOID selected_villager = ZDOID.None; //The villager we are interacting with
+        public static ZDOID selected_villager = ZDOID.None; //The villager we are interacting with
 
         private static VUITab currentTab = VUITab.Stats; //The current tab we are at
 
@@ -326,7 +326,6 @@ namespace KukusVillagerMod.Components.UI
                     var villager = ZNetScene.instance.FindInstance(selected_villager);
                     if (villager == null)
                     {
-                        VillagerGeneral.TameVillager(selected_villager);
                         return;
                     }
                     VillagerGeneral vg = villager.GetComponent<VillagerGeneral>();
@@ -351,7 +350,11 @@ namespace KukusVillagerMod.Components.UI
                 FollowMeBtn.GetComponent<Button>().onClick.AddListener(() =>
                 {
                     GameObject villagerGO = VillagerGeneral.GetVillagerInstance(selected_villager);
-                    if (!villagerGO) return;
+                    if (!villagerGO)
+                    {
+                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Villager is too far away");
+                        return;
+                    }
                     VillagerAI ai = villagerGO.GetComponent<VillagerAI>();
                     if (ai == null) return;
                     ai.FollowPlayer(Player.m_localPlayer.GetZDOID());
@@ -372,7 +375,11 @@ namespace KukusVillagerMod.Components.UI
                 GuardBedBtn.GetComponent<Button>().onClick.AddListener(() =>
                 {
                     GameObject villagerGO = VillagerGeneral.GetVillagerInstance(selected_villager);
-                    if (!villagerGO) return;
+                    if (!villagerGO)
+                    {
+                        VillagerGeneral.SetVillagerState(selected_villager, enums.VillagerState.Guarding_Bed);
+                        return;
+                    }
                     VillagerAI ai = villagerGO.GetComponent<VillagerAI>();
                     if (ai == null) return;
                     ai.GuardBed();
@@ -395,7 +402,11 @@ namespace KukusVillagerMod.Components.UI
                 DefendPostBtn.GetComponent<Button>().onClick.AddListener(() =>
                 {
                     GameObject villagerGO = VillagerGeneral.GetVillagerInstance(selected_villager);
-                    if (!villagerGO) return;
+                    if (!villagerGO)
+                    {
+                        VillagerGeneral.SetVillagerState(selected_villager, enums.VillagerState.Defending_Post);
+                        return;
+                    }
                     VillagerAI ai = villagerGO.GetComponent<VillagerAI>();
                     if (ai == null) return;
                     ai.DefendPost();
@@ -416,7 +427,11 @@ namespace KukusVillagerMod.Components.UI
                 WorkBtn.GetComponent<Button>().onClick.AddListener(() =>
                 {
                     GameObject villagerGO = VillagerGeneral.GetVillagerInstance(selected_villager);
-                    if (!villagerGO) return;
+                    if (!villagerGO)
+                    {
+                        VillagerGeneral.SetVillagerState(selected_villager, enums.VillagerState.Working);
+                        return;
+                    }
                     VillagerAI ai = villagerGO.GetComponent<VillagerAI>();
                     if (ai == null) return;
                     ai.StartWork();
@@ -437,7 +452,11 @@ namespace KukusVillagerMod.Components.UI
                 RoamBtn.GetComponent<Button>().onClick.AddListener(() =>
                 {
                     GameObject villagerGO = VillagerGeneral.GetVillagerInstance(selected_villager);
-                    if (!villagerGO) return;
+                    if (!villagerGO)
+                    {
+                        VillagerGeneral.SetVillagerState(selected_villager, enums.VillagerState.Roaming);
+                        return;
+                    }
                     VillagerAI ai = villagerGO.GetComponent<VillagerAI>();
                     if (ai == null) return;
                     ai.RoamAround();

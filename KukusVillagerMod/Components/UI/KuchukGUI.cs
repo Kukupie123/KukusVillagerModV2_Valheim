@@ -23,7 +23,6 @@ namespace KukusVillagerMod.Components.UI
         private const float width = 850f;
         private static GameObject MainBG;
         private static List<GameObject> SubUis = new List<GameObject>();
-        private static List<ZDOID> selectedVillagersList = new List<ZDOID>();
         private static KUITab currentTab = KUITab.VillagersList;
 
         //for villagers list tab
@@ -31,6 +30,7 @@ namespace KukusVillagerMod.Components.UI
         static List<ZDO> tamedMeleeVillagers = new List<ZDO>();
         static int rangedVillagerListstartingIndex = 0; //for switching pages
         static int meleeVillagerListstartingIndex = 0; //for switching pages
+
         public static void ShowMenu()
         {
             if (GUIManager.Instance == null) return;
@@ -100,7 +100,10 @@ namespace KukusVillagerMod.Components.UI
 
             //Hide Main component
             if (MainBG != null) MainBG.SetActive(false);
-
+            tamedMeleeVillagers.Clear();
+            tamedRangedVillagers.Clear();
+            meleeVillagerListstartingIndex = 0;
+            rangedVillagerListstartingIndex = 0;
             //Reset tab
             currentTab = KUITab.VillagersList;
 
@@ -112,7 +115,7 @@ namespace KukusVillagerMod.Components.UI
             GUIManager.BlockInput(false);
         }
 
-
+        static int listSize = 4;
         private static void SetupVillagersListTab(bool findVillagersAgain = false)
         {
             List<ZDO> foundRangedVillagers = new List<ZDO>();
@@ -124,6 +127,7 @@ namespace KukusVillagerMod.Components.UI
                 tamedMeleeVillagers.Clear();
                 tamedRangedVillagers.Clear();
                 rangedVillagerListstartingIndex = 0; //reset page count
+                meleeVillagerListstartingIndex = 0;
                 ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Ranged", foundRangedVillagers);
                 ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Melee", foundMeleeVillagers);
                 foreach (ZDO z in foundRangedVillagers)
@@ -140,8 +144,9 @@ namespace KukusVillagerMod.Components.UI
                         }
 
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
+                        KLog.warning($"{e.Message} in kuchuk GUI find villager");
                         continue;
                     }
 
@@ -170,10 +175,35 @@ namespace KukusVillagerMod.Components.UI
             }
 
 
+            void GoBack(ref int currentPageNo)
+            {
+                currentPageNo = currentPageNo - listSize; //list size
+                if (currentPageNo <= 0)
+                {
+                    currentPageNo = 0;
+                }
+                KLog.info("Going back to page : " + currentPageNo);
+            }
+            void GoFwd(List<ZDO> villagerList, ref int currentPageNo)
+            {
+                //Is there item for the next page? Eg. If we have 4 items and we show 4 in one list. There is none left to show so now rangedVillagerListstartingIndex = 8 but count is 4 so we know it's already shown.
+                if (villagerList.Count - 1 < currentPageNo + listSize)
+                {
+                    return;
+                }
+                currentPageNo += 4; //If item exists for showing in next page we proceed.
+                if (currentPageNo >= villagerList.Count - 1)
+                {
+                    currentPageNo = villagerList.Count - 1;
+                }
+                KLog.info("Going fwd to page: " + currentPageNo);
+            }
+
+
             //RANGED VILLAGERS LIST
 
             GameObject RangedVillagersList = GUIManager.Instance.CreateText(
-                text: $"Ranged Villagers :",
+                text: $"Ranged Villagers:",
                 parent: MainBG.transform,
                 anchorMin: new Vector2(0.5f, 0.1f),
                 anchorMax: new Vector2(0.5f, 0.5f),
@@ -214,25 +244,12 @@ namespace KukusVillagerMod.Components.UI
             SubUis.Add(goFwdBtn);
             goBackButton.GetComponent<Button>().onClick.AddListener(() =>
             {
-                rangedVillagerListstartingIndex = rangedVillagerListstartingIndex - 7;
-                if (rangedVillagerListstartingIndex < 0)
-                {
-                    rangedVillagerListstartingIndex = 0;
-                }
+                GoBack(ref rangedVillagerListstartingIndex);
                 UpdateUI();
             });
             goFwdBtn.GetComponent<Button>().onClick.AddListener(() =>
             {
-                if ((tamedRangedVillagers.Count - 1) < rangedVillagerListstartingIndex + 9)
-                {
-                    return;
-                }
-                rangedVillagerListstartingIndex = rangedVillagerListstartingIndex + 9;
-                if (rangedVillagerListstartingIndex > tamedRangedVillagers.Count - 1)
-                {
-                    rangedVillagerListstartingIndex = tamedRangedVillagers.Count - 1;
-                }
-                KLog.warning("RangedVillager Staring count : " + rangedVillagerListstartingIndex);
+                GoFwd(tamedRangedVillagers, ref rangedVillagerListstartingIndex);
                 UpdateUI();
             });
 
@@ -255,7 +272,7 @@ namespace KukusVillagerMod.Components.UI
             MeleeVillagersText.GetComponent<Text>().alignment = TextAnchor.UpperCenter;
             SubUis.Add(MeleeVillagersText);
 
-            GenerateVillagersList(tamedMeleeVillagers, meleeVillagerListstartingIndex, 50f);
+            GenerateVillagersList(tamedMeleeVillagers, meleeVillagerListstartingIndex, 200f);
 
             //Add next and last page button
             GameObject goBackButtonMelee = GUIManager.Instance.CreateButton(
@@ -280,40 +297,36 @@ namespace KukusVillagerMod.Components.UI
             SubUis.Add(goFwdBtnMelee);
             goBackButtonMelee.GetComponent<Button>().onClick.AddListener(() =>
             {
-                meleeVillagerListstartingIndex = meleeVillagerListstartingIndex - 7;
-                if (meleeVillagerListstartingIndex < 0)
-                {
-                    meleeVillagerListstartingIndex = 0;
-                }
+                GoBack(ref meleeVillagerListstartingIndex);
                 UpdateUI();
             });
             goFwdBtnMelee.GetComponent<Button>().onClick.AddListener(() =>
             {
-                if ((tamedMeleeVillagers.Count - 1) < meleeVillagerListstartingIndex + 9)
-                {
-                    return;
-                }
-                meleeVillagerListstartingIndex = meleeVillagerListstartingIndex + 9;
-                if (meleeVillagerListstartingIndex > tamedMeleeVillagers.Count - 1)
-                {
-                    meleeVillagerListstartingIndex = tamedMeleeVillagers.Count - 1;
-                }
-                KLog.warning("RangedVillager Staring count : " + meleeVillagerListstartingIndex);
+                GoFwd(tamedMeleeVillagers, ref meleeVillagerListstartingIndex);
                 UpdateUI();
             });
+
         }
+
 
         private static void GenerateVillagersList(List<ZDO> villagerList, int startindIndex, float pos)
         {
-            int endingIndex = startindIndex + 8;
+            int endingIndex = startindIndex + listSize;
             float startingY = 200f;
             //If we exceed ending index we need to adjust ending index to the last index of the list
             if ((villagerList.Count - 1) < endingIndex)
             {
-                endingIndex = villagerList.Count - 1;
+                endingIndex = villagerList.Count;
             }
+
+            foreach (var v in villagerList)
+            {
+                VillagerGeneral.GetName(v.m_uid);
+            }
+
             for (int i = startindIndex; i < endingIndex; i++)
             {
+                ZDOID zdoid = villagerList[i].m_uid;
                 //Villager button
                 GameObject villagerBtn = GUIManager.Instance.CreateButton(
                     text: $"{VillagerGeneral.GetName(villagerList[i].m_uid)}({villagerList[i].m_uid.id})",
@@ -325,7 +338,14 @@ namespace KukusVillagerMod.Components.UI
                     height: 60f
                     );
                 SubUis.Add(villagerBtn);
-                startingY = startingY - 50;
+                villagerBtn.GetComponent<Button>().onClick.AddListener(
+                   () =>
+                   {
+                       VillagerGUI.OnShowMenu(zdoid);
+                       CloseMenu();
+                   }
+                   );
+                startingY = startingY - 100;
             }
         }
     }
