@@ -307,7 +307,7 @@ namespace KukusVillagerMod.Components.UI
                fontSize: 20,
                addContentSizeFitter: false
                );
-            MeleeVillagersText.GetComponent<Text>().alignment = TextAnchor.UpperRighter;
+            MeleeVillagersText.GetComponent<Text>().alignment = TextAnchor.UpperRight;
             SubUis.Add(MeleeVillagersText);
 
             GenerateVillagersList(tamedMeleeVillagers, meleeVillagerListstartingIndex, 200f);

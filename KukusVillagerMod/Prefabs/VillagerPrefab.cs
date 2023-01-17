@@ -28,6 +28,21 @@ namespace KukusVillagerMod.Prefabs
             villagerConfig.Name = villagerName.Replace("_", " "); //Replace the "_" with " " Eg: Weak_Mage becomes Weak Mage
             villagerConfig.Faction = Character.Faction.Players;
             villagerConfig.Group = "Player";
+            villagerConfig.AddSpawnConfig(
+                new SpawnConfig
+                {
+                    Name = villagerName,
+                    Biome = ZoneManager.AnyBiomeOf(Heightmap.Biome.BlackForest, Heightmap.Biome.DeepNorth, Heightmap.Biome.Meadows, Heightmap.Biome.Mistlands, Heightmap.Biome.Mountain, Heightmap.Biome.Plains, Heightmap.Biome.Swamp, Heightmap.Biome.Ocean),
+                    HuntPlayer = false,
+                    GroupRadius = 1f,
+                    MaxGroupSize = 50,
+                    MaxSpawned = 50,
+                    MinGroupSize = 3,
+                    SpawnChance = 100f,
+                    SpawnDistance = 3f
+                }
+
+                );
 
             CustomCreature villager = new CustomCreature(villagerName, prefabCloneName, villagerConfig);
 
@@ -52,7 +67,10 @@ namespace KukusVillagerMod.Prefabs
             villager.Prefab.AddComponent<NpcTalk>(); //Add our custom talk component
             villager.Prefab.AddComponent<Tameable>(); //Add taming component to be able to tame it
             villager.Prefab.AddComponent<VillagerGeneral>(); //Add villager General component 
-            villager.Prefab.AddComponent<VillagerAI>(); 
+            villager.Prefab.AddComponent<VillagerAI>();
+
+
+
             CreatureManager.Instance.AddCreature(villager);
 
             KLog.info($"Created Creature with Name : {villagerName} cloned from {prefabCloneName}");
