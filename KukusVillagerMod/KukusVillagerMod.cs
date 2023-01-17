@@ -143,6 +143,7 @@ namespace KukusVillagerMod
  * UPGRADE WORKING :
  * Upgrade items for dmage and working :
  * CONFIG FOR SPAWNS    and multipliers of upgrade etc etc
+ * NOT WORKING VILLAGERS FIX
  * 
  * 
  * Huge overhaul incomming
