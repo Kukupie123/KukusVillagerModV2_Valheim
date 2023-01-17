@@ -87,6 +87,11 @@ namespace KukusVillagerMod.Patches
             if (villagerZDOID != null && villagerZDOID.Value.IsNone() == false)
             {
                 ZNetView containerZNV = __instance.GetComponentInParent<ZNetView>();
+                var containerZDO = containerZNV.GetZDO();
+                //VERY IMPORTANT. NECESSARY TO CREATE INVENTORY
+                containerZDO.Set("m_name", __instance.m_name);
+                containerZDO.Set("width", __instance.m_width);
+                containerZDO.Set("height", __instance.m_height);
                 VillagerGeneral.AssignContainer(VillagerGeneral.SELECTED_VILLAGER_ID.Value, containerZNV.GetZDO().m_uid);
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Container {containerZNV.GetZDO().m_uid.id} Assigned to {VillagerGeneral.GetName(villagerZDOID.Value)}");
 

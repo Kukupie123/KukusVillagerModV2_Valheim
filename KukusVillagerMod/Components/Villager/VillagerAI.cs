@@ -312,7 +312,7 @@ namespace KukusVillagerMod.Components.Villager
                 GuardBed();
                 return false;
             }
-            talk.Say("Following","");
+            talk.Say("Following", "");
             //Follow the player instance
             FollowGameObject(playerGO);
 
@@ -1024,6 +1024,7 @@ namespace KukusVillagerMod.Components.Villager
                     var cookable = d.FindCookableItem(inventory);
                     bool fuelPresent = false;
                     bool cookablePresent = false;
+                    KLog.info(inventory.GetAllItems().Count.ToString());
 
                     //Check if it has fuel or cookable
                     foreach (var i in inventory.GetAllItems())
@@ -1062,8 +1063,9 @@ namespace KukusVillagerMod.Components.Villager
 
 
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    KLog.warning(e.Message + "   " + e.StackTrace);
                 }
 
 
