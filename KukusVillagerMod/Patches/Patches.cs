@@ -68,13 +68,60 @@ namespace KukusVillagerMod.Patches
             if (ai == null || v == null || !v.IsVillagerTamed()) return;
 
             //Upgrade villager if using the right item
-            if (item.m_shared.m_name.Equals("GuardianFruit"))
+            string itemName = item.m_shared.m_name;
+
+            float multiplier = 1;
+            bool upgrade = false;
+            switch (itemName)
             {
-                KLog.warning("Upgrading villager");
-                v.UpgradeVillagerDamage(10);
+                case "KukuVillager_Rag_Set":
+                    upgrade = true;
+                    multiplier = 0.2f;
+                    break;
+                case "KukuVillager_Troll_Set":
+                    upgrade = true;
+                    multiplier = 0.4f;
+                    break;
+                case "KukuVillager_Bronze_Set":
+                    upgrade = true;
+                    multiplier = 0.6f;
+                    break;
+                case "KukuVillager_Iron_Set":
+                    upgrade = true;
+                    multiplier = 1.0f;
+                    break;
             }
-            //Upgrade working skill level 
-            //Upgrade health
+            if (upgrade)
+            {
+                v.UpgradeVillagerHealth(multiplier);
+                user.GetInventory().RemoveItem(item, 1);
+            }
+            upgrade = false;
+            switch (itemName)
+            {
+                case "KukuVillager_Stone_Warlord_Set":
+                    upgrade = true;
+                    multiplier = 0.1f;
+                    break;
+                case "KukuVillager_Bronze_Warlod_Set":
+                    upgrade = true;
+                    multiplier = 0.4f;
+                    break;
+                case "KukuVillager_Iron_Warlord_Set":
+                    upgrade = true;
+                    multiplier = 0.6f;
+                    break;
+                case "KukuVillager_BM_Warlord_Set":
+                    upgrade = true;
+                    multiplier = 1.2f;
+                    break;
+            }
+            if (upgrade)
+            {
+                v.UpgradeVillagerDamage(multiplier);
+                user.GetInventory().RemoveItem(item, 1);
+            }
+
         }
     }
 

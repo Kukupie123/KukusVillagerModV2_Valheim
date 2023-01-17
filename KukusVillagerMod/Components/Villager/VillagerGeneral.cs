@@ -437,6 +437,19 @@ namespace KukusVillagerMod.Components.Villager
             UpgradeVillagerDamage(ZNV.GetZDO().m_uid, multiplier);
             LoadStatsFromZDO();
         }
+
+        public static void UpgradeVillagerHealth(ZDOID villagerZDOID, float multiplier = 1)
+        {
+
+            var health = GetHealth(villagerZDOID) + (GetEfficiency(villagerZDOID) * multiplier);
+            KLog.warning($"New Health = {health}");
+            Util.GetZDO(villagerZDOID).Set("health", health);
+        }
+        public void UpgradeVillagerHealth(float multiplier)
+        {
+            UpgradeVillagerHealth(ZNV.GetZDO().m_uid, multiplier);
+            LoadStatsFromZDO();
+        }
         //Bed
         public static ZDOID GetBedZDOID(ZDOID villagerZDOID)
         {
@@ -716,6 +729,13 @@ namespace KukusVillagerMod.Components.Villager
                     break;
                 case VillagerState.Following:
                     Util.GetZDO(villagerZDOID).Set("work", (int)VillagerState.Following);
+                    break;
+                case VillagerState.Mining:
+                    if (IsWorkPostAssigned(villagerZDOID) && IsContainerAssigned(villagerZDOID))
+                    {
+                        Util.GetZDO(villagerZDOID).Set("work", (int)VillagerState.Mining);
+                        Util.GetZDO(villagerZDOID).SetPosition(GetWorkPostZDO(villagerZDOID).GetPosition());
+                    }
 
                     break;
             }
@@ -763,7 +783,7 @@ namespace KukusVillagerMod.Components.Villager
 
         public ZNetView ZNV;
         private MonsterAI ai;
-        private Humanoid humanoid;
+        public Humanoid humanoid;
         private Tameable tameable;
 
         private void Awake()
@@ -805,39 +825,7 @@ namespace KukusVillagerMod.Components.Villager
 
         }
 
-        //FUTURE WIP
-        public void CutTree()
-        {
-            Collider[] colliders = Physics.OverlapSphere(transform.position, 5000f);
 
-            foreach (Collider c in colliders)
-            {
-                TreeBase tree = c?.gameObject?.GetComponentInParent<TreeBase>();
-                TreeLog log = c?.gameObject?.GetComponentInParent<TreeLog>();
-                Destructible destructible = c?.gameObject?.GetComponentInParent<Destructible>();
-
-                if (tree != null)
-                {
-                    ai.LookAt(tree.transform.position);
-                    ai.DoAttack(null, false);
-                }
-                else if (log != null)
-                {
-                    ai.LookAt(log.transform.position);
-                    ai.DoAttack(null, false);
-                }
-                else if (destructible != null)
-                {
-                    if (destructible.name.ToLower().Contains("stub"))
-                    {
-                        ai.LookAt(destructible.transform.position);
-                        ai.DoAttack(null, false);
-                    }
-                }
-
-
-            }
-        }
     }
 
 }

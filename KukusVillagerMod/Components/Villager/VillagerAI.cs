@@ -242,7 +242,7 @@ namespace KukusVillagerMod.Components.Villager
             }
             else if (villagerGeneral.GetVillagerState() == VillagerState.Mining)
             {
-
+                await MiningFarm();
             }
         }
 
@@ -468,7 +468,7 @@ namespace KukusVillagerMod.Components.Villager
         /// Main function to make villagers start working, the step by step operations are handles inside FixedUpdate method in "WorkLoop" function
         /// </summary>
         /// <returns></returns>
-        public bool StartWork()
+        public bool StartWork(bool mine = false)
         {
             //Set all work actions as false
             AlreadyPickingUp = false;
@@ -519,7 +519,10 @@ namespace KukusVillagerMod.Components.Villager
             this.followingObjZDOID = new ZDOID { m_hash = -1, m_userID = -1 };
 
             //Update villager state
-            villagerGeneral.SetVillagerState(VillagerState.Working);
+            if (!mine)
+                villagerGeneral.SetVillagerState(VillagerState.Working);
+            else
+                villagerGeneral.SetVillagerState(VillagerState.Mining);
 
             //Get Work post's instance
             GameObject wpi = villagerGeneral.GetWorkPostInstance();
@@ -542,11 +545,11 @@ namespace KukusVillagerMod.Components.Villager
         bool workRun = VillagerModConfigurations.workRun; //should villager run while working
 
 
-        async private Task GoToLocationAwaitWork(Vector3 location)
+        async private Task GoToLocationAwaitWork(Vector3 location, float acceptableDistance = 3f)
         {
 
             //Move to workpost
-            MoveVillagerToLoc(location, 3f, false, false, workRun);
+            MoveVillagerToLoc(location, acceptableDistance, false, false, workRun);
             while (keepMoving)
             {
                 ai.ResetPatrolPoint();
@@ -1091,10 +1094,6 @@ namespace KukusVillagerMod.Components.Villager
         async private Task MiningFarm()
         {
             //Destructible component has a enum destructible type, TreeBase too is ez
-            //HitRock is part of destrucible item
-
-            HitData hd = new HitData();
-            hd.m_damage.m_blunt = 12;
 
             if (alreadyMining || AlreadyFillingSmelter || AlreadyPickingUp) return;
             alreadyMining = true;
@@ -1106,11 +1105,168 @@ namespace KukusVillagerMod.Components.Villager
             await GoToLocationAwaitWork(workPosLoc);
 
             await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+            if (villagerGeneral.GetVillagerState() != VillagerState.Mining)
             {
                 alreadyMining = false;
                 return;
             }
+
+            GameObject mineable = GetValidTree2Chop();
+            if (mineable == null)
+            {
+                if (workTalk)
+                {
+                    talk.Say("Found nothing to mine close by", "Mine");
+                }
+                alreadyMining = false;
+                return;
+            }
+            else
+            {
+                if (workTalk) talk.Say("Going to mine", "Mine");
+                //Go to item
+                await GoToLocationAwaitWork(mineable.transform.position, 0f);
+                await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                if (villagerGeneral.GetVillagerState() != VillagerState.Mining)
+                {
+                    alreadyMining = false;
+                    return;
+                }
+
+                //Damage it over time
+                if (workTalk) talk.Say("Mining " + mineable.name, "Mine");
+                await MineForAWhile(mineable);
+            }
+            //ai.LookAt(tree.transform.position);
+            //ai.DoAttack(null, false);
+            alreadyMining = false;
+        }
+
+        int mineLimit = 30;
+        async private Task MineForAWhile(GameObject item)
+        {
+            int count = 0;
+            while (true)
+            {
+                if (item == null)
+                {
+                    await Task.Delay(500);
+                    return;
+                }
+                if (count > mineLimit)
+                {
+                    await Task.Delay(500);
+                    return;
+                }
+                count++;
+                ai.LookAt(item.transform.position);
+                await Task.Delay(1000);
+                ai.DoAttack(null, false);
+                var dmgTypes = villagerGeneral.humanoid.GetCurrentWeapon().GetDamage();
+                var dmg = new HitData();
+                dmg.m_damage.m_chop = dmgTypes.m_chop;
+                dmg.m_damage.m_pickaxe = dmgTypes.m_pickaxe;
+                try
+                {
+                    item.GetComponentInParent<Destructible>().Damage(dmg);
+
+                }
+                catch (Exception)
+                {
+
+                }
+                try
+                {
+                    item.GetComponentInParent<TreeBase>().Damage(dmg);
+
+                }
+                catch (Exception)
+                {
+
+                }
+                try
+                {
+                    item.GetComponentInParent<TreeLog>().Destroy();
+
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+        }
+
+        private GameObject GetValidTree2Chop()
+        {
+            Vector3 scanLocation = villagerGeneral.GetWorkPostZDO().GetPosition();
+            Collider[] colliders = Physics.OverlapSphere(scanLocation, 200f);
+            GameObject item = null;
+            float distance = -1;
+
+            //priorities -> treelog -> treebase -> destructible
+
+            List<TreeLog> logs = new List<TreeLog>();
+            List<TreeBase> trees = new List<TreeBase>();
+            List<Destructible> destructibles = new List<Destructible>();
+
+
+            foreach (Collider c in colliders)
+            {
+                TreeBase tree = c?.gameObject?.GetComponentInParent<TreeBase>();
+                TreeLog log = c?.gameObject?.GetComponentInParent<TreeLog>();
+                Destructible destructible = c?.gameObject?.GetComponentInParent<Destructible>();
+
+                if (tree != null)
+                {
+                    trees.Add(tree);
+                }
+                else if (log != null)
+                {
+                    logs.Add(log);
+                }
+                else if (destructible != null)
+                {
+                    if (destructible.name.ToLower().Contains("stub"))
+                    {
+                        destructibles.Add(destructible);
+                    }
+                }
+            }
+
+            foreach (var v in logs)
+            {
+
+                if (item == null || Vector3.Distance(scanLocation, v.transform.position) < distance)
+                {
+                    distance = Vector3.Distance(scanLocation, v.transform.position);
+                    item = v.gameObject;
+                }
+            }
+            if (item != null) return item;
+
+            foreach (var v in trees)
+            {
+
+                if (item == null || Vector3.Distance(scanLocation, v.transform.position) < distance)
+                {
+                    distance = Vector3.Distance(scanLocation, v.transform.position);
+                    item = v.gameObject;
+                }
+            }
+
+            if (item != null) return item;
+
+            foreach (var v in destructibles)
+            {
+
+                if (item == null || Vector3.Distance(scanLocation, v.transform.position) < distance)
+                {
+                    distance = Vector3.Distance(scanLocation, v.transform.position);
+                    item = v.gameObject;
+                }
+            }
+
+            return item;
         }
     }
 }

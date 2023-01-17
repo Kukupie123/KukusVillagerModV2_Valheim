@@ -20,10 +20,8 @@ namespace KukusVillagerMod.Configuration
         public static string VillagerMeleePrefabName;
         public static string VillagerRangedPrefabName;
 
-        public static string VillagerBedPrefab;
         public static string OpenMenuKey;
         public static string CallFollowers;
-        public static string defendPostKey;
         public static string moveToKey;
         public static string WorkKey;
         public static string RoamKey;

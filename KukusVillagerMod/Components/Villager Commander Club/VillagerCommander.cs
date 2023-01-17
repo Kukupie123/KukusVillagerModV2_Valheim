@@ -272,16 +272,8 @@ namespace KukusVillagerMod.itemPrefab
                                     moveToPressed = false;
                                     workKeyPressed = false;
 
-                                    MakeVillagersDefend("Weak_Villager_Ranged");
-                                    MakeVillagersDefend("Weak_Villager");
-                                    MakeVillagersDefend("Bronze_Villager_Ranged");
-                                    MakeVillagersDefend("Bronze_Villager");
-                                    MakeVillagersDefend("Iron_Villager_Ranged");
-                                    MakeVillagersDefend("Iron_Villager");
-                                    MakeVillagersDefend("Silver_Villager");
-                                    MakeVillagersDefend("Silver_Villager_Ranged");
-                                    MakeVillagersDefend("BlackMetal_Villager_Ranged");
-                                    MakeVillagersDefend("BlackMetal_Villager");
+                                    MakeVillagersWork("Villager_Ranged",true);
+                                    MakeVillagersWork("Villager_Melee", true);
                                 }
                                 else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.RoamKey)
                                 {
@@ -621,69 +613,17 @@ namespace KukusVillagerMod.itemPrefab
         }
 
 
-        private void MakeVillagersWork(string prefabName)
+        private void MakeVillagersWork(string prefabName, bool mine = false)
         {
             List<ZDO> zdos = new List<ZDO>();
             ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
             foreach (ZDO z in zdos)
             {
-                ZDOID bedZDOID = z.GetZDOID("spawner_id"); //Get BedZDOID Stored in the villager's ZDO
-
-                if (bedZDOID == null || bedZDOID.IsNone()) //Validate if bedZDOID is valid
-                {
-                    KLog.warning($"Villager {z.m_uid.id} Does not have bed ZDOID Stored");
-                    continue;
-                }
-
-                ZDO bedZDO = ZDOMan.instance.GetZDO(bedZDOID); //Get the ZDO of the bed to get the location of the bed
-
-                //Validate bedZDO
-                if (bedZDO == null || bedZDO.IsValid() == false)
-                {
-                    KLog.warning($"BedZDO is invalid for villager {z.m_uid.id}");
-                    continue;
-                }
-
-                //Validate WorkPost location
-                ZDOID workID = bedZDO.GetZDOID("work");
-                if (workID == null || workID.IsNone())
-                {
-                    KLog.warning($"Villager {z.m_uid.id} has no work post assigned");
-                    continue;
-                }
-
-                ZDO workZDO = ZDOMan.instance.GetZDO(workID);
-                if (workZDO == null || workZDO.IsValid() == false)
-                {
-                    KLog.warning($"Villager {z.m_uid.id} has invalid work post assigned");
-                    continue;
-                }
-
-                //validate container
-                ZDOID containerID = bedZDO.GetZDOID("container");
-                if (containerID == null || containerID.IsNone())
-                {
-                    KLog.warning($"Villager {z.m_uid.id} has no container assigned");
-                    continue;
-                }
-
-                ZDO containerZDO = ZDOMan.instance.GetZDO(containerID);
-                if (containerZDO == null || containerZDO.IsValid() == false)
-                {
-                    KLog.warning($"Villager {z.m_uid.id} has invalid container assigned");
-                    continue;
-                }
 
                 GameObject villager = ZNetScene.instance.FindInstance(z.m_uid);  //Get ZNV of the villager
                 if (villager != null && villager.GetComponent<VillagerAI>() != null)
                 {
-                    villager.GetComponent<VillagerAI>().StartWork();
-                }
-                else
-                {
-                    //TP to work location
-                    bedZDO.Set("state", (int)VillagerState.Working); //Update the state of the villager's ZDO Manually. The ORDER IS IMP. Or else if loaded in memory before State is set, it will go back to it's old state and overwrite this
-                    z.SetPosition(workZDO.GetPosition());
+                    villager.GetComponent<VillagerAI>().StartWork(mine);
                 }
             }
         }
