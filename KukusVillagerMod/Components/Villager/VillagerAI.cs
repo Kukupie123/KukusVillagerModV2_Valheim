@@ -240,6 +240,10 @@ namespace KukusVillagerMod.Components.Villager
                     await RefillWork();
                 }
             }
+            else if (villagerGeneral.GetVillagerState() == VillagerState.Mining)
+            {
+
+            }
         }
 
         //----------------------------------------------------------------------------------------------------------------------------------
