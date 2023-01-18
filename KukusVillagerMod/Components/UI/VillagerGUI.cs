@@ -549,6 +549,7 @@ namespace KukusVillagerMod.Components.UI
 
 
                 //Cut trees button
+                /*
                 GameObject cutTreeBtn = GUIManager.Instance.CreateButton(
                text: "Cut trees (WARNING! TEST_VERSION )",
                parent: MAINBG.transform,
@@ -573,6 +574,7 @@ namespace KukusVillagerMod.Components.UI
                         CloseVillagerMenu();
                     }
                 });
+                */
             }
         }
 
