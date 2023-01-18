@@ -86,7 +86,7 @@ namespace KukusVillagerMod.Components.UI
             SubUIs.Add(HealthTextGO);
 
             GameObject EfficiencyTextBtn = GUIManager.Instance.CreateText(
-                text: $"Efficiency : {(int)(VillagerGeneral.GetEfficiency(selected_villager) * 100)}%",
+                text: $"Efficiency : {VillagerGeneral.GetEfficiency(selected_villager)}",
                 parent: MAINBG.transform,
                 anchorMin: new Vector2(0.5f, 0.1f),
                 anchorMax: new Vector2(0.5f, 0.5f),

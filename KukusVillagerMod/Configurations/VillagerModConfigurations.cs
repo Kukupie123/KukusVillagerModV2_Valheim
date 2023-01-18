@@ -140,7 +140,7 @@ namespace KukusVillagerMod.Configuration
            ).BoxedValue;
             MaxPierce = (float)Config.Bind("Villager Stats", "Max Pierce", 2f
                 ).BoxedValue;
-            MinSpecial = (float)Config.Bind("Villager Stats", "Min Special(Fire,Frost,Ice etc [RARE QUALITY])", 0.1f
+            MinSpecial = (float)Config.Bind("Villager Stats", "Min Special_Fire,Frost,Ice etc_RARE QUALITY", 0.1f
            ).BoxedValue;
             MaxSpecial = (float)Config.Bind("Villager Stats", "Max Special", 0.5f
                 ).BoxedValue;
