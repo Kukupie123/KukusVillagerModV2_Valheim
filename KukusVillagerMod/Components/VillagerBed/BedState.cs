@@ -118,6 +118,7 @@ namespace KukusVillagerMod.Components.VillagerBed
             {
                 VillagerGeneral.AssignBed(VillagerGeneral.SELECTED_VILLAGER_ID.Value, znv.GetZDO().m_uid);
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Assigned bed {znv.GetZDO().m_uid.id} for {VillagerGeneral.GetName(VillagerGeneral.SELECTED_VILLAGER_ID.Value)}");
+                VillagerGeneral.SELECTED_VILLAGER_ID = ZDOID.None;
             }
             else
             {

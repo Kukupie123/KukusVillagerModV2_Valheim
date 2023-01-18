@@ -141,6 +141,7 @@ namespace KukusVillagerMod.Patches
                 containerZDO.Set("height", __instance.m_height);
                 VillagerGeneral.AssignContainer(VillagerGeneral.SELECTED_VILLAGER_ID.Value, containerZNV.GetZDO().m_uid);
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Container {containerZNV.GetZDO().m_uid.id} Assigned to {VillagerGeneral.GetName(villagerZDOID.Value)}");
+                VillagerGeneral.SELECTED_VILLAGER_ID = ZDOID.None;
 
             }
         }
