@@ -58,6 +58,9 @@ namespace KukusVillagerMod.Components.Villager
                     case VillagerState.Working:
                         StartWork();
                         break;
+                    case VillagerState.Mining:
+                        StartWork(true);
+                        break;
                     case VillagerState.Roaming:
                         RoamAround();
                         break;
@@ -1125,7 +1128,7 @@ namespace KukusVillagerMod.Components.Villager
             {
                 if (workTalk) talk.Say("Going to mine", "Mine");
                 //Go to item
-                await GoToLocationAwaitWork(mineable.transform.position, 0f);
+                await GoToLocationAwaitWork(mineable.transform.position, 0.01f);
                 await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                 if (villagerGeneral.GetVillagerState() != VillagerState.Mining)
                 {
@@ -1133,67 +1136,58 @@ namespace KukusVillagerMod.Components.Villager
                     return;
                 }
 
-                //Damage it over time
                 if (workTalk) talk.Say("Mining " + mineable.name, "Mine");
                 await MineForAWhile(mineable);
+                alreadyMining = false;
+                return;
             }
+
             //ai.LookAt(tree.transform.position);
             //ai.DoAttack(null, false);
-            alreadyMining = false;
         }
 
-        int mineLimit = 30;
         async private Task MineForAWhile(GameObject item)
         {
-            int count = 0;
-            while (true)
+            if (item == null)
             {
-                if (item == null)
-                {
-                    await Task.Delay(500);
-                    return;
-                }
-                if (count > mineLimit)
-                {
-                    await Task.Delay(500);
-                    return;
-                }
-                count++;
-                ai.LookAt(item.transform.position);
-                await Task.Delay(1000);
-                ai.DoAttack(null, false);
-                var dmgTypes = villagerGeneral.humanoid.GetCurrentWeapon().GetDamage();
-                var dmg = new HitData();
-                dmg.m_damage.m_chop = dmgTypes.m_chop;
-                dmg.m_damage.m_pickaxe = dmgTypes.m_pickaxe;
-                try
-                {
-                    item.GetComponentInParent<Destructible>().Damage(dmg);
-
-                }
-                catch (Exception)
-                {
-
-                }
-                try
-                {
-                    item.GetComponentInParent<TreeBase>().Damage(dmg);
-
-                }
-                catch (Exception)
-                {
-
-                }
-                try
-                {
-                    item.GetComponentInParent<TreeLog>().Destroy();
-
-                }
-                catch (Exception)
-                {
-
-                }
+                await Task.Delay(500);
+                return;
             }
+            await Task.Delay(1000);
+            //ai.DoAttack(null, false);
+            var dmg = new HitData();
+            dmg.m_damage.m_chop = 1200f;
+            dmg.m_damage.m_pickaxe = 1200f;
+            dmg.m_damage.m_pierce = 1200f;
+            dmg.m_damage.m_damage = 1200f;
+            try
+            {
+                item.GetComponentInParent<Destructible>().DestroyNow();
+
+            }
+            catch (Exception)
+            {
+                
+            }
+            try
+            {
+                item.GetComponentInParent<TreeBase>().m_stubPrefab.GetComponentInParent<Destructible>().DestroyNow();
+
+            }
+            catch (Exception)
+            {
+                KLog.warning("FAILED TREE BASE EXCEPTION");
+            }
+            try
+            {
+                item.GetComponentInParent<TreeLog>().Destroy();
+
+            }
+            catch (Exception)
+            {
+
+            }
+
         }
 
         private GameObject GetValidTree2Chop()

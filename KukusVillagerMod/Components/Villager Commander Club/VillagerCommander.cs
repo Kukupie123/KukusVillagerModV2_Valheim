@@ -170,12 +170,7 @@ namespace KukusVillagerMod.itemPrefab
         //Keeps track of which key has been pressed down.
         bool OpenMenuPressed = false;
         bool callFollowersKeyPressed = false;
-        bool defendPostPressed = false;
-        bool RandomRoamPressed = false;
-        bool deleteVillagersPressed = false;
-        bool deleteBedsPressed = false;
         bool moveToPressed = false;
-        bool workKeyPressed = false;
 
         private ButtonConfig guardBedbtn;
         private ButtonConfig followPlayerBtn;
@@ -221,12 +216,6 @@ namespace KukusVillagerMod.itemPrefab
                                     if (OpenMenuPressed) return;
                                     OpenMenuPressed = true;
                                     callFollowersKeyPressed = false;
-                                    defendPostPressed = false;
-                                    RandomRoamPressed = false;
-                                    deleteVillagersPressed = false;
-                                    deleteBedsPressed = false;
-                                    moveToPressed = false;
-                                    workKeyPressed = false;
                                     KuchukGUI.ShowMenu();
 
                                 }
@@ -237,121 +226,19 @@ namespace KukusVillagerMod.itemPrefab
                                     if (callFollowersKeyPressed) return;
                                     OpenMenuPressed = false;
                                     callFollowersKeyPressed = true;
-                                    defendPostPressed = false;
-                                    RandomRoamPressed = false;
-                                    deleteVillagersPressed = false;
-                                    deleteBedsPressed = false;
-                                    moveToPressed = false;
-                                    workKeyPressed = false;
+ 
 
                                     MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Calling back followers");
-                                    MakeFollowersComeBack("Weak_Villager_Ranged");
-                                    MakeFollowersComeBack("Weak_Villager");
-                                    MakeFollowersComeBack("Bronze_Villager_Ranged");
-                                    MakeFollowersComeBack("Bronze_Villager");
-                                    MakeFollowersComeBack("Iron_Villager_Ranged");
-                                    MakeFollowersComeBack("Iron_Villager");
-                                    MakeFollowersComeBack("Silver_Villager");
-                                    MakeFollowersComeBack("Silver_Villager_Ranged");
-                                    MakeFollowersComeBack("BlackMetal_Villager_Ranged");
-                                    MakeFollowersComeBack("BlackMetal_Villager");
-
-
+                                    MakeFollowersComeBack("Villager_Melee");
+                                    MakeFollowersComeBack("Villager_Melee");
                                 }
-                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.defendPostKey)
-                                {
 
-                                    //Go defensive position
-                                    if (defendPostPressed) return;
-                                    OpenMenuPressed = false;
-                                    callFollowersKeyPressed = false;
-                                    defendPostPressed = true;
-                                    RandomRoamPressed = false;
-                                    deleteVillagersPressed = false;
-                                    deleteBedsPressed = false;
-                                    moveToPressed = false;
-                                    workKeyPressed = false;
-
-                                    MakeVillagersWork("Villager_Ranged",true);
-                                    MakeVillagersWork("Villager_Melee", true);
-                                }
-                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.RoamKey)
-                                {
-                                    //Roam around
-                                    if (RandomRoamPressed) return;
-                                    OpenMenuPressed = false;
-                                    callFollowersKeyPressed = false;
-                                    defendPostPressed = false;
-                                    RandomRoamPressed = true;
-                                    deleteVillagersPressed = false;
-                                    deleteBedsPressed = false;
-                                    moveToPressed = false;
-                                    workKeyPressed = false;
-
-                                    MakeVillagersRoam("Weak_Villager_Ranged");
-                                    MakeVillagersRoam("Weak_Villager");
-                                    MakeVillagersRoam("Bronze_Villager_Ranged");
-                                    MakeVillagersRoam("Bronze_Villager");
-                                    MakeVillagersRoam("Iron_Villager_Ranged");
-                                    MakeVillagersRoam("Iron_Villager");
-                                    MakeVillagersRoam("Silver_Villager");
-                                    MakeVillagersRoam("Silver_Villager_Ranged");
-                                    MakeVillagersRoam("BlackMetal_Villager_Ranged");
-                                    MakeVillagersRoam("BlackMetal_Villager");
-
-                                }
-                                else if (ZInput.instance.GetPressedKey().ToString() == "VillagerModConfigurations.deleteVillagerKey")
-                                {
-
-
-                                    //Destroy all villagers
-                                    if (deleteVillagersPressed) return;
-                                    OpenMenuPressed = false;
-                                    callFollowersKeyPressed = false;
-                                    defendPostPressed = false;
-                                    RandomRoamPressed = false;
-                                    deleteVillagersPressed = true;
-                                    deleteBedsPressed = false;
-                                    moveToPressed = false;
-                                    workKeyPressed = false;
-
-                                    foreach (VillagerGeneral v in UnityEngine.GameObject.FindObjectsOfType<VillagerGeneral>())
-                                    {
-                                        ZNetScene.instance.Destroy(v.gameObject);
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all Villagers");
-                                    }
-
-                                }
-                                else if (ZInput.instance.GetPressedKey().ToString() == "VillagerModConfigurations.deleteBedsKey")
-                                {
-
-                                    if (deleteBedsPressed) return;
-                                    OpenMenuPressed = false;
-                                    callFollowersKeyPressed = false;
-                                    defendPostPressed = false;
-                                    RandomRoamPressed = false;
-                                    deleteVillagersPressed = false;
-                                    deleteBedsPressed = true;
-                                    moveToPressed = false;
-                                    workKeyPressed = false;
-
-                                    foreach (BedState v in UnityEngine.GameObject.FindObjectsOfType<BedState>())
-                                    {
-                                        ZNetScene.instance.Destroy(v.gameObject);
-                                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Destroying all Beds");
-                                    }
-                                }
                                 else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.moveToKey)
                                 {
                                     if (moveToPressed) return;
                                     OpenMenuPressed = false;
                                     callFollowersKeyPressed = false;
-                                    defendPostPressed = false;
-                                    RandomRoamPressed = false;
-                                    deleteVillagersPressed = false;
-                                    deleteBedsPressed = false;
-                                    moveToPressed = true;
-                                    workKeyPressed = false;
+
 
 
                                     //Ray cast and see if that area is available
@@ -366,43 +253,10 @@ namespace KukusVillagerMod.itemPrefab
                                             return;
                                         }
 
-                                        MakeFollowersGoToLocation("Weak_Villager_Ranged", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
-                                        MakeFollowersGoToLocation("Weak_Villager", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
-                                        MakeFollowersGoToLocation("Bronze_Villager_Ranged", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
-                                        MakeFollowersGoToLocation("Bronze_Villager", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
-                                        MakeFollowersGoToLocation("Iron_Villager_Ranged", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
-                                        MakeFollowersGoToLocation("Iron_Villager", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
-                                        MakeFollowersGoToLocation("Silver_Villager", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
-                                        MakeFollowersGoToLocation("Silver_Villager_Ranged", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
-                                        MakeFollowersGoToLocation("BlackMetal_Villager_Ranged", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
-                                        MakeFollowersGoToLocation("BlackMetal_Villager", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Villager_Ranged", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Villager_Melee", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
                                     }
 
-
-
-                                }
-                                else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.WorkKey)
-                                {
-                                    if (workKeyPressed) return;
-                                    OpenMenuPressed = false;
-                                    callFollowersKeyPressed = false;
-                                    defendPostPressed = false;
-                                    RandomRoamPressed = false;
-                                    deleteVillagersPressed = false;
-                                    deleteBedsPressed = false;
-                                    moveToPressed = false;
-                                    workKeyPressed = true;
-
-                                    MakeVillagersWork("Weak_Villager_Ranged");
-                                    MakeVillagersWork("Weak_Villager");
-                                    MakeVillagersWork("Bronze_Villager_Ranged");
-                                    MakeVillagersWork("Bronze_Villager");
-                                    MakeVillagersWork("Iron_Villager_Ranged");
-                                    MakeVillagersWork("Iron_Villager");
-                                    MakeVillagersWork("Silver_Villager");
-                                    MakeVillagersWork("Silver_Villager_Ranged");
-                                    MakeVillagersWork("BlackMetal_Villager_Ranged");
-                                    MakeVillagersWork("BlackMetal_Villager");
 
 
                                 }
@@ -410,12 +264,7 @@ namespace KukusVillagerMod.itemPrefab
                                 {
                                     OpenMenuPressed = false;
                                     callFollowersKeyPressed = false;
-                                    defendPostPressed = false;
-                                    RandomRoamPressed = false;
-                                    deleteVillagersPressed = false;
-                                    deleteBedsPressed = false;
                                     moveToPressed = false;
-                                    workKeyPressed = false;
                                 }
 
                             }
@@ -542,16 +391,9 @@ namespace KukusVillagerMod.itemPrefab
             ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
             foreach (ZDO z in zdos)
             {
-                ZDOID bedID = z.GetZDOID("spawner_id");
 
-                if (bedID.IsNone())
-                {
-                    continue;
-                }
 
-                //If they are not following then ignore
-                VillagerState state = (VillagerState)ZDOMan.instance.GetZDO(bedID).GetInt("state", (int)VillagerState.Guarding_Bed);
-                if (state != VillagerState.Following) continue;
+                if (VillagerGeneral.GetVillagerState(z.m_uid) != VillagerState.Following) continue;
 
                 //See if we can get an instance. We only make those who are nearby follow player
                 GameObject villager = ZNetScene.instance.FindInstance(z.m_uid);
@@ -584,21 +426,12 @@ namespace KukusVillagerMod.itemPrefab
             ZDOMan.instance.GetAllZDOsWithPrefab(prefabName, zdos);
             foreach (ZDO z in zdos)
             {
-                ZDOID bedID = z.GetZDOID("spawner_id");
-
-                if (bedID.IsNone())
-                {
-                    continue;
-                }
-
-                //If they are not following then ignore
-                VillagerState state = (VillagerState)ZDOMan.instance.GetZDO(bedID).GetInt("state", (int)VillagerState.Guarding_Bed);
-                if (state != VillagerState.Following) continue;
+                if (VillagerGeneral.GetVillagerState(z.m_uid) != VillagerState.Following) continue;
 
                 //See if we can get an instance. We only make those who are nearby follow player
                 GameObject villager = ZNetScene.instance.FindInstance(z.m_uid);
 
-                if (villager != null && ZNetScene.instance.IsAreaReady(villager.transform.position)) //if instance is valid we call DefendPost function
+                if (villager != null && ZNetScene.instance.IsAreaReady(villager.transform.position))
                 {
 
                     villager.GetComponent<VillagerAI>().FollowPlayer(Player.m_localPlayer.GetZDOID()); ;

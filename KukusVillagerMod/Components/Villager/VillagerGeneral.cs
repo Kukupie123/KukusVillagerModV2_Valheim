@@ -806,6 +806,11 @@ namespace KukusVillagerMod.Components.Villager
             }
             LoadStatsFromZDO();
 
+
+            //Sometime villagers will throw error so we do this to fix it, related to patching getCurrentWeapon function of humanoid
+            UpgradeVillagerDamage(0);
+            UpgradeVillagerHealth(0);
+
         }
 
 

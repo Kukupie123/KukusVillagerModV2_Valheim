@@ -111,7 +111,7 @@ namespace KukusVillagerMod.Components.UI
                 case 2: mining = "Iron Arms"; break;
                 case 3: mining = "Veteran"; break;
             }
-
+            /*
             GameObject MiningLvlTextBtn = GUIManager.Instance.CreateText(
                 text: $"Work Level : {mining}",
                 parent: MAINBG.transform,
@@ -165,6 +165,8 @@ namespace KukusVillagerMod.Components.UI
                addContentSizeFitter: false
                );
             SubUIs.Add(MiningSkillBtn);
+
+            */
 
             GameObject WorkSkillPickup = GUIManager.Instance.CreateText(
              text: $"Can Do Pickup work : {VillagerGeneral.GetWorkSkill_Pickup(selected_villager)}",
@@ -544,6 +546,33 @@ namespace KukusVillagerMod.Components.UI
                     SubUIs.Add(pickupWorkBtn);
                     pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Smelter(selected_villager, true); UpdateUI(); });
                 }
+
+
+                //Cut trees button
+                GameObject cutTreeBtn = GUIManager.Instance.CreateButton(
+               text: "Cut trees (WARNING! TEST_VERSION )",
+               parent: MAINBG.transform,
+               anchorMin: new Vector2(0.5f, 0.1f),
+               anchorMax: new Vector2(0.5f, 0.5f),
+               position: new Vector2(0f, 0f), // width & height
+               width: 250f,
+               height: 60f
+               );
+                SubUIs.Add(cutTreeBtn);
+                cutTreeBtn.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    var v = ZNetScene.instance.FindInstance(selected_villager);
+                    if (v)
+                    {
+                        v.GetComponent<VillagerAI>().StartWork(true);
+                        CloseVillagerMenu();
+                    }
+                    else
+                    {
+                        VillagerGeneral.SetVillagerState(selected_villager, enums.VillagerState.Mining);
+                        CloseVillagerMenu();
+                    }
+                });
             }
         }
 

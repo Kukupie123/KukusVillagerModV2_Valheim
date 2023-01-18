@@ -140,10 +140,12 @@ namespace KukusVillagerMod
  * TODO:
  * Ability to change villager's name ~ DONE
  * Comand GUI for villager commander ~ DONE
- * UPGRADE WORKING :
- * Upgrade items for dmage and working :
+ * UPGRADE WORKING : ~ FUTURE.
+ * Upgrade items for dmage and working : ~ DONE
+ * NOT WORKING VILLAGERS FIX ~ DONE
+ * PASSIVE UPGRADE villager
  * CONFIG FOR SPAWNS    and multipliers of upgrade etc etc
- * NOT WORKING VILLAGERS FIX
+ * 
  * 
  * 
  * Huge overhaul incomming

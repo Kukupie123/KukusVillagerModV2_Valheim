@@ -23,8 +23,6 @@ namespace KukusVillagerMod.Configuration
         public static string OpenMenuKey;
         public static string CallFollowers;
         public static string moveToKey;
-        public static string WorkKey;
-        public static string RoamKey;
 
         //Villager configuration
         public static int FollowerMaxDistance;
@@ -37,6 +35,7 @@ namespace KukusVillagerMod.Configuration
         public static string PickableObjects;
         public static bool workRun;
 
+        //Spawner config
 
         public static void LoadConfig(ConfigFile Config)
         {
@@ -80,11 +79,8 @@ namespace KukusVillagerMod.Configuration
 
             //Villager Commander Club keys
             OpenMenuKey = (string)Config.Bind("Commander Club keybinds", "Open Menu Key", "Keypad1", new ConfigDescription("Key list : https://docs.unity3d.com/ScriptReference/KeyCode.html")).BoxedValue;
-            defendPostKey = (string)Config.Bind("Commander Club keybinds", "Defend Posts Key", "Keypad2").BoxedValue;
-            WorkKey = (string)Config.Bind("Commander Club keybinds", "Start Working Key", "Keypad3").BoxedValue;
-            RoamKey = (string)Config.Bind("Commander Club keybinds", "Start Roaming Key", "Keypad4").BoxedValue;
-            CallFollowers = (string)Config.Bind("Commander Club keybinds", "Call Back Followers", "Keypad5").BoxedValue;
-            moveToKey = (string)Config.Bind("Commander Club keybinds", "Move to Key", "Keypad6").BoxedValue;
+            CallFollowers = (string)Config.Bind("Commander Club keybinds", "Call Back Followers", "Keypad3").BoxedValue;
+            moveToKey = (string)Config.Bind("Commander Club keybinds", "Move to Key", "Keypad2").BoxedValue;
 
             VillagerMeleePrefabName = (string)Config.Bind("Villager Prefab", "BM_Villager_Melee", "Goblin",
        new ConfigDescription("",
@@ -95,18 +91,7 @@ namespace KukusVillagerMod.Configuration
        new ConfigDescription("",
        null,
        new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-
-
-
-
-
-
-            //Bed model
-
-            VillagerBedPrefab = (string)Config.Bind("Bed prefab", "Weak_Bed_Melee", "bed",
-       new ConfigDescription("The model used by your bed. Not all piece prefabs are compatible",
-       null,
-       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
         }
+
     }
 }
