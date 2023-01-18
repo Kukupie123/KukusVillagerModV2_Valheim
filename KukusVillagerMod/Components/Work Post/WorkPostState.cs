@@ -85,6 +85,7 @@ namespace KukusVillagerMod.Components.Work_Post
             {
                 VillagerGeneral.AssignWorkPost(VillagerGeneral.SELECTED_VILLAGER_ID.Value, znv.GetZDO().m_uid);
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Assigned Work Post {znv.GetZDO().m_uid.id} for {VillagerGeneral.GetName(VillagerGeneral.SELECTED_VILLAGER_ID.Value)}");
+                VillagerGeneral.SELECTED_VILLAGER_ID = ZDOID.None;
                 return true;
             }
 
