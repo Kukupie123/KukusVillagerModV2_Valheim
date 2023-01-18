@@ -28,18 +28,57 @@ namespace KukusVillagerMod.Prefabs
             villagerConfig.Name = villagerName.Replace("_", " "); //Replace the "_" with " " Eg: Weak_Mage becomes Weak Mage
             villagerConfig.Faction = Character.Faction.Players;
             villagerConfig.Group = "Player";
+            string biomes = VillagerModConfigurations.biomeToSpawn;
+            var biomesaArray = biomes.Split(',');
+            List<Heightmap.Biome> biomesList = new List<Heightmap.Biome>();
+
+            foreach (string s in biomesaArray)
+            {
+                switch (s)
+                {
+                    case "blackforest":
+                        biomesList.Add(Heightmap.Biome.BlackForest);
+                        break;
+                    case "deepnorth":
+                        biomesList.Add(Heightmap.Biome.DeepNorth);
+                        break;
+                    case "meadows":
+                        biomesList.Add(Heightmap.Biome.Meadows);
+                        break;
+                    case "mistlands":
+                        biomesList.Add(Heightmap.Biome.Mistlands);
+                        break;
+                    case "mountains":
+                        biomesList.Add(Heightmap.Biome.Mountain);
+                        break;
+                    case "plains":
+                        biomesList.Add(Heightmap.Biome.Plains);
+                        break;
+                    case "swamp":
+                        biomesList.Add(Heightmap.Biome.Swamp);
+                        break;
+                    case "ocean":
+                        biomesList.Add(Heightmap.Biome.Ocean);
+                        break;
+                }
+            }
+
+            foreach (var v in biomesList)
+            {
+                KLog.warning(v.ToString());
+            }
             villagerConfig.AddSpawnConfig(
                 new SpawnConfig
                 {
                     Name = villagerName,
-                    Biome = ZoneManager.AnyBiomeOf(Heightmap.Biome.BlackForest, Heightmap.Biome.DeepNorth, Heightmap.Biome.Meadows, Heightmap.Biome.Mistlands, Heightmap.Biome.Mountain, Heightmap.Biome.Plains, Heightmap.Biome.Swamp, Heightmap.Biome.Ocean),
+                    Biome = ZoneManager.AnyBiomeOf(biomesList.ToArray()),
                     HuntPlayer = false,
-                    GroupRadius = 3f,
-                    MaxGroupSize = 5,
-                    MaxSpawned = 50,
-                    MinGroupSize = 3,
-                    SpawnChance = 70f,
-                    SpawnDistance = 10f
+                    GroupRadius = VillagerModConfigurations.GroupRadius,
+                    MaxGroupSize = VillagerModConfigurations.MaxGroupSize,
+                    MaxSpawned = VillagerModConfigurations.MaxSpawned,
+                    MinGroupSize = VillagerModConfigurations.MinGroupSize,
+                    SpawnChance = VillagerModConfigurations.SpawnChance,
+                    SpawnDistance = VillagerModConfigurations.SpawnDistance
                 }
 
                 );

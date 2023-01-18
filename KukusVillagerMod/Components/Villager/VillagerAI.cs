@@ -32,7 +32,7 @@ namespace KukusVillagerMod.Components.Villager
         private void FixedUpdate()
         {
             //Keeping them in Awake doesn't always guarentee so we do it here instead.
-            if (talk == null) talk = GetComponent<NpcTalk>();
+            if (talk == null) talk = GetComponent<NpcTalk>();   
 
             if (villagerGeneral == null) villagerGeneral = GetComponent<VillagerGeneral>();
 

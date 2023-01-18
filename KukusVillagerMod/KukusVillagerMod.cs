@@ -12,8 +12,6 @@ using KukusVillagerMod.Configuration;
 using KukusVillagerMod.itemPrefab;
 using KukusVillagerMod.Prefabs;
 using KukusVillagerMod.Components;
-using System.Collections.Generic;
-using KukusVillagerMod.VirtualWorker;
 
 namespace KukusVillagerMod
 {
@@ -29,7 +27,6 @@ namespace KukusVillagerMod
         public const string PluginVersion = "2.0.0";
         public static CustomLocalization Localization = LocalizationManager.Instance.GetLocalization();
         private VillagerCommander vc;
-        private VirtualWork vw;
         public static bool isMapDataLoaded = false;
 
         private readonly Harmony harmony = new Harmony("kukuvillager");
@@ -56,10 +53,6 @@ namespace KukusVillagerMod
             {
                 vc.HandleInputs();
             }
-            if (vw != null)
-            {
-                vw.vw();
-            }
         }
 
 
@@ -72,7 +65,6 @@ namespace KukusVillagerMod
             new WorkPostPrefab();
             new IndividualVillagerCommandItemPrefab();
             vc = new VillagerCommander();
-            vw = new VirtualWork();
             PrefabManager.OnVanillaPrefabsAvailable -= LoadBedPrefab;
         }
 
@@ -115,8 +107,8 @@ namespace KukusVillagerMod
 
         public static string RandomName()
         {
-            var firstNames = new[] { "Kuku", "Hoezae", "Jeff", "Klint", "Druftes", "Fver", "Qanzop", "Lufty", "Khaku", "Dodo" };
-            var lastNames = new[] { "Deb", "Barma", "Hoster", "Ward", "Bap", "Cergate","Jamatiya", "Astovert", "JoeMama","Lund" };
+            var firstNames = new[] { "Kuku", "Hoezae", "Jeff", "Klint", "Druftes", "Fver", "Qanzop", "Lufty", "Khaku", "Dodo", "DisNuts" };
+            var lastNames = new[] { "Deb", "Barma", "Hoster", "Ward", "Bap", "Cergate", "Jamatiya", "Astovert", "JoeMama", "Lund", "AyAyRon" };
             string name = firstNames[UnityEngine.Random.Range(0, firstNames.Length - 1)] + " " + lastNames[UnityEngine.Random.Range(0, lastNames.Length - 1)];
             return name;
         }

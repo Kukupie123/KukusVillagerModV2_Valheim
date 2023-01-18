@@ -35,7 +35,30 @@ namespace KukusVillagerMod.Configuration
         public static string PickableObjects;
         public static bool workRun;
 
+
         //Spawner config
+        public static float GroupRadius;
+        public static int MaxGroupSize;
+        public static int MaxSpawned;
+        public static int MinGroupSize;
+        public static float SpawnChance;
+        public static float SpawnDistance;
+        public static string biomeToSpawn;
+
+        public static float MinHealth { get; internal set; }
+        public static float MaxHealth { get; internal set; }
+        public static float MinEfficiency { get; internal set; }
+        public static float MaxEfficiency { get; internal set; }
+        public static float MinDmg { get; internal set; }
+        public static float MaxDmg { get; internal set; }
+        public static float MinSlash { get; internal set; }
+        public static float MaxSlash { get; internal set; }
+        public static float MinBlunt { get; internal set; }
+        public static float MaxBlunt { get; internal set; }
+        public static float MaxPierce { get; internal set; }
+        public static float MinPierce { get; internal set; }
+        public static float MinSpecial { get; internal set; }
+        public static float MaxSpecial { get; internal set; }
 
         public static void LoadConfig(ConfigFile Config)
         {
@@ -75,7 +98,52 @@ namespace KukusVillagerMod.Configuration
                 new ConfigDescription("List of items that the worker villager with pickup skill can pickup. Each entries must be separated using ','\nTo add items paste the prefab name from here : https://valheim-modding.github.io/Jotunn/data/prefabs/prefab-list.html", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
                 ).BoxedValue;
 
+            //Villager spawn configuration
+            GroupRadius = (float)Config.Bind("Villager Spawner", "Group radius", 3f
+                ).BoxedValue;
+            MaxGroupSize = (int)Config.Bind("Villager Spawner", "Max Group Size", 5
+                ).BoxedValue;
+            MinGroupSize = (int)Config.Bind("Villager Spawner", "Min Group Size", 2
+                ).BoxedValue;
+            MaxSpawned = (int)Config.Bind("Villager Spawner", "Max Spawned", 10
+                ).BoxedValue;
+            SpawnChance = (float)Config.Bind("Villager Spawner", "Spawn Chance", 55f
+                ).BoxedValue;
+            SpawnDistance = (float)Config.Bind("Villager Spawner", "Spawn Distance", 20f
+                ).BoxedValue;
 
+            biomeToSpawn = (string)Config.Bind("Villager Spawner", "Spawn Area", "blackforest,meadows,plains,mountains"
+                ).BoxedValue;
+
+            //Villager stats configuration
+            MinHealth = (float)Config.Bind("Villager Stats", "Minimum Health", 50f
+                ).BoxedValue;
+            MaxHealth = (float)Config.Bind("Villager Stats", "Maxmimum Health", 100f
+                ).BoxedValue;
+            MinEfficiency = (float)Config.Bind("Villager Stats", "Min Efficiency", 0.1f
+               ).BoxedValue;
+            MaxEfficiency = (float)Config.Bind("Villager Stats", "Max Efficiency", 2f
+                ).BoxedValue;
+            MinDmg = (float)Config.Bind("Villager Stats", "Min Damage", 0.1f
+              ).BoxedValue;
+            MaxDmg = (float)Config.Bind("Villager Stats", "Max Damage", 5f
+                ).BoxedValue;
+            MinSlash = (float)Config.Bind("Villager Stats", "Min Slash", 0.1f
+              ).BoxedValue;
+            MaxSlash = (float)Config.Bind("Villager Stats", "Max Slash", 2f
+                ).BoxedValue;
+            MinBlunt = (float)Config.Bind("Villager Stats", "Min Blunt", 0.1f
+            ).BoxedValue;
+            MaxBlunt = (float)Config.Bind("Villager Stats", "Max Blunt", 2f
+                ).BoxedValue;
+            MinPierce = (float)Config.Bind("Villager Stats", "Min Pierce", 0.1f
+           ).BoxedValue;
+            MaxPierce = (float)Config.Bind("Villager Stats", "Max Pierce", 2f
+                ).BoxedValue;
+            MinSpecial = (float)Config.Bind("Villager Stats", "Min Special(Fire,Frost,Ice etc [RARE QUALITY])", 0.1f
+           ).BoxedValue;
+            MaxSpecial = (float)Config.Bind("Villager Stats", "Max Special", 0.5f
+                ).BoxedValue;
 
             //Villager Commander Club keys
             OpenMenuKey = (string)Config.Bind("Commander Club keybinds", "Open Menu Key", "Keypad1", new ConfigDescription("Key list : https://docs.unity3d.com/ScriptReference/KeyCode.html")).BoxedValue;

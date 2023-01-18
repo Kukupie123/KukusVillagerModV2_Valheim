@@ -102,7 +102,6 @@
     <Compile Include="Components\Defense Post\DefenseState.cs" />
     <Compile Include="Components\Villager\VillagerGeneral.cs" />
     <Compile Include="Components\VillagerBed\BedState.cs" />
-    <Compile Include="VirtualWorker\VirtualWork.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

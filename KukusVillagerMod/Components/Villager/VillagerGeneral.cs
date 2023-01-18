@@ -1,5 +1,6 @@
 ﻿
 using KukusVillagerMod.Components.VillagerBed;
+using KukusVillagerMod.Configuration;
 using KukusVillagerMod.enums;
 using System;
 using System.Collections.Generic;
@@ -64,16 +65,22 @@ namespace KukusVillagerMod.Components.Villager
         //Stats
         public static void SetRandomStats(ZNetView ZNV)
         {
+            float minVal = -1f;
+            float maxVal = 0;
 
             //Basics
             var n = Util.RandomName();
             ZNV.GetZDO().Set("name", n);
-            ZNV.GetZDO().Set("health", UnityEngine.Random.Range(50f, 150f));
-            ZNV.GetZDO().Set("efficiency", UnityEngine.Random.Range(0.1f, 1.0f)); //Percentage stuff
+            minVal = VillagerModConfigurations.MinHealth;
+            maxVal = VillagerModConfigurations.MaxHealth;
+            ZNV.GetZDO().Set("health", UnityEngine.Random.Range(minVal, maxVal));
+            minVal = VillagerModConfigurations.MinEfficiency;
+            maxVal = VillagerModConfigurations.MaxEfficiency;
+            ZNV.GetZDO().Set("efficiency", UnityEngine.Random.Range(minVal, maxVal)); //Percentage stuff
 
             KLog.warning($"Villager {ZNV.GetZDO().m_uid.id} has name {n} ");
 
-            //Farming stuff
+            //Farming stuff FOR FUTURE WHEN I FIGURE OUT CONSISTENT METHOD
             ZNV.GetZDO().Set("pickaxe", 15.0f); //15 is base, 18 is antler
             ZNV.GetZDO().Set("chop", 20.0f);
             ZNV.GetZDO().Set("mining", 0);
@@ -92,37 +99,47 @@ namespace KukusVillagerMod.Components.Villager
                weapon.m_shared.m_damages.m_poison = 0f;
                weapon.m_shared.m_damages.m_spirit = 0f;
         */
-            ZNV.GetZDO().Set("damage", UnityEngine.Random.Range(0f, 20f));
-            ZNV.GetZDO().Set("slash", UnityEngine.Random.Range(0f, 20f));
-            ZNV.GetZDO().Set("blunt", UnityEngine.Random.Range(0f, 20f));
+            minVal = VillagerModConfigurations.MinDmg;
+            maxVal = VillagerModConfigurations.MaxDmg;
+            ZNV.GetZDO().Set("damage", UnityEngine.Random.Range(minVal, maxVal));
+            minVal = VillagerModConfigurations.MinSlash;
+            maxVal = VillagerModConfigurations.MaxSlash;
+            ZNV.GetZDO().Set("slash", UnityEngine.Random.Range(minVal, maxVal));
+            minVal = VillagerModConfigurations.MinBlunt;
+            maxVal = VillagerModConfigurations.MaxBlunt;
+            ZNV.GetZDO().Set("blunt", UnityEngine.Random.Range(minVal, maxVal));
             ZNV.GetZDO().Set("fire", 0f); //special
             ZNV.GetZDO().Set("frost", 0f); //special
             ZNV.GetZDO().Set("lightning", 0f); //special
-            ZNV.GetZDO().Set("pierce", UnityEngine.Random.Range(0f, 20f));
+            minVal = VillagerModConfigurations.MinPierce;
+            maxVal = VillagerModConfigurations.MaxPierce;
+            ZNV.GetZDO().Set("pierce", UnityEngine.Random.Range(minVal, maxVal));
             ZNV.GetZDO().Set("poison", 0f); //special
             ZNV.GetZDO().Set("spirit", 0f); //special
 
             if (UnityEngine.Random.Range(0, 3) == 2)
             {
+                minVal = VillagerModConfigurations.MinSpecial;
+                maxVal = VillagerModConfigurations.MaxSpecial;
 
                 ZNV.GetZDO().Set("special", true);
                 //Speciality
                 switch (UnityEngine.Random.Range(0, 4))
                 {
                     case 0:
-                        ZNV.GetZDO().Set("fire", UnityEngine.Random.Range(0f, 10f));
+                        ZNV.GetZDO().Set("fire", UnityEngine.Random.Range(minVal, maxVal));
                         break;
                     case 1:
-                        ZNV.GetZDO().Set("frost", UnityEngine.Random.Range(0f, 10f));
+                        ZNV.GetZDO().Set("frost", UnityEngine.Random.Range(minVal, maxVal));
                         break;
                     case 2:
-                        ZNV.GetZDO().Set("lightning", UnityEngine.Random.Range(0f, 10f));
+                        ZNV.GetZDO().Set("lightning", UnityEngine.Random.Range(minVal, maxVal));
                         break;
                     case 3:
-                        ZNV.GetZDO().Set("poison", UnityEngine.Random.Range(0f, 10f));
+                        ZNV.GetZDO().Set("poison", UnityEngine.Random.Range(minVal, maxVal));
                         break;
                     case 4:
-                        ZNV.GetZDO().Set("spirit", UnityEngine.Random.Range(0f, 10f));
+                        ZNV.GetZDO().Set("spirit", UnityEngine.Random.Range(minVal, maxVal));
                         break;
                 }
             }
