@@ -459,9 +459,12 @@ namespace KukusVillagerMod.Components.UI
                         VillagerGeneral.SetVillagerState(selected_villager, enums.VillagerState.Roaming);
                         return;
                     }
-                    VillagerAI ai = villagerGO.GetComponent<VillagerAI>();
-                    if (ai == null) return;
-                    ai.RoamAround();
+                    else
+                    {
+                        VillagerAI ai = villagerGO.GetComponent<VillagerAI>();
+                        ai.RoamAround();
+                    }
+
                     KLog.info($"Villager is Roaming Around");
                     CloseVillagerMenu();
                 });
@@ -495,7 +498,7 @@ namespace KukusVillagerMod.Components.UI
                  parent: MAINBG.transform,
                  anchorMin: new Vector2(0.5f, 0.1f),
                  anchorMax: new Vector2(0.5f, 0.5f),
-                 position: new Vector2(200f, 50f), // width & height
+                 position: new Vector2(200f, 0f), // width & height
                  width: 250f,
                  height: 60f
                  );
@@ -510,7 +513,7 @@ namespace KukusVillagerMod.Components.UI
                  parent: MAINBG.transform,
                  anchorMin: new Vector2(0.5f, 0.1f),
                  anchorMax: new Vector2(0.5f, 0.5f),
-                 position: new Vector2(200f, 50f), // width & height
+                 position: new Vector2(200f, 0f), // width & height
                  width: 250f,
                  height: 60f
                  );
@@ -525,7 +528,7 @@ namespace KukusVillagerMod.Components.UI
                  parent: MAINBG.transform,
                  anchorMin: new Vector2(0.5f, 0.1f),
                  anchorMax: new Vector2(0.5f, 0.5f),
-                 position: new Vector2(-200f, 50f), // width & height
+                 position: new Vector2(-200f, 0f), // width & height
                  width: 250f,
                  height: 60f
                  );
@@ -539,7 +542,7 @@ namespace KukusVillagerMod.Components.UI
                 parent: MAINBG.transform,
                 anchorMin: new Vector2(0.5f, 0.1f),
                 anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(-200f, 50f), // width & height
+                position: new Vector2(-200f, 0f), // width & height
                 width: 250f,
                 height: 60f
                 );
@@ -558,7 +561,7 @@ namespace KukusVillagerMod.Components.UI
                position: new Vector2(0f, 0f), // width & height
                width: 250f,
                height: 60f
-               );
+               );m bu
                 SubUIs.Add(cutTreeBtn);
                 cutTreeBtn.GetComponent<Button>().onClick.AddListener(() =>
                 {
