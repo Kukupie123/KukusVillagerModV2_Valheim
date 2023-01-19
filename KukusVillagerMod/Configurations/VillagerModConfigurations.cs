@@ -201,7 +201,7 @@ namespace KukusVillagerMod.Configuration
             CallFollowers = (string)Config.Bind("Commander Club keybinds", "Call Back Followers", "Keypad3").BoxedValue;
             moveToKey = (string)Config.Bind("Commander Club keybinds", "Move to Key", "Keypad2").BoxedValue;
 
-            VillagerMeleePrefabName = (string)Config.Bind("Villager Prefab", "Villager Melee", "Ranged",
+            VillagerMeleePrefabName = (string)Config.Bind("Villager Prefab", "Villager Melee", "Skeleton",
        new ConfigDescription("",
        null,
        new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
