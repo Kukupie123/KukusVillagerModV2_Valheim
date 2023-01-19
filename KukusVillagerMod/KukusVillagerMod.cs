@@ -137,7 +137,7 @@ namespace KukusVillagerMod
  * PASSIVE UPGRADE villager
  * CONFIG FOR SPAWNS    and multipliers done ~
  * ADD SEARCH RADIUS FOR WORK SUCH AS SMELT AND PICKUP
- * 
+ * Experiment with follow target for work
  * 
  * 
  * Huge overhaul incomming

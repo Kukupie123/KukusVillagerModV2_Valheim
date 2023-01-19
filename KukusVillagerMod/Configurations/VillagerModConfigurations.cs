@@ -123,7 +123,7 @@ namespace KukusVillagerMod.Configuration
                 ).BoxedValue;
             MinGroupSize = (int)Config.Bind("Villager Spawner", "Min Group Size", 2
                 ).BoxedValue;
-            MaxSpawned = (int)Config.Bind("Villager Spawner", "Max Spawned", 6
+            MaxSpawned = (int)Config.Bind("Villager Spawner", "Max Spawned", 1
                 ).BoxedValue;
             SpawnChance = (float)Config.Bind("Villager Spawner", "Spawn Chance", 10f
                 ).BoxedValue;

@@ -169,6 +169,7 @@ namespace KukusVillagerMod.Components.Villager
             else
             {
                 //Not moving so reset timer
+               
                 keepMovingStartTime = null;
             }
 
