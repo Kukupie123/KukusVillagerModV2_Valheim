@@ -135,7 +135,8 @@ namespace KukusVillagerMod
  * Upgrade items for dmage and working : ~ DONE
  * NOT WORKING VILLAGERS FIX ~ DONE
  * PASSIVE UPGRADE villager
- * CONFIG FOR SPAWNS    and multipliers of upgrade etc etc
+ * CONFIG FOR SPAWNS    and multipliers done ~
+ * ADD SEARCH RADIUS FOR WORK SUCH AS SMELT AND PICKUP
  * 
  * 
  * 

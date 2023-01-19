@@ -1,7 +1,7 @@
 {
   "name": "Kukus_Village",
   "description": "Recruit villagers with everyone having unique stats found in the wild. Make them help you work, Make them defend, Upgrade them & Take care",
-  "version_number": "3.0.0",
+  "version_number": "3.0.1",
   "website_url": "https://github.com/Kukupie123/KukusVillagerModV2_Valheim",
   "dependencies": [
     "ValheimModding-Jotunn-2.7.9"
