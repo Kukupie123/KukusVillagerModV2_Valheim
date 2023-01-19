@@ -177,7 +177,7 @@ namespace KukusVillagerMod.Configuration
                ).BoxedValue;
             MistlandRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Mistland Wandering Stats Multiplier", 3.5f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
               ).BoxedValue;
-            NormalVillagerChance = (int)Config.Bind("Villager Stats", "Mistland Wandering Stats Multiplier", 5, new ConfigDescription("Determines the chance of villagers having special combat skills (forst,ice,poison,etc). 0 = Every Wild villager will have special skill, increase it by 1 will reduce the chance of villager having special skill. It's counterintuiive I know :P but it is what it is")
+            NormalVillagerChance = (int) Config.Bind("Villager Stats", "Normal Wild Villager Chance", 5, new ConfigDescription("Determines the chance of villagers having special combat skills (forst,ice,poison,etc). 0 = Every Wild villager will have special skill, increase it by 1 will reduce the chance of villager having special skill. It's counterintuiive I know :P but it is what it is")
               ).BoxedValue;
             //Upgrade items
             ArmorRagSetReq = (int)Config.Bind("Villager Upgrade", "Armor Rag Set Requirements", 3, new ConfigDescription("The amount of resources required to craft upgrading items")
