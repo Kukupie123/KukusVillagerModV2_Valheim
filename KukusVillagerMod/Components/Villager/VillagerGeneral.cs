@@ -383,13 +383,13 @@ namespace KukusVillagerMod.Components.Villager
             var dmg = GetDamage(villagerZDOID);
             if (dmg != 0f)
             {
-                zdo.Set("damage", dmg + (GetEfficiency(villagerZDOID) * multiplier));
+                zdo.Set("damage", dmg + (GetEfficiency(villagerZDOID) * multiplier) * VillagerModConfigurations.UpgradeStrengthMultiplier);
                 KLog.warning($"New Damage : {dmg}");
             }
             dmg = GetSlash(villagerZDOID);
             if (dmg != 0f)
             {
-                zdo.Set("slash", dmg + (GetEfficiency(villagerZDOID) * multiplier));
+                zdo.Set("slash", dmg + (GetEfficiency(villagerZDOID) * multiplier) * VillagerModConfigurations.UpgradeStrengthMultiplier);
                 KLog.warning($"New slash : {dmg}");
 
 
@@ -397,14 +397,14 @@ namespace KukusVillagerMod.Components.Villager
             dmg = GetPierce(villagerZDOID);
             if (dmg != 0f)
             {
-                zdo.Set("pierce", dmg + (GetEfficiency(villagerZDOID) * multiplier));
+                zdo.Set("pierce", dmg + (GetEfficiency(villagerZDOID) * multiplier) * VillagerModConfigurations.UpgradeStrengthMultiplier);
                 KLog.warning($"New Pierce : {dmg}");
 
             }
             dmg = GetBlunt(villagerZDOID);
             if (dmg != 0f)
             {
-                zdo.Set("blunt", dmg + (GetEfficiency(villagerZDOID) * multiplier));
+                zdo.Set("blunt", dmg + (GetEfficiency(villagerZDOID) * multiplier) * VillagerModConfigurations.UpgradeStrengthMultiplier);
                 KLog.warning($"New Blunt : {dmg}");
 
             }
@@ -412,7 +412,7 @@ namespace KukusVillagerMod.Components.Villager
             dmg = GetFire(villagerZDOID);
             if (dmg != 0f)
             {
-                zdo.Set("fire", dmg + (GetEfficiency(villagerZDOID) * multiplier));
+                zdo.Set("fire", dmg + (GetEfficiency(villagerZDOID) * multiplier) * VillagerModConfigurations.UpgradeStrengthMultiplier);
                 KLog.warning($"New Fire : {dmg}");
 
 
@@ -420,7 +420,7 @@ namespace KukusVillagerMod.Components.Villager
             dmg = GetFrost(villagerZDOID);
             if (dmg != 0f)
             {
-                zdo.Set("frost", dmg + (GetEfficiency(villagerZDOID) * multiplier));
+                zdo.Set("frost", dmg + (GetEfficiency(villagerZDOID) * multiplier) * VillagerModConfigurations.UpgradeStrengthMultiplier);
                 KLog.warning($"New Frost : {dmg}");
 
 
@@ -428,7 +428,7 @@ namespace KukusVillagerMod.Components.Villager
             dmg = Getlightning(villagerZDOID);
             if (dmg != 0f)
             {
-                zdo.Set("lightning", dmg + (GetEfficiency(villagerZDOID) * multiplier));
+                zdo.Set("lightning", dmg + (GetEfficiency(villagerZDOID) * multiplier) * VillagerModConfigurations.UpgradeStrengthMultiplier);
                 KLog.warning($"New Lightning : {dmg}");
 
 
@@ -436,7 +436,7 @@ namespace KukusVillagerMod.Components.Villager
             dmg = GetPoison(villagerZDOID);
             if (dmg != 0f)
             {
-                zdo.Set("poison", dmg + (GetEfficiency(villagerZDOID) * multiplier));
+                zdo.Set("poison", dmg + (GetEfficiency(villagerZDOID) * multiplier) * VillagerModConfigurations.UpgradeStrengthMultiplier);
                 KLog.warning($"New Poison : {dmg}");
 
 
@@ -444,7 +444,7 @@ namespace KukusVillagerMod.Components.Villager
             dmg = GetSpirit(villagerZDOID);
             if (dmg != 0f)
             {
-                zdo.Set("spirit", dmg + (GetEfficiency(villagerZDOID) * multiplier));
+                zdo.Set("spirit", dmg + (GetEfficiency(villagerZDOID) * multiplier) * VillagerModConfigurations.UpgradeStrengthMultiplier);
                 KLog.warning($"New Spirit : {dmg}");
 
             }
@@ -458,7 +458,7 @@ namespace KukusVillagerMod.Components.Villager
         public static void UpgradeVillagerHealth(ZDOID villagerZDOID, float multiplier = 1)
         {
 
-            var health = GetHealth(villagerZDOID) + (GetEfficiency(villagerZDOID) * multiplier);
+            var health = GetHealth(villagerZDOID) + (GetEfficiency(villagerZDOID) * multiplier * VillagerModConfigurations.UpgradeStrengthMultiplier);
             KLog.warning($"New Health = {health}");
             Util.GetZDO(villagerZDOID).Set("health", health);
         }

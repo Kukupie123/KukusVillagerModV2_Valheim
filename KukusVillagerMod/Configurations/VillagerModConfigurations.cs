@@ -59,6 +59,7 @@ namespace KukusVillagerMod.Configuration
         public static float MinPierce { get; internal set; }
         public static float MinSpecial { get; internal set; }
         public static float MaxSpecial { get; internal set; }
+        public static float UpgradeStrengthMultiplier { get; private set; }
 
         public static void LoadConfig(ConfigFile Config)
         {
@@ -144,18 +145,20 @@ namespace KukusVillagerMod.Configuration
            ).BoxedValue;
             MaxSpecial = (float)Config.Bind("Villager Stats", "Max Special", 0.5f
                 ).BoxedValue;
+            UpgradeStrengthMultiplier = (float)Config.Bind("Villager Stats", "Upgrade strength Multiplier", 1.0f
+                ).BoxedValue;
 
             //Villager Commander Club keys
             OpenMenuKey = (string)Config.Bind("Commander Club keybinds", "Open Menu Key", "Keypad1", new ConfigDescription("Key list : https://docs.unity3d.com/ScriptReference/KeyCode.html")).BoxedValue;
             CallFollowers = (string)Config.Bind("Commander Club keybinds", "Call Back Followers", "Keypad3").BoxedValue;
             moveToKey = (string)Config.Bind("Commander Club keybinds", "Move to Key", "Keypad2").BoxedValue;
 
-            VillagerMeleePrefabName = (string)Config.Bind("Villager Prefab", "BM_Villager_Melee", "Goblin",
+            VillagerMeleePrefabName = (string)Config.Bind("Villager Prefab", "Villager Melee", "Ranged",
        new ConfigDescription("",
        null,
        new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
 
-            VillagerRangedPrefabName = (string)Config.Bind("Villager Prefab", "BM_Villager_Ranged", "GoblinArcher",
+            VillagerRangedPrefabName = (string)Config.Bind("Villager Prefab", "Villager Ranged", "Dverger",
        new ConfigDescription("",
        null,
        new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;

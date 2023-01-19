@@ -1,57 +1,66 @@
 # Kuku's Villager Mod
 
 ## NOTICE:
-Not tested in multiplayer and will probably not work as intended.
-DELETE OLD VERSION's DLL, CONFIGS EVERY UPDATE.
-
+1. Did not get much time to test, so sorry in-case of serious bugs in advance. releasing it to public so that they can report bugs to me and I can fix them without having to spend time testing everything :). <br>
+2. May work initially in Multiplayer as we got rid of beds BUT has not been designed with multiplayer in mind so there may be issues specially with work commands as it alters container's contents. <br>
+3. Remove your Config file and Recommended to start a new game although not necessary.
 ## Installation (manual)
 Paste the plugins folder in valheim/BepInEx/
 
 ## Features
--Place beds for villagers to spawn from. <br>
--Villagers can help you by pickuping up and storing valuables, Filling up smelting stations. <br>
--Decide which villager can do what kind of work <br>
--Villagers can Guard a Defensive Post position by assigning <br>
--Villagers can go on journey with you <br>
--Villager can understand several commands such as Guard Bed, Guard Defense Post, Follow Player, Move to location, Start Working <br>
--Order individual Villagers by using items added by this game <br>
--Order All villagers at once by using Villager Commander Club <br>
+1. Recruit villagers found in biomes. <br>
+2. Villagers will have random stats. Every villager is going to be unique<br>
+3. Upgrade Recruited villagers by using special items on them.<br>
+4. Assign villagers bed, work posts, defense posts, containers. <br>
+5. Command villagers to guard their beds & Defense Post, Follow you <br>
+6. Villagers can also help player by picking up items, filling up smelters. <br>
+7. Manage and control your villagers all at once using Runik Kuchuk Tablet. <br>
+8. Simple GUI for interacting with villager and Runik Kuchuk Tablet <br>
+9. Customization for flexible gameplay experience.
 
 ## USAGE GUIDE :
-### Spawning :
--To Spawn villagers Craft a Villager's Bed by using your hammer. You will find a new Section "Villager"
-### Working Villager
-Villagers can smelt and pickup items and store items in their assigned containers<br>
-For a villager to smelt the assigned container needs to have fuel or processable item that can be put in container<br>
-Villagers will pickup items based on closest item based on it's Work post.<br>
--To Make them Work we need to assign them Work Post and a container to store items. <br>
--Craft a Work Post if not done already. <br>
--Interact with the bed of the villager you want to assign Work post to, then go to the desired Work post and interact with it. You will see a message that will confirm that the Work post was assigned to the bed. <br>
--Interact with the bed of the villager again and interact with the container you want the villager to use. You will see a message to confirm that it was successfull.. <br>
--If you hover over your villager you will see something called "Work Skill". By default a villager will have no work skill.<br>
--To teach your villager how to Pickup and store items, Open your crafting menu (TAB by default) and craft a "LabourSkill_Pickup". For teaching Smelting skill craft "LabourSkill_Smelt" item<br>
-Use this item on the villager the same way you use items in original items objects in the game such as placing items in itemstand.<br>
--For commanding all villagers to work craft&Equip a Villager Commander Club and press the Start Work Key (Numpad 3) by default.<br>
--For commanding villagers individually craft "LabourerFruit" and use it on the villager.<br>
-### Defending Post:
--To make villagers defend a post we need to assign them Defense Post by interacting with their bed and then interacting with a defense post we want them to defend at. <br>
--To command all villagers to defend their assigned post craft and equip Villager Commander Club and press Defend Post key (Numpad 2) by default. <br>
--To command villagers individually craft "WatcherFruit" and use it on the villager <br>
-### Guarding Bed:
--To command all villagers to guard their bed craft&Equip Villager Commander Club and press Guard Bed key (Numpad 1) by default. <br>
--To command villagers individually craft "GuardianFruit" and use it on the villager <br>
-### Taking villagers along with you.
--To make villagers follow you, interact wit them. <br>
--To make your followers move to a location, equip your villager Commander Club and press Move followers key (Numpad 6) by default. <br>
--To make followers come back to you, equip your villager Commander Club and press Call followers back key (Numpad 5) by default. <br>
-
-## KNOWN ISSUES:
--If you are close to villagers they might sometime not do anything and just stare at you until you move far away. I will try to fix this in future release<br>
--Villagers may go the wrong way, no idea why this happens. To help fight this I added Teleporting which will TP the villager after a while <br>
--Report bugs in my nexus page <br>
--Doesn't work in Multiplayer Scenario. Don't have any idea how multiplayer works in unity&valheim so I can not do anything without guidance :) <br>
+### Recruiting villagers.
+Villagers who are not recruited are going to be labelled as "Wanderer", interact with them by pressing (E by default) to open a menu that will show it's stats as well as a button to recruit.<br>
+Once recruited. It's label is going to change from "Wanderer" to "Villager". <br>
+You can see all your recruited villagers by pressing the open menu key when Runik Kuchuk Tablet is equipped<br>
+### Stats :
+Villagers will have different stats. <br>
+They also have a stat called "Efficinecy" which determines how well it consumes upgradable items. In short, the more the efficiency the more it's stats will increase when upgrading it. <br>
+Some villagers may also come with special damage skill such as fire, frost, lightning, spirit, etc.
+### Upgrading villagers :
+Villagers that have been recruited can be upgraded. This mod adds several new items that can be used on the villager to upgrade them.<br>
+Some items are going to upgrade their health, and some will upgrade their combat stats.
+### Commanding villagers :
+You can command individual villagers by interacting with them and going to the order tab. <br>
+To command many villagers at once you can open the menu when Runik Kuchuk tablet is equipped and go to Universal Commands section.
+### Assigning Items :
+For a villager to follow through certain commands you need to assign it specific items. <br>
+For a villager to guard bed you need to assign it a bed. <br>
+For a villager to guard Defense post you need to assign it a Defense Post. <br>
+For a villager to work you need to assign it work post and a container for it to put items.
+### Working
+For a villager to work you need to either enable Pickup skill or smelting refill skill by interacting with the villager, going to the order tab and enabling the desired option. <br>
+Villager will pickup items closest to it's work post and then put the item in the container. <br>
+Villager will smelt  by first checking the contents of the container then finding close by random smelter that needs fuel/Processable item and which is available in the container.<br>
+### Runik Kuchuk Tablet
+This item is used to see all the villagers you recruited. <br>
+You can select any villagers from the list and it will open the Villager stats GUI. <br>
+You can also give universal commands to the villagers
 
 ## Changelog
+<h3>3.0.0</h3>
+1. Complete Overhaul of how the mod works.<br>
+2. You will now find villagers scattered through the biome. <br>
+3. Every Villager will have Random stats such as HP, DMG, and sometime Special Power such as fire, frost, etc. <br>
+4. Upgrade Villager's Health and Combat stats by giving them certain items.<br>
+5. Beds are not mandatory. You can assign beds or not if you don't want them. <br>
+6. Completely new GUI when interacting with villager. It will show stats, orders and assignment options such as assign bed, container, defense post. <br>
+7. Completely new GUI for Villager Commander (Now called Runik Kuchuk Tablet)<br>
+8. Naming villagers. <br>
+9. Once a villager is dead they are gone permanently. Be careful. <br>
+<h3>2.1.4</h3>
+- IMPORTANT! YOU WILL HAVE TO REASSIGN YOUR CONTAINERS OR ELSE THINGS WILL NOT WORK PROPERLY.
+- Improved Logic for smelting and pickup job. Now the container and the work post can be far away from each other and still work. <br>
 <h3>2.1.3</h3>
 Hot fix update <br>
 - Bug fixed where villager won't fill upblast furnace <br>

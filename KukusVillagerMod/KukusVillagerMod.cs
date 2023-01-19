@@ -15,7 +15,6 @@ using KukusVillagerMod.Components;
 
 namespace KukusVillagerMod
 {
-    [BepInDependency("com.alexanderstrada.rrrnpcs")]
     [BepInDependency(Jotunn.Main.ModGuid)]
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     //[NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
@@ -107,7 +106,7 @@ namespace KukusVillagerMod
 
         public static string RandomName()
         {
-            var firstNames = new[] { "Kuku", "Hoezae", "Jeff", "Klint", "Druftes", "Fver", "Qanzop", "Lufty", "Khaku", "Dodo", "DisNuts" };
+            var firstNames = new[] { "Kuku", "Hoezae", "Jeff", "Klint", "Druftes", "Fver", "Qanzop", "Lufty", "Khaku", "Dodo", "DisNuts","Horneice" };
             var lastNames = new[] { "Deb", "Barma", "Hoster", "Ward", "Bap", "Cergate", "Jamatiya", "Astovert", "JoeMama", "Lund", "AyAyRon" };
             string name = firstNames[UnityEngine.Random.Range(0, firstNames.Length - 1)] + " " + lastNames[UnityEngine.Random.Range(0, lastNames.Length - 1)];
             return name;
