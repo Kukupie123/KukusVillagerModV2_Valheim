@@ -22,7 +22,7 @@ namespace KukusVillagerMod.Prefabs
             createCreature2("Villager_Melee", VillagerModConfigurations.VillagerMeleePrefabName);
         }
 
-        void createCreature2(string villagerName, string prefabCloneName)
+        void createCreature2(string villagerName, string prefabCloneName,bool melee = false)
         {
             CreatureConfig villagerConfig = new CreatureConfig();
             villagerConfig.Name = villagerName.Replace("_", " "); //Replace the "_" with " " Eg: Weak_Mage becomes Weak Mage
@@ -82,7 +82,13 @@ namespace KukusVillagerMod.Prefabs
                 }
 
                 );
-
+            if (!PrefabManager.Instance.GetPrefab(prefabCloneName))
+            {
+                KLog.warning($"Failed to load prefab {prefabCloneName} for villager, using default prefab");
+                if (!melee)
+                    prefabCloneName = "Dverger";
+                else prefabCloneName = "Skeleton";
+            }
             CustomCreature villager = new CustomCreature(villagerName, prefabCloneName, villagerConfig);
 
             //Remove components that we do not need from the villagers

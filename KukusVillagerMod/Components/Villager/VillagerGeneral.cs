@@ -115,7 +115,7 @@ namespace KukusVillagerMod.Components.Villager
             ZNV.GetZDO().Set("poison", 0f); //special
             ZNV.GetZDO().Set("spirit", 0f); //special
 
-            if (UnityEngine.Random.Range(0, 3) == 2)
+            if (UnityEngine.Random.Range(0, VillagerModConfigurations.NormalVillagerChance) == 0)
             {
                 minVal = VillagerModConfigurations.MinSpecial;
                 maxVal = VillagerModConfigurations.MaxSpecial;
