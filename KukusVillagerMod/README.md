@@ -1,7 +1,6 @@
 ﻿# Kuku's Villager Mod
 
-## NOTICE:
-1. Did not get much time to test, so sorry in-case of serious bugs in advance. releasing it to public so that they can report bugs to me and I can fix them without having to spend time testing everything :). <br>
+## NOTICE 
 2. May work initially in Multiplayer as we got rid of beds BUT has not been designed with multiplayer in mind so there may be issues specially with work commands as it alters container's contents. <br>
 3. Remove your Config file and Recommended to start a new game although not necessary.
 ## Installation (manual)
@@ -49,8 +48,8 @@ You can also give universal commands to the villagers
 
 ## Changelog
 <h3>3.0.1</h3>
-1. Added config option for resources needed to upgrade villagers. <br>
-2. Wanderer's (Villagers found in the wild) stats will have stats scaled on the biome it was found at. (Configurable stats multiplier)<br>
+1. Added config option for resources needed to upgrade villagers. As well as others config settings. Make sure to check out the config for full info :)<br>
+2. Wanderer's (Villagers found in the wild) stats will have stats scaled based on the biome it was found at. (Configurable)<br>
 3. Fixed versioning bug<br>
 4. Villagers with special Combat ability will have "*" Mark on their name <br>
 5. Next update will replace the villagers with human NPCs (3.1.0) <br>
