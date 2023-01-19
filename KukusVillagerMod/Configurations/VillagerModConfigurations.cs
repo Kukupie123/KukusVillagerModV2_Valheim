@@ -45,29 +45,36 @@ namespace KukusVillagerMod.Configuration
         public static float SpawnDistance;
         public static string biomeToSpawn;
 
-        public static float MinHealth { get; internal set; }
-        public static float MaxHealth { get; internal set; }
-        public static float MinEfficiency { get; internal set; }
-        public static float MaxEfficiency { get; internal set; }
-        public static float MinDmg { get; internal set; }
-        public static float MaxDmg { get; internal set; }
-        public static float MinSlash { get; internal set; }
-        public static float MaxSlash { get; internal set; }
-        public static float MinBlunt { get; internal set; }
-        public static float MaxBlunt { get; internal set; }
-        public static float MaxPierce { get; internal set; }
-        public static float MinPierce { get; internal set; }
-        public static float MinSpecial { get; internal set; }
-        public static float MaxSpecial { get; internal set; }
-        public static float UpgradeStrengthMultiplier { get; private set; }
-        public static int ArmorRagSetReq { get; internal set; }
-        public static int ArmorTrollSetReq { get; private set; }
-        public static int ArmorBronzeSetReq { get; private set; }
-        public static int ArmorIronSetReq { get; private set; }
-        public static int CombatStoneSetReq { get; private set; }
-        public static int CombatBronzeSetReq { get; private set; }
-        public static int CombatIronSetReq { get; private set; }
-        public static int CombatBmSetReq { get; private set; }
+
+        public static float MinHealth;
+        public static float MaxHealth;
+        public static float MinEfficiency;
+        public static float MaxEfficiency;
+        public static float MinDmg;
+        public static float MaxDmg;
+        public static float MinSlash;
+        public static float MaxSlash;
+        public static float MinBlunt;
+        public static float MaxBlunt;
+        public static float MaxPierce;
+        public static float MinPierce;
+        public static float MinSpecial;
+        public static float MaxSpecial;
+        public static float UpgradeStrengthMultiplier;
+        public static int ArmorRagSetReq;
+        public static int ArmorTrollSetReq;
+        public static int ArmorBronzeSetReq;
+        public static int ArmorIronSetReq;
+        public static int CombatStoneSetReq;
+        public static int CombatBronzeSetReq;
+        public static int CombatIronSetReq;
+        public static int CombatBmSetReq;
+        public static float MeadowRandomStatsMultiplier;
+        public static float BlackForestRandomStatsMultiplier;
+        public static float SwampRandomStatsMultiplier;
+        public static float PlainsRandomStatsMultiplier;
+        public static float MountainRandomStatsMultiplier;
+        public static float MistlandRandomStatsMultiplier;
 
         public static void LoadConfig(ConfigFile Config)
         {
@@ -156,6 +163,18 @@ namespace KukusVillagerMod.Configuration
             UpgradeStrengthMultiplier = (float)Config.Bind("Villager Stats", "Upgrade strength Multiplier", 1.0f, new ConfigDescription("If default upgrade strength is too weak for you, increase this. Lowest value is 0 which will completely disable upgrades, going negative will downgrade the villager")
                 ).BoxedValue;
 
+            MeadowRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Meadow Wandering Stats Multiplier", 1f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
+                ).BoxedValue;
+            BlackForestRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Meadow Wandering Stats Multiplier", 1.5f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
+               ).BoxedValue;
+            SwampRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Meadow Wandering Stats Multiplier", 2f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
+               ).BoxedValue;
+            MountainRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Meadow Wandering Stats Multiplier", 2.5f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
+               ).BoxedValue;
+            PlainsRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Meadow Wandering Stats Multiplier", 3f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
+               ).BoxedValue;
+            MistlandRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Meadow Wandering Stats Multiplier", 3.5f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
+              ).BoxedValue;
             //Upgrade items
             ArmorRagSetReq = (int)Config.Bind("Villager Upgrade", "Armor Rag Set Requirements", 3, new ConfigDescription("The amount of resources required to craft upgrading items")
                 ).BoxedValue;

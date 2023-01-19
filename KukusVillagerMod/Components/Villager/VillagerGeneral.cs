@@ -63,7 +63,7 @@ namespace KukusVillagerMod.Components.Villager
         }
 
         //Stats
-        public static void SetRandomStats(ZNetView ZNV)
+        public static void SetRandomStats(ZNetView ZNV, float modifier = 1)
         {
             float minVal = -1f;
             float maxVal = 0;
@@ -147,7 +147,7 @@ namespace KukusVillagerMod.Components.Villager
 
 
         }
-        private void SetRandomStats()
+        private void SetRandomStats(float modifier = 1)
         {
             if (humanoid.IsTamed()) KLog.warning("Villager is tamed, aborting setting up random values");
             else
@@ -815,7 +815,33 @@ namespace KukusVillagerMod.Components.Villager
             //Generate and load stats
             if (!IsVillagerTamed())
             {
-                SetRandomStats();
+                //Check biome and scale damage as needed
+
+                var biome = Heightmap.FindBiome(transform.position);
+                float statsMultiplier = 1f;
+                switch (biome)
+                {
+                    case Heightmap.Biome.Meadows:
+                        statsMultiplier = VillagerModConfigurations.MeadowRandomStatsMultiplier;
+                        break;
+                    case Heightmap.Biome.BlackForest:
+                        statsMultiplier = VillagerModConfigurations.BlackForestRandomStatsMultiplier;
+                        break;
+                    case Heightmap.Biome.Swamp:
+                        statsMultiplier = VillagerModConfigurations.SwampRandomStatsMultiplier;
+                        break;
+                    case Heightmap.Biome.Plains:
+                        statsMultiplier = VillagerModConfigurations.PlainsRandomStatsMultiplier;
+                        break;
+                    case Heightmap.Biome.Mountain:
+                        statsMultiplier = VillagerModConfigurations.MountainRandomStatsMultiplier;
+                        break;
+
+                    case Heightmap.Biome.Mistlands:
+                        statsMultiplier = VillagerModConfigurations.MistlandRandomStatsMultiplier;
+                        break;
+                }
+                SetRandomStats(statsMultiplier);
             }
             else //In case it was tamed when it was not in memory
             {
