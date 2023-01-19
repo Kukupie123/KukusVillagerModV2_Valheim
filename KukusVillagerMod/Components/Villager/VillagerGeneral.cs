@@ -826,22 +826,27 @@ namespace KukusVillagerMod.Components.Villager
                 switch (biome)
                 {
                     case Heightmap.Biome.Meadows:
+                        KLog.info("Spawned Wild villager in meadows");
                         statsMultiplier = VillagerModConfigurations.MeadowRandomStatsMultiplier;
                         break;
                     case Heightmap.Biome.BlackForest:
+                        KLog.(("Spawned Wild villager in Black forest");
                         statsMultiplier = VillagerModConfigurations.BlackForestRandomStatsMultiplier;
                         break;
                     case Heightmap.Biome.Swamp:
+                        KLog.(("Spawned Wild villager in Swamp");
                         statsMultiplier = VillagerModConfigurations.SwampRandomStatsMultiplier;
                         break;
                     case Heightmap.Biome.Plains:
+                        KLog.(("Spawned Wild villager in Plains");
                         statsMultiplier = VillagerModConfigurations.PlainsRandomStatsMultiplier;
                         break;
                     case Heightmap.Biome.Mountain:
+                        KLog.(("Spawned Wild villager in Mountain");
                         statsMultiplier = VillagerModConfigurations.MountainRandomStatsMultiplier;
                         break;
-
                     case Heightmap.Biome.Mistlands:
+                        KLog.(("Spawned Wild villager in MistLands");
                         statsMultiplier = VillagerModConfigurations.MistlandRandomStatsMultiplier;
                         break;
                 }

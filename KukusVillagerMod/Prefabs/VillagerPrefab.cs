@@ -22,7 +22,7 @@ namespace KukusVillagerMod.Prefabs
             createCreature2("Villager_Melee", VillagerModConfigurations.VillagerMeleePrefabName);
         }
 
-        void createCreature2(string villagerName, string prefabCloneName,bool melee = false)
+        void createCreature2(string villagerName, string prefabCloneName, bool melee = false)
         {
             CreatureConfig villagerConfig = new CreatureConfig();
             villagerConfig.Name = villagerName.Replace("_", " "); //Replace the "_" with " " Eg: Weak_Mage becomes Weak Mage
@@ -65,7 +65,8 @@ namespace KukusVillagerMod.Prefabs
 
             foreach (var v in biomesList)
             {
-                KLog.warning(v.ToString());
+                KLog.info("Spawn location for villagers :");
+                KLog.info(v.ToString());
             }
             villagerConfig.AddSpawnConfig(
                 new SpawnConfig
