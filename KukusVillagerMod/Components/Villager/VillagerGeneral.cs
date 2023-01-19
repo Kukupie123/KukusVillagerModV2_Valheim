@@ -65,18 +65,16 @@ namespace KukusVillagerMod.Components.Villager
         //Stats
         public static void SetRandomStats(ZNetView ZNV, float modifier = 1)
         {
-            float minVal = -1f;
-            float maxVal = 0;
 
             //Basics
             var n = Util.RandomName();
             ZNV.GetZDO().Set("name", n);
-            minVal = VillagerModConfigurations.MinHealth;
-            maxVal = VillagerModConfigurations.MaxHealth;
-            ZNV.GetZDO().Set("health", UnityEngine.Random.Range(minVal, maxVal));
+            float minVal = VillagerModConfigurations.MinHealth;
+            float maxVal = VillagerModConfigurations.MaxHealth;
+            ZNV.GetZDO().Set("health", UnityEngine.Random.Range(minVal, maxVal) * modifier);
             minVal = VillagerModConfigurations.MinEfficiency;
             maxVal = VillagerModConfigurations.MaxEfficiency;
-            ZNV.GetZDO().Set("efficiency", UnityEngine.Random.Range(minVal, maxVal)); //Percentage stuff
+            ZNV.GetZDO().Set("efficiency", UnityEngine.Random.Range(minVal, maxVal) * modifier); //Percentage stuff
 
             KLog.warning($"Villager {ZNV.GetZDO().m_uid.id} has name {n} ");
 
@@ -101,19 +99,19 @@ namespace KukusVillagerMod.Components.Villager
         */
             minVal = VillagerModConfigurations.MinDmg;
             maxVal = VillagerModConfigurations.MaxDmg;
-            ZNV.GetZDO().Set("damage", UnityEngine.Random.Range(minVal, maxVal));
+            ZNV.GetZDO().Set("damage", UnityEngine.Random.Range(minVal, maxVal) * modifier);
             minVal = VillagerModConfigurations.MinSlash;
             maxVal = VillagerModConfigurations.MaxSlash;
-            ZNV.GetZDO().Set("slash", UnityEngine.Random.Range(minVal, maxVal));
+            ZNV.GetZDO().Set("slash", UnityEngine.Random.Range(minVal, maxVal) * modifier);
             minVal = VillagerModConfigurations.MinBlunt;
             maxVal = VillagerModConfigurations.MaxBlunt;
-            ZNV.GetZDO().Set("blunt", UnityEngine.Random.Range(minVal, maxVal));
+            ZNV.GetZDO().Set("blunt", UnityEngine.Random.Range(minVal, maxVal) * modifier);
             ZNV.GetZDO().Set("fire", 0f); //special
             ZNV.GetZDO().Set("frost", 0f); //special
             ZNV.GetZDO().Set("lightning", 0f); //special
             minVal = VillagerModConfigurations.MinPierce;
             maxVal = VillagerModConfigurations.MaxPierce;
-            ZNV.GetZDO().Set("pierce", UnityEngine.Random.Range(minVal, maxVal));
+            ZNV.GetZDO().Set("pierce", UnityEngine.Random.Range(minVal, maxVal) * modifier);
             ZNV.GetZDO().Set("poison", 0f); //special
             ZNV.GetZDO().Set("spirit", 0f); //special
 
@@ -127,19 +125,19 @@ namespace KukusVillagerMod.Components.Villager
                 switch (UnityEngine.Random.Range(0, 4))
                 {
                     case 0:
-                        ZNV.GetZDO().Set("fire", UnityEngine.Random.Range(minVal, maxVal));
+                        ZNV.GetZDO().Set("fire", UnityEngine.Random.Range(minVal, maxVal) * modifier);
                         break;
                     case 1:
-                        ZNV.GetZDO().Set("frost", UnityEngine.Random.Range(minVal, maxVal));
+                        ZNV.GetZDO().Set("frost", UnityEngine.Random.Range(minVal, maxVal) * modifier);
                         break;
                     case 2:
-                        ZNV.GetZDO().Set("lightning", UnityEngine.Random.Range(minVal, maxVal));
+                        ZNV.GetZDO().Set("lightning", UnityEngine.Random.Range(minVal, maxVal) * modifier);
                         break;
                     case 3:
-                        ZNV.GetZDO().Set("poison", UnityEngine.Random.Range(minVal, maxVal));
+                        ZNV.GetZDO().Set("poison", UnityEngine.Random.Range(minVal, maxVal) * modifier);
                         break;
                     case 4:
-                        ZNV.GetZDO().Set("spirit", UnityEngine.Random.Range(minVal, maxVal));
+                        ZNV.GetZDO().Set("spirit", UnityEngine.Random.Range(minVal, maxVal) * modifier);
                         break;
                 }
             }
@@ -152,7 +150,7 @@ namespace KukusVillagerMod.Components.Villager
             if (humanoid.IsTamed()) KLog.warning("Villager is tamed, aborting setting up random values");
             else
             {
-                SetRandomStats(this.ZNV);
+                SetRandomStats(this.ZNV, modifier);
 
             }
         }
@@ -161,6 +159,12 @@ namespace KukusVillagerMod.Components.Villager
             if (IsVillagerTamed())
                 humanoid.m_name = "Villager " + GetName();
             else humanoid.m_name = "Wanderer " + GetName();
+
+            //Add special title if they are special 
+            if (GetSpecialSkill() != null)
+            {
+                humanoid.m_name = "* " + humanoid.m_name;
+            }
             //Set up health
             humanoid.SetMaxHealth(GetHealth());
             //If not recruited then set current hp to max

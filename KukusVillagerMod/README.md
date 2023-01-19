@@ -50,8 +50,9 @@ You can also give universal commands to the villagers
 ## Changelog
 <h3>3.1.0</h3>
 1. Added config option for resources needed to upgrade villagers. <br>
-2. Wanderer's (Villagers found in the wild) stats will have stats scaled on the biome it was found at. (Configurable stats multiplier)
-3. 
+2. Wanderer's (Villagers found in the wild) stats will have stats scaled on the biome it was found at. (Configurable stats multiplier)<br>
+3. Fixed versioning bug<br>
+4. Villagers with special Combat ability will have "*" Mark on their name
 <h3>3.0.0</h3>
 1. Complete Overhaul of how the mod works.<br>
 2. You will now find villagers scattered through the biome. <br>

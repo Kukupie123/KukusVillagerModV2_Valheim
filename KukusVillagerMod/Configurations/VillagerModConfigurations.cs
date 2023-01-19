@@ -117,15 +117,15 @@ namespace KukusVillagerMod.Configuration
             //Villager spawn configuration
             GroupRadius = (float)Config.Bind("Villager Spawner", "Group radius", 3f
                 ).BoxedValue;
-            MaxGroupSize = (int)Config.Bind("Villager Spawner", "Max Group Size", 5
+            MaxGroupSize = (int)Config.Bind("Villager Spawner", "Max Group Size", 3
                 ).BoxedValue;
             MinGroupSize = (int)Config.Bind("Villager Spawner", "Min Group Size", 2
                 ).BoxedValue;
-            MaxSpawned = (int)Config.Bind("Villager Spawner", "Max Spawned", 10
+            MaxSpawned = (int)Config.Bind("Villager Spawner", "Max Spawned", 6
                 ).BoxedValue;
-            SpawnChance = (float)Config.Bind("Villager Spawner", "Spawn Chance", 55f
+            SpawnChance = (float)Config.Bind("Villager Spawner", "Spawn Chance", 10f
                 ).BoxedValue;
-            SpawnDistance = (float)Config.Bind("Villager Spawner", "Spawn Distance", 20f
+            SpawnDistance = (float)Config.Bind("Villager Spawner", "Spawn Distance", 50f
                 ).BoxedValue;
 
             biomeToSpawn = (string)Config.Bind("Villager Spawner", "Spawn Area", "blackforest,meadows,plains,mountains"
@@ -165,15 +165,15 @@ namespace KukusVillagerMod.Configuration
 
             MeadowRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Meadow Wandering Stats Multiplier", 1f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
                 ).BoxedValue;
-            BlackForestRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Meadow Wandering Stats Multiplier", 1.5f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
+            BlackForestRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "BlackForest Wandering Stats Multiplier", 1.5f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
                ).BoxedValue;
-            SwampRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Meadow Wandering Stats Multiplier", 2f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
+            SwampRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Swamp Wandering Stats Multiplier", 2f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
                ).BoxedValue;
-            MountainRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Meadow Wandering Stats Multiplier", 2.5f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
+            MountainRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Mountain Wandering Stats Multiplier", 2.5f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
                ).BoxedValue;
-            PlainsRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Meadow Wandering Stats Multiplier", 3f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
+            PlainsRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Plains Wandering Stats Multiplier", 3f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
                ).BoxedValue;
-            MistlandRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Meadow Wandering Stats Multiplier", 3.5f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
+            MistlandRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Mistland Wandering Stats Multiplier", 3.5f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
               ).BoxedValue;
             //Upgrade items
             ArmorRagSetReq = (int)Config.Bind("Villager Upgrade", "Armor Rag Set Requirements", 3, new ConfigDescription("The amount of resources required to craft upgrading items")
