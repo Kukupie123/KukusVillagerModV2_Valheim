@@ -60,6 +60,14 @@ namespace KukusVillagerMod.Configuration
         public static float MinSpecial { get; internal set; }
         public static float MaxSpecial { get; internal set; }
         public static float UpgradeStrengthMultiplier { get; private set; }
+        public static int ArmorRagSetReq { get; internal set; }
+        public static int ArmorTrollSetReq { get; private set; }
+        public static int ArmorBronzeSetReq { get; private set; }
+        public static int ArmorIronSetReq { get; private set; }
+        public static int CombatStoneSetReq { get; private set; }
+        public static int CombatBronzeSetReq { get; private set; }
+        public static int CombatIronSetReq { get; private set; }
+        public static int CombatBmSetReq { get; private set; }
 
         public static void LoadConfig(ConfigFile Config)
         {
@@ -141,12 +149,33 @@ namespace KukusVillagerMod.Configuration
            ).BoxedValue;
             MaxPierce = (float)Config.Bind("Villager Stats", "Max Pierce", 2f
                 ).BoxedValue;
-            MinSpecial = (float)Config.Bind("Villager Stats", "Min Special_Fire,Frost,Ice etc_RARE QUALITY", 0.1f
+            MinSpecial = (float)Config.Bind("Villager Stats", "Min Special_Fire,Frost,Ice etc_RARE QUALITY", 0.1f, new ConfigDescription("It's a rare quality and not every villager you find in the wild will have it.")
            ).BoxedValue;
             MaxSpecial = (float)Config.Bind("Villager Stats", "Max Special", 0.5f
                 ).BoxedValue;
-            UpgradeStrengthMultiplier = (float)Config.Bind("Villager Stats", "Upgrade strength Multiplier", 1.0f
+            UpgradeStrengthMultiplier = (float)Config.Bind("Villager Stats", "Upgrade strength Multiplier", 1.0f, new ConfigDescription("If default upgrade strength is too weak for you, increase this. Lowest value is 0 which will completely disable upgrades, going negative will downgrade the villager")
                 ).BoxedValue;
+
+            //Upgrade items
+            ArmorRagSetReq = (int)Config.Bind("Villager Upgrade", "Armor Rag Set Requirements", 3, new ConfigDescription("The amount of resources required to craft upgrading items")
+                ).BoxedValue;
+            ArmorTrollSetReq = (int)Config.Bind("Villager Upgrade", "Armor Troll Set Requirements", 4
+                ).BoxedValue;
+
+            ArmorBronzeSetReq = (int)Config.Bind("Villager Upgrade", "Armor Bronze Set Requirements", 5
+                ).BoxedValue;
+            ArmorIronSetReq = (int)Config.Bind("Villager Upgrade", "Armor Bronze Set Requirements", 6
+                ).BoxedValue;
+
+            CombatStoneSetReq = (int)Config.Bind("Villager Upgrade", "Combat Stone Set Requirements", 1
+                ).BoxedValue;
+            CombatBronzeSetReq = (int)Config.Bind("Villager Upgrade", "Combat Bronze Set Requirements", 2
+                ).BoxedValue;
+            CombatIronSetReq = (int)Config.Bind("Villager Upgrade", "Combat Iron Set Requirements", 3
+                ).BoxedValue;
+            CombatBmSetReq = (int)Config.Bind("Villager Upgrade", "Combat Black Metal Set Requirements", 4
+                ).BoxedValue;
+
 
             //Villager Commander Club keys
             OpenMenuKey = (string)Config.Bind("Commander Club keybinds", "Open Menu Key", "Keypad1", new ConfigDescription("Key list : https://docs.unity3d.com/ScriptReference/KeyCode.html")).BoxedValue;
