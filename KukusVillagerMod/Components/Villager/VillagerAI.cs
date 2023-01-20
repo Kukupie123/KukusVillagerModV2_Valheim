@@ -337,6 +337,7 @@ namespace KukusVillagerMod.Components.Villager
             closeToFollowTarget = false;
             followingObjZDOID = ZDOID.None;
             ai.SetFollowTarget(null);
+            AcceptedFollowDistance = VillagerModConfigurations.AcceptedFollowDistance;
         }
 
         /// <summary>
@@ -1221,8 +1222,10 @@ namespace KukusVillagerMod.Components.Villager
 
                 while (obj != null && count < limit)
                 {
+                    ai.ResetPatrolPoint();
+                    ai.ResetRandomMovement();
+                    ai.SetTarget(null);
                     await FollowTargetAwaitWork(obj.gameObject, 2f); //Get close to the tree
-                    ai.LookAt(obj.gameObject.transform.position);
                     await Task.Delay(1000);
                     transform.rotation = Quaternion.FromToRotation(transform.position, obj.transform.position);
                     if (!ai.DoAttack(null, false))
