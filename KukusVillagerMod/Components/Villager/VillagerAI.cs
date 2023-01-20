@@ -587,6 +587,8 @@ namespace KukusVillagerMod.Components.Villager
             }
 
             talk.Say("Working....", "Work");
+            var rot = Quaternion.FromToRotation(transform.position, wpi.transform.position);
+            transform.rotation = rot;
             return true;
 
 
@@ -1207,17 +1209,56 @@ namespace KukusVillagerMod.Components.Villager
             if (obj != null)
             {
                 if (workTalk) talk.Say($"Going to Chop {obj.name}", "Work");
-                await FollowTargetAwaitWork(obj.gameObject);
 
-                //
-                await Task.Delay(500);
-                if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                int count = 0;
+                int limit = 4;
+
+                while (obj != null && count < limit)
                 {
-                    return;
+                    await FollowTargetAwaitWork(obj.gameObject); //Get close to the tree
+                    ai.LookAt(obj.gameObject.transform.position);
+                    await Task.Delay(1000);
+                    ai.DoAttack(null, false);
+                    await Task.Delay(1000);
+                    count++;
                 }
+                if (obj != null)
+                {
+                    //Apply damage and break it by brute force
+                    var treeLog = obj.GetComponentInParent<TreeLog>();
+                    if (treeLog)
+                    {
+                        treeLog.Destroy();
+                        KLog.info($"Destroyed {obj.name} using Treelog component for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree");
+                        return;
+                    }
+                    var treebase = obj.GetComponentInParent<TreeBase>();
+                    if (treebase)
+                    {
+                        HitData hd = new HitData();
+                        hd.m_damage.m_damage = 500f;
+                        hd.m_damage.m_chop = 500f;
+                        hd.m_damage.m_pierce = 500f;
+                        hd.m_damage.m_slash = 500f;
+                        hd.m_damage.m_pickaxe = 500f;
+                        hd.m_damage.m_blunt = 500f;
+                        treebase.Damage(hd);
+                        KLog.info($"Destroyed {obj.name} using Treebase component for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree");
+                        return;
+                    }
+                    var desc = obj.GetComponentInParent<Destructible>();
+                    if (desc)
+                    {
+                        desc.DestroyNow();
+                        KLog.info($"Destroyed {obj.name} using destructible component for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree");
+                        return;
+                    }
+                    else
+                    {
+                        KLog.info($"Failed to destroy {obj.name} for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree");
 
-                if (workTalk) talk.Say($"Chopping {obj.name}", "Work");
-                await MineForAWhile(obj.gameObject);
+                    }
+                }
             }
             else
             {
@@ -1230,8 +1271,9 @@ namespace KukusVillagerMod.Components.Villager
         }
         async private Task MineForAWhile(GameObject item)
         {
+            //TODO: Config
             int count = 0;
-            int limit = 15;
+            int limit = 4;
             while (count < limit && item != null)
             {
                 try
@@ -1240,6 +1282,8 @@ namespace KukusVillagerMod.Components.Villager
                     await Task.Delay(1000);
                     ai.LookAt(item.transform.position);
                     await Task.Delay(1000);
+                    transform.rotation = Quaternion.FromToRotation(transform.position, item.transform.position);
+                    await Task.Delay(500);
                     ai.DoAttack(null, false);
                     await Task.Delay(1000);
                     count++;
@@ -1255,6 +1299,34 @@ namespace KukusVillagerMod.Components.Villager
             if (item != null)
             {
                 //Apply damage and break it by brute force
+                var treeLog = item.GetComponentInParent<TreeLog>();
+                if (treeLog)
+                {
+                    treeLog.Destroy();
+                    KLog.info($"Destroyed {item.name} using destructible component for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree");
+                    return;
+                }
+                var treebase = item.GetComponentInParent<TreeBase>();
+                if (treebase)
+                {
+                    HitData hd = new HitData();
+                    hd.m_damage.m_damage = 500f;
+                    hd.m_damage.m_chop = 500f;
+                    hd.m_damage.m_pierce = 500f;
+                    hd.m_damage.m_slash = 500f;
+                    hd.m_damage.m_pickaxe = 500f;
+                    hd.m_damage.m_blunt = 500f;
+                    treebase.Damage(hd);
+                    KLog.info($"Destroyed {item.name} using destructible component for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree");
+                    return;
+                }
+                var desc = item.GetComponentInParent<Destructible>();
+                if (desc)
+                {
+                    desc.DestroyNow();
+                    KLog.info($"Destroyed {item.name} using destructible component for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree");
+                    return;
+                }
             }
 
         }

@@ -50,7 +50,8 @@ You can also give universal commands to the villagers
 
 ## Changelog
 <h3>3.1.0</h3>
-1. Villagers should be able to avoid fire nicely now.
+1. Villagers should be able to avoid fire nicely now.<br>
+2. Villager can only do one type of work now. This is because works were conflicting and causing serious bugs. <br>
 <h3>3.0.1</h3>
 1. Added config option for resources needed to upgrade villagers. As well as others config settings. Make sure to check out the config for full info :)<br>
 2. Wanderer's (Villagers found in the wild) stats will have stats scaled based on the biome it was found at. (Configurable)<br>
