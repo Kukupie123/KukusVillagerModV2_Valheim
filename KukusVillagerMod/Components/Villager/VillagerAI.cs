@@ -660,6 +660,8 @@ namespace KukusVillagerMod.Components.Villager
                 ZDO WorkPostZDO = villagerGeneral.GetWorkPostZDO();
                 Vector3 workPosLoc = WorkPostZDO.GetPosition();
 
+                await Task.Delay(500);
+
                 //Go to work post
                 GameObject workPostInstance = villagerGeneral.GetWorkPostInstance();
                 if (workPostInstance)
@@ -890,6 +892,8 @@ namespace KukusVillagerMod.Components.Villager
                 ZDO WorkPostZDO = villagerGeneral.GetWorkPostZDO();
                 Vector3 workPosLoc = WorkPostZDO.GetPosition();
 
+                await Task.Delay(500);
+
                 //Go to work post
                 if (villagerGeneral.GetWorkPostInstance())
                 {
@@ -930,6 +934,9 @@ namespace KukusVillagerMod.Components.Villager
                     {
                         if (workTalk)
                             talk.Say("Going to container to get items for smelting", "Work");
+
+
+                        await Task.Delay(500);
 
                         //Move to container
                         GameObject containerInstance = villagerGeneral.GetContainerInstance();
@@ -997,6 +1004,8 @@ namespace KukusVillagerMod.Components.Villager
                     {
                         return;
                     }
+
+                    await Task.Delay(500);
 
                     //Go to smelter
                     await FollowTargetAwaitWork(smelter.gameObject);
@@ -1192,6 +1201,8 @@ namespace KukusVillagerMod.Components.Villager
             ZDO WorkPostZDO = villagerGeneral.GetWorkPostZDO();
             Vector3 workPosLoc = WorkPostZDO.GetPosition();
 
+            await Task.Delay(500);
+
             //Go to work post
             if (villagerGeneral.GetWorkPostInstance())
             {
@@ -1211,19 +1222,17 @@ namespace KukusVillagerMod.Components.Villager
                 return;
             }
 
-            //Find smelter that can be filled
+            //Find wood to chop
             var obj = GetValidTree2Chop(workPosLoc);
             if (obj != null)
             {
                 if (workTalk) talk.Say($"Going to Chop {obj.name}", "Work");
-                await Task.Delay(500);
                 int count = 0;
                 int limit = 4;
-
                 while (obj != null && count < limit)
                 {
-                    await FollowTargetAwaitWork(obj.gameObject, 2f); //Get close to the tree
                     await Task.Delay(1000);
+                    await FollowTargetAwaitWork(obj.gameObject); //Get close to the tree
                     transform.rotation = Quaternion.FromToRotation(transform.position, obj.transform.position);
                     if (!ai.DoAttack(null, false))
                     {
