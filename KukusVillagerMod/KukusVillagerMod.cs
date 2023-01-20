@@ -106,7 +106,7 @@ namespace KukusVillagerMod
 
         public static string RandomName()
         {
-            var firstNames = new[] { "Kuku", "Hoezae", "Jeff", "Klint", "Druftes", "Fver", "Qanzop", "Lufty", "Khaku", "Dodo", "DisNuts","Horneice" };
+            var firstNames = new[] { "Kuku", "Hoezae", "Jeff", "Klint", "Druftes", "Fver", "Qanzop", "Lufty", "Khaku", "Dodo", "DisNuts", "Horneice" };
             var lastNames = new[] { "Deb", "Barma", "Hoster", "Ward", "Bap", "Cergate", "Jamatiya", "Astovert", "JoeMama", "Lund", "AyAyRon" };
             string name = firstNames[UnityEngine.Random.Range(0, firstNames.Length - 1)] + " " + lastNames[UnityEngine.Random.Range(0, lastNames.Length - 1)];
             return name;
@@ -138,6 +138,7 @@ namespace KukusVillagerMod
  * CONFIG FOR SPAWNS    and multipliers done ~
  * ADD SEARCH RADIUS FOR WORK SUCH AS SMELT AND PICKUP
  * Experiment with follow target for work
+ * Different villager for different biome
  * 
  * 
  * Huge overhaul incomming

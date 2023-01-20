@@ -11,6 +11,8 @@ using KukusVillagerMod.Components.VillagerBed;
 using KukusVillagerMod.Components.UI;
 using Jotunn.Managers;
 using KukusVillagerMod.Prefabs;
+using Jotunn.Configs;
+using Jotunn.Entities;
 
 namespace KukusVillagerMod.Patches
 {
@@ -200,22 +202,5 @@ namespace KukusVillagerMod.Patches
 
         }
     }
-    //[HarmonyPatch(typeof(ObjectDB), nameof(ObjectDB.UpdateItemHashes))]
-    static class LoadRRRNPC
-    {
-        public static void Prefix()
-        {
-            var rrrnpc = PrefabManager.Instance.GetPrefab("RRRN_qqpie");
-
-            if (rrrnpc != null)
-            {
-                KLog.info("RRR NPC LOADED, You should be able to use it now");
-                new VillagerPrefab(); //create custom creature cloned from RRR_NPC
-            }
-            else
-            {
-                KLog.info("RRR NPC NOT LOADED");
-            }
-        }
     }
 }
