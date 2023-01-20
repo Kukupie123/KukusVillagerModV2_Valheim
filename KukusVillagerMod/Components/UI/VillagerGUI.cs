@@ -783,7 +783,7 @@ namespace KukusVillagerMod.Components.UI
 
             //Remove sub components
             RemoveSubUIs();
-
+            selected_villager = ZDOID.None;
             //Destroy main component
             UnityEngine.GameObject.Destroy(MAINBG);
             GUIManager.BlockInput(false);

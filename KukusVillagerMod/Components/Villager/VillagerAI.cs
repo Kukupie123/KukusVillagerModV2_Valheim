@@ -248,17 +248,20 @@ namespace KukusVillagerMod.Components.Villager
             if (villagerGeneral.GetVillagerState() == VillagerState.Working)
             {
                 WorkSkill skill = villagerGeneral.GetWorkSkill();
-                switch (skill)
+                if (skill == WorkSkill.Pickup)
                 {
-                    case WorkSkill.Pickup:
-                        await PickupAndStoreWork();
-                        break;
-                    case WorkSkill.Fill_Smelt:
-                        await FillSmelt();
-                        break;
-                    case WorkSkill.Chop_Wood:
-                        await MineWood();
-                        break;
+                    await PickupAndStoreWork();
+                    return;
+                }
+                if (skill == WorkSkill.Fill_Smelt)
+                {
+                    await FillSmelt();
+                    return;
+                }
+                if (skill == WorkSkill.Chop_Wood)
+                {
+                    await ChopWood();
+                    return;
                 }
             }
         }
@@ -620,6 +623,7 @@ namespace KukusVillagerMod.Components.Villager
         bool AlreadyPickingUp = false;
         async private Task PickupAndStoreWork()
         {
+            KLog.info("Picking up " + villagerGeneral.ZNV.GetZDO().m_uid.id);
             try
             {
                 if (AlreadyPickingUp || AlreadyFillingSmelter) return;
@@ -858,6 +862,7 @@ namespace KukusVillagerMod.Components.Villager
         bool AlreadyFillingSmelter = false;
         async private Task FillSmelt()
         {
+            KLog.info("Filling up smelt" + villagerGeneral.ZNV.GetZDO().m_uid.id);
             try
             {
                 if (AlreadyFillingSmelter || AlreadyPickingUp) return;
@@ -1168,9 +1173,9 @@ namespace KukusVillagerMod.Components.Villager
         //Farming
 
         bool alreadyMining = false;
-        async private Task MineWood()
+        async private Task ChopWood()
         {
-
+            KLog.info("Chopping wood " + villagerGeneral.ZNV.GetZDO().m_uid.id);
             if (alreadyMining) return;
             alreadyMining = true;
             ZDO WorkPostZDO = villagerGeneral.GetWorkPostZDO();
@@ -1198,13 +1203,25 @@ namespace KukusVillagerMod.Components.Villager
 
             //Find smelter that can be filled
             var obj = FindClosestValidPickup(workPosLoc, 100f);
-            if (obj != null)
+            if (obj.gameObject != null)
             {
-                transform.position = obj.transform.position;
+                if (workTalk) talk.Say($"Going to Chop {obj.m_itemData.m_shared.m_name}", "Work");
+                await FollowTargetAwaitWork(obj.gameObject);
+
+                //
+                await Task.Delay(500);
+                if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                {
+                    alreadyMining = false;
+                    return;
+                }
+
+                if (workTalk) talk.Say($"Chopping {obj.m_itemData.m_shared.m_name}", "Work");
+                await MineForAWhile(obj.gameObject);
             }
             else
             {
-                talk.Say("NOTHING FOUND", "WORK");
+                talk.Say("Nothing to chop nearby", "WORK");
             }
 
 
@@ -1214,16 +1231,32 @@ namespace KukusVillagerMod.Components.Villager
         }
         async private Task MineForAWhile(GameObject item)
         {
+            int count = 0;
+            int limit = 15;
+            while (count < limit && item != null)
+            {
+                try
+                {
+                    await FollowTargetAwaitWork(item); //incase we are still far off
+                    await Task.Delay(1000);
+                    ai.LookAt(item.transform.position);
+                    await Task.Delay(1000);
+                    ai.DoAttack(null, false);
+                    await Task.Delay(1000);
+                    count++;
+                }
+                catch (Exception)
+                {
+                    await Task.Delay(500);
+                    count++;
+                }
 
-            ai.LookAt(item.transform.position);
-            await Task.Delay(1000);
-            transform.rotation = Quaternion.FromToRotation(transform.position, item.transform.position);
-            ai.DoAttack(null, false);
-            await Task.Delay(1000);
-            //var dmgTypes = villagerGeneral.humanoid.GetCurrentWeapon().GetDamage();
-            /*
-             * 
-             */
+            }
+
+            if (item != null)
+            {
+                //Apply damage and break it by brute force
+            }
 
         }
         private GameObject GetValidTree2Chop(Vector3 pos)
