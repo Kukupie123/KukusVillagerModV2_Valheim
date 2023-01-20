@@ -1,6 +1,7 @@
 ﻿using Jotunn.GUI;
 using Jotunn.Managers;
 using KukusVillagerMod.Components.Villager;
+using KukusVillagerMod.enums.Work_Enum;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -168,8 +169,10 @@ namespace KukusVillagerMod.Components.UI
 
             */
 
+
+
             GameObject WorkSkillPickup = GUIManager.Instance.CreateText(
-             text: $"Can Do Pickup work : {VillagerGeneral.GetWorkSkill_Pickup(selected_villager)}",
+             text: $"Work Skill: {VillagerGeneral.GetWorkSkill(selected_villager)}",
              parent: MAINBG.transform,
              anchorMin: new Vector2(0.5f, 0.1f),
              anchorMax: new Vector2(0.5f, 0.5f),
@@ -184,23 +187,6 @@ namespace KukusVillagerMod.Components.UI
              addContentSizeFitter: false
              );
             SubUIs.Add(WorkSkillPickup);
-
-            GameObject WorkSkillSmelt = GUIManager.Instance.CreateText(
-            text: $"Can Do Smelt Fillup work : {VillagerGeneral.GetWorkSkill_Smelter(selected_villager)}",
-            parent: MAINBG.transform,
-            anchorMin: new Vector2(0.5f, 0.1f),
-            anchorMax: new Vector2(0.5f, 0.5f),
-            position: new Vector2(-200f, -200f), // width & height
-            width: 250f,
-            height: 60f,
-            color: Color.yellow,
-            outline: false,
-            outlineColor: Color.white,
-            font: GUIManager.Instance.AveriaSerif,
-            fontSize: 15,
-            addContentSizeFitter: false
-            );
-            SubUIs.Add(WorkSkillSmelt);
 
             /*
              *  weapon.m_shared.m_damages = new HitData.DamageTypes();
@@ -471,84 +457,40 @@ namespace KukusVillagerMod.Components.UI
 
 
                 //WORK SKILLS
-                GameObject WorkSkill = GUIManager.Instance.CreateText(
-                 text: "Work Skills",
-                 parent: MAINBG.transform,
-                 anchorMin: new Vector2(0.5f, 0.1f),
-                 anchorMax: new Vector2(0.5f, 0.5f),
-                 position: new Vector2(0f, 70f), // width & height
-                 width: 250f,
-                 height: 60f,
-                 font: GUIManager.Instance.AveriaSerifBold,
-                 color: Color.black,
-                 fontSize: 25,
-                 outline: false,
-                 outlineColor: Color.black,
-                 addContentSizeFitter: false
-                 );
-                WorkSkill.GetComponent<Text>().alignment = TextAnchor.MiddleCenter;
-                SubUIs.Add(WorkSkill);
-                WorkBtn.GetComponent<Button>().onClick.AddListener(() => { KLog.info($"Working  Post"); });
+                var workSkilLDropDown = GUIManager.Instance.CreateDropDown(
+           parent: MAINBG.transform,
+           anchorMin: new Vector2(0.5f, 0.5f),
+           anchorMax: new Vector2(0.5f, 0.5f),
+           position: new Vector2(-200, 50f),
+           fontSize: 16,
+            width: 100f,
+           height: 30f);
+                var dropdownComp = workSkilLDropDown.GetComponent<Dropdown>();
+
+                dropdownComp.AddOptions(
+                     new List<string> { "Pickup items", "Fill Smelters", "Chop Wood" }
+                     );
+
+                dropdownComp.onValueChanged.AddListener((int val) =>
+                {
+                    switch (val)
+                    {
+                        case 0:
+                            KLog.info($"{selected_villager.id} work skill is pickup");
+                            VillagerGeneral.SetWorkSkill(selected_villager, WorkSkill.Pickup);
+                            break;
+                        case 1:
+                            KLog.info($"{selected_villager.id} work skill is Fill Smelters");
+                            VillagerGeneral.SetWorkSkill(selected_villager, WorkSkill.Fill_Smelt);
+                            break;
+                        case 2:
+                            KLog.info($"{selected_villager.id} work skill is Chop Wood");
+                            VillagerGeneral.SetWorkSkill(selected_villager, WorkSkill.Chop_Wood);
+                            break;
+                    }
+                });
 
 
-                if (VillagerGeneral.GetWorkSkill_Pickup(selected_villager))
-                {
-                    GameObject pickupWorkBtn = GUIManager.Instance.CreateButton(
-                 text: "Disable Pickup Work Skill",
-                 parent: MAINBG.transform,
-                 anchorMin: new Vector2(0.5f, 0.1f),
-                 anchorMax: new Vector2(0.5f, 0.5f),
-                 position: new Vector2(200f, 0f), // width & height
-                 width: 250f,
-                 height: 60f
-                 );
-                    SubUIs.Add(pickupWorkBtn);
-                    pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Pickup(selected_villager, false); UpdateUI(); });
-                }
-                else
-                {
-
-                    GameObject pickupWorkBtn = GUIManager.Instance.CreateButton(
-                 text: "Enable Pickup Work Skill",
-                 parent: MAINBG.transform,
-                 anchorMin: new Vector2(0.5f, 0.1f),
-                 anchorMax: new Vector2(0.5f, 0.5f),
-                 position: new Vector2(200f, 0f), // width & height
-                 width: 250f,
-                 height: 60f
-                 );
-                    SubUIs.Add(pickupWorkBtn);
-                    pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Pickup(selected_villager, true); UpdateUI(); });
-                }
-                if (VillagerGeneral.GetWorkSkill_Smelter(selected_villager))
-                {
-
-                    GameObject pickupWorkBtn = GUIManager.Instance.CreateButton(
-                 text: "Disable Smelter Fillup Work Skill",
-                 parent: MAINBG.transform,
-                 anchorMin: new Vector2(0.5f, 0.1f),
-                 anchorMax: new Vector2(0.5f, 0.5f),
-                 position: new Vector2(-200f, 0f), // width & height
-                 width: 250f,
-                 height: 60f
-                 );
-                    SubUIs.Add(pickupWorkBtn);
-                    pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Smelter(selected_villager, false); UpdateUI(); });
-                }
-                else
-                {
-                    GameObject pickupWorkBtn = GUIManager.Instance.CreateButton(
-                text: "Enable Smelter Fillup Work Skill",
-                parent: MAINBG.transform,
-                anchorMin: new Vector2(0.5f, 0.1f),
-                anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(-200f, 0f), // width & height
-                width: 250f,
-                height: 60f
-                );
-                    SubUIs.Add(pickupWorkBtn);
-                    pickupWorkBtn.GetComponent<Button>().onClick.AddListener(() => { VillagerGeneral.SetWorkSkill_Smelter(selected_villager, true); UpdateUI(); });
-                }
 
 
                 //Cut trees button

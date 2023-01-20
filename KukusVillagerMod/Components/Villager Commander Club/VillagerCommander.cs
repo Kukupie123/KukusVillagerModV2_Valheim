@@ -456,7 +456,7 @@ namespace KukusVillagerMod.itemPrefab
                 GameObject villager = ZNetScene.instance.FindInstance(z.m_uid);  //Get ZNV of the villager
                 if (villager != null && villager.GetComponent<VillagerAI>() != null)
                 {
-                    villager.GetComponent<VillagerAI>().StartWork(mine);
+                    villager.GetComponent<VillagerAI>().StartWork();
                 }
             }
         }

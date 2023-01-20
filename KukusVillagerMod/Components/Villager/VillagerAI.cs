@@ -58,9 +58,6 @@ namespace KukusVillagerMod.Components.Villager
                     case VillagerState.Working:
                         StartWork();
                         break;
-                    case VillagerState.Mining:
-                        StartWork(true);
-                        break;
                     case VillagerState.Roaming:
                         RoamAround();
                         break;
@@ -93,14 +90,18 @@ namespace KukusVillagerMod.Components.Villager
             //Check if followingObjZDOID is valid and that we are not in following state. following state has it's own function to take care of it
             if (villagerGeneral.GetVillagerState() != VillagerState.Following && ZDOMan.instance.GetZDO(followingObjZDOID) != null && ZDOMan.instance.GetZDO(followingObjZDOID).IsValid())
             {
+                //try to use game object's location, if failed use zdo's saved location
+                float distance;
+                var go = ZNetScene.instance.FindInstance(followingObjZDOID);
+                if (go) distance = Vector3.Distance(transform.position, go.transform.position);
+                else
+                    distance = Vector3.Distance(transform.position, ZDOMan.instance.GetZDO(followingObjZDOID).GetPosition());
 
-                float distance = Vector3.Distance(transform.position, ZDOMan.instance.GetZDO(followingObjZDOID).GetPosition());
 
                 //If distance is acceptable then we do not proceed
                 if (distance < AcceptedFollowDistance)
                 {
                     startedFollowingTime = null;
-                    KLog.warning("Reached following target");
                     closeToFollowTarget = true;
                     return;
                 }
@@ -246,18 +247,19 @@ namespace KukusVillagerMod.Components.Villager
 
             if (villagerGeneral.GetVillagerState() == VillagerState.Working)
             {
-                if (villagerGeneral.GetWorkSkill_Pickup())
+                WorkSkill skill = villagerGeneral.GetWorkSkill();
+                switch (skill)
                 {
-                    await PickupAndStoreWork();
+                    case WorkSkill.Pickup:
+                        await PickupAndStoreWork();
+                        break;
+                    case WorkSkill.Fill_Smelt:
+                        await FillSmelt();
+                        break;
+                    case WorkSkill.Chop_Wood:
+                        await MineWood();
+                        break;
                 }
-                if (villagerGeneral.GetWorkSkill_Smelter())
-                {
-                    await RefillWork();
-                }
-            }
-            else if (villagerGeneral.GetVillagerState() == VillagerState.Mining)
-            {
-                await MineWood();
             }
         }
 
@@ -274,6 +276,8 @@ namespace KukusVillagerMod.Components.Villager
             {
                 return false;
             }
+
+
 
             //Get ZDOID and validate
             ZDOID targetZDOID = target.GetComponentInParent<ZNetView>().GetZDO().m_uid;
@@ -495,7 +499,7 @@ namespace KukusVillagerMod.Components.Villager
         /// Main function to make villagers start working, the step by step operations are handles inside FixedUpdate method in "WorkLoop" function
         /// </summary>
         /// <returns></returns>
-        public bool StartWork(bool mine = false)
+        public bool StartWork()
         {
             //Set all work actions as false
             AlreadyPickingUp = false;
@@ -545,10 +549,8 @@ namespace KukusVillagerMod.Components.Villager
             //Remove from follower
             RemoveFollower();
             //Update villager state
-            if (!mine)
-                villagerGeneral.SetVillagerState(VillagerState.Working);
-            else
-                villagerGeneral.SetVillagerState(VillagerState.Mining);
+            villagerGeneral.SetVillagerState(VillagerState.Working);
+
 
             //Get Work post's instance
             GameObject wpi = villagerGeneral.GetWorkPostInstance();
@@ -854,7 +856,7 @@ namespace KukusVillagerMod.Components.Villager
         }
 
         bool AlreadyFillingSmelter = false;
-        async private Task RefillWork()
+        async private Task FillSmelt()
         {
             try
             {
@@ -1168,99 +1170,65 @@ namespace KukusVillagerMod.Components.Villager
         bool alreadyMining = false;
         async private Task MineWood()
         {
-            //Destructible component has a enum destructible type, TreeBase too is ez
 
-            if (alreadyMining || AlreadyFillingSmelter || AlreadyPickingUp) return;
+            if (alreadyMining) return;
             alreadyMining = true;
-
-            //Go to WorkPost
             ZDO WorkPostZDO = villagerGeneral.GetWorkPostZDO();
             Vector3 workPosLoc = WorkPostZDO.GetPosition();
 
-            await GoToLocationAwaitWork(workPosLoc);
-
-            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-            if (villagerGeneral.GetVillagerState() != VillagerState.Mining)
+            //Go to work post
+            if (villagerGeneral.GetWorkPostInstance())
             {
-                alreadyMining = false;
-                return;
-            }
+                await FollowTargetAwaitWork(villagerGeneral.GetWorkPostInstance());
 
-            GameObject mineable = GetValidTree2Chop();
-            if (mineable == null)
-            {
-                if (workTalk)
-                {
-                    talk.Say("Found nothing to mine close by", "Mine");
-                }
-                alreadyMining = false;
-                return;
             }
             else
             {
-                if (workTalk) talk.Say("Going to mine", "Mine");
-                //Go to item
-                await GoToLocationAwaitWork(mineable.transform.position, 0f);
-                await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
-                if (villagerGeneral.GetVillagerState() != VillagerState.Mining)
-                {
-                    alreadyMining = false;
-                    return;
-                }
-
-                //Damage it over time
-                if (workTalk) talk.Say("Mining " + mineable.name, "Mine");
-                await MineForAWhile(mineable);
+                TPToLoc(workPosLoc);
             }
-            //ai.LookAt(tree.transform.position);
-            //ai.DoAttack(null, false);
+
+
+            //Reached Work post, Check if still working
+            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+            {
+                alreadyMining = false;
+                return;
+            }
+
+            //Find smelter that can be filled
+            var obj = FindClosestValidPickup(workPosLoc, 100f);
+            if (obj != null)
+            {
+                transform.position = obj.transform.position;
+            }
+            else
+            {
+                talk.Say("NOTHING FOUND", "WORK");
+            }
+
+
+            await Task.Delay(3000);
+
             alreadyMining = false;
         }
-
         async private Task MineForAWhile(GameObject item)
         {
-            while (item != null)
-            {
-                ai.LookAt(item.transform.position);
-                await Task.Delay(3000);
-                ai.DoAttack(null, false);
-                var dmgTypes = villagerGeneral.humanoid.GetCurrentWeapon().GetDamage();
-                var dmg = new HitData();
-                dmg.m_damage.m_chop = dmgTypes.m_chop * 100;
-                dmg.m_damage.m_pickaxe = dmgTypes.m_pickaxe * 100;
-                try
-                {
-                    item.GetComponentInParent<Destructible>().Damage(dmg);
 
-                }
-                catch (Exception)
-                {
+            ai.LookAt(item.transform.position);
+            await Task.Delay(1000);
+            transform.rotation = Quaternion.FromToRotation(transform.position, item.transform.position);
+            ai.DoAttack(null, false);
+            await Task.Delay(1000);
+            //var dmgTypes = villagerGeneral.humanoid.GetCurrentWeapon().GetDamage();
+            /*
+             * 
+             */
 
-                }
-                try
-                {
-                    item.GetComponentInParent<TreeBase>().Damage(dmg);
-
-                }
-                catch (Exception)
-                {
-
-                }
-                try
-                {
-                    item.GetComponentInParent<TreeLog>().Destroy();
-
-                }
-                catch (Exception)
-                {
-
-                }
-            }
         }
-
-        private GameObject GetValidTree2Chop()
+        private GameObject GetValidTree2Chop(Vector3 pos)
         {
-            Vector3 scanLocation = villagerGeneral.GetWorkPostZDO().GetPosition();
+            Vector3 scanLocation = pos;
             Collider[] colliders = Physics.OverlapSphere(scanLocation, 200f);
             GameObject item = null;
             float distance = -1;
@@ -1330,5 +1298,9 @@ namespace KukusVillagerMod.Components.Villager
 
             return item;
         }
+
+
     }
+
+
 }

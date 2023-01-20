@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace KukusVillagerMod.enums.Work_Enum
 {
-    enum WorkingState
+    enum WorkSkill
     {
-        Idle, Going_WorkPost, Going_Pickup, Going_PutInStorage
+        Pickup, Fill_Smelt, Chop_Wood
     }
 }

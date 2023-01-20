@@ -2,6 +2,7 @@
 using KukusVillagerMod.Components.VillagerBed;
 using KukusVillagerMod.Configuration;
 using KukusVillagerMod.enums;
+using KukusVillagerMod.enums.Work_Enum;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -751,14 +752,7 @@ namespace KukusVillagerMod.Components.Villager
                 case VillagerState.Following:
                     Util.GetZDO(villagerZDOID).Set("work", (int)VillagerState.Following);
                     break;
-                case VillagerState.Mining:
-                    if (IsWorkPostAssigned(villagerZDOID) && IsContainerAssigned(villagerZDOID))
-                    {
-                        Util.GetZDO(villagerZDOID).Set("work", (int)VillagerState.Mining);
-                        Util.GetZDO(villagerZDOID).SetPosition(GetWorkPostZDO(villagerZDOID).GetPosition());
-                    }
 
-                    break;
             }
         }
         public void SetVillagerState(VillagerState newState)
@@ -767,39 +761,24 @@ namespace KukusVillagerMod.Components.Villager
         }
 
         //Work skills
-        public static bool GetWorkSkill_Pickup(ZDOID villagerZDOID)
-        {
-            return Util.GetZDO(villagerZDOID).GetBool("work_skill_pickup", false);
-        }
-        public bool GetWorkSkill_Pickup()
-        {
-            return GetWorkSkill_Pickup(ZNV.GetZDO().m_uid);
-        }
-        public static void SetWorkSkill_Pickup(ZDOID villagerZDOID, bool canPickup)
-        {
-            Util.GetZDO(villagerZDOID).Set("work_skill_pickup", canPickup);
-        }
-        public void SetWorkSkill_Pickup(bool canPickup)
-        {
-            SetWorkSkill_Pickup(ZNV.GetZDO().m_uid, canPickup);
-        }
-        public static bool GetWorkSkill_Smelter(ZDOID villagerZDOID)
-        {
-            return Util.GetZDO(villagerZDOID).GetBool("work_skill_smelt", false);
-        }
-        public bool GetWorkSkill_Smelter()
-        {
-            return GetWorkSkill_Smelter(ZNV.GetZDO().m_uid);
-        }
-        public static void SetWorkSkill_Smelter(ZDOID villagerZDOID, bool canSmelt)
-        {
-            Util.GetZDO(villagerZDOID).Set("work_skill_smelt", canSmelt);
-        }
-        public void SetWorkSkill_Smelter(bool canSmelt)
-        {
-            SetWorkSkill_Smelter(ZNV.GetZDO().m_uid, canSmelt);
-        }
+        public static WorkSkill GetWorkSkill(ZDOID villagerZDOID)
 
+        {
+            return (WorkSkill)Util.GetZDO(villagerZDOID).GetInt("workskill", (int)WorkSkill.Pickup);
+        }
+        public WorkSkill GetWorkSkill()
+        {
+            return GetWorkSkill(ZNV.GetZDO().m_uid);
+        }
+        public static void SetWorkSkill(ZDOID villagerZDOID, WorkSkill skill)
+        {
+            Util.GetZDO(villagerZDOID).Set("workskill", (int)skill);
+        }
+        public void SetWorkSkill(WorkSkill skill)
+        {
+            SetWorkSkill(ZNV.GetZDO().m_uid, skill);
+        }
+      
         //Object methods and members-------------------------------
 
         public ZNetView ZNV;
