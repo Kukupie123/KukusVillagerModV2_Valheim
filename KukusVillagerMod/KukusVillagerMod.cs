@@ -141,6 +141,7 @@ namespace KukusVillagerMod
  * Different villager for different biome
  * 
  * 
+ * 
  * Huge overhaul incomming
  * Villagers are now going to be personal. They will have traits which is going to get better as you level them up. And if they die, they will no longer respawn.
  * Beds no longer spawn villagers instead you will have to find villagers in the wild and bring them with you and assign them a bed.

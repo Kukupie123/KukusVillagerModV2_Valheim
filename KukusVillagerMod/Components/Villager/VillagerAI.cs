@@ -1216,7 +1216,7 @@ namespace KukusVillagerMod.Components.Villager
             if (obj != null)
             {
                 if (workTalk) talk.Say($"Going to Chop {obj.name}", "Work");
-
+                await Task.Delay(500);
                 int count = 0;
                 int limit = 4;
 
@@ -1281,67 +1281,7 @@ namespace KukusVillagerMod.Components.Villager
             await Task.Delay(3000);
 
         }
-        async private Task MineForAWhile(GameObject item)
-        {
-            //TODO: Config
-            int count = 0;
-            int limit = 4;
-            while (count < limit && item != null)
-            {
-                try
-                {
-                    await FollowTargetAwaitWork(item); //incase we are still far off
-                    await Task.Delay(1000);
-                    ai.LookAt(item.transform.position);
-                    await Task.Delay(1000);
-                    transform.rotation = Quaternion.FromToRotation(transform.position, item.transform.position);
-                    await Task.Delay(500);
-                    ai.DoAttack(null, false);
-                    await Task.Delay(1000);
-                    count++;
-                }
-                catch (Exception)
-                {
-                    await Task.Delay(500);
-                    count++;
-                }
 
-            }
-
-            if (item != null)
-            {
-                //Apply damage and break it by brute force
-                var treeLog = item.GetComponentInParent<TreeLog>();
-                if (treeLog)
-                {
-                    treeLog.Destroy();
-                    KLog.info($"Destroyed {item.name} using destructible component for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree");
-                    return;
-                }
-                var treebase = item.GetComponentInParent<TreeBase>();
-                if (treebase)
-                {
-                    HitData hd = new HitData();
-                    hd.m_damage.m_damage = 500f;
-                    hd.m_damage.m_chop = 500f;
-                    hd.m_damage.m_pierce = 500f;
-                    hd.m_damage.m_slash = 500f;
-                    hd.m_damage.m_pickaxe = 500f;
-                    hd.m_damage.m_blunt = 500f;
-                    treebase.Damage(hd);
-                    KLog.info($"Destroyed {item.name} using destructible component for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree");
-                    return;
-                }
-                var desc = item.GetComponentInParent<Destructible>();
-                if (desc)
-                {
-                    desc.DestroyNow();
-                    KLog.info($"Destroyed {item.name} using destructible component for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree");
-                    return;
-                }
-            }
-
-        }
         private GameObject GetValidTree2Chop(Vector3 pos)
         {
             Vector3 scanLocation = pos;
