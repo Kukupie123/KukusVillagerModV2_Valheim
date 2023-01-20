@@ -1,8 +1,7 @@
 ﻿# Kuku's Villager Mod
 
 ## NOTICE 
-2. May work initially in Multiplayer as we got rid of beds BUT has not been designed with multiplayer in mind so there may be issues specially with work commands as it alters container's contents. <br>
-3. Remove your Config file and Recommended to start a new game although not necessary.
+1. May work initially in Multiplayer as we got rid of beds BUT has not been designed with multiplayer in mind so there may be issues specially with work commands as it alters container's contents. <br>
 ## Installation (manual)
 Paste the plugins folder in valheim/BepInEx/
 
@@ -16,6 +15,9 @@ Paste the plugins folder in valheim/BepInEx/
 7. Manage and control your villagers all at once using Runik Kuchuk Tablet. <br>
 8. Simple GUI for interacting with villager and Runik Kuchuk Tablet <br>
 9. Customization for flexible gameplay experience.
+
+## Bug :
+1. When working villagers may keep staring at player and eventually get teleported, usually triggered when playing is close to villager and idle. Not game breaking, but it's out there.<br>
 
 ## USAGE GUIDE :
 ### Recruiting villagers.

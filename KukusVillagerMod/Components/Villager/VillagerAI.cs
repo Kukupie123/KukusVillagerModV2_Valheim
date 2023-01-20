@@ -93,6 +93,7 @@ namespace KukusVillagerMod.Components.Villager
             //Check if followingObjZDOID is valid and that we are not in following state. following state has it's own function to take care of it
             if (villagerGeneral.GetVillagerState() != VillagerState.Following && ZDOMan.instance.GetZDO(followingObjZDOID) != null && ZDOMan.instance.GetZDO(followingObjZDOID).IsValid())
             {
+
                 float distance = Vector3.Distance(transform.position, ZDOMan.instance.GetZDO(followingObjZDOID).GetPosition());
 
                 //If distance is acceptable then we do not proceed
@@ -589,18 +590,17 @@ namespace KukusVillagerMod.Components.Villager
             }
         }
 
-        async private Task FollowTargetAwaitWork(GameObject target, float acceptableRadius = 5f)
+        async private Task FollowTargetAwaitWork(GameObject target, float acceptableRadius = 3f)
         {
-            if (!target) return;
+            //Reset following, this stops the followingCheckPerTick function
+            ai.SetFollowTarget(null);
+            followingObjZDOID = ZDOID.None;
 
             FollowGameObject(target);
-
+            ai.Follow(target, ai.GetWorldTimeDelta());
             while (!closeToFollowTarget)
             {
-                
-                ai.SetAggravated(true, BaseAI.AggravatedReason.Building);
-                ai.SetAlerted(transform);
-                ai.LookAt(target.transform.position);
+                ai.Alert();
                 AcceptedFollowDistance = acceptableRadius;
                 await Task.Delay(250);
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
@@ -622,7 +622,15 @@ namespace KukusVillagerMod.Components.Villager
                 Vector3 workPosLoc = WorkPostZDO.GetPosition();
 
                 //Go to work post
-                await GoToLocationAwaitWork(workPosLoc);
+                GameObject workPostInstance = villagerGeneral.GetWorkPostInstance();
+                if (workPostInstance)
+                {
+                    await FollowTargetAwaitWork(workPostInstance);
+                }
+                else
+                {
+                    TPToLoc(workPosLoc);
+                }
 
                 //Reached Work post, Check if still working
                 await Task.Delay(500);
@@ -641,7 +649,7 @@ namespace KukusVillagerMod.Components.Villager
 
                     if (workTalk)
                         talk.Say($"Going to Pickup {pickable.m_itemData.m_shared.m_name}", "Work");
-
+                    await Task.Delay(500);
                     //Go to item
                     await FollowTargetAwaitWork(pickable.gameObject);
 
@@ -683,7 +691,7 @@ namespace KukusVillagerMod.Components.Villager
 
                         if (workTalk)
                             talk.Say($"Going to Put {prefabName} in container", "Work");
-                        await Task.Delay(1000);
+                        await Task.Delay(2000);
                         //Go to container
                         await FollowTargetAwaitWork(containerInstance);
 
@@ -704,7 +712,7 @@ namespace KukusVillagerMod.Components.Villager
                             if (workTalk)
                                 talk.Say($"Failed to add {prefabName} to container", "Work");
                         }
-                        await Task.Delay(1000);
+                        await Task.Delay(2000);
                     }
                     else //Container instance not valid so we will not move villager
                     {
@@ -852,7 +860,15 @@ namespace KukusVillagerMod.Components.Villager
                 Vector3 workPosLoc = WorkPostZDO.GetPosition();
 
                 //Go to work post
-                await GoToLocationAwaitWork(workPosLoc);
+                if (villagerGeneral.GetWorkPostInstance())
+                {
+                    await FollowTargetAwaitWork(villagerGeneral.GetWorkPostInstance());
+
+                }
+                else
+                {
+                    TPToLoc(workPosLoc);
+                }
 
 
                 //Reached Work post, Check if still working
@@ -893,7 +909,7 @@ namespace KukusVillagerMod.Components.Villager
                         }
                         else
                         {
-                            await GoToLocationAwaitWork(villagerGeneral.GetContainerZDO().GetPosition());
+                            TPToLoc(villagerGeneral.GetContainerZDO().GetPosition());
 
                         }
                     }
