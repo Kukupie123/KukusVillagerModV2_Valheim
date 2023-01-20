@@ -257,7 +257,7 @@ namespace KukusVillagerMod.Components.Villager
             }
             else if (villagerGeneral.GetVillagerState() == VillagerState.Mining)
             {
-                await MiningFarm();
+                await MineWood();
             }
         }
 
@@ -592,12 +592,9 @@ namespace KukusVillagerMod.Components.Villager
 
         async private Task FollowTargetAwaitWork(GameObject target, float acceptableRadius = 3f)
         {
-            //Reset following, this stops the followingCheckPerTick function
-            ai.SetFollowTarget(null);
-            followingObjZDOID = ZDOID.None;
-
+            var rot = Quaternion.FromToRotation(transform.position, target.transform.position);
+            transform.rotation = rot;
             FollowGameObject(target);
-            ai.Follow(target, ai.GetWorldTimeDelta());
             while (!closeToFollowTarget)
             {
                 ai.Alert();
@@ -1161,7 +1158,7 @@ namespace KukusVillagerMod.Components.Villager
         //Farming
 
         bool alreadyMining = false;
-        async private Task MiningFarm()
+        async private Task MineWood()
         {
             //Destructible component has a enum destructible type, TreeBase too is ez
 
