@@ -268,8 +268,7 @@ namespace KukusVillagerMod.Components.Villager
         private bool FollowGameObject(GameObject target)
         {
             //Temporarily stop the followPerUpdate Check function by setting these variables
-            followingObjZDOID = ZDOID.None; //reset following target
-            closeToFollowTarget = false; //reset close to follow target variable
+            RemoveFollower();
 
             if (target == null)
             {
@@ -292,6 +291,15 @@ namespace KukusVillagerMod.Components.Villager
             ai.ResetPatrolPoint();
             ai.SetFollowTarget(target);
             return true;
+        }
+
+        /// <summary>
+        /// Invalidates the followingObjZDOID thus making the followCheckPerUpdate function "stop"
+        /// </summary>
+        private void RemoveFollower()
+        {
+            followingObjZDOID = ZDOID.None;
+            ai.SetFollowTarget(null);
         }
 
         /// <summary>
@@ -363,13 +371,12 @@ namespace KukusVillagerMod.Components.Villager
 
             if (resetFollower)
             {
-                this.followingObjZDOID = new ZDOID { m_hash = -1, m_userID = -1 };
+                RemoveFollower();
             }
 
             if (shouldTalk)
                 talk.Say($"Moving to {pos.ToString()}", "Moving");
             ai.ResetPatrolPoint();
-            ai.SetFollowTarget(null);
             keepMoving = true;
             return true;
         }
@@ -394,7 +401,7 @@ namespace KukusVillagerMod.Components.Villager
             //Stop moving
             keepMoving = false;
             //Remove from follower
-            this.followingObjZDOID = new ZDOID { m_hash = -1, m_userID = -1 };
+            RemoveFollower();
 
             //Update the state of the villager
             villagerGeneral.SetVillagerState(VillagerState.Guarding_Bed);
@@ -428,7 +435,7 @@ namespace KukusVillagerMod.Components.Villager
             keepMoving = false;
             //Remove from follower
             ai.SetFollowTarget(null);
-            this.followingObjZDOID = new ZDOID { m_hash = -1, m_userID = -1 };
+            RemoveFollower();
 
             //Update the state of the villager
             villagerGeneral.SetVillagerState(VillagerState.Roaming);
@@ -460,7 +467,7 @@ namespace KukusVillagerMod.Components.Villager
             //Stop moving
             keepMoving = false;
             //Remove from follower
-            this.followingObjZDOID = new ZDOID { m_hash = -1, m_userID = -1 };
+            RemoveFollower();
 
             //Update villager's state
             villagerGeneral.SetVillagerState(VillagerState.Defending_Post);
@@ -535,8 +542,7 @@ namespace KukusVillagerMod.Components.Villager
             //Stop moving
             keepMoving = false;
             //Remove from follower
-            this.followingObjZDOID = new ZDOID { m_hash = -1, m_userID = -1 };
-
+            RemoveFollower();
             //Update villager state
             if (!mine)
                 villagerGeneral.SetVillagerState(VillagerState.Working);
