@@ -218,52 +218,75 @@ namespace KukusVillagerMod.Components.Villager
         /*
          * Handles villager's actions when working so that it is executed step by step such as go to pickup -> pickup -> go to container -> place inside container
          */
+
+        bool alreadyWorking = false;
         async private void WorkLoop()
         {
-            ZDOID wp = villagerGeneral.GetWorkPostZDOID();
-
-            if (wp == null || wp.IsNone())
+            if (alreadyWorking) return;
+            alreadyWorking = true;
+            try
             {
-                return;
-            }
+                ZDOID wp = villagerGeneral.GetWorkPostZDOID();
 
-            if (villagerGeneral.GetWorkPostZDO() == null || villagerGeneral.GetWorkPostZDO().IsValid() == false)
-            {
-                return;
-            }
-
-            ZDOID containerID = villagerGeneral.GetContainerZDOID();
-
-            if (containerID == null || containerID.IsNone())
-            {
-                return;
-            }
-
-            ZDO containerZDO = villagerGeneral.GetContainerZDO();
-            if (containerZDO == null || containerZDO.IsValid() == false)
-            {
-                return;
-            }
-
-            if (villagerGeneral.GetVillagerState() == VillagerState.Working)
-            {
-                WorkSkill skill = villagerGeneral.GetWorkSkill();
-                if (skill == WorkSkill.Pickup)
+                if (wp == null || wp.IsNone())
                 {
-                    await PickupAndStoreWork();
+                    alreadyWorking = false;
                     return;
                 }
-                if (skill == WorkSkill.Fill_Smelt)
+
+                if (villagerGeneral.GetWorkPostZDO() == null || villagerGeneral.GetWorkPostZDO().IsValid() == false)
                 {
-                    await FillSmelt();
+                    alreadyWorking = false;
                     return;
                 }
-                if (skill == WorkSkill.Chop_Wood)
+
+                ZDOID containerID = villagerGeneral.GetContainerZDOID();
+
+                if (containerID == null || containerID.IsNone())
                 {
-                    await ChopWood();
+                    alreadyWorking = false;
                     return;
                 }
+
+                ZDO containerZDO = villagerGeneral.GetContainerZDO();
+                if (containerZDO == null || containerZDO.IsValid() == false)
+                {
+                    alreadyWorking = false;
+                    return;
+                }
+
+                if (villagerGeneral.GetVillagerState() == VillagerState.Working)
+                {
+                    WorkSkill skill = villagerGeneral.GetWorkSkill();
+                    if (skill == WorkSkill.Pickup)
+                    {
+                        await PickupAndStoreWork();
+                        alreadyWorking = false;
+                        return;
+                    }
+                    if (skill == WorkSkill.Fill_Smelt)
+                    {
+                        await FillSmelt();
+                        alreadyWorking = false;
+                        return;
+                    }
+                    if (skill == WorkSkill.Chop_Wood)
+                    {
+                        await ChopWood();
+                        alreadyWorking = false;
+                        return;
+                    }
+                }
+                alreadyWorking = false;
+                return;
             }
+            catch (Exception e)
+            {
+                KLog.info($"Exception in work loop {e.Message}\n{e.StackTrace}");
+                alreadyWorking = false;
+                return;
+            }
+
         }
 
         //----------------------------------------------------------------------------------------------------------------------------------
@@ -505,9 +528,8 @@ namespace KukusVillagerMod.Components.Villager
         public bool StartWork()
         {
             //Set all work actions as false
-            AlreadyPickingUp = false;
-            AlreadyFillingSmelter = false;
 
+            alreadyWorking = false;
             //Validate work post
             ZDOID wp = villagerGeneral.GetWorkPostZDOID();
 
@@ -620,14 +642,11 @@ namespace KukusVillagerMod.Components.Villager
             }
         }
 
-        bool AlreadyPickingUp = false;
         async private Task PickupAndStoreWork()
         {
             KLog.info("Picking up " + villagerGeneral.ZNV.GetZDO().m_uid.id);
             try
             {
-                if (AlreadyPickingUp || AlreadyFillingSmelter) return;
-                AlreadyPickingUp = true;
 
                 ZDO WorkPostZDO = villagerGeneral.GetWorkPostZDO();
                 Vector3 workPosLoc = WorkPostZDO.GetPosition();
@@ -647,7 +666,6 @@ namespace KukusVillagerMod.Components.Villager
                 await Task.Delay(500);
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                 {
-                    AlreadyPickingUp = false;
                     return;
                 }
 
@@ -667,7 +685,6 @@ namespace KukusVillagerMod.Components.Villager
                     //Reached item, check if still working
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
-                        AlreadyPickingUp = false;
                         return;
                     }
 
@@ -678,7 +695,6 @@ namespace KukusVillagerMod.Components.Villager
 
                     if (prefab == null) //if prefab not found we exit pickup
                     {
-                        AlreadyPickingUp = false;
                         return;
                     }
                     if (stackCount == 1) //if only 1 stack then we destroy the pickup item
@@ -708,7 +724,6 @@ namespace KukusVillagerMod.Components.Villager
 
                         if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                         {
-                            AlreadyPickingUp = false;
                             return;
                         }
 
@@ -739,13 +754,11 @@ namespace KukusVillagerMod.Components.Villager
 
                 }
 
-                AlreadyPickingUp = false;
 
 
             }
             catch (Exception)
             {
-                AlreadyPickingUp = false;
             }
 
 
@@ -859,14 +872,11 @@ namespace KukusVillagerMod.Components.Villager
             return pickable;
         }
 
-        bool AlreadyFillingSmelter = false;
         async private Task FillSmelt()
         {
             KLog.info("Filling up smelt" + villagerGeneral.ZNV.GetZDO().m_uid.id);
             try
             {
-                if (AlreadyFillingSmelter || AlreadyPickingUp) return;
-                AlreadyFillingSmelter = true;
 
                 ZDO WorkPostZDO = villagerGeneral.GetWorkPostZDO();
                 Vector3 workPosLoc = WorkPostZDO.GetPosition();
@@ -887,7 +897,7 @@ namespace KukusVillagerMod.Components.Villager
                 await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                 {
-                    AlreadyFillingSmelter = false;
+
                     return;
                 }
 
@@ -930,7 +940,7 @@ namespace KukusVillagerMod.Components.Villager
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
-                        AlreadyFillingSmelter = false;
+
                         return;
                     }
 
@@ -968,7 +978,6 @@ namespace KukusVillagerMod.Components.Villager
                     {
                         if (workTalk)
                             talk.Say("No processable or fuel in my container or the smelter I was going to fill is already full now", "");
-                        AlreadyFillingSmelter = false;
                         return;
                     }
 
@@ -977,7 +986,6 @@ namespace KukusVillagerMod.Components.Villager
 
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
-                        AlreadyFillingSmelter = false;
                         return;
                     }
 
@@ -987,7 +995,6 @@ namespace KukusVillagerMod.Components.Villager
                     await Task.Delay(500);
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
-                        AlreadyFillingSmelter = false;
                         return;
                     }
                     //Add fuel to the smelter
@@ -1056,12 +1063,10 @@ namespace KukusVillagerMod.Components.Villager
                         talk.Say("Found no smelter nearby that can be filled based on items in container", "Work");
                 }
 
-                AlreadyFillingSmelter = false;
             }
             catch (Exception e)
             {
                 KLog.warning($"Exception for villager : {villagerGeneral.ZNV.GetZDO().m_uid.id}\n{e.Message}\n{e.StackTrace}");
-                AlreadyFillingSmelter = false;
             }
 
 
@@ -1172,12 +1177,9 @@ namespace KukusVillagerMod.Components.Villager
 
         //Farming
 
-        bool alreadyMining = false;
         async private Task ChopWood()
         {
             KLog.info("Chopping wood " + villagerGeneral.ZNV.GetZDO().m_uid.id);
-            if (alreadyMining) return;
-            alreadyMining = true;
             ZDO WorkPostZDO = villagerGeneral.GetWorkPostZDO();
             Vector3 workPosLoc = WorkPostZDO.GetPosition();
 
@@ -1197,26 +1199,24 @@ namespace KukusVillagerMod.Components.Villager
             await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
             if (villagerGeneral.GetVillagerState() != VillagerState.Working)
             {
-                alreadyMining = false;
                 return;
             }
 
             //Find smelter that can be filled
-            var obj = FindClosestValidPickup(workPosLoc, 100f);
-            if (obj.gameObject != null)
+            var obj = GetValidTree2Chop(workPosLoc);
+            if (obj != null)
             {
-                if (workTalk) talk.Say($"Going to Chop {obj.m_itemData.m_shared.m_name}", "Work");
+                if (workTalk) talk.Say($"Going to Chop {obj.name}", "Work");
                 await FollowTargetAwaitWork(obj.gameObject);
 
                 //
                 await Task.Delay(500);
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                 {
-                    alreadyMining = false;
                     return;
                 }
 
-                if (workTalk) talk.Say($"Chopping {obj.m_itemData.m_shared.m_name}", "Work");
+                if (workTalk) talk.Say($"Chopping {obj.name}", "Work");
                 await MineForAWhile(obj.gameObject);
             }
             else
@@ -1227,7 +1227,6 @@ namespace KukusVillagerMod.Components.Villager
 
             await Task.Delay(3000);
 
-            alreadyMining = false;
         }
         async private Task MineForAWhile(GameObject item)
         {
