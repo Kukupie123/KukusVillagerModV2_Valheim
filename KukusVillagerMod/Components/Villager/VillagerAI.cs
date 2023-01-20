@@ -298,6 +298,7 @@ namespace KukusVillagerMod.Components.Villager
         /// </summary>
         private void RemoveFollower()
         {
+            closeToFollowTarget = false;
             followingObjZDOID = ZDOID.None;
             ai.SetFollowTarget(null);
         }
@@ -600,9 +601,10 @@ namespace KukusVillagerMod.Components.Villager
         {
             var rot = Quaternion.FromToRotation(transform.position, target.transform.position);
             transform.rotation = rot;
-            FollowGameObject(target);
+            RemoveFollower();
             while (!closeToFollowTarget)
             {
+                FollowGameObject(target);
                 ai.Alert();
                 AcceptedFollowDistance = acceptableRadius;
                 await Task.Delay(250);
