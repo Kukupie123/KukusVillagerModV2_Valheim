@@ -202,5 +202,4 @@ namespace KukusVillagerMod.Patches
 
         }
     }
-    }
 }

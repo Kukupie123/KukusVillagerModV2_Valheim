@@ -47,6 +47,8 @@ You can select any villagers from the list and it will open the Villager stats G
 You can also give universal commands to the villagers
 
 ## Changelog
+<h3>3.1.0</h3>
+1. Villagers should be able to avoid fire nicely now.
 <h3>3.0.1</h3>
 1. Added config option for resources needed to upgrade villagers. As well as others config settings. Make sure to check out the config for full info :)<br>
 2. Wanderer's (Villagers found in the wild) stats will have stats scaled based on the biome it was found at. (Configurable)<br>

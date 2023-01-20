@@ -20,6 +20,31 @@ namespace KukusVillagerMod.Prefabs
         {
             createCreature2("Villager_Ranged", VillagerModConfigurations.VillagerRangedPrefabName);
             createCreature2("Villager_Melee", VillagerModConfigurations.VillagerMeleePrefabName);
+
+            CreatureConfig villagerConfig = new CreatureConfig();
+            villagerConfig.Name = "Human";
+            villagerConfig.Faction = Character.Faction.Players;
+            villagerConfig.Group = "Player";
+
+            /*
+            var playerPrefab = PrefabManager.Instance.GetPrefab("Player");
+            KLog.warning(playerPrefab.gameObject.name);
+
+            CustomCreature villager = new CustomCreature("Human", "Goblin", villagerConfig);
+
+            var GoblinanimEvent = villager.Prefab.GetComponentInChildren<CharacterAnimEvent>(); // Does not remove animation but instead disables collision for attacks
+            Animator goblinAnimator = villager.Prefab.GetComponentInChildren<Animator>();
+            var playerAnimator = playerPrefab.GetComponentInChildren<Animator>();
+
+            //Replace with animator
+            //Animator is responsible for the animations
+            //var c = villager.Prefab.AddComponentCopy(playerAnimator); //copy player animator to villager
+            //c.transform.parent = goblinAnimator.transform.parent; //set parents correctly
+            //UnityEngine.GameObject.Destroy(goblinAnimator); //Destroy original animator
+
+            CreatureManager.Instance.AddCreature(villager);
+            */
+
         }
 
         void createCreature2(string villagerName, string prefabCloneName, bool melee = false)
@@ -115,7 +140,8 @@ namespace KukusVillagerMod.Prefabs
             villager.Prefab.AddComponent<VillagerGeneral>(); //Add villager General component 
             villager.Prefab.AddComponent<VillagerAI>();
 
-
+            villager.Prefab.GetComponent<MonsterAI>().m_avoidFire = true;
+            villager.Prefab.GetComponent<MonsterAI>().m_huntPlayer = false;
 
             CreatureManager.Instance.AddCreature(villager);
 

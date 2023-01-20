@@ -815,6 +815,8 @@ namespace KukusVillagerMod.Components.Villager
             humanoid = GetComponent<Humanoid>();
             tameable = GetComponent<Tameable>();
             ai.m_attackPlayerObjects = false;
+            ai.m_avoidFire = true;
+            ai.SetHuntPlayer(false);
 
             //Generate and load stats
             if (!IsVillagerTamed())

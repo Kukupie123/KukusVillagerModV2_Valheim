@@ -32,7 +32,7 @@ namespace KukusVillagerMod.Components.Villager
         private void FixedUpdate()
         {
             //Keeping them in Awake doesn't always guarentee so we do it here instead.
-            if (talk == null) talk = GetComponent<NpcTalk>();   
+            if (talk == null) talk = GetComponent<NpcTalk>();
 
             if (villagerGeneral == null) villagerGeneral = GetComponent<VillagerGeneral>();
 
@@ -87,6 +87,7 @@ namespace KukusVillagerMod.Components.Villager
         double? startedFollowingTime = null;
         float AcceptedFollowDistance = VillagerModConfigurations.AcceptedFollowDistance;
         int FollowTimeLimit = VillagerModConfigurations.FollowTimeLimit;
+        bool closeToFollowTarget = false;
         private void FollowCheckPerUpdate()
         {
             //Check if followingObjZDOID is valid and that we are not in following state. following state has it's own function to take care of it
@@ -98,6 +99,8 @@ namespace KukusVillagerMod.Components.Villager
                 if (distance < AcceptedFollowDistance)
                 {
                     startedFollowingTime = null;
+                    KLog.warning("Reached following target");
+                    closeToFollowTarget = true;
                     return;
                 }
 
@@ -105,6 +108,7 @@ namespace KukusVillagerMod.Components.Villager
                 if (startedFollowingTime == null)
                 {
                     startedFollowingTime = ZNet.instance.GetTimeSeconds();
+                    closeToFollowTarget = false;
                 }
 
                 //Calculate time elasped and distance between villager and target
@@ -115,11 +119,17 @@ namespace KukusVillagerMod.Components.Villager
                     KLog.warning($"Teleporting villager {villagerGeneral.ZNV.GetZDO().m_uid.id} Because he didn't reach following target within the time limit");
                     TPToLoc(ZDOMan.instance.GetZDO(this.followingObjZDOID).GetPosition(), false); //We want the villager to still follow it's target after tping so we set false as 2nd parameter
                     startedFollowingTime = null;
+                    closeToFollowTarget = true;
+                }
+                else
+                {
+                    closeToFollowTarget = false;
                 }
             }
             else
             {
                 startedFollowingTime = null;
+                closeToFollowTarget = false;
             }
         }
 
@@ -169,7 +179,7 @@ namespace KukusVillagerMod.Components.Villager
             else
             {
                 //Not moving so reset timer
-               
+
                 keepMovingStartTime = null;
             }
 
@@ -256,6 +266,9 @@ namespace KukusVillagerMod.Components.Villager
         //Makes villager follow the targer, used internally to make villager follow it's bed, defense post, player, etc
         private bool FollowGameObject(GameObject target)
         {
+            //Temporarily stop the followPerUpdate Check function by setting these variables
+            followingObjZDOID = ZDOID.None; //reset following target
+            closeToFollowTarget = false; //reset close to follow target variable
 
             if (target == null)
             {
@@ -300,6 +313,7 @@ namespace KukusVillagerMod.Components.Villager
         //Main command that makes villager follow a player
         public bool FollowPlayer(ZDOID playerID)
         {
+            AcceptedFollowDistance = VillagerModConfigurations.AcceptedFollowDistance;
 
             if (playerID == null || playerID.IsNone())
             {
@@ -548,9 +562,17 @@ namespace KukusVillagerMod.Components.Villager
         bool workTalk = VillagerModConfigurations.TalkWhileWorking; //should talk while working
         bool workRun = VillagerModConfigurations.workRun; //should villager run while working
 
-
+        /// <summary>
+        /// We can either move to a location or follow a target, if we pass in followTarget it will start following, following is recommended if you want the character to stay close
+        /// </summary>
+        /// <param name="location"></param>
+        /// <param name="acceptableDistance"></param>
+        /// <param name="followTarget"></param>
+        /// <returns></returns>
         async private Task GoToLocationAwaitWork(Vector3 location, float acceptableDistance = 3f)
         {
+
+
 
             //Move to workpost
             MoveVillagerToLoc(location, acceptableDistance, false, false, workRun);
@@ -559,8 +581,28 @@ namespace KukusVillagerMod.Components.Villager
                 ai.ResetPatrolPoint();
                 ai.LookAt(location);
                 movePos = location;
-                await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+                await Task.Delay(250);
+                if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+                {
+                    break;
+                }
+            }
+        }
 
+        async private Task FollowTargetAwaitWork(GameObject target, float acceptableRadius = 5f)
+        {
+            if (!target) return;
+
+            FollowGameObject(target);
+
+            while (!closeToFollowTarget)
+            {
+                
+                ai.SetAggravated(true, BaseAI.AggravatedReason.Building);
+                ai.SetAlerted(transform);
+                ai.LookAt(target.transform.position);
+                AcceptedFollowDistance = acceptableRadius;
+                await Task.Delay(250);
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                 {
                     break;
@@ -596,14 +638,14 @@ namespace KukusVillagerMod.Components.Villager
                 //ItemDrop found.
                 if (pickable != null)
                 {
+
                     if (workTalk)
                         talk.Say($"Going to Pickup {pickable.m_itemData.m_shared.m_name}", "Work");
 
                     //Go to item
-                    await GoToLocationAwaitWork(pickable.transform.position);
+                    await FollowTargetAwaitWork(pickable.gameObject);
 
                     //Reached item, check if still working
-                    await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                     {
                         AlreadyPickingUp = false;
@@ -641,11 +683,10 @@ namespace KukusVillagerMod.Components.Villager
 
                         if (workTalk)
                             talk.Say($"Going to Put {prefabName} in container", "Work");
-
+                        await Task.Delay(1000);
                         //Go to container
-                        await GoToLocationAwaitWork(containerLoc);
+                        await FollowTargetAwaitWork(containerInstance);
 
-                        await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                         if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                         {
                             AlreadyPickingUp = false;
@@ -663,7 +704,7 @@ namespace KukusVillagerMod.Components.Villager
                             if (workTalk)
                                 talk.Say($"Failed to add {prefabName} to container", "Work");
                         }
-
+                        await Task.Delay(1000);
                     }
                     else //Container instance not valid so we will not move villager
                     {
@@ -844,8 +885,17 @@ namespace KukusVillagerMod.Components.Villager
                             talk.Say("Going to container to get items for smelting", "Work");
 
                         //Move to container
-                        await GoToLocationAwaitWork(villagerGeneral.GetContainerZDO().GetPosition());
+                        GameObject containerInstance = villagerGeneral.GetContainerInstance();
+                        if (containerInstance)
+                        {
+                            await FollowTargetAwaitWork(containerInstance);
 
+                        }
+                        else
+                        {
+                            await GoToLocationAwaitWork(villagerGeneral.GetContainerZDO().GetPosition());
+
+                        }
                     }
 
 
@@ -904,7 +954,7 @@ namespace KukusVillagerMod.Components.Villager
                     }
 
                     //Go to smelter
-                    await GoToLocationAwaitWork(smelter.transform.position);
+                    await FollowTargetAwaitWork(smelter.gameObject);
 
                     await Task.Delay(500);
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
