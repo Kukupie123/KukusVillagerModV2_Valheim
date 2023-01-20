@@ -432,7 +432,7 @@ namespace KukusVillagerMod.Components.UI
                  parent: MAINBG.transform,
                  anchorMin: new Vector2(0.5f, 0.1f),
                  anchorMax: new Vector2(0.5f, 0.5f),
-                 position: new Vector2(200f, 50f), // width & height
+                 position: new Vector2(200f, 100f), // width & height
                  width: 250f,
                  height: 60f
                  );
@@ -459,12 +459,13 @@ namespace KukusVillagerMod.Components.UI
                 //WORK SKILLS
                 var workSkilLDropDown = GUIManager.Instance.CreateDropDown(
            parent: MAINBG.transform,
-           anchorMin: new Vector2(0.5f, 0.5f),
+           anchorMin: new Vector2(0.5f, 0.1f),
            anchorMax: new Vector2(0.5f, 0.5f),
-           position: new Vector2(-200, 50f),
-           fontSize: 16,
-            width: 100f,
-           height: 30f);
+           position: new Vector2(-200, 100f),
+           fontSize: 20,
+            width: 250f,
+           height: 40f);
+                SubUIs.Add(workSkilLDropDown);
                 var dropdownComp = workSkilLDropDown.GetComponent<Dropdown>();
 
                 dropdownComp.AddOptions(
