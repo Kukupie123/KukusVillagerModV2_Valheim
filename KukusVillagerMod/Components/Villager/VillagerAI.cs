@@ -1221,7 +1221,7 @@ namespace KukusVillagerMod.Components.Villager
 
                 while (obj != null && count < limit)
                 {
-                    await FollowTargetAwaitWork(obj.gameObject); //Get close to the tree
+                    await FollowTargetAwaitWork(obj.gameObject, 2f); //Get close to the tree
                     ai.LookAt(obj.gameObject.transform.position);
                     await Task.Delay(1000);
                     transform.rotation = Quaternion.FromToRotation(transform.position, obj.transform.position);
