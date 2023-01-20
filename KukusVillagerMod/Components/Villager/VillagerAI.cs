@@ -26,6 +26,7 @@ namespace KukusVillagerMod.Components.Villager
         {
 
             updateRanOnce = false;
+
         }
 
 
@@ -34,7 +35,12 @@ namespace KukusVillagerMod.Components.Villager
             //Keeping them in Awake doesn't always guarentee so we do it here instead.
             if (talk == null) talk = GetComponent<NpcTalk>();
 
-            if (villagerGeneral == null) villagerGeneral = GetComponent<VillagerGeneral>();
+            if (villagerGeneral == null)
+            {
+                villagerGeneral = GetComponent<VillagerGeneral>();
+                villagerGeneral.UpgradeVillagerDamage(0);
+                villagerGeneral.UpgradeVillagerHealth(0);
+            }
 
             if (ai == null) ai = GetComponent<MonsterAI>();
 
@@ -1218,7 +1224,12 @@ namespace KukusVillagerMod.Components.Villager
                     await FollowTargetAwaitWork(obj.gameObject); //Get close to the tree
                     ai.LookAt(obj.gameObject.transform.position);
                     await Task.Delay(1000);
-                    ai.DoAttack(null, false);
+                    transform.rotation = Quaternion.FromToRotation(transform.position, obj.transform.position);
+                    if (!ai.DoAttack(null, false))
+                    {
+                        KLog.warning($"Failed to attack {obj.name} for villager {villagerGeneral.ZNV.GetZDO().m_uid.id}");
+                    }
+                    transform.rotation = Quaternion.FromToRotation(transform.position, obj.transform.position); // Keep them facing the object
                     await Task.Delay(1000);
                     count++;
                 }
