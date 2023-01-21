@@ -263,19 +263,19 @@ namespace KukusVillagerMod.Components.Villager
                     WorkSkill skill = villagerGeneral.GetWorkSkill();
                     if (skill == WorkSkill.Pickup)
                     {
-                        await PickupAndStoreWork(true);
+                        await PickupAndStoreWork(VillagerModConfigurations.UseMoveForWork);
                         alreadyWorking = false;
                         return;
                     }
                     if (skill == WorkSkill.Fill_Smelt)
                     {
-                        await FillSmelt(true);
+                        await FillSmelt(VillagerModConfigurations.UseMoveForWork);
                         alreadyWorking = false;
                         return;
                     }
                     if (skill == WorkSkill.Chop_Wood)
                     {
-                        await ChopWood(true);
+                        await ChopWood(VillagerModConfigurations.UseMoveForWork);
                         alreadyWorking = false;
                         return;
                     }

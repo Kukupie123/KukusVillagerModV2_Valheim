@@ -34,6 +34,8 @@ namespace KukusVillagerMod.Configuration
         public static bool TalkWhileWorking;
         public static string PickableObjects;
         public static bool workRun;
+        public static float WorkScanRange;
+        public static bool UseMoveForWork;
 
 
         //Spawner config
@@ -44,6 +46,7 @@ namespace KukusVillagerMod.Configuration
         public static float SpawnChance;
         public static float SpawnDistance;
         public static string biomeToSpawn;
+        public static int NormalVillagerChance;
 
 
         public static float MinHealth;
@@ -75,10 +78,6 @@ namespace KukusVillagerMod.Configuration
         public static float PlainsRandomStatsMultiplier;
         public static float MountainRandomStatsMultiplier;
         public static float MistlandRandomStatsMultiplier;
-
-        public static int NormalVillagerChance;
-
-        public static float WorkScanRange;
 
         public static void LoadConfig(ConfigFile Config)
         {
@@ -119,6 +118,10 @@ namespace KukusVillagerMod.Configuration
                 ).BoxedValue;
             WorkScanRange = (int)Config.Bind("Villager AI Configuration", "Work Scan Range", 70,
                 new ConfigDescription("The radius to scan for items when working from the work post.", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
+                ).BoxedValue;
+
+            UseMoveForWork = (bool)Config.Bind("Villager AI Configuration", "Use Move instead of follow for work", true,
+                new ConfigDescription("There's two ways of going from one place to another, it's preferred to keep this as true but in case you want to use follow method set this as false", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
                 ).BoxedValue;
 
             //Villager spawn configuration
