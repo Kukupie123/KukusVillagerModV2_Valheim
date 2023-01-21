@@ -55,7 +55,8 @@ You can also give universal commands to the villagers
 1. Human NPC included, Thanks to Horen for his assets :) <br>
 2. There are 12 Unique Human NPCs you can see the config for the full name. Some are not used because they use AOE attacks that may hurt the player and surrounding structures. You can use them if you want by editing the config <br>
 3. Villagers should stare at the player less when working and do it's tasks more consistently.<br>
-2. Villager can only do one type of work now. This is because works were conflicting and causing serious bugs. <br>
+4. Villager can only do one type of work now. This is because works were conflicting and causing serious bugs. <br>
+5. Working villagers will not fight. This is the side effect of making them not stare at the player and stand idle. Be sure to place a defense villager close by
 <h3>3.0.1</h3>
 1. Added config option for resources needed to upgrade villagers. As well as others config settings. Make sure to check out the config for full info :)<br>
 2. Wanderer's (Villagers found in the wild) stats will have stats scaled based on the biome it was found at. (Configurable)<br>

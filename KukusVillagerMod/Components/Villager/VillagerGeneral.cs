@@ -908,7 +908,9 @@ namespace KukusVillagerMod.Components.Villager
                     ai.m_avoidFire = true;
                     ai.SetHuntPlayer(false);
 
-                    humanoid.m_walkSpeed = 2;
+                    humanoid.m_walkSpeed = 1000;
+                    //humanoid.m_speed = 100;
+                    //humanoid.m_runSpeed = 100;
                     //Generate and load stats
                     if (!IsVillagerTamed())
                     {
