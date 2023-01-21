@@ -597,7 +597,7 @@ namespace KukusVillagerMod
  * DO NOT USE AOE VILLAGERS BY DEFAULT ~ DONE
  * Range stuff for pickup chop etc
  * Add random config option for work
- * 
+ * use move boolean config
  * 
  * Huge overhaul incomming
  * Villagers are now going to be personal. They will have traits which is going to get better as you level them up. And if they die, they will no longer respawn.

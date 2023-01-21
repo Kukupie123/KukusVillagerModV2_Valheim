@@ -263,19 +263,19 @@ namespace KukusVillagerMod.Components.Villager
                     WorkSkill skill = villagerGeneral.GetWorkSkill();
                     if (skill == WorkSkill.Pickup)
                     {
-                        await PickupAndStoreWork();
+                        await PickupAndStoreWork(true);
                         alreadyWorking = false;
                         return;
                     }
                     if (skill == WorkSkill.Fill_Smelt)
                     {
-                        await FillSmelt();
+                        await FillSmelt(true);
                         alreadyWorking = false;
                         return;
                     }
                     if (skill == WorkSkill.Chop_Wood)
                     {
-                        await ChopWood();
+                        await ChopWood(true);
                         alreadyWorking = false;
                         return;
                     }
@@ -648,7 +648,7 @@ namespace KukusVillagerMod.Components.Villager
             }
         }
 
-        async private Task PickupAndStoreWork()
+        async private Task PickupAndStoreWork(bool useMoveTo)
         {
             KLog.info("Picking up " + villagerGeneral.ZNV.GetZDO().m_uid.id);
             try
@@ -663,7 +663,10 @@ namespace KukusVillagerMod.Components.Villager
                 GameObject workPostInstance = villagerGeneral.GetWorkPostInstance();
                 if (workPostInstance)
                 {
-                    await FollowTargetAwaitWork(workPostInstance);
+                    if (useMoveTo)
+                        await GoToLocationAwaitWork(workPostInstance.transform.position);
+                    else
+                        await FollowTargetAwaitWork(workPostInstance);
                 }
                 else
                 {
@@ -690,7 +693,10 @@ namespace KukusVillagerMod.Components.Villager
 
                     if (pickable == null) return;
                     //Go to item
-                    await FollowTargetAwaitWork(pickable.gameObject);
+                    if (useMoveTo)
+                        await GoToLocationAwaitWork(pickable.transform.position);
+                    else
+                        await FollowTargetAwaitWork(pickable.gameObject);
 
                     //Reached item, check if still working
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
@@ -730,9 +736,12 @@ namespace KukusVillagerMod.Components.Villager
 
                         if (workTalk)
                             talk.Say($"Going to Put {prefabName} in container", "Work");
-                        await Task.Delay(2000);
+                        await Task.Delay(1000);
                         //Go to container
-                        await FollowTargetAwaitWork(containerInstance);
+                        if (useMoveTo)
+                            await GoToLocationAwaitWork(containerInstance.transform.position);
+                        else
+                            await FollowTargetAwaitWork(containerInstance);
 
                         if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                         {
@@ -898,7 +907,7 @@ namespace KukusVillagerMod.Components.Villager
             return pickable;
         }
 
-        async private Task FillSmelt()
+        async private Task FillSmelt(bool useMoveTo)
         {
             KLog.info("Filling up smelt" + villagerGeneral.ZNV.GetZDO().m_uid.id);
             try
@@ -911,7 +920,10 @@ namespace KukusVillagerMod.Components.Villager
                 //Go to work post
                 if (villagerGeneral.GetWorkPostInstance())
                 {
-                    await FollowTargetAwaitWork(villagerGeneral.GetWorkPostInstance());
+                    if (useMoveTo)
+                        await GoToLocationAwaitWork(WorkPostZDO.GetPosition());
+                    else
+                        await FollowTargetAwaitWork(villagerGeneral.GetWorkPostInstance());
 
                 }
                 else
@@ -956,7 +968,10 @@ namespace KukusVillagerMod.Components.Villager
                         GameObject containerInstance = villagerGeneral.GetContainerInstance();
                         if (containerInstance)
                         {
-                            await FollowTargetAwaitWork(containerInstance);
+                            if (useMoveTo)
+                                await GoToLocationAwaitWork(containerInstance.transform.position);
+                            else
+                                await FollowTargetAwaitWork(containerInstance);
 
                         }
                         else
@@ -1023,7 +1038,10 @@ namespace KukusVillagerMod.Components.Villager
                     await Task.Delay(500);
 
                     //Go to smelter
-                    await FollowTargetAwaitWork(smelter.gameObject);
+                    if (useMoveTo)
+                        await GoToLocationAwaitWork(smelter.gameObject.transform.position);
+                    else
+                        await FollowTargetAwaitWork(smelter.gameObject);
 
                     await Task.Delay(500);
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
@@ -1213,7 +1231,7 @@ namespace KukusVillagerMod.Components.Villager
 
 
         //IGNORE BIRCH TREE. TOO HARD
-        async private Task ChopWood()
+        async private Task ChopWood(bool useMoveTo)
         {
             KLog.info("Chopping wood " + villagerGeneral.ZNV.GetZDO().m_uid.id);
             ZDO WorkPostZDO = villagerGeneral.GetWorkPostZDO();
@@ -1224,7 +1242,10 @@ namespace KukusVillagerMod.Components.Villager
             //Go to work post
             if (villagerGeneral.GetWorkPostInstance())
             {
-                await FollowTargetAwaitWork(villagerGeneral.GetWorkPostInstance());
+                if (useMoveTo)
+                    await GoToLocationAwaitWork(villagerGeneral.GetWorkPostInstance().transform.position, 3);
+                else
+                    await FollowTargetAwaitWork(villagerGeneral.GetWorkPostInstance());
 
             }
             else
@@ -1250,7 +1271,10 @@ namespace KukusVillagerMod.Components.Villager
                 while (obj != null && count < limit)
                 {
                     await Task.Delay(1);
-                    await FollowTargetAwaitWork(obj.gameObject); //Get close to the tree
+                    if (useMoveTo)
+                        await GoToLocationAwaitWork(obj.transform.position, 1);
+                    else
+                        await FollowTargetAwaitWork(obj.gameObject); //Get close to the tree
                     ai.LookAt(obj.transform.position);
                     if (obj == null) return; //if tree was destroyed by the time we reached we exit
                     if (!ai.DoAttack(null, false))
