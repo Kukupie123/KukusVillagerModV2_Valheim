@@ -1270,7 +1270,8 @@ namespace KukusVillagerMod.Components.Villager
                         hd.m_damage.m_pierce = 5000f;
                         hd.m_damage.m_slash = 5000f;
                         hd.m_damage.m_pickaxe = 5000f;
-                        hd.m_damage.m_blunt = 5000f;
+                        hd.m_damage.m_blunt = 5000f; 
+                        hd.m_damage.m_pierce = 5000f;
                         treebase.Damage(hd);
                         KLog.info($"Destroyed {obj.name} using Treebase component for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree");
                         return;
@@ -1321,7 +1322,9 @@ namespace KukusVillagerMod.Components.Villager
 
                 if (tree != null)
                 {
-                    trees.Add(tree);
+                    //cant cut down birch tree for some reason
+                    if (!tree.gameObject.name.Contains("Birch"))
+                        trees.Add(tree);
                 }
                 else if (log != null)
                 {

@@ -17,7 +17,7 @@ Paste the plugins folder in valheim/BepInEx/
 9. Customization for flexible gameplay experience.
 
 ## Bug :
-1. When working villagers may keep staring at player and stand still. Haven't found a fix. They are coded to stare at a player naturally<br>
+1. Villager may get lit on fire, especially when working.<br>
 2. When chopping trees they may not attack or attack in the wrong direction. <br>
 3. You might get caught in friendly fire for villagers who have AOE attacks. <br>
 
@@ -52,7 +52,9 @@ You can also give universal commands to the villagers
 
 ## Changelog
 <h3>3.1.0</h3>
-1. Villagers should be able to avoid fire nicely now.<br>
+1. Human NPC included, Thanks to Horen for his assets :) <br>
+2. There are 12 Unique Human NPCs you can see the config for the full name. Some are not used because they use AOE attacks that may hurt the player and surrounding structures. You can use them if you want by editing the config <br>
+3. Villagers should stare at the player less when working and do it's tasks more consistently.<br>
 2. Villager can only do one type of work now. This is because works were conflicting and causing serious bugs. <br>
 <h3>3.0.1</h3>
 1. Added config option for resources needed to upgrade villagers. As well as others config settings. Make sure to check out the config for full info :)<br>
