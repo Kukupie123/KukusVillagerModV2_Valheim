@@ -1272,10 +1272,10 @@ namespace KukusVillagerMod.Components.Villager
                 {
                     await Task.Delay(1);
                     if (useMoveTo)
-                        await GoToLocationAwaitWork(obj.transform.position, 1);
+                        await GoToLocationAwaitWork(obj.transform.position, 2);
                     else
                         await FollowTargetAwaitWork(obj.gameObject); //Get close to the tree
-                    if (obj == null) break;
+                    if (obj == null) break; 
                     ai.LookAt(obj.transform.position);
                     if (obj == null) return; //if tree was destroyed by the time we reached we exit
                     ai.DoAttack(null, false);
