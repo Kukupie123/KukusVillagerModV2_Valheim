@@ -105,6 +105,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <EmbeddedResource Include="companions" />
     <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
