@@ -680,7 +680,7 @@ namespace KukusVillagerMod.Components.Villager
                 }
 
                 //Search for pickable item
-                ItemDrop pickable = FindClosestValidPickup(workPosLoc, 250f);
+                ItemDrop pickable = FindClosestValidPickup(workPosLoc, 250f,true);
 
                 //ItemDrop found.
                 if (pickable != null)
@@ -780,7 +780,7 @@ namespace KukusVillagerMod.Components.Villager
 
 
         }
-        private ItemDrop FindClosestValidPickup(Vector3 center, float radius, bool random = false)
+        private ItemDrop FindClosestValidPickup(Vector3 center, float radius, bool random)
         {
             //Scan for objects that we can pickup and add it in list
             Collider[] colliders = Physics.OverlapSphere(center, radius);
@@ -1312,7 +1312,7 @@ namespace KukusVillagerMod.Components.Villager
 
         }
 
-        private GameObject GetValidTree2Chop(Vector3 pos, bool random = false)
+        private GameObject GetValidTree2Chop(Vector3 pos, bool random)
         {
             Vector3 scanLocation = pos;
             Collider[] colliders = Physics.OverlapSphere(scanLocation, 200f);
