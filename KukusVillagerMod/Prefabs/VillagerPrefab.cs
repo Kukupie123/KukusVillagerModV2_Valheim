@@ -18,13 +18,13 @@ namespace KukusVillagerMod.Prefabs
 
         public VillagerPrefab()
         {
-            createCreature2("Villager_Ranged", VillagerModConfigurations.VillagerRangedPrefabName);
-            createCreature2("Villager_Melee", VillagerModConfigurations.VillagerMeleePrefabName);
+            //Melee Horem NPCs
+            //HumanNPCFletch_DoD, HumanNPCGary_DoD, HumanNPCTania_DoD, HumanNPCTina_DoD
+            createCreature2("Villager_Ranged", "HumanNPCBob_DoD");
+            //Ranged Horem NPCs
+            //HumanNPCBarbara_DoD, HumanNPCBarry_RD_DoD, HumanNPCBob_DoD, HumanNPCBobby_DoD, HumanNPCCathrine_DoD, HumanNPCDaisy_DoD, HumanNPCFred_RD_DoD, HumanNPCJeff_RD_DoD, HumanNPCKaren_RD_DoD, HumanNPCMandy_RD_DoD, HumanNPCSandra_RD_DoD
+            createCreature2("Villager_Melee", "HumanNPCBob_DoD");
 
-            CreatureConfig villagerConfig = new CreatureConfig();
-            villagerConfig.Name = "Human";
-            villagerConfig.Faction = Character.Faction.Players;
-            villagerConfig.Group = "Player";
 
             /*
             var playerPrefab = PrefabManager.Instance.GetPrefab("Player");
@@ -49,6 +49,8 @@ namespace KukusVillagerMod.Prefabs
 
         void createCreature2(string villagerName, string prefabCloneName, bool melee = false)
         {
+
+
             CreatureConfig villagerConfig = new CreatureConfig();
             villagerConfig.Name = villagerName.Replace("_", " "); //Replace the "_" with " " Eg: Weak_Mage becomes Weak Mage
             villagerConfig.Faction = Character.Faction.Players;
@@ -129,16 +131,31 @@ namespace KukusVillagerMod.Prefabs
             charDrop.SetDropsEnabled(false);
             charDrop.m_drops = new List<Drop>();
 
+
+
+            Tameable existingTameable = villager.Prefab.GetComponent<Tameable>();
+
+            if (!existingTameable)
+            {
+                existingTameable = villager.Prefab.GetComponentInChildren<Tameable>();
+            }
+            if (!existingTameable)
+            {
+                existingTameable = villager.Prefab.GetComponentInParent<Tameable>();
+
+            }
+
             UnityEngine.GameObject.DestroyImmediate(npcTalk);
             UnityEngine.GameObject.DestroyImmediate(npcTalkP);
             UnityEngine.GameObject.DestroyImmediate(interactionP);
             UnityEngine.GameObject.DestroyImmediate(interaction);
             UnityEngine.GameObject.DestroyImmediate(randAnim);
+            UnityEngine.GameObject.DestroyImmediate(existingTameable);
 
             villager.Prefab.AddComponent<NpcTalk>(); //Add our custom talk component
-            villager.Prefab.AddComponent<Tameable>(); //Add taming component to be able to tame it
             villager.Prefab.AddComponent<VillagerGeneral>(); //Add villager General component 
             villager.Prefab.AddComponent<VillagerAI>();
+            villager.Prefab.AddComponent<Tameable>();
 
             villager.Prefab.GetComponent<MonsterAI>().m_avoidFire = true;
             villager.Prefab.GetComponent<MonsterAI>().m_huntPlayer = false;

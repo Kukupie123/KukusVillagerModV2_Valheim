@@ -53,6 +53,7 @@ namespace KukusVillagerMod.Components.Villager
         }
         public static bool IsVillagerTamed(ZDOID villagerZDOID)
         {
+
             if (!Util.ValidateZDOID(villagerZDOID)) return false;
             ZDO villagerZDO = ZDOMan.instance.GetZDO(villagerZDOID);
             if (!Util.ValidateZDO(villagerZDO)) return false;
@@ -60,6 +61,7 @@ namespace KukusVillagerMod.Components.Villager
         }
         public bool IsVillagerTamed()
         {
+            if (!ZNV) return false;
             return IsVillagerTamed(ZNV.GetZDO().m_uid);
         }
 
@@ -778,74 +780,13 @@ namespace KukusVillagerMod.Components.Villager
         {
             SetWorkSkill(ZNV.GetZDO().m_uid, skill);
         }
-      
+
         //Object methods and members-------------------------------
 
         public ZNetView ZNV;
         private MonsterAI ai;
         public Humanoid humanoid;
         private Tameable tameable;
-
-        private void Awake()
-        {
-            //Get necessary components
-            ZNV = GetComponent<ZNetView>();
-            ai = GetComponent<MonsterAI>();
-            humanoid = GetComponent<Humanoid>();
-            tameable = GetComponent<Tameable>();
-            ai.m_attackPlayerObjects = false;
-            ai.m_avoidFire = true;
-            ai.SetHuntPlayer(false);
-
-            //Generate and load stats
-            if (!IsVillagerTamed())
-            {
-                //Check biome and scale damage as needed
-
-                var biome = Heightmap.FindBiome(transform.position);
-                float statsMultiplier = 1f;
-                switch (biome)
-                {
-                    case Heightmap.Biome.Meadows:
-                        KLog.info("Spawned Wild villager in meadows");
-                        statsMultiplier = VillagerModConfigurations.MeadowRandomStatsMultiplier;
-                        break;
-                    case Heightmap.Biome.BlackForest:
-                        KLog.info("Spawned Wild villager in Black forest");
-                        statsMultiplier = VillagerModConfigurations.BlackForestRandomStatsMultiplier;
-                        break;
-                    case Heightmap.Biome.Swamp:
-                        KLog.info("Spawned Wild villager in Swamp");
-                        statsMultiplier = VillagerModConfigurations.SwampRandomStatsMultiplier;
-                        break;
-                    case Heightmap.Biome.Plains:
-                        KLog.info("Spawned Wild villager in Plains");
-                        statsMultiplier = VillagerModConfigurations.PlainsRandomStatsMultiplier;
-                        break;
-                    case Heightmap.Biome.Mountain:
-                        KLog.info("Spawned Wild villager in Mountain");
-                        statsMultiplier = VillagerModConfigurations.MountainRandomStatsMultiplier;
-                        break;
-                    case Heightmap.Biome.Mistlands:
-                        KLog.info("Spawned Wild villager in MistLands");
-                        statsMultiplier = VillagerModConfigurations.MistlandRandomStatsMultiplier;
-                        break;
-                }
-                SetRandomStats(statsMultiplier);
-            }
-            else //In case it was tamed when it was not in memory
-            {
-                tameable.Tame();
-            }
-            LoadStatsFromZDO();
-
-
-            //Sometime villagers will throw error so we do this to fix it, related to patching getCurrentWeapon function of humanoid
-            UpgradeVillagerDamage(0);
-            UpgradeVillagerHealth(0);
-
-        }
-
 
 
         //Ignore collision with player
@@ -863,6 +804,149 @@ namespace KukusVillagerMod.Components.Villager
 
         }
 
+        private void FixedUpdate()
+        {
+            if (!tameable || !ZNV || !ai || !humanoid)
+            {
+                if (!ZNV)
+                {
+                    ZNV = GetComponent<ZNetView>();
+                    if (!ZNV)
+                    {
+                        ZNV = base.GetComponent<ZNetView>();
+                    }
+                    if (!ZNV)
+                    {
+                        ZNV = GetComponentInParent<ZNetView>();
+                    }
+                    if (!ZNV)
+                    {
+                        ZNV = GetComponentInChildren<ZNetView>();
+                    }
+                }
+                if (!ZNV)
+                {
+                    KLog.warning("FAILED TO FIND ZNetView for villager");
+                }
+
+                if (!tameable)
+                {
+                    tameable = GetComponent<Tameable>();
+                    if (!tameable)
+                    {
+                        tameable = GetComponentInParent<Tameable>();
+                        if (tameable)
+                        {
+                            KLog.warning($"Found tameable for");
+                        }
+                    }
+                    if (!tameable)
+                    {
+                        tameable = GetComponentInChildren<Tameable>();
+                    }
+                    if (!tameable)
+                    {
+                        tameable = base.GetComponent<Tameable>();
+                    }
+                }
+                if (!tameable)
+                {
+                    KLog.warning("Tameable component not Found!");
+                }
+
+                if (!ai)
+                {
+                    ai = GetComponent<MonsterAI>();
+                    if (!ai)
+                    {
+                        ai = GetComponentInParent<MonsterAI>();
+                    }
+                    if (!ai)
+                    {
+                        ai = GetComponentInChildren<MonsterAI>();
+                    }
+                    if (!ai)
+                    {
+                        ai = base.GetComponent<MonsterAI>();
+                    }
+                }
+                if (!ai)
+                {
+                    KLog.warning("AI component not Found!");
+                }
+
+                if (!humanoid)
+                {
+                    humanoid = GetComponent<Humanoid>();
+                    if (!humanoid)
+                    {
+                        humanoid = GetComponentInParent<Humanoid>();
+                    }
+                    if (!humanoid)
+                    {
+                        humanoid = GetComponentInChildren<Humanoid>();
+                    }
+                    if (!humanoid)
+                    {
+                        humanoid = base.GetComponent<Humanoid>();
+                    }
+                }
+                if (!humanoid)
+                {
+                    KLog.warning("humanoid component not Found!");
+                }
+
+                ai.m_attackPlayerObjects = false;
+                ai.m_avoidFire = true;
+                ai.SetHuntPlayer(false);
+
+                //Generate and load stats
+                if (!IsVillagerTamed())
+                {
+                    //Check biome and scale damage as needed
+
+                    var biome = Heightmap.FindBiome(transform.position);
+                    float statsMultiplier = 1f;
+                    switch (biome)
+                    {
+                        case Heightmap.Biome.Meadows:
+                            KLog.info("Spawned Wild villager in meadows");
+                            statsMultiplier = VillagerModConfigurations.MeadowRandomStatsMultiplier;
+                            break;
+                        case Heightmap.Biome.BlackForest:
+                            KLog.info("Spawned Wild villager in Black forest");
+                            statsMultiplier = VillagerModConfigurations.BlackForestRandomStatsMultiplier;
+                            break;
+                        case Heightmap.Biome.Swamp:
+                            KLog.info("Spawned Wild villager in Swamp");
+                            statsMultiplier = VillagerModConfigurations.SwampRandomStatsMultiplier;
+                            break;
+                        case Heightmap.Biome.Plains:
+                            KLog.info("Spawned Wild villager in Plains");
+                            statsMultiplier = VillagerModConfigurations.PlainsRandomStatsMultiplier;
+                            break;
+                        case Heightmap.Biome.Mountain:
+                            KLog.info("Spawned Wild villager in Mountain");
+                            statsMultiplier = VillagerModConfigurations.MountainRandomStatsMultiplier;
+                            break;
+                        case Heightmap.Biome.Mistlands:
+                            KLog.info("Spawned Wild villager in MistLands");
+                            statsMultiplier = VillagerModConfigurations.MistlandRandomStatsMultiplier;
+                            break;
+                    }
+                    SetRandomStats(statsMultiplier);
+                }
+                else //In case it was tamed when it was not in memory
+                {
+                    tameable.Tame();
+                }
+                LoadStatsFromZDO();
+                //Sometime villagers will throw error so we do this to fix it, related to patching getCurrentWeapon function of humanoid
+                UpgradeVillagerDamage(0);
+                UpgradeVillagerHealth(0);
+            }
+
+        }
 
     }
 

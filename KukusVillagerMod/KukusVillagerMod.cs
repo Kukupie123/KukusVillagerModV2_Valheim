@@ -12,11 +12,17 @@ using KukusVillagerMod.Configuration;
 using KukusVillagerMod.itemPrefab;
 using KukusVillagerMod.Prefabs;
 using KukusVillagerMod.Components;
+using System.Reflection;
+using UnityEngine;
+using Jotunn.Utils;
+using System;
+using Jotunn.Configs;
 
 namespace KukusVillagerMod
 {
     [BepInDependency(Jotunn.Main.ModGuid)]
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
+    //[BepInDependency("horemvore.Companions",BepInDependency.DependencyFlags.HardDependency)]
     //[NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     internal class KukusVillagerMod : BaseUnityPlugin
     {
@@ -29,12 +35,17 @@ namespace KukusVillagerMod
         public static bool isMapDataLoaded = false;
 
         private readonly Harmony harmony = new Harmony("kukuvillager");
+
+        public static AssetBundle NPCBundle;
+
         private void Awake()
         {
-
-
+            LoadBundle();
+            LoadAssets();
+            AddNamedNPC();
+            AddNamedMageNPC();
             VillagerModConfigurations.LoadConfig(Config);
-            PrefabManager.OnVanillaPrefabsAvailable += LoadBedPrefab;
+            PrefabManager.OnVanillaPrefabsAvailable += LoadPiecesPrefab;
             CreatureManager.OnVanillaCreaturesAvailable += LoadVillagerPrefab;
             MinimapManager.OnVanillaMapDataLoaded += OnMapDataLoaded;
             harmony.PatchAll();
@@ -55,8 +66,652 @@ namespace KukusVillagerMod
         }
 
 
+        private void LoadBundle()
+        {
+            try
+            {
+                Logger.LogMessage("Loading bundle, Thanks to Horem for providing the assets.");
+                NPCBundle = AssetUtils.LoadAssetBundleFromResources("companions", Assembly.GetExecutingAssembly());
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"Exception caught while loading Companions asset bundle: {ex}");
+            }
+        }
 
-        private void LoadBedPrefab()
+        //Provided by Horem, I take no credit
+        private void LoadAssets()
+        {
+            try
+            {
+                // Status Effects
+                SE_Stats so1 = NPCBundle.LoadAsset<SE_Stats>("SE_NPC_GreaterHeal_DoD");
+                if (so1 != null)
+                {
+                    Logger.LogMessage("Adding Status Effects");
+                    CustomStatusEffect customSE1 = new CustomStatusEffect(so1, true);
+                    ItemManager.Instance.AddStatusEffect(customSE1);
+
+                    SE_Stats so2 = NPCBundle.LoadAsset<SE_Stats>("SE_NPC_Heal_DoD");
+                    CustomStatusEffect customSE2 = new CustomStatusEffect(so2, true);
+                    ItemManager.Instance.AddStatusEffect(customSE2);
+
+                    SE_Stats so3 = NPCBundle.LoadAsset<SE_Stats>("SE_NPC_LesserHeal_DoD");
+                    CustomStatusEffect customSE3 = new CustomStatusEffect(so3, true);
+                    ItemManager.Instance.AddStatusEffect(customSE3);
+
+                    SE_Shield so4 = NPCBundle.LoadAsset<SE_Shield>("SE_NPC_Shield_DoD");
+                    CustomStatusEffect customSE4 = new CustomStatusEffect(so4, true);
+                    ItemManager.Instance.AddStatusEffect(customSE4);
+
+                    SE_Shield so5 = NPCBundle.LoadAsset<SE_Shield>("SE_NPC_ShieldGreater_DoD");
+                    CustomStatusEffect customSE5 = new CustomStatusEffect(so5, true);
+                    ItemManager.Instance.AddStatusEffect(customSE5);
+
+                    SE_Shield so6 = NPCBundle.LoadAsset<SE_Shield>("SE_NPC_ShieldLesser_DoD");
+                    CustomStatusEffect customSE6 = new CustomStatusEffect(so6, true);
+                    ItemManager.Instance.AddStatusEffect(customSE6);
+                }
+                // Shields
+                var shieldcheck = PrefabManager.Instance.GetPrefab("NPC_Shield_DoD");
+                if (shieldcheck != null)
+                {
+                    Logger.LogMessage("Shield Spells already added");
+                }
+                else
+                {
+                    Logger.LogMessage("Adding Shields");
+                    GameObject shielditem1 = NPCBundle.LoadAsset<GameObject>("NPC_Shield_DoD");
+                    if (shielditem1 != null)
+                    {
+                        CustomItem customItem1 = new CustomItem(shielditem1, true);
+                        ItemManager.Instance.AddItem(customItem1);
+
+                        GameObject shielditem2 = NPCBundle.LoadAsset<GameObject>("NPC_ShieldLesser_DoD");
+                        CustomItem customItem2 = new CustomItem(shielditem2, true);
+                        ItemManager.Instance.AddItem(customItem2);
+
+                        GameObject shielditem3 = NPCBundle.LoadAsset<GameObject>("NPC_ShieldGreater_DoD");
+                        CustomItem customItem3 = new CustomItem(shielditem3, true);
+                        ItemManager.Instance.AddItem(customItem3);
+                    }
+                }
+                // Heals
+                var healcheck = PrefabManager.Instance.GetPrefab("NPC_SelfHeal_DoD");
+                if (healcheck != null)
+                {
+                    Logger.LogMessage("Heal Spells already added");
+                }
+                else
+                {
+                    Logger.LogMessage("Adding Heals");
+                    GameObject healitem1 = NPCBundle.LoadAsset<GameObject>("NPC_SelfHeal_DoD");
+                    if (healitem1 != null)
+                    {
+                        CustomItem customItem1 = new CustomItem(healitem1, true);
+                        ItemManager.Instance.AddItem(customItem1);
+
+                        GameObject healitem2 = NPCBundle.LoadAsset<GameObject>("NPC_SelfHealLesser_DoD");
+                        CustomItem customItem2 = new CustomItem(healitem2, true);
+                        ItemManager.Instance.AddItem(customItem2);
+
+                        GameObject healitem3 = NPCBundle.LoadAsset<GameObject>("NPC_SelfHealGreater_DoD");
+                        CustomItem customItem3 = new CustomItem(healitem3, true);
+                        ItemManager.Instance.AddItem(customItem3);
+                    }
+                }
+                // AoE
+                var aoecheck = PrefabManager.Instance.GetPrefab("NPC_Heal_AoE_DoD");
+                if (aoecheck != null)
+                {
+                    Logger.LogMessage("AoE Spells already added");
+                }
+                else
+                {
+                    Logger.LogMessage("Adding AoE");
+                    GameObject aoeitem1 = NPCBundle.LoadAsset<GameObject>("NPC_Heal_AoE_DoD");
+                    if (aoeitem1 != null)
+                    {
+                        CustomPrefab customPrefab1 = new CustomPrefab(aoeitem1, true);
+                        PrefabManager.Instance.AddPrefab(customPrefab1);
+
+                        GameObject aoeitem2 = NPCBundle.LoadAsset<GameObject>("NPC_HealLesser_AoE_DoD");
+                        CustomPrefab customPrefab2 = new CustomPrefab(aoeitem2, true);
+                        PrefabManager.Instance.AddPrefab(customPrefab2);
+
+                        GameObject aoeitem3 = NPCBundle.LoadAsset<GameObject>("NPC_HealGreater_AoE_DoD");
+                        CustomPrefab customPrefab3 = new CustomPrefab(aoeitem3, true);
+                        PrefabManager.Instance.AddPrefab(customPrefab3);
+
+                        GameObject aoeitem4 = NPCBundle.LoadAsset<GameObject>("NPC_Shield_AoE_DoD");
+                        CustomPrefab customPrefab4 = new CustomPrefab(aoeitem4, true);
+                        PrefabManager.Instance.AddPrefab(customPrefab4);
+                    }
+                }
+                // Attacks
+                var itemcheck = PrefabManager.Instance.GetPrefab("NPC_KickAttack_L_DoD");
+                if (itemcheck != null)
+                {
+                    Logger.LogMessage("Abilities already added");
+                }
+                else
+                {
+                    Logger.LogMessage("Adding Abilities");
+                    GameObject monsteritem1 = NPCBundle.LoadAsset<GameObject>("NPC_KickAttack_L_DoD");
+                    if (monsteritem1 != null)
+                    {
+                        CustomItem customItem1 = new CustomItem(monsteritem1, true);
+                        ItemManager.Instance.AddItem(customItem1);
+
+                        GameObject monsteritem2 = NPCBundle.LoadAsset<GameObject>("NPC_KickAttack_R_DoD");
+                        CustomItem customItem2 = new CustomItem(monsteritem2, true);
+                        ItemManager.Instance.AddItem(customItem2);
+
+                        GameObject monsteritem3 = NPCBundle.LoadAsset<GameObject>("NPC_KoshAttack_L_DoD");
+                        CustomItem customItem3 = new CustomItem(monsteritem3, true);
+                        ItemManager.Instance.AddItem(customItem3);
+
+                        GameObject monsteritem4 = NPCBundle.LoadAsset<GameObject>("NPC_KoshAttack_R_DoD");
+                        CustomItem customItem4 = new CustomItem(monsteritem4, true);
+                        ItemManager.Instance.AddItem(customItem4);
+
+                        GameObject monsteritem5 = NPCBundle.LoadAsset<GameObject>("NPC_KnifeAttack_L_DoD");
+                        CustomItem customItem5 = new CustomItem(monsteritem5, true);
+                        ItemManager.Instance.AddItem(customItem5);
+
+                        GameObject monsteritem6 = NPCBundle.LoadAsset<GameObject>("NPC_KnifeAttack_R_DoD");
+                        CustomItem customItem6 = new CustomItem(monsteritem6, true);
+                        ItemManager.Instance.AddItem(customItem6);
+
+                        GameObject monsteritem7 = NPCBundle.LoadAsset<GameObject>("NPC_DaggerAttack_L_DoD");
+                        CustomItem customItem7 = new CustomItem(monsteritem7, true);
+                        ItemManager.Instance.AddItem(customItem7);
+
+                        GameObject monsteritem8 = NPCBundle.LoadAsset<GameObject>("NPC_GladiatorSwordAttack_R_DoD");
+                        CustomItem customItem8 = new CustomItem(monsteritem8, true);
+                        ItemManager.Instance.AddItem(customItem8);
+
+                        GameObject monsteritem9 = NPCBundle.LoadAsset<GameObject>("NPC_RedAxeAttack_R_DoD");
+                        CustomItem customItem9 = new CustomItem(monsteritem9, true);
+                        ItemManager.Instance.AddItem(customItem9);
+
+                        GameObject monsteritem10 = NPCBundle.LoadAsset<GameObject>("NPC_VikingAxeAttack_L_DoD");
+                        CustomItem customItem10 = new CustomItem(monsteritem10, true);
+                        ItemManager.Instance.AddItem(customItem10);
+
+                        GameObject monsteritem11 = NPCBundle.LoadAsset<GameObject>("NPC_VikingAxeAttack_R_DoD");
+                        CustomItem customItem11 = new CustomItem(monsteritem11, true);
+                        ItemManager.Instance.AddItem(customItem11);
+
+                        GameObject monsteritem12 = NPCBundle.LoadAsset<GameObject>("NPC_WoodAxeAttack_L_DoD");
+                        CustomItem customItem12 = new CustomItem(monsteritem12, true);
+                        ItemManager.Instance.AddItem(customItem12);
+
+                        GameObject monsteritem13 = NPCBundle.LoadAsset<GameObject>("NPC_DaggerAttack_R_DoD");
+                        CustomItem customItem13 = new CustomItem(monsteritem13, true);
+                        ItemManager.Instance.AddItem(customItem13);
+
+                        GameObject monsteritem14 = NPCBundle.LoadAsset<GameObject>("NPC_GladiatorSwordAttack_L_DoD");
+                        CustomItem customItem14 = new CustomItem(monsteritem14, true);
+                        ItemManager.Instance.AddItem(customItem14);
+
+                        GameObject monsteritem15 = NPCBundle.LoadAsset<GameObject>("NPC_GoldAxeAttack_L_DoD");
+                        CustomItem customItem15 = new CustomItem(monsteritem15, true);
+                        ItemManager.Instance.AddItem(customItem15);
+
+                        GameObject monsteritem16 = NPCBundle.LoadAsset<GameObject>("NPC_GoldAxeAttack_R_DoD");
+                        CustomItem customItem16 = new CustomItem(monsteritem16, true);
+                        ItemManager.Instance.AddItem(customItem16);
+
+                        GameObject monsteritem17 = NPCBundle.LoadAsset<GameObject>("NPC_BowAttack_DoD");
+                        CustomItem customItem17 = new CustomItem(monsteritem17, true);
+                        ItemManager.Instance.AddItem(customItem17);
+
+                        GameObject monsteritem18 = NPCBundle.LoadAsset<GameObject>("NPC_MageDaggerAttack_L_DoD");
+                        CustomItem customItem18 = new CustomItem(monsteritem18, true);
+                        ItemManager.Instance.AddItem(customItem18);
+
+                        GameObject monsteritem19 = NPCBundle.LoadAsset<GameObject>("NPC_StaffSledgeAttack_R_DoD");
+                        CustomItem customItem19 = new CustomItem(monsteritem19, true);
+                        ItemManager.Instance.AddItem(customItem19);
+                    }
+                    else
+                    {
+                        Logger.LogWarning("Abilities not found");
+                    }
+                }
+                // Spawners
+                var spawnercheck = PrefabManager.Instance.GetPrefab("Spawner_NPCCamp_DoD");
+                if (spawnercheck != null)
+                {
+                    Logger.LogMessage("Spawners already added");
+                }
+                else
+                {
+                    Logger.LogMessage("Adding Spawners");
+                    GameObject monsterspawner1 = NPCBundle.LoadAsset<GameObject>("Spawner_NPCCamp_DoD");
+                    if (monsterspawner1 != null)
+                    {
+                        CustomPrefab customSpawner1 = new CustomPrefab(monsterspawner1, true);
+                        PrefabManager.Instance.AddPrefab(customSpawner1);
+                    }
+                    else
+                    {
+                        Logger.LogWarning("Spawners not found");
+                    }
+                }
+                // Ragdolls
+                var rdcheck = PrefabManager.Instance.GetPrefab("HumanNPCBarry_RD_DoD");
+                if (rdcheck != null)
+                {
+                    Logger.LogMessage("Ragdolls already added");
+                }
+                else
+                {
+                    Logger.LogMessage("Adding Ragdolls");
+                    GameObject monsterrd1 = NPCBundle.LoadAsset<GameObject>("HumanNPCBarry_RD_DoD");
+                    if (monsterrd1 != null)
+                    {
+                        CustomPrefab customRD1 = new CustomPrefab(monsterrd1, true);
+                        PrefabManager.Instance.AddPrefab(customRD1);
+
+                        GameObject monsterrd2 = NPCBundle.LoadAsset<GameObject>("HumanNPCBob_RD_DoD");
+                        CustomPrefab customRD2 = new CustomPrefab(monsterrd2, true);
+                        PrefabManager.Instance.AddPrefab(customRD2);
+
+                        GameObject monsterrd3 = NPCBundle.LoadAsset<GameObject>("HumanNPCBobby_RD_DoD");
+                        CustomPrefab customRD3 = new CustomPrefab(monsterrd3, true);
+                        PrefabManager.Instance.AddPrefab(customRD3);
+
+                        GameObject monsterrd4 = NPCBundle.LoadAsset<GameObject>("HumanNPCFred_RD_DoD");
+                        CustomPrefab customRD4 = new CustomPrefab(monsterrd4, true);
+                        PrefabManager.Instance.AddPrefab(customRD4);
+
+                        GameObject monsterrd5 = NPCBundle.LoadAsset<GameObject>("HumanNPCJeff_RD_DoD");
+                        CustomPrefab customRD5 = new CustomPrefab(monsterrd5, true);
+                        PrefabManager.Instance.AddPrefab(customRD5);
+
+                        GameObject monsterrd6 = NPCBundle.LoadAsset<GameObject>("HumanNPCFletch_RD_DoD");
+                        CustomPrefab customRD6 = new CustomPrefab(monsterrd6, true);
+                        PrefabManager.Instance.AddPrefab(customRD6);
+
+                        GameObject monsterrd7 = NPCBundle.LoadAsset<GameObject>("HumanNPCBarbara_RD_DoD");
+                        CustomPrefab customRD7 = new CustomPrefab(monsterrd7, true);
+                        PrefabManager.Instance.AddPrefab(customRD7);
+
+                        GameObject monsterrd8 = NPCBundle.LoadAsset<GameObject>("HumanNPCCathrine_RD_DoD");
+                        CustomPrefab customRD8 = new CustomPrefab(monsterrd8, true);
+                        PrefabManager.Instance.AddPrefab(customRD8);
+
+                        GameObject monsterrd9 = NPCBundle.LoadAsset<GameObject>("HumanNPCDaisy_RD_DoD");
+                        CustomPrefab customRD9 = new CustomPrefab(monsterrd9, true);
+                        PrefabManager.Instance.AddPrefab(customRD9);
+
+                        GameObject monsterrd10 = NPCBundle.LoadAsset<GameObject>("HumanNPCKaren_RD_DoD");
+                        CustomPrefab customRD10 = new CustomPrefab(monsterrd10, true);
+                        PrefabManager.Instance.AddPrefab(customRD10);
+
+                        GameObject monsterrd11 = NPCBundle.LoadAsset<GameObject>("HumanNPCMandy_RD_DoD");
+                        CustomPrefab customRD11 = new CustomPrefab(monsterrd11, true);
+                        PrefabManager.Instance.AddPrefab(customRD11);
+
+                        GameObject monsterrd12 = NPCBundle.LoadAsset<GameObject>("HumanNPCSandra_RD_DoD");
+                        CustomPrefab customRD12 = new CustomPrefab(monsterrd12, true);
+                        PrefabManager.Instance.AddPrefab(customRD12);
+
+                        GameObject monsterrd13 = NPCBundle.LoadAsset<GameObject>("HumanNPCGary_RD_DoD");
+                        CustomPrefab customRD13 = new CustomPrefab(monsterrd13, true);
+                        PrefabManager.Instance.AddPrefab(customRD13);
+
+                        GameObject monsterrd14 = NPCBundle.LoadAsset<GameObject>("HumanNPCTania_RD_DoD");
+                        CustomPrefab customRD14 = new CustomPrefab(monsterrd14, true);
+                        PrefabManager.Instance.AddPrefab(customRD14);
+
+                        GameObject monsterrd15 = NPCBundle.LoadAsset<GameObject>("HumanNPCTina_RD_DoD");
+                        CustomPrefab customRD15 = new CustomPrefab(monsterrd15, true);
+                        PrefabManager.Instance.AddPrefab(customRD15);
+                    }
+                    else
+                    {
+                        Logger.LogWarning("Ragdolls not found");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"Exception caught while adding assets for Companions: {ex}");
+            }
+        }
+
+        private void AddNamedNPC()
+        {
+            try
+            {
+                //Debug.Log("Companions: NPC Bob");
+                GameObject NPCBob = NPCBundle.LoadAsset<GameObject>("HumanNPCBob_DoD");
+                if (NPCBob != null)
+                {
+                    var bobMob = new CustomCreature(NPCBob, true,
+                        new CreatureConfig
+                        {
+                            DropConfigs = new[]
+                            {
+                                new DropConfig
+                                {
+                                    Item = "Coins",
+                                    Chance = 100,
+                                    MinAmount = 5,
+                                    MaxAmount = 10,
+                                    OnePerPlayer = false,
+                                    LevelMultiplier = false
+                                }
+                            }
+                        });
+                    CreatureManager.Instance.AddCreature(bobMob);
+                    //Debug.Log("Companions: NPC Fred");
+                    GameObject NPCFred = NPCBundle.LoadAsset<GameObject>("HumanNPCFred_DoD");
+                    var fredMob = new CustomCreature(NPCFred, true,
+                        new CreatureConfig
+                        {
+                            DropConfigs = new[]
+                            {
+                                new DropConfig
+                                {
+                                    Item = "Coins",
+                                    Chance = 100,
+                                    MinAmount = 5,
+                                    MaxAmount = 10,
+                                    OnePerPlayer = false,
+                                    LevelMultiplier = false
+                                }
+                            }
+                        });
+                    CreatureManager.Instance.AddCreature(fredMob);
+                    //Debug.Log("Companions: NPC Barry");
+                    GameObject NPCBarry = NPCBundle.LoadAsset<GameObject>("HumanNPCBarry_DoD");
+                    var barryMob = new CustomCreature(NPCBarry, true,
+                        new CreatureConfig
+                        {
+                            DropConfigs = new[]
+                            {
+                                new DropConfig
+                                {
+                                    Item = "Coins",
+                                    Chance = 100,
+                                    MinAmount = 5,
+                                    MaxAmount = 10,
+                                    OnePerPlayer = false,
+                                    LevelMultiplier = false
+                                }
+                            }
+                        });
+                    CreatureManager.Instance.AddCreature(barryMob);
+                    //Debug.Log("Companions: NPC Bobby");
+                    GameObject NPCBobby = NPCBundle.LoadAsset<GameObject>("HumanNPCBobby_DoD");
+                    var bobbyMob = new CustomCreature(NPCBobby, true,
+                        new CreatureConfig
+                        {
+                            DropConfigs = new[]
+                            {
+                                new DropConfig
+                                {
+                                    Item = "Coins",
+                                    Chance = 100,
+                                    MinAmount = 5,
+                                    MaxAmount = 10,
+                                    OnePerPlayer = false,
+                                    LevelMultiplier = false
+                                }
+                            }
+                        });
+                    CreatureManager.Instance.AddCreature(bobbyMob);
+                    //Debug.Log("Companions: NPC Jeff");
+                    GameObject NPCJeff = NPCBundle.LoadAsset<GameObject>("HumanNPCJeff_DoD");
+                    var jeffMob = new CustomCreature(NPCJeff, true,
+                        new CreatureConfig
+                        {
+                            DropConfigs = new[]
+                            {
+                                new DropConfig
+                                {
+                                    Item = "Coins",
+                                    Chance = 100,
+                                    MinAmount = 5,
+                                    MaxAmount = 10,
+                                    OnePerPlayer = false,
+                                    LevelMultiplier = false
+                                }
+                            }
+                        });
+                    CreatureManager.Instance.AddCreature(jeffMob);
+                    //Debug.Log("Companions: NPC Mandy");
+                    GameObject NPCMandy = NPCBundle.LoadAsset<GameObject>("HumanNPCMandy_DoD");
+                    var mandyMob = new CustomCreature(NPCMandy, true,
+                        new CreatureConfig
+                        {
+                            DropConfigs = new[]
+                            {
+                                new DropConfig
+                                {
+                                    Item = "Coins",
+                                    Chance = 100,
+                                    MinAmount = 5,
+                                    MaxAmount = 10,
+                                    OnePerPlayer = false,
+                                    LevelMultiplier = false
+                                }
+                            }
+                        });
+                    CreatureManager.Instance.AddCreature(mandyMob);
+                    //Debug.Log("Companions: NPC Barbara");
+                    GameObject NPCBarbara = NPCBundle.LoadAsset<GameObject>("HumanNPCBarbara_DoD");
+                    var barbaraMob = new CustomCreature(NPCBarbara, true,
+                        new CreatureConfig
+                        {
+                            DropConfigs = new[]
+                            {
+                                new DropConfig
+                                {
+                                    Item = "Coins",
+                                    Chance = 100,
+                                    MinAmount = 5,
+                                    MaxAmount = 10,
+                                    OnePerPlayer = false,
+                                    LevelMultiplier = false
+                                }
+                            }
+                        });
+                    CreatureManager.Instance.AddCreature(barbaraMob);
+                    //Debug.Log("Companions: NPC Sandra");
+                    GameObject NPCSandra = NPCBundle.LoadAsset<GameObject>("HumanNPCSandra_DoD");
+                    var sandraMob = new CustomCreature(NPCSandra, true,
+                        new CreatureConfig
+                        {
+                            DropConfigs = new[]
+                            {
+                                new DropConfig
+                                {
+                                    Item = "Coins",
+                                    Chance = 100,
+                                    MinAmount = 5,
+                                    MaxAmount = 10,
+                                    OnePerPlayer = false,
+                                    LevelMultiplier = false
+                                }
+                            }
+                        });
+                    CreatureManager.Instance.AddCreature(sandraMob);
+                    //Debug.Log("Companions: NPC Daisy");
+                    GameObject NPCDaisy = NPCBundle.LoadAsset<GameObject>("HumanNPCDaisy_DoD");
+                    var daisyMob = new CustomCreature(NPCDaisy, true,
+                        new CreatureConfig
+                        {
+                            DropConfigs = new[]
+                            {
+                                new DropConfig
+                                {
+                                    Item = "Coins",
+                                    Chance = 100,
+                                    MinAmount = 5,
+                                    MaxAmount = 10,
+                                    OnePerPlayer = false,
+                                    LevelMultiplier = false
+                                }
+                            }
+                        });
+                    CreatureManager.Instance.AddCreature(daisyMob);
+                    //Debug.Log("Companions: NPC Cathrine");
+                    GameObject NPCCathrine = NPCBundle.LoadAsset<GameObject>("HumanNPCCathrine_DoD");
+                    var cathrineMob = new CustomCreature(NPCCathrine, true,
+                        new CreatureConfig
+                        {
+                            DropConfigs = new[]
+                            {
+                                new DropConfig
+                                {
+                                    Item = "Coins",
+                                    Chance = 100,
+                                    MinAmount = 5,
+                                    MaxAmount = 10,
+                                    OnePerPlayer = false,
+                                    LevelMultiplier = false
+                                }
+                            }
+                        });
+                    CreatureManager.Instance.AddCreature(cathrineMob);
+                    //Debug.Log("Companions: NPC Karen");
+                    GameObject NPCKaren = NPCBundle.LoadAsset<GameObject>("HumanNPCKaren_DoD");
+                    var karenMob = new CustomCreature(NPCKaren, true,
+                        new CreatureConfig
+                        {
+                            DropConfigs = new[]
+                            {
+                                new DropConfig
+                                {
+                                    Item = "Coins",
+                                    Chance = 100,
+                                    MinAmount = 5,
+                                    MaxAmount = 10,
+                                    OnePerPlayer = false,
+                                    LevelMultiplier = false
+                                }
+                            }
+                        });
+                    CreatureManager.Instance.AddCreature(karenMob);
+                    //Debug.Log("Companions: NPC Fletch");
+                    GameObject NPCFletch = NPCBundle.LoadAsset<GameObject>("HumanNPCFletch_DoD");
+                    var fletchMob = new CustomCreature(NPCFletch, true,
+                        new CreatureConfig
+                        {
+                            DropConfigs = new[]
+                            {
+                                new DropConfig
+                                {
+                                    Item = "Coins",
+                                    Chance = 100,
+                                    MinAmount = 5,
+                                    MaxAmount = 10,
+                                    OnePerPlayer = false,
+                                    LevelMultiplier = false
+                                }
+                            }
+                        });
+                    CreatureManager.Instance.AddCreature(fletchMob);
+                }
+                else
+                {
+                    Logger.LogWarning("Companions not Found");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"Exception caught while adding Named Companions: {ex}");
+            }
+        }
+        private void AddNamedMageNPC()
+        {
+            try
+            {
+                //Debug.Log("Companions: NPC Gary");
+                GameObject NPCGary = NPCBundle.LoadAsset<GameObject>("HumanNPCGary_DoD");
+                if (NPCGary != null)
+                {
+                    var garyMob = new CustomCreature(NPCGary, true,
+                        new CreatureConfig
+                        {
+                            DropConfigs = new[]
+                            {
+                                new DropConfig
+                                {
+                                    Item = "Coins",
+                                    Chance = 100,
+                                    MinAmount = 5,
+                                    MaxAmount = 10,
+                                    OnePerPlayer = false,
+                                    LevelMultiplier = false
+                                }
+                            }
+                        });
+                    CreatureManager.Instance.AddCreature(garyMob);
+                    //Debug.Log("Companions: NPC Tania");
+                    GameObject NPCTania = NPCBundle.LoadAsset<GameObject>("HumanNPCTania_DoD");
+                    if (NPCTania != null)
+                    {
+                        var taniaMob = new CustomCreature(NPCTania, true,
+                            new CreatureConfig
+                            {
+                                DropConfigs = new[]
+                                {
+                                new DropConfig
+                                {
+                                    Item = "Coins",
+                                    Chance = 100,
+                                    MinAmount = 5,
+                                    MaxAmount = 10,
+                                    OnePerPlayer = false,
+                                    LevelMultiplier = false
+                                }
+                                }
+                            });
+                        CreatureManager.Instance.AddCreature(taniaMob);
+                        //Debug.Log("Companions: NPC Tina");
+                        GameObject NPCTina = NPCBundle.LoadAsset<GameObject>("HumanNPCTina_DoD");
+                        if (NPCTina != null)
+                        {
+                            var tinaMob = new CustomCreature(NPCTina, true,
+                                new CreatureConfig
+                                {
+                                    DropConfigs = new[]
+                                    {
+                                new DropConfig
+                                {
+                                    Item = "Coins",
+                                    Chance = 100,
+                                    MinAmount = 5,
+                                    MaxAmount = 10,
+                                    OnePerPlayer = false,
+                                    LevelMultiplier = false
+                                }
+                                    }
+                                });
+                            CreatureManager.Instance.AddCreature(tinaMob);
+                        }
+                    }
+                }
+                else
+                {
+                    Logger.LogWarning("Companions not Found");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"Exception caught while adding Mage Companions: {ex}");
+            }
+        }
+
+
+        private void LoadPiecesPrefab()
         {
             //Register Piece and Item
             new BedPrefab();
@@ -64,7 +719,7 @@ namespace KukusVillagerMod
             new WorkPostPrefab();
             new IndividualVillagerCommandItemPrefab();
             vc = new VillagerCommander();
-            PrefabManager.OnVanillaPrefabsAvailable -= LoadBedPrefab;
+            PrefabManager.OnVanillaPrefabsAvailable -= LoadPiecesPrefab;
         }
 
 
