@@ -27,7 +27,6 @@ namespace KukusVillagerMod.Components.UI
 
         //for villagers list tab
         static List<ZDO> tamedVillagers = new List<ZDO>(); //stored outside because when we switch pages we still need to keep existing villagers list
-        static List<ZDO> tamedMeleeVillagers = new List<ZDO>();
         static int villagerStartingIndex = 0; //for switching pages
 
         public static void ShowMenu()
@@ -137,7 +136,6 @@ namespace KukusVillagerMod.Components.UI
 
             //Hide Main component
             if (MainBG != null) MainBG.SetActive(false);
-            tamedMeleeVillagers.Clear();
             tamedVillagers.Clear();
             villagerStartingIndex = 0;
             //Reset tab
@@ -227,10 +225,9 @@ namespace KukusVillagerMod.Components.UI
             //Scan for villagers only if we need to
             if (findVillagersAgain)
             {
-                tamedMeleeVillagers.Clear();
-                tamedVillagers.Clear();
                 villagerStartingIndex = 0; //reset page count
-ce                tamedVillagers = GetTamedVillagers();
+
+                tamedVillagers = GetTamedVillagers();
             }
 
 
