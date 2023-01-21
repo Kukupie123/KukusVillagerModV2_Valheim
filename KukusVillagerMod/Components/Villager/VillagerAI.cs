@@ -780,7 +780,7 @@ namespace KukusVillagerMod.Components.Villager
 
 
         }
-        private ItemDrop FindClosestValidPickup(Vector3 center, float radius)
+        private ItemDrop FindClosestValidPickup(Vector3 center, float radius, bool random = false)
         {
             //Scan for objects that we can pickup and add it in list
             Collider[] colliders = Physics.OverlapSphere(center, radius);
@@ -810,7 +810,7 @@ namespace KukusVillagerMod.Components.Villager
             ItemDrop pickable = null;
 
             float distance = -1;
-
+            List<ItemDrop> randomItemList = new List<ItemDrop>();
             foreach (var c in colliders)
             {
                 try
@@ -861,8 +861,15 @@ namespace KukusVillagerMod.Components.Villager
                         }
                     }
 
+
                     if (pickUpNameList.Contains(prefabName))
                     {
+
+                        if (random)
+                        {
+                            randomItemList.Add(d);
+                        }
+
                         if (pickable == null) //No pickable item selected so we select this as first
                         {
                             pickable = d;
@@ -884,6 +891,11 @@ namespace KukusVillagerMod.Components.Villager
                     KLog.warning($"{e.Message}\n{e.StackTrace}");
                 }
 
+            }
+
+            if (random)
+            {
+                pickable = randomItemList[UnityEngine.Random.Range(0, randomItemList.Count - 1)];
             }
             return pickable;
         }
@@ -1231,7 +1243,7 @@ namespace KukusVillagerMod.Components.Villager
             }
 
             //Find wood to chop
-            var obj = GetValidTree2Chop(workPosLoc);
+            var obj = GetValidTree2Chop(workPosLoc, true); //Get random tree
             if (obj != null)
             {
                 if (workTalk) talk.Say($"Going to Chop {obj.name}", "Work");
@@ -1270,7 +1282,7 @@ namespace KukusVillagerMod.Components.Villager
                         hd.m_damage.m_pierce = 5000f;
                         hd.m_damage.m_slash = 5000f;
                         hd.m_damage.m_pickaxe = 5000f;
-                        hd.m_damage.m_blunt = 5000f; 
+                        hd.m_damage.m_blunt = 5000f;
                         hd.m_damage.m_pierce = 5000f;
                         treebase.Damage(hd);
                         KLog.info($"Destroyed {obj.name} using Treebase component for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree");
@@ -1300,7 +1312,7 @@ namespace KukusVillagerMod.Components.Villager
 
         }
 
-        private GameObject GetValidTree2Chop(Vector3 pos)
+        private GameObject GetValidTree2Chop(Vector3 pos, bool random = false)
         {
             Vector3 scanLocation = pos;
             Collider[] colliders = Physics.OverlapSphere(scanLocation, 200f);
@@ -1339,6 +1351,11 @@ namespace KukusVillagerMod.Components.Villager
                 }
             }
 
+            if (logs.Count > 0 && random)
+            {
+                return logs[UnityEngine.Random.Range(0, logs.Count - 1)].gameObject;
+            }
+
             foreach (var v in logs)
             {
 
@@ -1350,6 +1367,11 @@ namespace KukusVillagerMod.Components.Villager
             }
             if (item != null) return item;
 
+
+            if (trees.Count > 0 && random)
+            {
+                return trees[UnityEngine.Random.Range(0, trees.Count - 1)].gameObject;
+            }
             foreach (var v in trees)
             {
 
@@ -1362,6 +1384,10 @@ namespace KukusVillagerMod.Components.Villager
 
             if (item != null) return item;
 
+            if (destructibles.Count > 0 && random)
+            {
+                return destructibles[UnityEngine.Random.Range(0, destructibles.Count - 1)].gameObject;
+            }
             foreach (var v in destructibles)
             {
 
