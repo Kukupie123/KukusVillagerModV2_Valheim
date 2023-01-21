@@ -18,36 +18,13 @@ namespace KukusVillagerMod.Prefabs
 
         public VillagerPrefab()
         {
-            //Melee Horem NPCs
-            //HumanNPCFletch_DoD, HumanNPCGary_DoD, HumanNPCTania_DoD, HumanNPCTina_DoD
-            createCreature2("Villager_Ranged", "HumanNPCBob_DoD");
-            //Ranged Horem NPCs
-            //HumanNPCBarbara_DoD, HumanNPCBarry_RD_DoD, HumanNPCBob_DoD, HumanNPCBobby_DoD, HumanNPCCathrine_DoD, HumanNPCDaisy_DoD, HumanNPCFred_RD_DoD, HumanNPCJeff_RD_DoD, HumanNPCKaren_RD_DoD, HumanNPCMandy_RD_DoD, HumanNPCSandra_RD_DoD
-            createCreature2("Villager_Melee", "HumanNPCBob_DoD");
-
-
-            /*
-            var playerPrefab = PrefabManager.Instance.GetPrefab("Player");
-            KLog.warning(playerPrefab.gameObject.name);
-
-            CustomCreature villager = new CustomCreature("Human", "Goblin", villagerConfig);
-
-            var GoblinanimEvent = villager.Prefab.GetComponentInChildren<CharacterAnimEvent>(); // Does not remove animation but instead disables collision for attacks
-            Animator goblinAnimator = villager.Prefab.GetComponentInChildren<Animator>();
-            var playerAnimator = playerPrefab.GetComponentInChildren<Animator>();
-
-            //Replace with animator
-            //Animator is responsible for the animations
-            //var c = villager.Prefab.AddComponentCopy(playerAnimator); //copy player animator to villager
-            //c.transform.parent = goblinAnimator.transform.parent; //set parents correctly
-            //UnityEngine.GameObject.Destroy(goblinAnimator); //Destroy original animator
-
-            CreatureManager.Instance.AddCreature(villager);
-            */
+           
+            CreateVillager("Villager_Ranged", "HumanNPCBob_DoD ");
+            CreateVillager("Villager_Melee", "HumanNPCBob_DoD");
 
         }
 
-        void createCreature2(string villagerName, string prefabCloneName, bool melee = false)
+        void CreateVillager(string villagerName, string prefabCloneName, bool melee = false)
         {
 
 
@@ -112,7 +89,7 @@ namespace KukusVillagerMod.Prefabs
                 );
             if (!PrefabManager.Instance.GetPrefab(prefabCloneName))
             {
-                KLog.warning($"Failed to load prefab {prefabCloneName} for villager, using default prefab");
+                KLog.warning($"Failed to load prefab {prefabCloneName} for villager {villagerName}, using default prefab");
                 if (!melee)
                     prefabCloneName = "Dverger";
                 else prefabCloneName = "Skeleton";

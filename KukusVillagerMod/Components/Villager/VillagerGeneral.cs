@@ -61,7 +61,7 @@ namespace KukusVillagerMod.Components.Villager
         }
         public bool IsVillagerTamed()
         {
-            if (!ZNV) return false;
+            if (ZNV == null) return false;
             return IsVillagerTamed(ZNV.GetZDO().m_uid);
         }
 
@@ -806,33 +806,33 @@ namespace KukusVillagerMod.Components.Villager
 
         private void FixedUpdate()
         {
-            if (!tameable || !ZNV || !ai || !humanoid)
+            if (tameable == null || ZNV == null|| ai == null || humanoid == null)
             {
-                if (!ZNV)
+                if (ZNV == null)
                 {
                     ZNV = GetComponent<ZNetView>();
-                    if (!ZNV)
+                    if (ZNV == null)
                     {
                         ZNV = base.GetComponent<ZNetView>();
                     }
-                    if (!ZNV)
+                    if (ZNV == null)
                     {
                         ZNV = GetComponentInParent<ZNetView>();
                     }
-                    if (!ZNV)
+                    if (ZNV == null)
                     {
                         ZNV = GetComponentInChildren<ZNetView>();
                     }
                 }
-                if (!ZNV)
+                if (ZNV == null)
                 {
                     KLog.warning("FAILED TO FIND ZNetView for villager");
                 }
 
-                if (!tameable)
+                if (tameable == null)
                 {
                     tameable = GetComponent<Tameable>();
-                    if (!tameable)
+                    if (tameable == null)
                     {
                         tameable = GetComponentInParent<Tameable>();
                         if (tameable)
@@ -840,58 +840,58 @@ namespace KukusVillagerMod.Components.Villager
                             KLog.warning($"Found tameable for");
                         }
                     }
-                    if (!tameable)
+                    if (tameable == null)
                     {
                         tameable = GetComponentInChildren<Tameable>();
                     }
-                    if (!tameable)
+                    if (tameable = null)
                     {
                         tameable = base.GetComponent<Tameable>();
                     }
                 }
-                if (!tameable)
+                if (tameable == null)
                 {
                     KLog.warning("Tameable component not Found!");
                 }
 
-                if (!ai)
+                if (ai == null)
                 {
                     ai = GetComponent<MonsterAI>();
-                    if (!ai)
+                    if (ai == null)
                     {
                         ai = GetComponentInParent<MonsterAI>();
                     }
-                    if (!ai)
+                    if (ai == null)
                     {
                         ai = GetComponentInChildren<MonsterAI>();
                     }
-                    if (!ai)
+                    if (ai == null)
                     {
                         ai = base.GetComponent<MonsterAI>();
                     }
                 }
-                if (!ai)
+                if (ai == null)
                 {
                     KLog.warning("AI component not Found!");
                 }
 
-                if (!humanoid)
+                if (humanoid == null)
                 {
                     humanoid = GetComponent<Humanoid>();
-                    if (!humanoid)
+                    if (humanoid == null)
                     {
                         humanoid = GetComponentInParent<Humanoid>();
                     }
-                    if (!humanoid)
+                    if (humanoid == null)
                     {
                         humanoid = GetComponentInChildren<Humanoid>();
                     }
-                    if (!humanoid)
+                    if (humanoid == null)
                     {
                         humanoid = base.GetComponent<Humanoid>();
                     }
                 }
-                if (!humanoid)
+                if (humanoid == null)
                 {
                     KLog.warning("humanoid component not Found!");
                 }
@@ -900,6 +900,7 @@ namespace KukusVillagerMod.Components.Villager
                 ai.m_avoidFire = true;
                 ai.SetHuntPlayer(false);
 
+                humanoid.m_walkSpeed = 2;
                 //Generate and load stats
                 if (!IsVillagerTamed())
                 {

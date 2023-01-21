@@ -24,9 +24,7 @@ namespace KukusVillagerMod.Components.Villager
 
         private void Awake()
         {
-
             updateRanOnce = false;
-
         }
 
 

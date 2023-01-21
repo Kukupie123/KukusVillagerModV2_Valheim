@@ -17,7 +17,8 @@ Paste the plugins folder in valheim/BepInEx/
 9. Customization for flexible gameplay experience.
 
 ## Bug :
-1. When working villagers may keep staring at player and eventually get teleported, usually triggered when playing is close to villager and idle. Not game breaking, but it's out there.<br>
+1. When working villagers may keep staring at player and stand still. Haven't found a fix. They are coded to stare at a player naturally<br>
+2. When chopping trees they may not attack or attack in the wrong direction.
 
 ## USAGE GUIDE :
 ### Recruiting villagers.

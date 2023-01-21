@@ -17,6 +17,9 @@ using UnityEngine;
 using Jotunn.Utils;
 using System;
 using Jotunn.Configs;
+using System.Collections.Generic;
+using static CharacterDrop;
+using KukusVillagerMod.Components.Villager;
 
 namespace KukusVillagerMod
 {
@@ -40,13 +43,13 @@ namespace KukusVillagerMod
 
         private void Awake()
         {
-            LoadBundle();
-            LoadAssets();
-            AddNamedNPC();
-            AddNamedMageNPC();
             VillagerModConfigurations.LoadConfig(Config);
+            AddLocalizations();
+            LoadBundle();
+            LoadAssets(); //Effects, props etc
+
             PrefabManager.OnVanillaPrefabsAvailable += LoadPiecesPrefab;
-            CreatureManager.OnVanillaCreaturesAvailable += LoadVillagerPrefab;
+            CreatureManager.OnVanillaCreaturesAvailable += OnVanillaCreaturesAvailable;
             MinimapManager.OnVanillaMapDataLoaded += OnMapDataLoaded;
             harmony.PatchAll();
 
@@ -65,7 +68,41 @@ namespace KukusVillagerMod
             }
         }
 
+        private void AddLocalizations()
+        {
+            try
+            {
+                Localization = new CustomLocalization();
+                LocalizationManager.Instance.AddLocalization(Localization);
 
+                Localization.AddTranslation("English", new Dictionary<string, string>
+                {
+                    { "prop_npc_spawner_dod", "Mystical Runestone" },
+
+                    { "npc_tina_dod", "Timid Tina the Traveller" },
+                    { "npc_tania_dod", "Terrible Tania the Teacher" },
+                    { "npc_gary_dod", "Greedy Gary the Green" },
+
+                    { "npc_mandy_dod", "Mad Mandy the Mat Maker" },
+                    { "npc_barbara_dod", "Barmy Barbara the Barbarian" },
+                    { "npc_sandra_dod", "Soppy Sandra the Shoemaker" },
+                    { "npc_daisy_dod", "Daisy the Dandy Dressmaker" },
+                    { "npc_cathrine_dod", "Curious Cathrine the Cakemaker" },
+                    { "npc_karen_dod", "Crazy Karen the Clockmaker" },
+
+                    { "npc_fletch_dod", "Flinching Fletch the Fletcher" },
+                    { "npc_bobby_dod", "Bobby Black the Batt Burgler" },
+                    { "npc_jeff_dod", "Jobless Jeff the Joker" },
+                    { "npc_bob_dod", "Bob Bloby the Bobsman" },
+                    { "npc_fred_dod", "Freaky Fred the Ferryman" },
+                    { "npc_barry_dod", "Barking Barry the Bagsman" }
+                });
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"Exception caught while adding Localication for Companions: {ex}");
+            }
+        }
         private void LoadBundle()
         {
             try
@@ -382,308 +419,16 @@ namespace KukusVillagerMod
                 Logger.LogWarning($"Exception caught while adding assets for Companions: {ex}");
             }
         }
-
-        private void AddNamedNPC()
+        private void AddNamedNPC(string name)
         {
-            try
+            GameObject NPC = NPCBundle.LoadAsset<GameObject>(name);
+            if (NPC != null)
             {
-                //Debug.Log("Companions: NPC Bob");
-                GameObject NPCBob = NPCBundle.LoadAsset<GameObject>("HumanNPCBob_DoD");
-                if (NPCBob != null)
-                {
-                    var bobMob = new CustomCreature(NPCBob, true,
-                        new CreatureConfig
-                        {
-                            DropConfigs = new[]
-                            {
-                                new DropConfig
-                                {
-                                    Item = "Coins",
-                                    Chance = 100,
-                                    MinAmount = 5,
-                                    MaxAmount = 10,
-                                    OnePerPlayer = false,
-                                    LevelMultiplier = false
-                                }
-                            }
-                        });
-                    CreatureManager.Instance.AddCreature(bobMob);
-                    //Debug.Log("Companions: NPC Fred");
-                    GameObject NPCFred = NPCBundle.LoadAsset<GameObject>("HumanNPCFred_DoD");
-                    var fredMob = new CustomCreature(NPCFred, true,
-                        new CreatureConfig
-                        {
-                            DropConfigs = new[]
-                            {
-                                new DropConfig
-                                {
-                                    Item = "Coins",
-                                    Chance = 100,
-                                    MinAmount = 5,
-                                    MaxAmount = 10,
-                                    OnePerPlayer = false,
-                                    LevelMultiplier = false
-                                }
-                            }
-                        });
-                    CreatureManager.Instance.AddCreature(fredMob);
-                    //Debug.Log("Companions: NPC Barry");
-                    GameObject NPCBarry = NPCBundle.LoadAsset<GameObject>("HumanNPCBarry_DoD");
-                    var barryMob = new CustomCreature(NPCBarry, true,
-                        new CreatureConfig
-                        {
-                            DropConfigs = new[]
-                            {
-                                new DropConfig
-                                {
-                                    Item = "Coins",
-                                    Chance = 100,
-                                    MinAmount = 5,
-                                    MaxAmount = 10,
-                                    OnePerPlayer = false,
-                                    LevelMultiplier = false
-                                }
-                            }
-                        });
-                    CreatureManager.Instance.AddCreature(barryMob);
-                    //Debug.Log("Companions: NPC Bobby");
-                    GameObject NPCBobby = NPCBundle.LoadAsset<GameObject>("HumanNPCBobby_DoD");
-                    var bobbyMob = new CustomCreature(NPCBobby, true,
-                        new CreatureConfig
-                        {
-                            DropConfigs = new[]
-                            {
-                                new DropConfig
-                                {
-                                    Item = "Coins",
-                                    Chance = 100,
-                                    MinAmount = 5,
-                                    MaxAmount = 10,
-                                    OnePerPlayer = false,
-                                    LevelMultiplier = false
-                                }
-                            }
-                        });
-                    CreatureManager.Instance.AddCreature(bobbyMob);
-                    //Debug.Log("Companions: NPC Jeff");
-                    GameObject NPCJeff = NPCBundle.LoadAsset<GameObject>("HumanNPCJeff_DoD");
-                    var jeffMob = new CustomCreature(NPCJeff, true,
-                        new CreatureConfig
-                        {
-                            DropConfigs = new[]
-                            {
-                                new DropConfig
-                                {
-                                    Item = "Coins",
-                                    Chance = 100,
-                                    MinAmount = 5,
-                                    MaxAmount = 10,
-                                    OnePerPlayer = false,
-                                    LevelMultiplier = false
-                                }
-                            }
-                        });
-                    CreatureManager.Instance.AddCreature(jeffMob);
-                    //Debug.Log("Companions: NPC Mandy");
-                    GameObject NPCMandy = NPCBundle.LoadAsset<GameObject>("HumanNPCMandy_DoD");
-                    var mandyMob = new CustomCreature(NPCMandy, true,
-                        new CreatureConfig
-                        {
-                            DropConfigs = new[]
-                            {
-                                new DropConfig
-                                {
-                                    Item = "Coins",
-                                    Chance = 100,
-                                    MinAmount = 5,
-                                    MaxAmount = 10,
-                                    OnePerPlayer = false,
-                                    LevelMultiplier = false
-                                }
-                            }
-                        });
-                    CreatureManager.Instance.AddCreature(mandyMob);
-                    //Debug.Log("Companions: NPC Barbara");
-                    GameObject NPCBarbara = NPCBundle.LoadAsset<GameObject>("HumanNPCBarbara_DoD");
-                    var barbaraMob = new CustomCreature(NPCBarbara, true,
-                        new CreatureConfig
-                        {
-                            DropConfigs = new[]
-                            {
-                                new DropConfig
-                                {
-                                    Item = "Coins",
-                                    Chance = 100,
-                                    MinAmount = 5,
-                                    MaxAmount = 10,
-                                    OnePerPlayer = false,
-                                    LevelMultiplier = false
-                                }
-                            }
-                        });
-                    CreatureManager.Instance.AddCreature(barbaraMob);
-                    //Debug.Log("Companions: NPC Sandra");
-                    GameObject NPCSandra = NPCBundle.LoadAsset<GameObject>("HumanNPCSandra_DoD");
-                    var sandraMob = new CustomCreature(NPCSandra, true,
-                        new CreatureConfig
-                        {
-                            DropConfigs = new[]
-                            {
-                                new DropConfig
-                                {
-                                    Item = "Coins",
-                                    Chance = 100,
-                                    MinAmount = 5,
-                                    MaxAmount = 10,
-                                    OnePerPlayer = false,
-                                    LevelMultiplier = false
-                                }
-                            }
-                        });
-                    CreatureManager.Instance.AddCreature(sandraMob);
-                    //Debug.Log("Companions: NPC Daisy");
-                    GameObject NPCDaisy = NPCBundle.LoadAsset<GameObject>("HumanNPCDaisy_DoD");
-                    var daisyMob = new CustomCreature(NPCDaisy, true,
-                        new CreatureConfig
-                        {
-                            DropConfigs = new[]
-                            {
-                                new DropConfig
-                                {
-                                    Item = "Coins",
-                                    Chance = 100,
-                                    MinAmount = 5,
-                                    MaxAmount = 10,
-                                    OnePerPlayer = false,
-                                    LevelMultiplier = false
-                                }
-                            }
-                        });
-                    CreatureManager.Instance.AddCreature(daisyMob);
-                    //Debug.Log("Companions: NPC Cathrine");
-                    GameObject NPCCathrine = NPCBundle.LoadAsset<GameObject>("HumanNPCCathrine_DoD");
-                    var cathrineMob = new CustomCreature(NPCCathrine, true,
-                        new CreatureConfig
-                        {
-                            DropConfigs = new[]
-                            {
-                                new DropConfig
-                                {
-                                    Item = "Coins",
-                                    Chance = 100,
-                                    MinAmount = 5,
-                                    MaxAmount = 10,
-                                    OnePerPlayer = false,
-                                    LevelMultiplier = false
-                                }
-                            }
-                        });
-                    CreatureManager.Instance.AddCreature(cathrineMob);
-                    //Debug.Log("Companions: NPC Karen");
-                    GameObject NPCKaren = NPCBundle.LoadAsset<GameObject>("HumanNPCKaren_DoD");
-                    var karenMob = new CustomCreature(NPCKaren, true,
-                        new CreatureConfig
-                        {
-                            DropConfigs = new[]
-                            {
-                                new DropConfig
-                                {
-                                    Item = "Coins",
-                                    Chance = 100,
-                                    MinAmount = 5,
-                                    MaxAmount = 10,
-                                    OnePerPlayer = false,
-                                    LevelMultiplier = false
-                                }
-                            }
-                        });
-                    CreatureManager.Instance.AddCreature(karenMob);
-                    //Debug.Log("Companions: NPC Fletch");
-                    GameObject NPCFletch = NPCBundle.LoadAsset<GameObject>("HumanNPCFletch_DoD");
-                    var fletchMob = new CustomCreature(NPCFletch, true,
-                        new CreatureConfig
-                        {
-                            DropConfigs = new[]
-                            {
-                                new DropConfig
-                                {
-                                    Item = "Coins",
-                                    Chance = 100,
-                                    MinAmount = 5,
-                                    MaxAmount = 10,
-                                    OnePerPlayer = false,
-                                    LevelMultiplier = false
-                                }
-                            }
-                        });
-                    CreatureManager.Instance.AddCreature(fletchMob);
-                }
-                else
-                {
-                    Logger.LogWarning("Companions not Found");
-                }
-
-            }
-            catch (Exception ex)
-            {
-                Logger.LogWarning($"Exception caught while adding Named Companions: {ex}");
-            }
-        }
-        private void AddNamedMageNPC()
-        {
-            try
-            {
-                //Debug.Log("Companions: NPC Gary");
-                GameObject NPCGary = NPCBundle.LoadAsset<GameObject>("HumanNPCGary_DoD");
-                if (NPCGary != null)
-                {
-                    var garyMob = new CustomCreature(NPCGary, true,
-                        new CreatureConfig
-                        {
-                            DropConfigs = new[]
-                            {
-                                new DropConfig
-                                {
-                                    Item = "Coins",
-                                    Chance = 100,
-                                    MinAmount = 5,
-                                    MaxAmount = 10,
-                                    OnePerPlayer = false,
-                                    LevelMultiplier = false
-                                }
-                            }
-                        });
-                    CreatureManager.Instance.AddCreature(garyMob);
-                    //Debug.Log("Companions: NPC Tania");
-                    GameObject NPCTania = NPCBundle.LoadAsset<GameObject>("HumanNPCTania_DoD");
-                    if (NPCTania != null)
+                var humanCompanion = new CustomCreature(NPC, true,
+                    new CreatureConfig
                     {
-                        var taniaMob = new CustomCreature(NPCTania, true,
-                            new CreatureConfig
-                            {
-                                DropConfigs = new[]
-                                {
-                                new DropConfig
-                                {
-                                    Item = "Coins",
-                                    Chance = 100,
-                                    MinAmount = 5,
-                                    MaxAmount = 10,
-                                    OnePerPlayer = false,
-                                    LevelMultiplier = false
-                                }
-                                }
-                            });
-                        CreatureManager.Instance.AddCreature(taniaMob);
-                        //Debug.Log("Companions: NPC Tina");
-                        GameObject NPCTina = NPCBundle.LoadAsset<GameObject>("HumanNPCTina_DoD");
-                        if (NPCTina != null)
+                        DropConfigs = new[]
                         {
-                            var tinaMob = new CustomCreature(NPCTina, true,
-                                new CreatureConfig
-                                {
-                                    DropConfigs = new[]
-                                    {
                                 new DropConfig
                                 {
                                     Item = "Coins",
@@ -693,24 +438,46 @@ namespace KukusVillagerMod
                                     OnePerPlayer = false,
                                     LevelMultiplier = false
                                 }
-                                    }
-                                });
-                            CreatureManager.Instance.AddCreature(tinaMob);
                         }
-                    }
-                }
-                else
-                {
-                    Logger.LogWarning("Companions not Found");
-                }
+                    });
+                CreatureManager.Instance.AddCreature(humanCompanion);
             }
-            catch (Exception ex)
+            else
             {
-                Logger.LogWarning($"Exception caught while adding Mage Companions: {ex}");
+                KLog.warning("Failed to load " + name);
             }
         }
 
+        private void AddNamedMageNPC(string name)
+        {
+            GameObject NPC = NPCBundle.LoadAsset<GameObject>(name);
+            if (NPC != null)
+            {
+                var garyMob = new CustomCreature(NPC, true,
+                    new CreatureConfig
+                    {
+                        DropConfigs = new[]
+                        {
+                                new DropConfig
+                                {
+                                    Item = "Coins",
+                                    Chance = 100,
+                                    MinAmount = 5,
+                                    MaxAmount = 10,
+                                    OnePerPlayer = false,
+                                    LevelMultiplier = false
+                                }
+                        }
+                    });
 
+                CreatureManager.Instance.AddCreature(garyMob);
+            }
+            else
+            {
+                KLog.warning($"Failed to load Mage NPC {name}");
+            }
+
+        }
         private void LoadPiecesPrefab()
         {
             //Register Piece and Item
@@ -722,11 +489,179 @@ namespace KukusVillagerMod
             PrefabManager.OnVanillaPrefabsAvailable -= LoadPiecesPrefab;
         }
 
-
-        private void LoadVillagerPrefab()
+        private bool CreateVillager(string villagerName, string villagerCloneName, bool melee = false)
         {
-            new VillagerPrefab();
-            CreatureManager.OnVanillaCreaturesAvailable -= LoadVillagerPrefab;
+
+            CreatureConfig villagerConfig = new CreatureConfig();
+            villagerConfig.Name = villagerName;
+            villagerConfig.Faction = Character.Faction.Players;
+            villagerConfig.Group = "Player";
+            string biomes = VillagerModConfigurations.biomeToSpawn;
+            var biomesaArray = biomes.Split(',');
+            List<Heightmap.Biome> biomesList = new List<Heightmap.Biome>();
+
+            foreach (string s in biomesaArray)
+            {
+                switch (s)
+                {
+                    case "blackforest":
+                        biomesList.Add(Heightmap.Biome.BlackForest);
+                        break;
+                    case "deepnorth":
+                        biomesList.Add(Heightmap.Biome.DeepNorth);
+                        break;
+                    case "meadows":
+                        biomesList.Add(Heightmap.Biome.Meadows);
+                        break;
+                    case "mistlands":
+                        biomesList.Add(Heightmap.Biome.Mistlands);
+                        break;
+                    case "mountains":
+                        biomesList.Add(Heightmap.Biome.Mountain);
+                        break;
+                    case "plains":
+                        biomesList.Add(Heightmap.Biome.Plains);
+                        break;
+                    case "swamp":
+                        biomesList.Add(Heightmap.Biome.Swamp);
+                        break;
+                    case "ocean":
+                        biomesList.Add(Heightmap.Biome.Ocean);
+                        break;
+                }
+            }
+
+            foreach (var v in biomesList)
+            {
+                KLog.info("Spawn location for villagers :");
+                KLog.info(v.ToString());
+            }
+            villagerConfig.AddSpawnConfig(
+                new SpawnConfig
+                {
+                    Name = villagerName,
+                    Biome = ZoneManager.AnyBiomeOf(biomesList.ToArray()),
+                    HuntPlayer = false,
+                    GroupRadius = VillagerModConfigurations.GroupRadius,
+                    MaxGroupSize = VillagerModConfigurations.MaxGroupSize,
+                    MaxSpawned = VillagerModConfigurations.MaxSpawned,
+                    MinGroupSize = VillagerModConfigurations.MinGroupSize,
+                    SpawnChance = VillagerModConfigurations.SpawnChance,
+                    SpawnDistance = VillagerModConfigurations.SpawnDistance
+                }
+
+                );
+
+            var toClonePrefab = PrefabManager.Cache.GetPrefab(typeof(GameObject), villagerCloneName);
+            if (toClonePrefab == null)
+            {
+                toClonePrefab = PrefabManager.Instance.GetPrefab(villagerCloneName);
+                if (toClonePrefab == null)
+                {
+                    KLog.warning($"Failed to load prefab {villagerCloneName} for villager {villagerName}");
+                    return false;
+                }
+            }
+            CustomCreature villager = new CustomCreature(villagerName, villagerCloneName, villagerConfig);
+
+            //Remove components that we do not need from the villagers
+            var npcTalk = villager.Prefab.GetComponent<NpcTalk>();
+            var charDrop = villager.Prefab.GetComponent<CharacterDrop>();
+            var npcTalkP = villager.Prefab.GetComponentInParent<NpcTalk>();
+            var interactionP = villager.Prefab.GetComponentInParent(typeof(Interactable));
+            var interaction = villager.Prefab.GetComponent(typeof(Interactable));
+            var randAnim = villager.Prefab.GetComponent<RandomAnimation>();
+
+            //Edit drops
+            charDrop.SetDropsEnabled(false);
+            charDrop.m_drops = new List<Drop>();
+
+
+
+            Tameable existingTameable = villager.Prefab.GetComponent<Tameable>();
+
+            if (!existingTameable)
+            {
+                existingTameable = villager.Prefab.GetComponentInChildren<Tameable>();
+            }
+            if (!existingTameable)
+            {
+                existingTameable = villager.Prefab.GetComponentInParent<Tameable>();
+
+            }
+
+            UnityEngine.GameObject.DestroyImmediate(npcTalk);
+            UnityEngine.GameObject.DestroyImmediate(npcTalkP);
+            UnityEngine.GameObject.DestroyImmediate(interactionP);
+            UnityEngine.GameObject.DestroyImmediate(interaction);
+            UnityEngine.GameObject.DestroyImmediate(randAnim);
+            UnityEngine.GameObject.DestroyImmediate(existingTameable);
+
+            villager.Prefab.AddComponent<NpcTalk>(); //Add our custom talk component
+            villager.Prefab.AddComponent<VillagerGeneral>(); //Add villager General component 
+            villager.Prefab.AddComponent<VillagerAI>();
+            villager.Prefab.AddComponent<Tameable>();
+
+            villager.Prefab.GetComponent<MonsterAI>().m_avoidFire = true;
+            villager.Prefab.GetComponent<MonsterAI>().m_huntPlayer = false;
+
+            CreatureManager.Instance.AddCreature(villager);
+
+            KLog.warning($"Created Creature with Name : {villagerName} cloned from {villagerCloneName}");
+            return true;
+        }
+
+        private void OnVanillaCreaturesAvailable()
+        {
+            /*Companion names
+            * HumanNPCBob_DoD
+            * HumanNPCFred_DoD
+            * HumanNPCBarry_DoD
+            * HumanNPCBobby_DoD
+            * HumanNPCJeff_DoD
+            * HumanNPCMandy_DoD
+            * HumanNPCBarbara_DoD
+            * HumanNPCSandra_DoD
+            * HumanNPCDaisy_DoD
+            * HumanNPCCathrine_DoD
+            * HumanNPCKaren_DoD
+            * HumanNPCFletch_DoD
+            */
+
+            AddNamedNPC("HumanNPCBob_DoD");
+            AddNamedNPC("HumanNPCFred_DoD");
+            AddNamedNPC("HumanNPCBarry_DoD");
+            AddNamedNPC("HumanNPCBobby_DoD");
+            AddNamedNPC("HumanNPCJeff_DoD");
+            AddNamedNPC("HumanNPCMandy_DoD");
+            AddNamedNPC("HumanNPCBarbara_DoD");
+            AddNamedNPC("HumanNPCSandra_DoD");
+            AddNamedNPC("HumanNPCDaisy_DoD");
+            AddNamedNPC("HumanNPCCathrine_DoD");
+            AddNamedNPC("HumanNPCKaren_DoD");
+            AddNamedNPC("HumanNPCFletch_DoD");
+            /*
+             * HumanNPCGary_DoD
+             * HumanNPCTania_DoD
+             * HumanNPCTina_DoD
+             */
+            AddNamedMageNPC("HumanNPCGary_DoD");
+            AddNamedMageNPC("HumanNPCTania_DoD");
+            AddNamedMageNPC("HumanNPCTina_DoD");
+
+            //Try twice
+            if (CreateVillager("Villager_Ranged", "HumanNPCBob_DoD") == false)
+            {
+                CreateVillager("Villager_Ranged", "HumanNPCBob_DoD");
+            }
+           
+            if (CreateVillager("Villager_Melee", "HumanNPCBob_DoD") == false)
+            {
+                CreateVillager("Villager_Melee", "HumanNPCBob_DoD");
+            }
+           
+
+            CreatureManager.OnVanillaCreaturesAvailable -= OnVanillaCreaturesAvailable;
         }
 
     }
