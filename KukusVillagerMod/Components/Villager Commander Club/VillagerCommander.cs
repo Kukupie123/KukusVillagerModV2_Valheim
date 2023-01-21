@@ -229,8 +229,18 @@ namespace KukusVillagerMod.itemPrefab
  
 
                                     MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Calling back followers");
-                                    MakeFollowersComeBack("Villager_Melee");
-                                    MakeFollowersComeBack("Villager_Melee");
+                                    MakeFollowersComeBack("Villager_Meadow1");
+                                    MakeFollowersComeBack("Villager_Meadow2");
+                                    MakeFollowersComeBack("Villager_BF1");
+                                    MakeFollowersComeBack("Villager_BF2");
+                                    MakeFollowersComeBack("Villager_Mountain1");
+                                    MakeFollowersComeBack("Villager_Mountain2");
+                                    MakeFollowersComeBack("Villager_Plains1");
+                                    MakeFollowersComeBack("Villager_Plains2");
+                                    MakeFollowersComeBack("Villager_Plains3");
+                                    MakeFollowersComeBack("Villager_Mist1");
+                                    MakeFollowersComeBack("Villager_Mist2");
+                                    MakeFollowersComeBack("Villager_Mist3");
                                 }
 
                                 else if (ZInput.instance.GetPressedKey().ToString() == VillagerModConfigurations.moveToKey)
@@ -253,12 +263,19 @@ namespace KukusVillagerMod.itemPrefab
                                             return;
                                         }
 
-                                        MakeFollowersGoToLocation("Villager_Ranged", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
-                                        MakeFollowersGoToLocation("Villager_Melee", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Villager_Meadow1", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Villager_Meadow2", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Villager_BF1", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Villager_BF2", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Villager_Mountain1", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Villager_Mountain2", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Villager_Plains1", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Villager_Plains2", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Villager_Plains3", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Villager_Mist1", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Villager_Mist2", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
+                                        MakeFollowersGoToLocation("Villager_Mist3", ZoneSystem.instance.GetRandomPointInRadius(hitData.point, 3f));
                                     }
-
-
-
                                 }
                                 else
                                 {

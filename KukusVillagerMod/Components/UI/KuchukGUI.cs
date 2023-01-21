@@ -26,9 +26,9 @@ namespace KukusVillagerMod.Components.UI
         private static KUITab currentTab = KUITab.VillagersList;
 
         //for villagers list tab
-        static List<ZDO> tamedRangedVillagers = new List<ZDO>(); //stored outside because when we switch pages we still need to keep existing villagers list
+        static List<ZDO> tamedVillagers = new List<ZDO>(); //stored outside because when we switch pages we still need to keep existing villagers list
         static List<ZDO> tamedMeleeVillagers = new List<ZDO>();
-        static int rangedVillagerListstartingIndex = 0; //for switching pages
+        static int villagerStartingIndex = 0; //for switching pages
         static int meleeVillagerListstartingIndex = 0; //for switching pages
 
         public static void ShowMenu()
@@ -139,9 +139,9 @@ namespace KukusVillagerMod.Components.UI
             //Hide Main component
             if (MainBG != null) MainBG.SetActive(false);
             tamedMeleeVillagers.Clear();
-            tamedRangedVillagers.Clear();
+            tamedVillagers.Clear();
             meleeVillagerListstartingIndex = 0;
-            rangedVillagerListstartingIndex = 0;
+            villagerStartingIndex = 0;
             //Reset tab
             currentTab = KUITab.VillagersList;
 
@@ -154,62 +154,86 @@ namespace KukusVillagerMod.Components.UI
         }
 
         static int listSize = 4;
+
+        private static List<ZDO> GetTamedVillagers()
+        {
+            List<ZDO> meadow1 = new List<ZDO>();
+            List<ZDO> meadow2 = new List<ZDO>();
+            List<ZDO> bf1 = new List<ZDO>();
+            List<ZDO> bf2 = new List<ZDO>();
+            List<ZDO> mountain1 = new List<ZDO>();
+            List<ZDO> mountain2 = new List<ZDO>();
+            List<ZDO> plains1 = new List<ZDO>();
+            List<ZDO> plains2 = new List<ZDO>();
+            List<ZDO> plains3 = new List<ZDO>();
+            List<ZDO> mist1 = new List<ZDO>();
+            List<ZDO> mist2 = new List<ZDO>();
+            List<ZDO> mist3 = new List<ZDO>();
+
+            ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Meadow1", meadow1);
+            ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Meadow2", meadow2);
+            ZDOMan.instance.GetAllZDOsWithPrefab("Villager_BF1", bf1);
+            ZDOMan.instance.GetAllZDOsWithPrefab("Villager_BF2", bf2);
+            ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Mountain1", mountain1);
+            ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Mountain2", mountain2);
+            ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Plains1", plains1);
+            ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Plains2", plains2);
+            ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Plains3", plains3);
+            ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Mist1", mist1);
+            ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Mist2", mist2);
+            ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Mist3", mist3);
+
+
+            List<ZDO> mainList = new List<ZDO>();
+            mainList.AddRange(meadow1);
+            mainList.AddRange(meadow2);
+            mainList.AddRange(bf1);
+            mainList.AddRange(bf2);
+            mainList.AddRange(mountain1);
+            mainList.AddRange(mountain2);
+            mainList.AddRange(plains1);
+            mainList.AddRange(plains2);
+            mainList.AddRange(plains3);
+            mainList.AddRange(mist1);
+            mainList.AddRange(mist2);
+            mainList.AddRange(mist3);
+
+
+            List<ZDO> tamed = new List<ZDO>();
+            foreach (ZDO z in mainList)
+            {
+                try
+                {
+                    if (!Util.ValidateZDO(z) || !Util.ValidateZDOID(z.m_uid) || z.m_uid.id == 0) { }
+                    else
+                    {
+                        if (VillagerGeneral.IsVillagerTamed(z.m_uid))
+                        {
+                            tamed.Add(z);
+                        }
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    KLog.warning($"{e.Message} in kuchuk GUI find villager");
+                    continue;
+                }
+
+            }
+
+            return tamed;
+        }
         private static void SetupVillagersListTab(bool findVillagersAgain = false)
         {
-            List<ZDO> foundRangedVillagers = new List<ZDO>();
-            List<ZDO> foundMeleeVillagers = new List<ZDO>();
-
             //Scan for villagers only if we need to
             if (findVillagersAgain)
             {
                 tamedMeleeVillagers.Clear();
-                tamedRangedVillagers.Clear();
-                rangedVillagerListstartingIndex = 0; //reset page count
+                tamedVillagers.Clear();
+                villagerStartingIndex = 0; //reset page count
                 meleeVillagerListstartingIndex = 0;
-                ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Ranged", foundRangedVillagers);
-                ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Melee", foundMeleeVillagers);
-                foreach (ZDO z in foundRangedVillagers)
-                {
-                    try
-                    {
-                        if (!Util.ValidateZDO(z) || !Util.ValidateZDOID(z.m_uid) || z.m_uid.id == 0) { }
-                        else
-                        {
-                            if (VillagerGeneral.IsVillagerTamed(z.m_uid))
-                            {
-                                tamedRangedVillagers.Add(z);
-                            }
-                        }
-
-                    }
-                    catch (Exception e)
-                    {
-                        KLog.warning($"{e.Message} in kuchuk GUI find villager");
-                        continue;
-                    }
-
-                }
-                foreach (ZDO z in foundMeleeVillagers)
-                {
-                    try
-                    {
-                        if (!Util.ValidateZDO(z) || !Util.ValidateZDOID(z.m_uid) || z.m_uid.id == 0) { }
-                        else
-                        {
-                            if (VillagerGeneral.IsVillagerTamed(z.m_uid))
-                            {
-                                tamedMeleeVillagers.Add(z);
-                            }
-                        }
-
-                    }
-                    catch (Exception e)
-                    {
-                        KLog.warning($"{e.Message} in kuchuk GUI");
-                        continue;
-                    }
-
-                }
+                tamedVillagers = GetTamedVillagers();
             }
 
 
@@ -241,7 +265,7 @@ namespace KukusVillagerMod.Components.UI
             //RANGED VILLAGERS LIST
 
             GameObject RangedVillagersList = GUIManager.Instance.CreateText(
-                text: $"Ranged Villagers:",
+                text: $"Recruited Villagers:",
                 parent: MainBG.transform,
                 anchorMin: new Vector2(0.5f, 0.1f),
                 anchorMax: new Vector2(0.5f, 0.5f),
@@ -257,7 +281,7 @@ namespace KukusVillagerMod.Components.UI
                 );
             SubUis.Add(RangedVillagersList);
 
-            GenerateVillagersList(tamedRangedVillagers, rangedVillagerListstartingIndex, -200f);
+            GenerateVillagersList(tamedVillagers, villagerStartingIndex, -200f);
 
             //Add next and last page button
             GameObject goBackButton = GUIManager.Instance.CreateButton(
@@ -282,67 +306,16 @@ namespace KukusVillagerMod.Components.UI
             SubUis.Add(goFwdBtn);
             goBackButton.GetComponent<Button>().onClick.AddListener(() =>
             {
-                GoBack(ref rangedVillagerListstartingIndex);
+                GoBack(ref villagerStartingIndex);
                 UpdateUI();
             });
             goFwdBtn.GetComponent<Button>().onClick.AddListener(() =>
             {
-                GoFwd(tamedRangedVillagers, ref rangedVillagerListstartingIndex);
+                GoFwd(tamedVillagers, ref villagerStartingIndex);
                 UpdateUI();
             });
 
-            //Melee villagers list
-            GameObject MeleeVillagersText = GUIManager.Instance.CreateText(
-               text: $"Melee Villagers",
-               parent: MainBG.transform,
-               anchorMin: new Vector2(0.5f, 0.1f),
-               anchorMax: new Vector2(0.5f, 0.5f),
-               position: new Vector2(250f, 250f), // width & height
-               width: 250f,
-               height: 60f,
-               color: Color.yellow,
-               outline: false,
-               outlineColor: Color.white,
-               font: GUIManager.Instance.AveriaSerif,
-               fontSize: 20,
-               addContentSizeFitter: false
-               );
-            MeleeVillagersText.GetComponent<Text>().alignment = TextAnchor.UpperRight;
-            SubUis.Add(MeleeVillagersText);
 
-            GenerateVillagersList(tamedMeleeVillagers, meleeVillagerListstartingIndex, 200f);
-
-            //Add next and last page button
-            GameObject goBackButtonMelee = GUIManager.Instance.CreateButton(
-                    text: $"<",
-                    parent: MainBG.transform,
-                    anchorMin: new Vector2(0.5f, 0.5f),
-                    anchorMax: new Vector2(0.5f, 0.5f),
-                    position: new Vector2(150, -200),
-                    width: 100f,
-                    height: 60f
-                    );
-            SubUis.Add(goBackButtonMelee);
-            GameObject goFwdBtnMelee = GUIManager.Instance.CreateButton(
-                    text: $">",
-                    parent: MainBG.transform,
-                    anchorMin: new Vector2(0.5f, 0.5f),
-                    anchorMax: new Vector2(0.5f, 0.5f),
-                    position: new Vector2(250f, -200),
-                    width: 100f,
-                    height: 60f
-                    );
-            SubUis.Add(goFwdBtnMelee);
-            goBackButtonMelee.GetComponent<Button>().onClick.AddListener(() =>
-            {
-                GoBack(ref meleeVillagerListstartingIndex);
-                UpdateUI();
-            });
-            goFwdBtnMelee.GetComponent<Button>().onClick.AddListener(() =>
-            {
-                GoFwd(tamedMeleeVillagers, ref meleeVillagerListstartingIndex);
-                UpdateUI();
-            });
 
         }
 
@@ -389,57 +362,7 @@ namespace KukusVillagerMod.Components.UI
 
         private static void SetupVillagerOrderTab()
         {
-            List<ZDO> foundRangedVillagers = new List<ZDO>();
-            List<ZDO> foundMeleeVillagers = new List<ZDO>();
-
-            List<ZDO> tamedVillagers = new List<ZDO>();
-
-            ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Ranged", foundRangedVillagers);
-            ZDOMan.instance.GetAllZDOsWithPrefab("Villager_Melee", foundMeleeVillagers);
-            foreach (ZDO z in foundRangedVillagers)
-            {
-                try
-                {
-                    if (!Util.ValidateZDO(z) || !Util.ValidateZDOID(z.m_uid) || z.m_uid.id == 0) { }
-                    else
-                    {
-                        if (VillagerGeneral.IsVillagerTamed(z.m_uid))
-                        {
-                            tamedVillagers.Add(z);
-                        }
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    KLog.warning($"{e.Message} in kuchuk GUI find villager");
-                    continue;
-                }
-
-            }
-            foreach (ZDO z in foundMeleeVillagers)
-            {
-                try
-                {
-                    if (!Util.ValidateZDO(z) || !Util.ValidateZDOID(z.m_uid) || z.m_uid.id == 0) { }
-                    else
-                    {
-                        if (VillagerGeneral.IsVillagerTamed(z.m_uid))
-                        {
-                            tamedVillagers.Add(z);
-                        }
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    KLog.warning($"{e.Message} in kuchuk GUI");
-                    continue;
-                }
-
-            }
-
-
+            List<ZDO> tamedVillagers = GetTamedVillagers();
             //LEFT
             GameObject FollowMeBtn = GUIManager.Instance.CreateButton(
               text: "Follow Me(Only nearby villagers)",
