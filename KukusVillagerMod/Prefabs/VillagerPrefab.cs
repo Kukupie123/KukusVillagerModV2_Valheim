@@ -18,9 +18,23 @@ namespace KukusVillagerMod.Prefabs
 
         public VillagerPrefab()
         {
-
-            CreateVillager("Villager_Ranged", "HumanNPCBob_DoD");
-            CreateVillager("Villager_Melee", "HumanNPCBob_DoD", true);
+            //Compatible NPCs (No ZNV and Tameable error)
+            /*
+             * HumanNPCBob_DoD
+             * HumanNPCFred_DoD
+             * HumanNPCBarry_DoD
+             * HumanNPCBobby_DoD
+             * HumanNPCJeff_DoD
+             * HumanNPCMandy_DoD
+             * HumanNPCBarbara_DoD
+             * HumanNPCSandra_DoD
+             * HumanNPCDaisy_DoD
+             * HumanNPCCathrine_DoD
+             * HumanNPCKaren_DoD
+             * HumanNPCFletch_DoD //RANGED BOW
+             */
+            CreateVillager("Villager_Ranged", "HumanNPCTina_DoD");
+            CreateVillager("Villager_Melee", "HumanNPCTina_DoD", true);
 
         }
 
@@ -149,7 +163,7 @@ namespace KukusVillagerMod.Prefabs
             }
             if (znv == null)
             {
-                villager.Prefab.AddComponent<ZNetView>();
+                //villager.Prefab.AddComponent<ZNetView>();
                 KLog.warning($"Failed to find ZNetView component in {prefabCloneName}. Adding new one");
 
             }

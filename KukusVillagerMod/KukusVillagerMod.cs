@@ -525,12 +525,7 @@ namespace KukusVillagerMod
 
         private void OnVanillaCreaturesAvailable()
         {
-
-
             new VillagerPrefab();
-
-            // CreateVillager("Villager_Ranged", "HumanNPCBob_DoD");
-            //CreateVillager("Villager_Melee", "HumanNPCBob_DoD");
             CreatureManager.OnVanillaCreaturesAvailable -= OnVanillaCreaturesAvailable;
         }
 
