@@ -1275,12 +1275,10 @@ namespace KukusVillagerMod.Components.Villager
                         await GoToLocationAwaitWork(obj.transform.position, 1);
                     else
                         await FollowTargetAwaitWork(obj.gameObject); //Get close to the tree
+                    if (obj == null) break;
                     ai.LookAt(obj.transform.position);
                     if (obj == null) return; //if tree was destroyed by the time we reached we exit
-                    if (!ai.DoAttack(null, false))
-                    {
-                        KLog.warning($"Failed to attack {obj.name} for villager {villagerGeneral.ZNV.GetZDO().m_uid.id}, after few tries it will auto destroy the trees");
-                    }
+                    ai.DoAttack(null, false);
                     transform.rotation = Quaternion.FromToRotation(transform.position, obj.transform.position); // Keep them facing the object
                     await Task.Delay(1);
                     count++;
