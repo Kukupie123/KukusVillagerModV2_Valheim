@@ -20,96 +20,69 @@ namespace KukusVillagerMod.Prefabs
         {
             //Compatible NPCs (No ZNV and Tameable error)
             /*
-             * HumanNPCBob_DoD
-             * HumanNPCFred_DoD
-             * HumanNPCBarry_DoD
-             * HumanNPCBobby_DoD
-             * HumanNPCJeff_DoD
-             * HumanNPCMandy_DoD
+             * HumanNPCBob_DoD ~
+             * HumanNPCFred_DoD ~
+             * HumanNPCBarry_DoD ~
+             * HumanNPCBobby_DoD ~
+             * HumanNPCJeff_DoD ~
+             * HumanNPCMandy_DoD ~
              * HumanNPCBarbara_DoD
-             * HumanNPCSandra_DoD
+             * HumanNPCSandra_DoD ~
              * HumanNPCDaisy_DoD
-             * HumanNPCCathrine_DoD
+             * HumanNPCCathrine_DoD ~
              * HumanNPCKaren_DoD
-             * HumanNPCFletch_DoD //RANGED BOW
+             * HumanNPCFletch_DoD //RANGED BOW ~
              */
-            CreateVillager("Villager_Ranged", "HumanNPCTina_DoD");
-            CreateVillager("Villager_Melee", "HumanNPCTina_DoD", true);
+
+            //Meadows : 2 type of villager
+            //Black forest : 2 type of villager
+            //Mountains : 2 types of villagers
+            //Plains : 3 types of villager
+            //mistland : 3 types of villager
+
+            CreateVillager("Villager_Meadow1", "HumanNPCBob_DoD", Heightmap.Biome.Meadows);
+            CreateVillager("Villager_Meadow2", "HumanNPCMandy_DoD", Heightmap.Biome.Meadows);
+
+            CreateVillager("Villager_BF1", "HumanNPCFred_DoD", Heightmap.Biome.BlackForest);
+            CreateVillager("Villager_BF2", "HumanNPCBarbara_DoD", Heightmap.Biome.BlackForest);
+
+            CreateVillager("Villager_Mountain1", "HumanNPCJeff_DoD", Heightmap.Biome.Mountain);
+            CreateVillager("Villager_Mountain2", "HumanNPCSandra_DoD", Heightmap.Biome.Mountain);
+
+            CreateVillager("Villager_Plains1", "HumanNPCBobby_DoD", Heightmap.Biome.Plains);
+            CreateVillager("Villager_Plains2", "HumanNPCCathrine_DoD", Heightmap.Biome.Plains);
+
+            CreateVillager("Villager_Plains1", "HumanNPCKaren_DoD", Heightmap.Biome.Mistlands);
+            CreateVillager("Villager_Plains2", "HumanNPCFletch_DoD", Heightmap.Biome.Mistlands);
 
         }
 
-        void CreateVillager(string villagerName, string prefabCloneName, bool melee = false)
+        void CreateVillager(string villagerName, string prefabCloneName, Heightmap.Biome biome)
         {
-
             prefabCloneName = prefabCloneName.Trim();
             CreatureConfig villagerConfig = new CreatureConfig();
-            villagerConfig.Name = villagerName.Replace("_", " "); //Replace the "_" with " " Eg: Weak_Mage becomes Weak Mage
             villagerConfig.Faction = Character.Faction.Players;
             villagerConfig.Group = "Player";
-            string biomes = VillagerModConfigurations.biomeToSpawn;
-            var biomesaArray = biomes.Split(',');
-            List<Heightmap.Biome> biomesList = new List<Heightmap.Biome>();
-
-            foreach (string s in biomesaArray)
+            SpawnConfig spawnConfig = new SpawnConfig
             {
-                switch (s)
-                {
-                    case "blackforest":
-                        biomesList.Add(Heightmap.Biome.BlackForest);
-                        break;
-                    case "deepnorth":
-                        biomesList.Add(Heightmap.Biome.DeepNorth);
-                        break;
-                    case "meadows":
-                        biomesList.Add(Heightmap.Biome.Meadows);
-                        break;
-                    case "mistlands":
-                        biomesList.Add(Heightmap.Biome.Mistlands);
-                        break;
-                    case "mountains":
-                        biomesList.Add(Heightmap.Biome.Mountain);
-                        break;
-                    case "plains":
-                        biomesList.Add(Heightmap.Biome.Plains);
-                        break;
-                    case "swamp":
-                        biomesList.Add(Heightmap.Biome.Swamp);
-                        break;
-                    case "ocean":
-                        biomesList.Add(Heightmap.Biome.Ocean);
-                        break;
-                }
-            }
+                Name = villagerName,
+                Biome = biome,
+                HuntPlayer = false,
+                GroupRadius = VillagerModConfigurations.GroupRadius,
+                MaxGroupSize = VillagerModConfigurations.MaxGroupSize,
+                MaxSpawned = VillagerModConfigurations.MaxSpawned,
+                MinGroupSize = VillagerModConfigurations.MinGroupSize,
+                SpawnChance = VillagerModConfigurations.SpawnChance,
+                SpawnDistance = VillagerModConfigurations.SpawnDistance
 
-            foreach (var v in biomesList)
-            {
-                KLog.info("Spawn location for villagers :");
-                KLog.info(v.ToString());
-            }
-            villagerConfig.AddSpawnConfig(
-                new SpawnConfig
-                {
-                    Name = villagerName,
-                    Biome = ZoneManager.AnyBiomeOf(biomesList.ToArray()),
-                    HuntPlayer = false,
-                    GroupRadius = VillagerModConfigurations.GroupRadius,
-                    MaxGroupSize = VillagerModConfigurations.MaxGroupSize,
-                    MaxSpawned = VillagerModConfigurations.MaxSpawned,
-                    MinGroupSize = VillagerModConfigurations.MinGroupSize,
-                    SpawnChance = VillagerModConfigurations.SpawnChance,
-                    SpawnDistance = VillagerModConfigurations.SpawnDistance
-                }
-
-                );
+            };
+            villagerConfig.AddSpawnConfig(spawnConfig);
             if (!PrefabManager.Instance.GetPrefab(prefabCloneName))
             {
-                KLog.warning($"Failed to load prefab {prefabCloneName} for villager, using default prefab");
-                if (!melee)
-                    prefabCloneName = "Dverger";
-                else prefabCloneName = "Skeleton";
+                prefabCloneName = "Dverger";
             }
-            CustomCreature villager = new CustomCreature(villagerName, prefabCloneName, villagerConfig);
 
+            CustomCreature villager = new CustomCreature(villagerName, prefabCloneName, villagerConfig);
             //Remove components that we do not need from the villagers
             var npcTalk = villager.Prefab.GetComponent<NpcTalk>();
             var charDrop = villager.Prefab.GetComponent<CharacterDrop>();
@@ -175,7 +148,6 @@ namespace KukusVillagerMod.Prefabs
             CreatureManager.Instance.AddCreature(villager);
 
             KLog.warning($"Created Creature with Name : {villagerName} cloned from {prefabCloneName}");
-
         }
     }
 }
