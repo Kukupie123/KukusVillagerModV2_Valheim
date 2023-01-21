@@ -117,7 +117,7 @@ namespace KukusVillagerMod.Configuration
             PickableObjects = (string)Config.Bind("Villager AI Configuration", "Pickable Objects", "Bronze, Iron, Silver, IronScrap, BronzeScrap, SilverScrap, Coal, Wood, Stone, Resin, Flint",
                 new ConfigDescription("List of items that the worker villager with pickup skill can pickup. Each entries must be separated using ','\nTo add items paste the prefab name from here : https://valheim-modding.github.io/Jotunn/data/prefabs/prefab-list.html", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
                 ).BoxedValue;
-            WorkScanRange = (int)Config.Bind("Villager AI Configuration", "Work Scan Range", 100,
+            WorkScanRange = (int)Config.Bind("Villager AI Configuration", "Work Scan Range", 70,
                 new ConfigDescription("The radius to scan for items when working from the work post.", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
                 ).BoxedValue;
 
