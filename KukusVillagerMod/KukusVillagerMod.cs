@@ -593,7 +593,8 @@ namespace KukusVillagerMod
  * CONFIG FOR SPAWNS    and multipliers done ~
  * ADD SEARCH RADIUS FOR WORK SUCH AS SMELT AND PICKUP
  * Experiment with follow target for work
- * Different villager for different biome
+ * Different villager for different biome ~ DONE
+ * DO NOT USE AOE VILLAGERS BY DEFAULT ~ DONE
  * 
  * 
  * 

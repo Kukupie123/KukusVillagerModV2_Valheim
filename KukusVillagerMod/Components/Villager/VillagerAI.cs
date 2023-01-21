@@ -1200,15 +1200,16 @@ namespace KukusVillagerMod.Components.Villager
 
 
 
-        //Farming
 
+
+        //IGNORE BIRCH TREE. TOO HARD
         async private Task ChopWood()
         {
             KLog.info("Chopping wood " + villagerGeneral.ZNV.GetZDO().m_uid.id);
             ZDO WorkPostZDO = villagerGeneral.GetWorkPostZDO();
             Vector3 workPosLoc = WorkPostZDO.GetPosition();
 
-            await Task.Delay(500);
+            await Task.Delay(50);
 
             //Go to work post
             if (villagerGeneral.GetWorkPostInstance())
@@ -1264,12 +1265,12 @@ namespace KukusVillagerMod.Components.Villager
                     if (treebase)
                     {
                         HitData hd = new HitData();
-                        hd.m_damage.m_damage = 500f;
-                        hd.m_damage.m_chop = 500f;
-                        hd.m_damage.m_pierce = 500f;
-                        hd.m_damage.m_slash = 500f;
-                        hd.m_damage.m_pickaxe = 500f;
-                        hd.m_damage.m_blunt = 500f;
+                        hd.m_damage.m_damage = 5000f;
+                        hd.m_damage.m_chop = 5000f;
+                        hd.m_damage.m_pierce = 5000f;
+                        hd.m_damage.m_slash = 5000f;
+                        hd.m_damage.m_pickaxe = 5000f;
+                        hd.m_damage.m_blunt = 5000f;
                         treebase.Damage(hd);
                         KLog.info($"Destroyed {obj.name} using Treebase component for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree");
                         return;
