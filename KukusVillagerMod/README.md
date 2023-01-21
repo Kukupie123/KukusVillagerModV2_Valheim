@@ -18,7 +18,8 @@ Paste the plugins folder in valheim/BepInEx/
 
 ## Bug :
 1. When working villagers may keep staring at player and stand still. Haven't found a fix. They are coded to stare at a player naturally<br>
-2. When chopping trees they may not attack or attack in the wrong direction.
+2. When chopping trees they may not attack or attack in the wrong direction. <br>
+3. You might get caught in friendly fire for villagers who have AOE attacks. <br>
 
 ## USAGE GUIDE :
 ### Recruiting villagers.
@@ -27,7 +28,7 @@ Once recruited. It's label is going to change from "Wanderer" to "Villager". <br
 You can see all your recruited villagers by pressing the open menu key when Runik Kuchuk Tablet is equipped<br>
 ### Stats :
 Villagers will have different stats. <br>
-They also have a stat called "Efficinecy" which determines how well it consumes upgradable items. In short, the more the efficiency the more it's stats will increase when upgrading it. <br>
+They also have a stat called "Efficiency" which determines how well it consumes upgradable items. In short, the more the efficiency the more it's stats will increase when upgrading it. <br>
 Some villagers may also come with special damage skill such as fire, frost, lightning, spirit, etc.
 ### Upgrading villagers :
 Villagers that have been recruited can be upgraded. This mod adds several new items that can be used on the villager to upgrade them.<br>

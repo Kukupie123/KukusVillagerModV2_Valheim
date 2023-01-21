@@ -622,7 +622,7 @@ namespace KukusVillagerMod.Components.Villager
                 ai.ResetPatrolPoint();
                 ai.LookAt(location);
                 movePos = location;
-                await Task.Delay(250);
+                await Task.Delay(5);
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                 {
                     break;
@@ -638,10 +638,11 @@ namespace KukusVillagerMod.Components.Villager
             RemoveFollower();
             while (!closeToFollowTarget && target != null)
             {
+                ai.ResetPatrolPoint();
+                ai.LookAt(target.transform.position);
                 FollowGameObject(target);
-                ai.Alert();
                 AcceptedFollowDistance = acceptableRadius;
-                await Task.Delay(250);
+                await Task.Delay(5);
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                 {
                     break;
@@ -688,6 +689,8 @@ namespace KukusVillagerMod.Components.Villager
                     if (workTalk)
                         talk.Say($"Going to Pickup {pickable.m_itemData.m_shared.m_name}", "Work");
                     await Task.Delay(500);
+
+                    if (pickable == null) return;
                     //Go to item
                     await FollowTargetAwaitWork(pickable.gameObject);
 

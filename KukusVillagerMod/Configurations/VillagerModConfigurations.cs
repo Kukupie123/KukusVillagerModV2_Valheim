@@ -119,15 +119,15 @@ namespace KukusVillagerMod.Configuration
             //Villager spawn configuration
             GroupRadius = (float)Config.Bind("Villager Spawner", "Group radius", 3f
                 ).BoxedValue;
-            MaxGroupSize = (int)Config.Bind("Villager Spawner", "Max Group Size", 3
+            MaxGroupSize = (int)Config.Bind("Villager Spawner", "Max Group Size", 1
                 ).BoxedValue;
-            MinGroupSize = (int)Config.Bind("Villager Spawner", "Min Group Size", 2
+            MinGroupSize = (int)Config.Bind("Villager Spawner", "Min Group Size", 1
                 ).BoxedValue;
             MaxSpawned = (int)Config.Bind("Villager Spawner", "Max Spawned", 1
                 ).BoxedValue;
-            SpawnChance = (float)Config.Bind("Villager Spawner", "Spawn Chance", 10f
+            SpawnChance = (float)Config.Bind("Villager Spawner", "Spawn Chance", 3f
                 ).BoxedValue;
-            SpawnDistance = (float)Config.Bind("Villager Spawner", "Spawn Distance", 50f
+            SpawnDistance = (float)Config.Bind("Villager Spawner", "Spawn Distance", 100f
                 ).BoxedValue;
 
             biomeToSpawn = (string)Config.Bind("Villager Spawner", "Spawn Area", "blackforest,meadows,plains,mountains"
