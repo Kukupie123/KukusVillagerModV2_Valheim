@@ -21,7 +21,7 @@ namespace KukusVillagerMod.Components.Villager
         private MonsterAI ai;
         bool updateRanOnce = false;
         private ZDOID followingObjZDOID;
-
+        private float workScanRange = VillagerModConfigurations.WorkScanRange;
         private void Awake()
         {
             updateRanOnce = false;
@@ -681,7 +681,7 @@ namespace KukusVillagerMod.Components.Villager
                 }
 
                 //Search for pickable item
-                ItemDrop pickable = FindClosestValidPickup(workPosLoc, 250f, true);
+                ItemDrop pickable = FindClosestValidPickup(workPosLoc, workScanRange, true);
 
                 //ItemDrop found.
                 if (pickable != null)
@@ -941,7 +941,7 @@ namespace KukusVillagerMod.Components.Villager
                 }
 
                 //Find smelter that can be filled
-                Smelter smelter = FindValidSmelter(workPosLoc, 500f, true);
+                Smelter smelter = FindValidSmelter(workPosLoc, workScanRange, true);
                 if (smelter != null)
                 {
 
@@ -1337,7 +1337,7 @@ namespace KukusVillagerMod.Components.Villager
         private GameObject GetValidTree2Chop(Vector3 pos, bool random)
         {
             Vector3 scanLocation = pos;
-            Collider[] colliders = Physics.OverlapSphere(scanLocation, 200f);
+            Collider[] colliders = Physics.OverlapSphere(scanLocation, workScanRange);
             GameObject item = null;
             float distance = -1;
 
