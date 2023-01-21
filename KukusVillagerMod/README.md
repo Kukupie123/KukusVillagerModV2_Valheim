@@ -19,7 +19,8 @@ Paste the plugins folder in valheim/BepInEx/
 ## Bug :
 1. Villager may get lit on fire, especially when working.<br>
 2. When chopping trees they may not attack or attack in the wrong direction. <br>
-3. You might get caught in friendly fire for villagers who have AOE attacks. <br>
+3. Villagers when chopping trees may sometime not play the attack animation. <br>
+4. You might get caught in friendly fire for villagers who have AOE attacks. <br>
 
 ## USAGE GUIDE :
 ### Recruiting villagers.

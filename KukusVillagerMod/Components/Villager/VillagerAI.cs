@@ -633,8 +633,6 @@ namespace KukusVillagerMod.Components.Villager
         async private Task FollowTargetAwaitWork(GameObject target, float acceptableRadius = 3f)
         {
             if (target == null) return;
-            var rot = Quaternion.FromToRotation(transform.position, target.transform.position);
-            transform.rotation = rot;
             RemoveFollower();
             while (!closeToFollowTarget && target != null)
             {
@@ -680,7 +678,7 @@ namespace KukusVillagerMod.Components.Villager
                 }
 
                 //Search for pickable item
-                ItemDrop pickable = FindClosestValidPickup(workPosLoc, 250f,true);
+                ItemDrop pickable = FindClosestValidPickup(workPosLoc, 250f, true);
 
                 //ItemDrop found.
                 if (pickable != null)
@@ -1248,19 +1246,19 @@ namespace KukusVillagerMod.Components.Villager
             {
                 if (workTalk) talk.Say($"Going to Chop {obj.name}", "Work");
                 int count = 0;
-                int limit = 4;
+                int limit = 5000;
                 while (obj != null && count < limit)
                 {
-                    await Task.Delay(1000);
+                    await Task.Delay(1);
                     await FollowTargetAwaitWork(obj.gameObject); //Get close to the tree
+                    ai.LookAt(obj.transform.position);
                     if (obj == null) return; //if tree was destroyed by the time we reached we exit
-                    transform.rotation = Quaternion.FromToRotation(transform.position, obj.transform.position);
                     if (!ai.DoAttack(null, false))
                     {
                         KLog.warning($"Failed to attack {obj.name} for villager {villagerGeneral.ZNV.GetZDO().m_uid.id}, after few tries it will auto destroy the trees");
                     }
                     transform.rotation = Quaternion.FromToRotation(transform.position, obj.transform.position); // Keep them facing the object
-                    await Task.Delay(1000);
+                    await Task.Delay(1);
                     count++;
                 }
                 if (obj != null)
