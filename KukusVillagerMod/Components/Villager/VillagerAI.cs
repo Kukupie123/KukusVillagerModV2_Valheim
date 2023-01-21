@@ -36,7 +36,7 @@ namespace KukusVillagerMod.Components.Villager
             if (villagerGeneral == null)
             {
                 villagerGeneral = GetComponent<VillagerGeneral>();
-         
+
             }
 
             if (ai == null) ai = GetComponent<MonsterAI>();
@@ -632,10 +632,11 @@ namespace KukusVillagerMod.Components.Villager
 
         async private Task FollowTargetAwaitWork(GameObject target, float acceptableRadius = 3f)
         {
+            if (target == null) return;
             var rot = Quaternion.FromToRotation(transform.position, target.transform.position);
             transform.rotation = rot;
             RemoveFollower();
-            while (!closeToFollowTarget)
+            while (!closeToFollowTarget && target != null)
             {
                 FollowGameObject(target);
                 ai.Alert();
@@ -696,6 +697,8 @@ namespace KukusVillagerMod.Components.Villager
                         return;
                     }
 
+                    if (pickable == null) return;
+
                     //Fake pickup by storing the prefab, and deleting the GO from world if only 1 stack or else reduce stack by one
                     string prefabName = pickable.m_itemData.m_dropPrefab.name; //Get prefab name
                     int stackCount = pickable.m_itemData.m_stack; //Get stack count
@@ -734,6 +737,8 @@ namespace KukusVillagerMod.Components.Villager
                         {
                             return;
                         }
+
+                        if (containerInstance == null) return;
 
                         if (added)
                         {
@@ -888,7 +893,6 @@ namespace KukusVillagerMod.Components.Villager
 
                 ZDO WorkPostZDO = villagerGeneral.GetWorkPostZDO();
                 Vector3 workPosLoc = WorkPostZDO.GetPosition();
-
                 await Task.Delay(500);
 
                 //Go to work post
@@ -949,6 +953,7 @@ namespace KukusVillagerMod.Components.Villager
                         }
                     }
 
+                    if (smelter == null) return; //if smelter was destroyed then exit
 
                     await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
                     if (villagerGeneral.GetVillagerState() != VillagerState.Working)
@@ -1012,6 +1017,8 @@ namespace KukusVillagerMod.Components.Villager
                     {
                         return;
                     }
+
+                    if (smelter == null) return;
                     //Add fuel to the smelter
                     int fuelCapacity = smelter.m_maxFuel;
                     float currentFuel = (int)smelter.GetFuel();
@@ -1230,10 +1237,10 @@ namespace KukusVillagerMod.Components.Villager
                 {
                     await Task.Delay(1000);
                     await FollowTargetAwaitWork(obj.gameObject); //Get close to the tree
+                    if (obj == null) return; //if tree was destroyed by the time we reached we exit
                     transform.rotation = Quaternion.FromToRotation(transform.position, obj.transform.position);
                     if (!ai.DoAttack(null, false))
                     {
-
                         KLog.warning($"Failed to attack {obj.name} for villager {villagerGeneral.ZNV.GetZDO().m_uid.id}, after few tries it will auto destroy the trees");
                     }
                     transform.rotation = Quaternion.FromToRotation(transform.position, obj.transform.position); // Keep them facing the object
