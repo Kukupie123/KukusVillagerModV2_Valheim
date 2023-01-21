@@ -18,16 +18,16 @@ namespace KukusVillagerMod.Prefabs
 
         public VillagerPrefab()
         {
-           
-            CreateVillager("Villager_Ranged", "HumanNPCBob_DoD ");
-            CreateVillager("Villager_Melee", "HumanNPCBob_DoD");
+
+            CreateVillager("Villager_Ranged", "HumanNPCBob_DoD");
+            CreateVillager("Villager_Melee", "HumanNPCBob_DoD", true);
 
         }
 
         void CreateVillager(string villagerName, string prefabCloneName, bool melee = false)
         {
 
-
+            prefabCloneName = prefabCloneName.Trim();
             CreatureConfig villagerConfig = new CreatureConfig();
             villagerConfig.Name = villagerName.Replace("_", " "); //Replace the "_" with " " Eg: Weak_Mage becomes Weak Mage
             villagerConfig.Faction = Character.Faction.Players;
@@ -89,7 +89,7 @@ namespace KukusVillagerMod.Prefabs
                 );
             if (!PrefabManager.Instance.GetPrefab(prefabCloneName))
             {
-                KLog.warning($"Failed to load prefab {prefabCloneName} for villager {villagerName}, using default prefab");
+                KLog.warning($"Failed to load prefab {prefabCloneName} for villager, using default prefab");
                 if (!melee)
                     prefabCloneName = "Dverger";
                 else prefabCloneName = "Skeleton";
@@ -112,13 +112,24 @@ namespace KukusVillagerMod.Prefabs
 
             Tameable existingTameable = villager.Prefab.GetComponent<Tameable>();
 
-            if (!existingTameable)
+            if (existingTameable == null)
             {
                 existingTameable = villager.Prefab.GetComponentInChildren<Tameable>();
             }
-            if (!existingTameable)
+            if (existingTameable == null)
             {
                 existingTameable = villager.Prefab.GetComponentInParent<Tameable>();
+
+            }
+
+            ZNetView znv = villager.Prefab.GetComponent<ZNetView>();
+            if (znv == null)
+            {
+                znv = villager.Prefab.GetComponentInChildren<ZNetView>();
+            }
+            if (znv == null)
+            {
+                znv = villager.Prefab.GetComponentInParent<ZNetView>();
 
             }
 
@@ -127,19 +138,29 @@ namespace KukusVillagerMod.Prefabs
             UnityEngine.GameObject.DestroyImmediate(interactionP);
             UnityEngine.GameObject.DestroyImmediate(interaction);
             UnityEngine.GameObject.DestroyImmediate(randAnim);
-            UnityEngine.GameObject.DestroyImmediate(existingTameable);
 
             villager.Prefab.AddComponent<NpcTalk>(); //Add our custom talk component
             villager.Prefab.AddComponent<VillagerGeneral>(); //Add villager General component 
             villager.Prefab.AddComponent<VillagerAI>();
-            villager.Prefab.AddComponent<Tameable>();
+            if (existingTameable == null)
+            {
+                villager.Prefab.AddComponent<Tameable>();
+                KLog.warning($"Failed to find tameable component in {prefabCloneName}. Adding new one");
+            }
+            if (znv == null)
+            {
+                villager.Prefab.AddComponent<ZNetView>();
+                KLog.warning($"Failed to find ZNetView component in {prefabCloneName}. Adding new one");
+
+            }
+
 
             villager.Prefab.GetComponent<MonsterAI>().m_avoidFire = true;
             villager.Prefab.GetComponent<MonsterAI>().m_huntPlayer = false;
 
             CreatureManager.Instance.AddCreature(villager);
 
-            KLog.info($"Created Creature with Name : {villagerName} cloned from {prefabCloneName}");
+            KLog.warning($"Created Creature with Name : {villagerName} cloned from {prefabCloneName}");
 
         }
     }

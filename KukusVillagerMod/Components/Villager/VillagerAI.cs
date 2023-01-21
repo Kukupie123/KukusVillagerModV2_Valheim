@@ -36,8 +36,7 @@ namespace KukusVillagerMod.Components.Villager
             if (villagerGeneral == null)
             {
                 villagerGeneral = GetComponent<VillagerGeneral>();
-                villagerGeneral.UpgradeVillagerDamage(0);
-                villagerGeneral.UpgradeVillagerHealth(0);
+         
             }
 
             if (ai == null) ai = GetComponent<MonsterAI>();

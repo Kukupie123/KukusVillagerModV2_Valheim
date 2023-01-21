@@ -154,7 +154,6 @@ namespace KukusVillagerMod.Components.Villager
             else
             {
                 SetRandomStats(this.ZNV, modifier);
-
             }
         }
         private void LoadStatsFromZDO()
@@ -804,6 +803,7 @@ namespace KukusVillagerMod.Components.Villager
 
         }
 
+        bool done = false;
         private void FixedUpdate()
         {
             if (tameable == null || ZNV == null|| ai == null || humanoid == null)
@@ -844,7 +844,7 @@ namespace KukusVillagerMod.Components.Villager
                     {
                         tameable = GetComponentInChildren<Tameable>();
                     }
-                    if (tameable = null)
+                    if (tameable == null)
                     {
                         tameable = base.GetComponent<Tameable>();
                     }
@@ -896,55 +896,64 @@ namespace KukusVillagerMod.Components.Villager
                     KLog.warning("humanoid component not Found!");
                 }
 
-                ai.m_attackPlayerObjects = false;
-                ai.m_avoidFire = true;
-                ai.SetHuntPlayer(false);
-
-                humanoid.m_walkSpeed = 2;
-                //Generate and load stats
-                if (!IsVillagerTamed())
+             
+            }
+            else
+            {
+                if (done == false)
                 {
-                    //Check biome and scale damage as needed
+                    
+                    done = true;
+                    ai.m_attackPlayerObjects = false;
+                    ai.m_avoidFire = true;
+                    ai.SetHuntPlayer(false);
 
-                    var biome = Heightmap.FindBiome(transform.position);
-                    float statsMultiplier = 1f;
-                    switch (biome)
+                    humanoid.m_walkSpeed = 2;
+                    //Generate and load stats
+                    if (!IsVillagerTamed())
                     {
-                        case Heightmap.Biome.Meadows:
-                            KLog.info("Spawned Wild villager in meadows");
-                            statsMultiplier = VillagerModConfigurations.MeadowRandomStatsMultiplier;
-                            break;
-                        case Heightmap.Biome.BlackForest:
-                            KLog.info("Spawned Wild villager in Black forest");
-                            statsMultiplier = VillagerModConfigurations.BlackForestRandomStatsMultiplier;
-                            break;
-                        case Heightmap.Biome.Swamp:
-                            KLog.info("Spawned Wild villager in Swamp");
-                            statsMultiplier = VillagerModConfigurations.SwampRandomStatsMultiplier;
-                            break;
-                        case Heightmap.Biome.Plains:
-                            KLog.info("Spawned Wild villager in Plains");
-                            statsMultiplier = VillagerModConfigurations.PlainsRandomStatsMultiplier;
-                            break;
-                        case Heightmap.Biome.Mountain:
-                            KLog.info("Spawned Wild villager in Mountain");
-                            statsMultiplier = VillagerModConfigurations.MountainRandomStatsMultiplier;
-                            break;
-                        case Heightmap.Biome.Mistlands:
-                            KLog.info("Spawned Wild villager in MistLands");
-                            statsMultiplier = VillagerModConfigurations.MistlandRandomStatsMultiplier;
-                            break;
+                        //Check biome and scale damage as needed
+
+                        var biome = Heightmap.FindBiome(transform.position);
+                        float statsMultiplier = 1f;
+                        switch (biome)
+                        {
+                            case Heightmap.Biome.Meadows:
+                                KLog.info("Spawned Wild villager in meadows");
+                                statsMultiplier = VillagerModConfigurations.MeadowRandomStatsMultiplier;
+                                break;
+                            case Heightmap.Biome.BlackForest:
+                                KLog.info("Spawned Wild villager in Black forest");
+                                statsMultiplier = VillagerModConfigurations.BlackForestRandomStatsMultiplier;
+                                break;
+                            case Heightmap.Biome.Swamp:
+                                KLog.info("Spawned Wild villager in Swamp");
+                                statsMultiplier = VillagerModConfigurations.SwampRandomStatsMultiplier;
+                                break;
+                            case Heightmap.Biome.Plains:
+                                KLog.info("Spawned Wild villager in Plains");
+                                statsMultiplier = VillagerModConfigurations.PlainsRandomStatsMultiplier;
+                                break;
+                            case Heightmap.Biome.Mountain:
+                                KLog.info("Spawned Wild villager in Mountain");
+                                statsMultiplier = VillagerModConfigurations.MountainRandomStatsMultiplier;
+                                break;
+                            case Heightmap.Biome.Mistlands:
+                                KLog.info("Spawned Wild villager in MistLands");
+                                statsMultiplier = VillagerModConfigurations.MistlandRandomStatsMultiplier;
+                                break;
+                        }
+                        SetRandomStats(statsMultiplier);
                     }
-                    SetRandomStats(statsMultiplier);
+                    else //In case it was tamed when it was not in memory
+                    {
+                        tameable.Tame();
+                    }
+                    LoadStatsFromZDO();
+                    //Sometime villagers will throw error so we do this to fix it, related to patching getCurrentWeapon function of humanoid
+                    UpgradeVillagerDamage(0);
+                    UpgradeVillagerHealth(0);
                 }
-                else //In case it was tamed when it was not in memory
-                {
-                    tameable.Tame();
-                }
-                LoadStatsFromZDO();
-                //Sometime villagers will throw error so we do this to fix it, related to patching getCurrentWeapon function of humanoid
-                UpgradeVillagerDamage(0);
-                UpgradeVillagerHealth(0);
             }
 
         }

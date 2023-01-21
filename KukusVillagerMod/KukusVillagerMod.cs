@@ -20,6 +20,7 @@ using Jotunn.Configs;
 using System.Collections.Generic;
 using static CharacterDrop;
 using KukusVillagerMod.Components.Villager;
+using System.Threading.Tasks;
 
 namespace KukusVillagerMod
 {
@@ -47,6 +48,41 @@ namespace KukusVillagerMod
             AddLocalizations();
             LoadBundle();
             LoadAssets(); //Effects, props etc
+            /*Companion names
+           * HumanNPCBob_DoD
+           * HumanNPCFred_DoD
+           * HumanNPCBarry_DoD
+           * HumanNPCBobby_DoD
+           * HumanNPCJeff_DoD
+           * HumanNPCMandy_DoD
+           * HumanNPCBarbara_DoD
+           * HumanNPCSandra_DoD
+           * HumanNPCDaisy_DoD
+           * HumanNPCCathrine_DoD
+           * HumanNPCKaren_DoD
+           * HumanNPCFletch_DoD
+           */
+
+            AddNamedNPC("HumanNPCBob_DoD");
+            AddNamedNPC("HumanNPCFred_DoD");
+            AddNamedNPC("HumanNPCBarry_DoD");
+            AddNamedNPC("HumanNPCBobby_DoD");
+            AddNamedNPC("HumanNPCJeff_DoD");
+            AddNamedNPC("HumanNPCMandy_DoD");
+            AddNamedNPC("HumanNPCBarbara_DoD");
+            AddNamedNPC("HumanNPCSandra_DoD");
+            AddNamedNPC("HumanNPCDaisy_DoD");
+            AddNamedNPC("HumanNPCCathrine_DoD");
+            AddNamedNPC("HumanNPCKaren_DoD");
+            AddNamedNPC("HumanNPCFletch_DoD");
+            /*
+             * HumanNPCGary_DoD
+             * HumanNPCTania_DoD
+             * HumanNPCTina_DoD
+             */
+            AddNamedMageNPC("HumanNPCGary_DoD");
+            AddNamedMageNPC("HumanNPCTania_DoD");
+            AddNamedMageNPC("HumanNPCTina_DoD");
 
             PrefabManager.OnVanillaPrefabsAvailable += LoadPiecesPrefab;
             CreatureManager.OnVanillaCreaturesAvailable += OnVanillaCreaturesAvailable;
@@ -115,8 +151,6 @@ namespace KukusVillagerMod
                 Logger.LogWarning($"Exception caught while loading Companions asset bundle: {ex}");
             }
         }
-
-        //Provided by Horem, I take no credit
         private void LoadAssets()
         {
             try
@@ -489,178 +523,14 @@ namespace KukusVillagerMod
             PrefabManager.OnVanillaPrefabsAvailable -= LoadPiecesPrefab;
         }
 
-        private bool CreateVillager(string villagerName, string villagerCloneName, bool melee = false)
-        {
-
-            CreatureConfig villagerConfig = new CreatureConfig();
-            villagerConfig.Name = villagerName;
-            villagerConfig.Faction = Character.Faction.Players;
-            villagerConfig.Group = "Player";
-            string biomes = VillagerModConfigurations.biomeToSpawn;
-            var biomesaArray = biomes.Split(',');
-            List<Heightmap.Biome> biomesList = new List<Heightmap.Biome>();
-
-            foreach (string s in biomesaArray)
-            {
-                switch (s)
-                {
-                    case "blackforest":
-                        biomesList.Add(Heightmap.Biome.BlackForest);
-                        break;
-                    case "deepnorth":
-                        biomesList.Add(Heightmap.Biome.DeepNorth);
-                        break;
-                    case "meadows":
-                        biomesList.Add(Heightmap.Biome.Meadows);
-                        break;
-                    case "mistlands":
-                        biomesList.Add(Heightmap.Biome.Mistlands);
-                        break;
-                    case "mountains":
-                        biomesList.Add(Heightmap.Biome.Mountain);
-                        break;
-                    case "plains":
-                        biomesList.Add(Heightmap.Biome.Plains);
-                        break;
-                    case "swamp":
-                        biomesList.Add(Heightmap.Biome.Swamp);
-                        break;
-                    case "ocean":
-                        biomesList.Add(Heightmap.Biome.Ocean);
-                        break;
-                }
-            }
-
-            foreach (var v in biomesList)
-            {
-                KLog.info("Spawn location for villagers :");
-                KLog.info(v.ToString());
-            }
-            villagerConfig.AddSpawnConfig(
-                new SpawnConfig
-                {
-                    Name = villagerName,
-                    Biome = ZoneManager.AnyBiomeOf(biomesList.ToArray()),
-                    HuntPlayer = false,
-                    GroupRadius = VillagerModConfigurations.GroupRadius,
-                    MaxGroupSize = VillagerModConfigurations.MaxGroupSize,
-                    MaxSpawned = VillagerModConfigurations.MaxSpawned,
-                    MinGroupSize = VillagerModConfigurations.MinGroupSize,
-                    SpawnChance = VillagerModConfigurations.SpawnChance,
-                    SpawnDistance = VillagerModConfigurations.SpawnDistance
-                }
-
-                );
-
-            var toClonePrefab = PrefabManager.Cache.GetPrefab(typeof(GameObject), villagerCloneName);
-            if (toClonePrefab == null)
-            {
-                toClonePrefab = PrefabManager.Instance.GetPrefab(villagerCloneName);
-                if (toClonePrefab == null)
-                {
-                    KLog.warning($"Failed to load prefab {villagerCloneName} for villager {villagerName}");
-                    return false;
-                }
-            }
-            CustomCreature villager = new CustomCreature(villagerName, villagerCloneName, villagerConfig);
-
-            //Remove components that we do not need from the villagers
-            var npcTalk = villager.Prefab.GetComponent<NpcTalk>();
-            var charDrop = villager.Prefab.GetComponent<CharacterDrop>();
-            var npcTalkP = villager.Prefab.GetComponentInParent<NpcTalk>();
-            var interactionP = villager.Prefab.GetComponentInParent(typeof(Interactable));
-            var interaction = villager.Prefab.GetComponent(typeof(Interactable));
-            var randAnim = villager.Prefab.GetComponent<RandomAnimation>();
-
-            //Edit drops
-            charDrop.SetDropsEnabled(false);
-            charDrop.m_drops = new List<Drop>();
-
-
-
-            Tameable existingTameable = villager.Prefab.GetComponent<Tameable>();
-
-            if (!existingTameable)
-            {
-                existingTameable = villager.Prefab.GetComponentInChildren<Tameable>();
-            }
-            if (!existingTameable)
-            {
-                existingTameable = villager.Prefab.GetComponentInParent<Tameable>();
-
-            }
-
-            UnityEngine.GameObject.DestroyImmediate(npcTalk);
-            UnityEngine.GameObject.DestroyImmediate(npcTalkP);
-            UnityEngine.GameObject.DestroyImmediate(interactionP);
-            UnityEngine.GameObject.DestroyImmediate(interaction);
-            UnityEngine.GameObject.DestroyImmediate(randAnim);
-            UnityEngine.GameObject.DestroyImmediate(existingTameable);
-
-            villager.Prefab.AddComponent<NpcTalk>(); //Add our custom talk component
-            villager.Prefab.AddComponent<VillagerGeneral>(); //Add villager General component 
-            villager.Prefab.AddComponent<VillagerAI>();
-            villager.Prefab.AddComponent<Tameable>();
-
-            villager.Prefab.GetComponent<MonsterAI>().m_avoidFire = true;
-            villager.Prefab.GetComponent<MonsterAI>().m_huntPlayer = false;
-
-            CreatureManager.Instance.AddCreature(villager);
-
-            KLog.warning($"Created Creature with Name : {villagerName} cloned from {villagerCloneName}");
-            return true;
-        }
-
         private void OnVanillaCreaturesAvailable()
         {
-            /*Companion names
-            * HumanNPCBob_DoD
-            * HumanNPCFred_DoD
-            * HumanNPCBarry_DoD
-            * HumanNPCBobby_DoD
-            * HumanNPCJeff_DoD
-            * HumanNPCMandy_DoD
-            * HumanNPCBarbara_DoD
-            * HumanNPCSandra_DoD
-            * HumanNPCDaisy_DoD
-            * HumanNPCCathrine_DoD
-            * HumanNPCKaren_DoD
-            * HumanNPCFletch_DoD
-            */
 
-            AddNamedNPC("HumanNPCBob_DoD");
-            AddNamedNPC("HumanNPCFred_DoD");
-            AddNamedNPC("HumanNPCBarry_DoD");
-            AddNamedNPC("HumanNPCBobby_DoD");
-            AddNamedNPC("HumanNPCJeff_DoD");
-            AddNamedNPC("HumanNPCMandy_DoD");
-            AddNamedNPC("HumanNPCBarbara_DoD");
-            AddNamedNPC("HumanNPCSandra_DoD");
-            AddNamedNPC("HumanNPCDaisy_DoD");
-            AddNamedNPC("HumanNPCCathrine_DoD");
-            AddNamedNPC("HumanNPCKaren_DoD");
-            AddNamedNPC("HumanNPCFletch_DoD");
-            /*
-             * HumanNPCGary_DoD
-             * HumanNPCTania_DoD
-             * HumanNPCTina_DoD
-             */
-            AddNamedMageNPC("HumanNPCGary_DoD");
-            AddNamedMageNPC("HumanNPCTania_DoD");
-            AddNamedMageNPC("HumanNPCTina_DoD");
 
-            //Try twice
-            if (CreateVillager("Villager_Ranged", "HumanNPCBob_DoD") == false)
-            {
-                CreateVillager("Villager_Ranged", "HumanNPCBob_DoD");
-            }
-           
-            if (CreateVillager("Villager_Melee", "HumanNPCBob_DoD") == false)
-            {
-                CreateVillager("Villager_Melee", "HumanNPCBob_DoD");
-            }
-           
+            new VillagerPrefab();
 
+            // CreateVillager("Villager_Ranged", "HumanNPCBob_DoD");
+            //CreateVillager("Villager_Melee", "HumanNPCBob_DoD");
             CreatureManager.OnVanillaCreaturesAvailable -= OnVanillaCreaturesAvailable;
         }
 
