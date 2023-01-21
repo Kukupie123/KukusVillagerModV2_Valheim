@@ -20,18 +20,18 @@ namespace KukusVillagerMod.Prefabs
         {
             //Compatible NPCs (No ZNV and Tameable error)
             /*
-             * HumanNPCBob_DoD ~
-             * HumanNPCFred_DoD ~
-             * HumanNPCBarry_DoD ~
-             * HumanNPCBobby_DoD ~
-             * HumanNPCJeff_DoD ~
-             * HumanNPCMandy_DoD ~
-             * HumanNPCBarbara_DoD
-             * HumanNPCSandra_DoD ~
-             * HumanNPCDaisy_DoD
-             * HumanNPCCathrine_DoD ~
-             * HumanNPCKaren_DoD
-             * HumanNPCFletch_DoD //RANGED BOW ~
+             * HumanNPCBob_DoD  ~~
+             * HumanNPCFred_DoD  ~~
+             * HumanNPCBarry_DoD  ~~
+             * HumanNPCBobby_DoD ~~
+             * HumanNPCJeff_DoD ~~
+             * HumanNPCMandy_DoD  ~~
+             * HumanNPCBarbara_DoD ~~
+             * HumanNPCSandra_DoD  ~~
+             * HumanNPCDaisy_DoD  ~~
+             * HumanNPCCathrine_DoD ~~
+             * HumanNPCKaren_DoD ~~
+             * HumanNPCFletch_DoD //RANGED BOW  ~~
              */
 
             //Meadows : 2 type of villager
@@ -51,9 +51,11 @@ namespace KukusVillagerMod.Prefabs
 
             CreateVillager("Villager_Plains1", "HumanNPCBobby_DoD", Heightmap.Biome.Plains);
             CreateVillager("Villager_Plains2", "HumanNPCCathrine_DoD", Heightmap.Biome.Plains);
+            CreateVillager("Villager_Plains3", "HumanNPCDaisy_DoD", Heightmap.Biome.Plains);
 
-            CreateVillager("Villager_Plains1", "HumanNPCKaren_DoD", Heightmap.Biome.Mistlands);
-            CreateVillager("Villager_Plains2", "HumanNPCFletch_DoD", Heightmap.Biome.Mistlands);
+            CreateVillager("Villager_Mist1", "HumanNPCKaren_DoD", Heightmap.Biome.Mistlands);
+            CreateVillager("Villager_Mist2", "HumanNPCFletch_DoD", Heightmap.Biome.Mistlands);
+            CreateVillager("Villager_Mist3", "HumanNPCBarry_DoD", Heightmap.Biome.Mistlands);
 
         }
 
