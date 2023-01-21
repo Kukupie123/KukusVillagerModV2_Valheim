@@ -595,7 +595,8 @@ namespace KukusVillagerMod
  * Experiment with follow target for work
  * Different villager for different biome ~ DONE
  * DO NOT USE AOE VILLAGERS BY DEFAULT ~ DONE
- * 
+
+ * Add random config option for work
  * 
  * 
  * Huge overhaul incomming
