@@ -151,7 +151,7 @@ namespace KukusVillagerMod.Configuration
                 ).BoxedValue;
             SpawnPoint_MaxTotal = (int)Config.Bind("Villager Spawner HUT", "Spawn Point Max Spawn Total", 8, new ConfigDescription("How many villagers will spawn when player is far from hut")
                ).BoxedValue;
-            HutSpawnQuantity = (int)Config.Bind("Villager Spawner HUT", "Spawn Point Quantity", 50, new ConfigDescription("The upper limit of how many huts in a biome. Increase this if you are having a hard time finiding Huts")
+            HutSpawnQuantity = (int)Config.Bind("Villager Spawner HUT", "Spawn Point Quantity", 150, new ConfigDescription("The upper limit of how many huts in a biome. Increase this if you are having a hard time finiding Huts")
              ).BoxedValue;
 
             //Villager stats configuration
