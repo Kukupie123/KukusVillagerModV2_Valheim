@@ -136,12 +136,12 @@ namespace KukusVillagerMod.Prefabs
             if (existingTameable == null)
             {
                 villager.Prefab.AddComponent<Tameable>();
-                KLog.warning($"Failed to find tameable component in {prefabCloneName}. Adding new one");
+                //KLog.warning($"Failed to find tameable component in {prefabCloneName}. Adding new one");
             }
             if (znv == null)
             {
                 //villager.Prefab.AddComponent<ZNetView>();
-                KLog.warning($"Failed to find ZNetView component in {prefabCloneName}. Adding new one");
+                //KLog.warning($"Failed to find ZNetView component in {prefabCloneName}. Adding new one");
 
             }
 

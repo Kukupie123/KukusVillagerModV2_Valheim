@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using static CharacterDrop;
 using KukusVillagerMod.Components.Villager;
 using System.Threading.Tasks;
+using Jotunn;
 
 namespace KukusVillagerMod
 {
@@ -86,6 +87,7 @@ namespace KukusVillagerMod
             PrefabManager.OnVanillaPrefabsAvailable += LoadPiecesPrefab;
             CreatureManager.OnVanillaCreaturesAvailable += OnVanillaCreaturesAvailable;
             MinimapManager.OnVanillaMapDataLoaded += OnMapDataLoaded;
+
             ZoneManager.OnVanillaLocationsAvailable += AddAllSpawnPointForVillager;
             harmony.PatchAll();
 
@@ -94,6 +96,40 @@ namespace KukusVillagerMod
         private void OnMapDataLoaded()
         {
             isMapDataLoaded = true;
+
+            var pinOverlay = MinimapManager.Instance.GetMapDrawing("PinOverlay");
+
+            List<ZDO> zdos = new List<ZDO>();
+            ZDOMan.instance.GetAllZDOsWithPrefab("", zdos);
+
+            int squareSize = 10;
+            Color[] colorPixels = new Color[squareSize * squareSize].Populate(Color.blue);
+            Color[] filterPixels = new Color[squareSize * squareSize].Populate(MinimapManager.FilterOff);
+            Color[] heightPixels = new Color[squareSize * squareSize].Populate(MinimapManager.MeadowHeight);
+
+            // Loop every loaded pin
+            foreach (var p in Minimap.instance.m_pins)
+            {
+                // Translate the world position of the pin to the overlay position
+                var pos = MinimapManager.Instance.WorldToOverlayCoords(p.m_pos, pinOverlay.TextureSize);
+
+                // Set a block of pixels on the MainTex to make the map use our color instead of the vanilla one
+                pinOverlay.MainTex.SetPixels((int)pos.x, (int)pos.y, squareSize, squareSize, colorPixels);
+
+                // Set a block of pixels on the ForestFilter and FogFilter, removing forest and fog from the map
+                pinOverlay.ForestFilter.SetPixels((int)pos.x, (int)pos.y, squareSize, squareSize, filterPixels);
+                pinOverlay.FogFilter.SetPixels((int)pos.x, (int)pos.y, squareSize, squareSize, filterPixels);
+
+                // Set a block of pixels on the HeightFilter so our square will always be drawn at meadow height
+                pinOverlay.HeightFilter.SetPixels((int)pos.x, (int)pos.y, squareSize, squareSize, heightPixels);
+            }
+
+            // Apply the changes to all textures
+            // This also triggers the MinimapManager to display this drawing
+            pinOverlay.MainTex.Apply();
+            pinOverlay.FogFilter.Apply();
+            pinOverlay.ForestFilter.Apply();
+            pinOverlay.HeightFilter.Apply();
         }
 
         private void FixedUpdate()
@@ -117,7 +153,7 @@ namespace KukusVillagerMod
             }
         }
 
-        private void addPrefabsToSpawner(List<GameObject> prefabs, SpawnArea spawnArea)
+        private void addPrefabsToSpawner(List<GameObject> prefabs, ref SpawnArea spawnArea)
         {
             List<SpawnArea.SpawnData> spawnCreatures = new List<SpawnArea.SpawnData>();
             foreach (var g in prefabs)
@@ -135,8 +171,9 @@ namespace KukusVillagerMod
             spawnArea.m_prefabs = spawnCreatures;
         }
 
-        private void CloneSpawnPoint()
+        private void CloneSpawner()
         {
+            KLog.info("Cloning Horem's Original Spawner for villager");
             //Villagers prefab
             var Villager_Meadow1 = PrefabManager.Instance.GetPrefab("Villager_Meadow1");
             var Villager_Meadow2 = PrefabManager.Instance.GetPrefab("Villager_Meadow2");
@@ -151,48 +188,170 @@ namespace KukusVillagerMod
             var Villager_Mist2 = PrefabManager.Instance.GetPrefab("Villager_Mist2");
             var Villager_Mist3 = PrefabManager.Instance.GetPrefab("Villager_Mist3");
 
+            var originalSpawnPoint = PrefabManager.Instance.GetPrefab("Spawner_NPCCamp_DoD");
+            var cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_Spawner_Meadow", originalSpawnPoint);
+            var spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
+            var hoverText = cloningSpawnPoint.GetComponentInChildren<HoverText>();
+            hoverText.m_text = "Meadow Residence";
+            spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
+            spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
+            spawnArea.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
+            List<SpawnArea.SpawnData> spawnCreatures = new List<SpawnArea.SpawnData>();
+            foreach (var g in new List<GameObject> { Villager_Meadow1, Villager_Meadow2 })
+            {
+                var spawnData = new SpawnArea.SpawnData
+                {
+                    m_prefab = g,
+                    m_maxLevel = 1,
+                    m_minLevel = 1,
+                    m_weight = 0.5f
+                };
+
+                spawnCreatures.Add(spawnData);
+            }
+            spawnArea.m_prefabs = spawnCreatures;
+            PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
+
+            cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_Spawner_BF", originalSpawnPoint);
+            hoverText = cloningSpawnPoint.GetComponentInChildren<HoverText>();
+            hoverText.m_text = "Blackforest Residence";
+            spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
+            spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
+            spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
+            spawnArea.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
+            spawnCreatures = new List<SpawnArea.SpawnData>();
+            foreach (var g in new List<GameObject> { Villager_BF1, Villager_BF2 })
+            {
+                var spawnData = new SpawnArea.SpawnData
+                {
+                    m_prefab = g,
+                    m_maxLevel = 1,
+                    m_minLevel = 1,
+                    m_weight = 0.5f
+                };
+
+                spawnCreatures.Add(spawnData);
+            }
+            spawnArea.m_prefabs = spawnCreatures;
+            PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
+
+            cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_Spawner_Mountain", originalSpawnPoint);
+            hoverText = cloningSpawnPoint.GetComponentInChildren<HoverText>();
+            hoverText.m_text = "Mountain Base Point";
+            spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
+            spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
+            spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
+            spawnArea.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
+            spawnCreatures = new List<SpawnArea.SpawnData>();
+            foreach (var g in new List<GameObject> { Villager_Mountain1, Villager_Mountain2 })
+            {
+                var spawnData = new SpawnArea.SpawnData
+                {
+                    m_prefab = g,
+                    m_maxLevel = 1,
+                    m_minLevel = 1,
+                    m_weight = 0.5f
+                };
+
+                spawnCreatures.Add(spawnData);
+            }
+            spawnArea.m_prefabs = spawnCreatures;
+            PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
+
+            cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_Spawner_Plains", originalSpawnPoint);
+            hoverText = cloningSpawnPoint.GetComponentInChildren<HoverText>();
+            hoverText.m_text = "Plains Survivor Spot";
+            spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
+            spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
+            spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
+            spawnArea.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
+            spawnCreatures = new List<SpawnArea.SpawnData>();
+            foreach (var g in new List<GameObject> { Villager_Plains1, Villager_Plains2, Villager_Plains3 })
+            {
+                var spawnData = new SpawnArea.SpawnData
+                {
+                    m_prefab = g,
+                    m_maxLevel = 1,
+                    m_minLevel = 1,
+                    m_weight = 0.5f
+                };
+
+                spawnCreatures.Add(spawnData);
+            }
+            spawnArea.m_prefabs = spawnCreatures;
+            PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
+
+            cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_Spawner_MistLand", originalSpawnPoint);
+            hoverText = cloningSpawnPoint.GetComponentInChildren<HoverText>();
+            hoverText.m_text = "Mistland Warrior Den";
+            spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
+            spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
+            spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
+            spawnArea.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
+            spawnCreatures = new List<SpawnArea.SpawnData>();
+            foreach (var g in new List<GameObject> { Villager_Mist1, Villager_Mist2, Villager_Mist3 })
+            {
+                var spawnData = new SpawnArea.SpawnData
+                {
+                    m_prefab = g,
+                    m_maxLevel = 1,
+                    m_minLevel = 1,
+                    m_weight = 0.5f
+                };
+
+                spawnCreatures.Add(spawnData);
+            }
+            spawnArea.m_prefabs = spawnCreatures;
+            PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
+        }
+
+        private void CloneSpawnPoint()
+        {
+            KLog.info("Cloning Spawn point from Horem for villager's HUT");
+
             //Original SpawnPoint
             var originalSpawnPoint = PrefabManager.Instance.GetPrefab("Loc_NPCCamp_DoD");
 
-            //Cloning for meadow, modifying spawnArea, adding prefab
+
             var cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_Meadow", originalSpawnPoint);
-            var spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
-            spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
-            spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
-            spawnArea.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
-            addPrefabsToSpawner(new List<GameObject> { Villager_Meadow1, Villager_Meadow2 }, spawnArea);
+            var originalSpawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
+            UnityEngine.Object.Destroy(originalSpawnArea);
+            var spawnerPreafb = PrefabManager.Instance.GetPrefab("KukuVillager_Spawner_Meadow");
+            SpawnArea copiedSpawnArea = spawnerPreafb.GetComponent<SpawnArea>();
+            cloningSpawnPoint.AddComponentCopy(copiedSpawnArea);
             PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
 
             cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_BF", originalSpawnPoint);
-            spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
-            spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
-            spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
-            spawnArea.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
-            addPrefabsToSpawner(new List<GameObject> { Villager_BF1, Villager_BF2 }, spawnArea);
+            originalSpawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
+            UnityEngine.Object.Destroy(originalSpawnArea);
+            spawnerPreafb = PrefabManager.Instance.GetPrefab("KukuVillager_Spawner_BF");
+            copiedSpawnArea = spawnerPreafb.GetComponent<SpawnArea>();
+            cloningSpawnPoint.AddComponentCopy(copiedSpawnArea);
             PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
 
             cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_Mountain", originalSpawnPoint);
-            spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
-            spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
-            spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
-            spawnArea.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
-            addPrefabsToSpawner(new List<GameObject> { Villager_Mountain2, Villager_Mountain1 }, spawnArea);
+            originalSpawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
+            UnityEngine.Object.Destroy(originalSpawnArea);
+            spawnerPreafb = PrefabManager.Instance.GetPrefab("KukuVillager_Spawner_Mountain");
+            copiedSpawnArea = spawnerPreafb.GetComponent<SpawnArea>();
+            cloningSpawnPoint.AddComponentCopy(copiedSpawnArea);
             PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
 
+
             cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_Plains", originalSpawnPoint);
-            spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
-            spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
-            spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
-            spawnArea.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
-            addPrefabsToSpawner(new List<GameObject> { Villager_Plains1, Villager_Plains2, Villager_Plains3 }, spawnArea);
+            originalSpawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
+            UnityEngine.Object.Destroy(originalSpawnArea);
+            spawnerPreafb = PrefabManager.Instance.GetPrefab("KukuVillager_Spawner_Plains");
+            copiedSpawnArea = spawnerPreafb.GetComponent<SpawnArea>();
+            cloningSpawnPoint.AddComponentCopy(copiedSpawnArea);
             PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
 
             cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_MistLand", originalSpawnPoint);
-            spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
-            spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
-            spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
-            spawnArea.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
-            addPrefabsToSpawner(new List<GameObject> { Villager_Mist1, Villager_Mist2, Villager_Mist3 }, spawnArea);
+            originalSpawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
+            UnityEngine.Object.Destroy(originalSpawnArea);
+            spawnerPreafb = PrefabManager.Instance.GetPrefab("KukuVillager_Spawner_MistLand");
+            copiedSpawnArea = spawnerPreafb.GetComponent<SpawnArea>();
+            cloningSpawnPoint.AddComponentCopy(copiedSpawnArea);
             PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
         }
         private void AddAllSpawnPointForVillager()
@@ -208,7 +367,7 @@ namespace KukusVillagerMod
         {
             try
             {
-                var spawnPoint = PrefabManager.Cache.GetPrefab<GameObject>(spawnPointName);
+                var spawnPoint = PrefabManager.Instance.GetPrefab(spawnPointName);
                 if (spawnPoint == null)
                 {
                     KLog.warning($"Failed to find spawn point {spawnPointName} Prefab");
@@ -639,8 +798,9 @@ namespace KukusVillagerMod
         private void OnVanillaCreaturesAvailable()
         {
             new VillagerPrefab();
-
+            CloneSpawner(); //We need to wait for villagers to laod in first
             CloneSpawnPoint(); //Clone spawnpoints with custom villagers
+
             CreatureManager.OnVanillaCreaturesAvailable -= OnVanillaCreaturesAvailable;
         }
 
