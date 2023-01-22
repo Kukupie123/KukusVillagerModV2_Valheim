@@ -103,41 +103,6 @@ namespace KukusVillagerMod
             }
         }
 
-        private void AddLocalizations()
-        {
-            try
-            {
-                Localization = new CustomLocalization();
-                LocalizationManager.Instance.AddLocalization(Localization);
-
-                Localization.AddTranslation("English", new Dictionary<string, string>
-                {
-                    { "prop_npc_spawner_dod", "Mystical Runestone" },
-
-                    { "npc_tina_dod", "Timid Tina the Traveller" },
-                    { "npc_tania_dod", "Terrible Tania the Teacher" },
-                    { "npc_gary_dod", "Greedy Gary the Green" },
-
-                    { "npc_mandy_dod", "Mad Mandy the Mat Maker" },
-                    { "npc_barbara_dod", "Barmy Barbara the Barbarian" },
-                    { "npc_sandra_dod", "Soppy Sandra the Shoemaker" },
-                    { "npc_daisy_dod", "Daisy the Dandy Dressmaker" },
-                    { "npc_cathrine_dod", "Curious Cathrine the Cakemaker" },
-                    { "npc_karen_dod", "Crazy Karen the Clockmaker" },
-
-                    { "npc_fletch_dod", "Flinching Fletch the Fletcher" },
-                    { "npc_bobby_dod", "Bobby Black the Batt Burgler" },
-                    { "npc_jeff_dod", "Jobless Jeff the Joker" },
-                    { "npc_bob_dod", "Bob Bloby the Bobsman" },
-                    { "npc_fred_dod", "Freaky Fred the Ferryman" },
-                    { "npc_barry_dod", "Barking Barry the Bagsman" }
-                });
-            }
-            catch (Exception ex)
-            {
-                Logger.LogWarning($"Exception caught while adding Localication for Companions: {ex}");
-            }
-        }
         private void LoadBundle()
         {
             try
@@ -149,6 +114,85 @@ namespace KukusVillagerMod
             {
                 Logger.LogWarning($"Exception caught while loading Companions asset bundle: {ex}");
             }
+        }
+
+        private void addPrefabsToSpawner(List<GameObject> prefabs, SpawnArea spawnArea)
+        {
+            List<SpawnArea.SpawnData> spawnCreatures = new List<SpawnArea.SpawnData>();
+            foreach (var g in prefabs)
+            {
+                var spawnData = new SpawnArea.SpawnData
+                {
+                    m_prefab = g,
+                    m_maxLevel = 1,
+                    m_minLevel = 1,
+                    m_weight = 0.5f
+                };
+
+                spawnCreatures.Add(spawnData);
+            }
+            spawnArea.m_prefabs = spawnCreatures;
+        }
+
+        private void CloneSpawnPoint()
+        {
+            //Villagers prefab
+            var Villager_Meadow1 = PrefabManager.Instance.GetPrefab("Villager_Meadow1");
+            var Villager_Meadow2 = PrefabManager.Instance.GetPrefab("Villager_Meadow2");
+            var Villager_BF1 = PrefabManager.Instance.GetPrefab("Villager_BF1");
+            var Villager_BF2 = PrefabManager.Instance.GetPrefab("Villager_BF2");
+            var Villager_Mountain1 = PrefabManager.Instance.GetPrefab("Villager_Mountain1");
+            var Villager_Mountain2 = PrefabManager.Instance.GetPrefab("Villager_Mountain2");
+            var Villager_Plains1 = PrefabManager.Instance.GetPrefab("Villager_Plains1");
+            var Villager_Plains2 = PrefabManager.Instance.GetPrefab("Villager_Plains2");
+            var Villager_Plains3 = PrefabManager.Instance.GetPrefab("Villager_Plains3");
+            var Villager_Mist1 = PrefabManager.Instance.GetPrefab("Villager_Mist1");
+            var Villager_Mist2 = PrefabManager.Instance.GetPrefab("Villager_Mist2");
+            var Villager_Mist3 = PrefabManager.Instance.GetPrefab("Villager_Mist3");
+
+            //Original SpawnPoint
+            var originalSpawnPoint = PrefabManager.Instance.GetPrefab("Loc_NPCCamp_DoD");
+
+            //Cloning for meadow, modifying spawnArea, adding prefab
+            var cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_Meadow", originalSpawnPoint);
+            var spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
+            spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
+            spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
+            spawnArea.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
+            addPrefabsToSpawner(new List<GameObject> { Villager_Meadow1, Villager_Meadow2 }, spawnArea);
+            PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
+
+            cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_BF", originalSpawnPoint);
+            spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
+            spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
+            spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
+            spawnArea.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
+            addPrefabsToSpawner(new List<GameObject> { Villager_BF1, Villager_BF2 }, spawnArea);
+            PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
+
+            cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_Mountain", originalSpawnPoint);
+            spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
+            spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
+            spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
+            spawnArea.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
+            addPrefabsToSpawner(new List<GameObject> { Villager_Mountain2, Villager_Mountain1 }, spawnArea);
+            PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
+
+            cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_Plains", originalSpawnPoint);
+            spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
+            spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
+            spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
+            spawnArea.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
+            addPrefabsToSpawner(new List<GameObject> { Villager_Plains1, Villager_Plains2, Villager_Plains3 }, spawnArea);
+            PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
+
+            cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_MistLand", originalSpawnPoint);
+            spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
+            spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
+            spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
+            spawnArea.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
+            addPrefabsToSpawner(new List<GameObject> { Villager_Mist1, Villager_Mist2, Villager_Mist3 }, spawnArea);
+            PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
         }
         private void LoadAssets()
         {
@@ -374,6 +418,26 @@ namespace KukusVillagerMod
                         Logger.LogWarning("Spawners not found");
                     }
                 }
+
+                var spawnPoint = PrefabManager.Instance.GetPrefab("Loc_NPCCamp_DoD");
+                if (spawnPoint != null)
+                {
+                    Logger.LogMessage("Spawn Point is already added");
+                }
+                else
+                {
+                    Logger.LogMessage("Adding spawn point");
+                    GameObject spawner = NPCBundle.LoadAsset<GameObject>("Loc_NPCCamp_DoD");
+                    if (spawner != null)
+                    {
+                        CustomPrefab customSpawner = new CustomPrefab(spawner, true);
+                        PrefabManager.Instance.AddPrefab(customSpawner);
+                    }
+                    else
+                    {
+                        Logger.LogWarning("Spawn point asset not found");
+                    }
+                }
                 // Ragdolls
                 var rdcheck = PrefabManager.Instance.GetPrefab("HumanNPCBarry_RD_DoD");
                 if (rdcheck != null)
@@ -530,6 +594,8 @@ namespace KukusVillagerMod
         private void OnVanillaCreaturesAvailable()
         {
             new VillagerPrefab();
+
+            CloneSpawnPoint(); //Clone spawnpoints with custom villagers
             CreatureManager.OnVanillaCreaturesAvailable -= OnVanillaCreaturesAvailable;
         }
 

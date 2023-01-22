@@ -154,6 +154,7 @@ namespace KukusVillagerMod.Patches
     [HarmonyPatch(typeof(Humanoid), nameof(Humanoid.GetCurrentWeapon))]
     static class VillagerDamageModifier
     {
+        //TODO: Enable heal and shield and make it enabled for plains and mistland villagers
         public static void Postfix(Humanoid __instance, ref ItemDrop.ItemData __result, ref ItemDrop.ItemData ___m_rightItem, ref ItemDrop.ItemData ___m_leftItem, ref ItemDrop ___m_unarmedWeapon)
         {
             try
@@ -178,18 +179,37 @@ namespace KukusVillagerMod.Patches
 
                     if (weapon != null)
                     {
-                        weapon.m_shared.m_damages = new HitData.DamageTypes();
-                        weapon.m_shared.m_damages.m_damage = villagerGeneral.GetDamage();
-                        weapon.m_shared.m_damages.m_slash = villagerGeneral.GetSlash();
-                        weapon.m_shared.m_damages.m_blunt = villagerGeneral.GetBlunt();
-                        weapon.m_shared.m_damages.m_chop = villagerGeneral.GetChop();
-                        weapon.m_shared.m_damages.m_fire = villagerGeneral.GetFire();
-                        weapon.m_shared.m_damages.m_frost = villagerGeneral.GetFrost();
-                        weapon.m_shared.m_damages.m_lightning = villagerGeneral.Getlightning();
-                        weapon.m_shared.m_damages.m_pickaxe = villagerGeneral.GetPickaxe();
-                        weapon.m_shared.m_damages.m_pierce = villagerGeneral.GetPickaxe();
-                        weapon.m_shared.m_damages.m_poison = villagerGeneral.GetPoison();
-                        weapon.m_shared.m_damages.m_spirit = villagerGeneral.GetSpirit();
+                        if (weapon.m_shared.m_name.Contains("Health") || weapon.m_shared.m_name.Contains("Shield"))
+                        {
+                            weapon.m_shared.m_damages = new HitData.DamageTypes();
+                            weapon.m_shared.m_damages.m_damage = 0;
+                            weapon.m_shared.m_damages.m_slash = 0;
+                            weapon.m_shared.m_damages.m_blunt = 0;
+                            weapon.m_shared.m_damages.m_chop = 0;
+                            weapon.m_shared.m_damages.m_fire = 0;
+                            weapon.m_shared.m_damages.m_frost = 0;
+                            weapon.m_shared.m_damages.m_lightning = 0;
+                            weapon.m_shared.m_damages.m_pickaxe = 0;
+                            weapon.m_shared.m_damages.m_pierce = 0;
+                            weapon.m_shared.m_damages.m_poison = 0;
+                            weapon.m_shared.m_damages.m_spirit = 0;
+                        }
+                        else
+                        {
+                            weapon.m_shared.m_damages = new HitData.DamageTypes();
+                            weapon.m_shared.m_damages.m_damage = villagerGeneral.GetDamage();
+                            weapon.m_shared.m_damages.m_slash = villagerGeneral.GetSlash();
+                            weapon.m_shared.m_damages.m_blunt = villagerGeneral.GetBlunt();
+                            weapon.m_shared.m_damages.m_chop = villagerGeneral.GetChop();
+                            weapon.m_shared.m_damages.m_fire = villagerGeneral.GetFire();
+                            weapon.m_shared.m_damages.m_frost = villagerGeneral.GetFrost();
+                            weapon.m_shared.m_damages.m_lightning = villagerGeneral.Getlightning();
+                            weapon.m_shared.m_damages.m_pickaxe = villagerGeneral.GetPickaxe();
+                            weapon.m_shared.m_damages.m_pierce = villagerGeneral.GetPickaxe();
+                            weapon.m_shared.m_damages.m_poison = villagerGeneral.GetPoison();
+                            weapon.m_shared.m_damages.m_spirit = villagerGeneral.GetSpirit();
+                        }
+
                         __result = weapon;
                     }
 

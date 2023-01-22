@@ -1,7 +1,9 @@
 ﻿# Kuku's Villager Mod
 
 ## NOTICE 
-1. May work initially in Multiplayer as we got rid of beds BUT has not been designed with multiplayer in mind so there may be issues specially with work commands as it alters container's contents. <br>
+1. I would like to thank [Horem](https://discord.gg/YwtBr7hh) for helping me out so much for this update as well as providing his awesome Assetbundle. <br>
+2. Old villagers will dissapear because the names of the villagers have been changed. <br>
+3. May work initially in Multiplayer as we got rid of beds BUT has not been designed with multiplayer in mind so there may be issues specially with work commands as it alters container's contents. <br>
 ## Installation (manual)
 Paste the plugins folder in valheim/BepInEx/
 
@@ -53,11 +55,15 @@ You can also give universal commands to the villagers
 
 ## Changelog
 <h3>3.1.0</h3>
-1. Human NPC included, Thanks to Horen for his assets :) <br>
-2. There are 12 Unique Human NPCs you can see the config for the full name. Some are not used because they use AOE attacks that may hurt the player and surrounding structures. You can use them if you want by editing the config <br>
+1. 12 Unique Human NPC included, Thanks to Horen for his assets :) <br>
+2. Different villagers found in different biomes.<br>
+3. Villagers can be found in huts and rarely in the wild. <br>
+4. Villagers of Plains can generate shields to protect itself and nearby <br>
+5. Villagers of mistland can generate shields as well as spray yellow smoke to heal themselves and nearby allies. <br>
 3. Villagers should stare at the player less when working and do it's tasks more consistently.<br>
 4. Villager can only do one type of work now. This is because works were conflicting and causing serious bugs. <br>
 5. Working villagers will not fight. This is the side effect of making them not stare at the player and stand idle. Be sure to place a defense villager close by
+6. Villagers 
 <h3>3.0.1</h3>
 1. Added config option for resources needed to upgrade villagers. As well as others config settings. Make sure to check out the config for full info :)<br>
 2. Wanderer's (Villagers found in the wild) stats will have stats scaled based on the biome it was found at. (Configurable)<br>

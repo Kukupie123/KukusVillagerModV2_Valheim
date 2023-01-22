@@ -79,6 +79,12 @@ namespace KukusVillagerMod.Configuration
         public static float MountainRandomStatsMultiplier;
         public static float MistlandRandomStatsMultiplier;
 
+        public static float SpawnPoint_SpawnIntervalSec;
+
+        public static int SpawnPoint_MaxNear;
+
+        public static int SpawnPoint_MaxTotal;
+
         public static void LoadConfig(ConfigFile Config)
         {
             Config.SaveOnConfigSet = true;
@@ -125,21 +131,26 @@ namespace KukusVillagerMod.Configuration
                 ).BoxedValue;
 
             //Villager spawn configuration
-            GroupRadius = (float)Config.Bind("Villager Spawner", "Group radius", 3f
+            GroupRadius = (float)Config.Bind("Villager Spawner WILDERNESS", "Wilderness Spawn Group radius", 3f
                 ).BoxedValue;
-            MaxGroupSize = (int)Config.Bind("Villager Spawner", "Max Group Size", 1
+            MaxGroupSize = (int)Config.Bind("Villager Spawner WILDERNESS", "Wilderness Spawn Max Group Size", 1
                 ).BoxedValue;
-            MinGroupSize = (int)Config.Bind("Villager Spawner", "Min Group Size", 1
+            MinGroupSize = (int)Config.Bind("Villager Spawner WILDERNESS", "Wilderness Spawn Min Group Size", 1
                 ).BoxedValue;
-            MaxSpawned = (int)Config.Bind("Villager Spawner", "Max Spawned", 1
+            MaxSpawned = (int)Config.Bind("Villager Spawner WILDERNESS", "Wilderness Spawn Max Spawned", 1
                 ).BoxedValue;
-            SpawnChance = (float)Config.Bind("Villager Spawner", "Spawn Chance", 3f
+            SpawnChance = (float)Config.Bind("Villager Spawner WILDERNESS", "Wilderness Spawn Spawn Chance", 0.01f
                 ).BoxedValue;
-            SpawnDistance = (float)Config.Bind("Villager Spawner", "Spawn Distance", 100f
+            SpawnDistance = (float)Config.Bind("Villager Spawner WILDERNESS", "Wilderness Spawn Spawn Distance", 100f
                 ).BoxedValue;
 
-            biomeToSpawn = (string)Config.Bind("Villager Spawner", "Spawn Area", "blackforest,meadows,plains,mountains"
+            //Villager spawner point
+            SpawnPoint_SpawnIntervalSec = (float)Config.Bind("Villager Spawner HUT", "Spawn Point Spawn Time interval", 15f, new ConfigDescription("Spawn time interval for villagers spawning in hut")
                 ).BoxedValue;
+            SpawnPoint_MaxNear = (int)Config.Bind("Villager Spawner HUT", "Spawn Point Max Spawn near", 3, new ConfigDescription("How many villagers will spawn when player is nearby hut")
+                ).BoxedValue;
+            SpawnPoint_MaxTotal = (int)Config.Bind("Villager Spawner HUT", "Spawn Point Max Spawn near", 3, new ConfigDescription("How many villagers will spawn when player is nearby hut")
+               ).BoxedValue;
 
             //Villager stats configuration
             MinHealth = (float)Config.Bind("Villager Stats", "Minimum Health", 50f
@@ -185,8 +196,9 @@ namespace KukusVillagerMod.Configuration
                ).BoxedValue;
             MistlandRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Mistland Wandering Stats Multiplier", 3.5f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
               ).BoxedValue;
-            NormalVillagerChance = (int) Config.Bind("Villager Stats", "Normal Wild Villager Chance", 5, new ConfigDescription("Determines the chance of villagers having special combat skills (forst,ice,poison,etc). 0 = Every Wild villager will have special skill, increase it by 1 will reduce the chance of villager having special skill. It's counterintuiive I know :P but it is what it is")
+            NormalVillagerChance = (int)Config.Bind("Villager Stats", "Normal Wild Villager Chance", 5, new ConfigDescription("Determines the chance of villagers having special combat skills (forst,ice,poison,etc). 0 = Every Wild villager will have special skill, increase it by 1 will reduce the chance of villager having special skill. It's counterintuiive I know :P but it is what it is")
               ).BoxedValue;
+
             //Upgrade items
             ArmorRagSetReq = (int)Config.Bind("Villager Upgrade", "Armor Rag Set Requirements", 3, new ConfigDescription("The amount of resources required to craft upgrading items")
                 ).BoxedValue;

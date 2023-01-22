@@ -42,26 +42,26 @@ namespace KukusVillagerMod.Prefabs
             //Plains : 3 types of villager
             //mistland : 3 types of villager
 
-            CreateVillager("Villager_Meadow1", "HumanNPCBob_DoD", Heightmap.Biome.Meadows);
-            CreateVillager("Villager_Meadow2", "HumanNPCMandy_DoD", Heightmap.Biome.Meadows);
+            CreateVillager("Villager_Meadow1", "HumanNPCBob_DoD", Heightmap.Biome.Meadows, false, false);
+            CreateVillager("Villager_Meadow2", "HumanNPCMandy_DoD", Heightmap.Biome.Meadows, false, false);
 
-            CreateVillager("Villager_BF1", "HumanNPCFred_DoD", Heightmap.Biome.BlackForest);
-            CreateVillager("Villager_BF2", "HumanNPCBarbara_DoD", Heightmap.Biome.BlackForest);
+            CreateVillager("Villager_BF1", "HumanNPCFred_DoD", Heightmap.Biome.BlackForest, false, false);
+            CreateVillager("Villager_BF2", "HumanNPCBarbara_DoD", Heightmap.Biome.BlackForest, false, false);
 
-            CreateVillager("Villager_Mountain1", "HumanNPCJeff_DoD", Heightmap.Biome.Mountain);
-            CreateVillager("Villager_Mountain2", "HumanNPCSandra_DoD", Heightmap.Biome.Mountain);
+            CreateVillager("Villager_Mountain1", "HumanNPCJeff_DoD", Heightmap.Biome.Mountain, false, false);
+            CreateVillager("Villager_Mountain2", "HumanNPCSandra_DoD", Heightmap.Biome.Mountain, false, false);
 
-            CreateVillager("Villager_Plains1", "HumanNPCBobby_DoD", Heightmap.Biome.Plains);
-            CreateVillager("Villager_Plains2", "HumanNPCCathrine_DoD", Heightmap.Biome.Plains);
-            CreateVillager("Villager_Plains3", "HumanNPCDaisy_DoD", Heightmap.Biome.Plains);
+            CreateVillager("Villager_Plains1", "HumanNPCBobby_DoD", Heightmap.Biome.Plains, true, false);
+            CreateVillager("Villager_Plains2", "HumanNPCCathrine_DoD", Heightmap.Biome.Plains, true, false);
+            CreateVillager("Villager_Plains3", "HumanNPCDaisy_DoD", Heightmap.Biome.Plains, true, false);
 
-            CreateVillager("Villager_Mist1", "HumanNPCKaren_DoD", Heightmap.Biome.Mistlands);
-            CreateVillager("Villager_Mist2", "HumanNPCFletch_DoD", Heightmap.Biome.Mistlands);
-            CreateVillager("Villager_Mist3", "HumanNPCBarry_DoD", Heightmap.Biome.Mistlands);
+            CreateVillager("Villager_Mist1", "HumanNPCKaren_DoD", Heightmap.Biome.Mistlands, true, true);
+            CreateVillager("Villager_Mist2", "HumanNPCFletch_DoD", Heightmap.Biome.Mistlands, true, true);
+            CreateVillager("Villager_Mist3", "HumanNPCBarry_DoD", Heightmap.Biome.Mistlands, true, true);
 
         }
 
-        void CreateVillager(string villagerName, string prefabCloneName, Heightmap.Biome biome)
+        void CreateVillager(string villagerName, string prefabCloneName, Heightmap.Biome biome, bool addShield, bool addHeal)
         {
             prefabCloneName = prefabCloneName.Trim();
             CreatureConfig villagerConfig = new CreatureConfig();
@@ -155,10 +155,30 @@ namespace KukusVillagerMod.Prefabs
             foreach (var b in a)
             {
                 items.Clear();
+
                 foreach (var i in b.m_items)
                 {
-                    if (i.name.Contains("Shield") || i.name.Contains("Heal")) continue;
-                    items.Add(i);
+                    if (i.name.Contains("Shield"))
+                    {
+                        if (addShield)
+                        {
+                            KLog.info($"Adding shield for villager {villagerName}");
+                            items.Add(i);
+                        }
+                    }
+                    else if (i.name.Contains("Heal"))
+                    {
+                        if (addHeal)
+                        {
+                            KLog.info($"Adding Heal for villager {villagerName}");
+                            items.Add(i);
+                        }
+
+                    }
+                    else
+                    {
+                        items.Add(i);
+                    }
                 }
                 b.m_items = items.ToArray();
                 newItemSet.Add(b);
