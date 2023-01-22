@@ -139,7 +139,7 @@ namespace KukusVillagerMod.Configuration
                 ).BoxedValue;
             MaxSpawned = (int)Config.Bind("Villager Spawner WILDERNESS", "Wilderness Spawn Max Spawned", 1
                 ).BoxedValue;
-            SpawnChance = (float)Config.Bind("Villager Spawner WILDERNESS", "Wilderness Spawn Spawn Chance", 0.01f
+            SpawnChance = (float)Config.Bind("Villager Spawner WILDERNESS", "Wilderness Spawn Spawn Chance", 0.07f
                 ).BoxedValue;
             SpawnDistance = (float)Config.Bind("Villager Spawner WILDERNESS", "Wilderness Spawn Spawn Distance", 100f
                 ).BoxedValue;
