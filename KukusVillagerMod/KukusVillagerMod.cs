@@ -18,10 +18,6 @@ using Jotunn.Utils;
 using System;
 using Jotunn.Configs;
 using System.Collections.Generic;
-using static CharacterDrop;
-using KukusVillagerMod.Components.Villager;
-using System.Threading.Tasks;
-using Jotunn;
 
 namespace KukusVillagerMod
 {
@@ -64,12 +60,12 @@ namespace KukusVillagerMod
             AddNamedMageNPC("HumanNPCGary_DoD");
             AddNamedMageNPC("HumanNPCTania_DoD");
             AddNamedMageNPC("HumanNPCTina_DoD");
-
             //Create villager prefab using horem's NPC
             new VillagerPrefab();
-            CloneSpawnPoint(); //Clones and modifies each spawn point as needed
+            //CreatureManager.OnVanillaCreaturesAvailable += CloneSpawnPoint;
+            //CloneSpawnPoint(); //Clones and modifies each spawn point as needed
             PrefabManager.OnVanillaPrefabsAvailable += LoadPiecesPrefab; //load original prefabs cloned from original game
-            ZoneManager.OnVanillaLocationsAvailable += AddAllSpawnPointForVillager; //add spawn points to the game
+            //ZoneManager.OnVanillaLocationsAvailable += AddAllSpawnPointForVillager; //add spawn points to the game
             harmony.PatchAll();
 
         }
@@ -238,18 +234,23 @@ namespace KukusVillagerMod
 
             KLog.info("Cloning Spawn point from Horem for villager's HUT");
             //Villagers prefab
-            var Villager_Meadow1 = PrefabManager.Instance.GetPrefab("Villager_Meadow1");
-            var Villager_Meadow2 = PrefabManager.Instance.GetPrefab("Villager_Meadow2");
-            var Villager_BF1 = PrefabManager.Instance.GetPrefab("Villager_BF1");
-            var Villager_BF2 = PrefabManager.Instance.GetPrefab("Villager_BF2");
-            var Villager_Mountain1 = PrefabManager.Instance.GetPrefab("Villager_Mountain1");
-            var Villager_Mountain2 = PrefabManager.Instance.GetPrefab("Villager_Mountain2");
-            var Villager_Plains1 = PrefabManager.Instance.GetPrefab("Villager_Plains1");
-            var Villager_Plains2 = PrefabManager.Instance.GetPrefab("Villager_Plains2");
-            var Villager_Plains3 = PrefabManager.Instance.GetPrefab("Villager_Plains3");
-            var Villager_Mist1 = PrefabManager.Instance.GetPrefab("Villager_Mist1");
-            var Villager_Mist2 = PrefabManager.Instance.GetPrefab("Villager_Mist2");
-            var Villager_Mist3 = PrefabManager.Instance.GetPrefab("Villager_Mist3");
+            var Villager_Meadow1 = CreatureManager.Instance.GetCreaturePrefab("Villager_Meadow1");
+            var Villager_Meadow2 = CreatureManager.Instance.GetCreaturePrefab("Villager_Meadow2");
+            var Villager_BF1 = CreatureManager.Instance.GetCreaturePrefab("Villager_BF1");
+            var Villager_BF2 = CreatureManager.Instance.GetCreaturePrefab("Villager_BF2");
+            var Villager_Mountain1 = CreatureManager.Instance.GetCreaturePrefab("Villager_Mountain1");
+            var Villager_Mountain2 = CreatureManager.Instance.GetCreaturePrefab("Villager_Mountain2");
+            var Villager_Plains1 = CreatureManager.Instance.GetCreaturePrefab("Villager_Plains1");
+            var Villager_Plains2 = CreatureManager.Instance.GetCreaturePrefab("Villager_Plains2");
+            var Villager_Plains3 = CreatureManager.Instance.GetCreaturePrefab("Villager_Plains3");
+            var Villager_Mist1 = CreatureManager.Instance.GetCreaturePrefab("Villager_Mist1");
+            var Villager_Mist2 = CreatureManager.Instance.GetCreaturePrefab("Villager_Mist2");
+            var Villager_Mist3 = CreatureManager.Instance.GetCreaturePrefab("Villager_Mist3");
+            if (Villager_Mist3 == null)
+            {
+                KLog.warning("Villagers are not yet registered and loaded aborting clone spawn point");
+                return;
+            }
 
             //Original SpawnPoint
             var originalSpawnPoint = PrefabManager.Instance.GetPrefab("Loc_NPCCamp_DoD");
@@ -322,7 +323,7 @@ namespace KukusVillagerMod
                 };
                 spawnerCreaturesBF.Add(spawnData);
             }
-            spawnerMeadow.m_prefabs = spawnerCreaturesBF;
+            spawnerBF.m_prefabs = spawnerCreaturesBF;
             PrefabManager.Instance.AddPrefab(clonedSpawnPointBF);
 
 
@@ -358,7 +359,7 @@ namespace KukusVillagerMod
                 };
                 spawnerCreaturesMountain.Add(spawnData);
             }
-            spawnerMeadow.m_prefabs = spawnerCreaturesMountain;
+            spawnerMountain.m_prefabs = spawnerCreaturesMountain;
             PrefabManager.Instance.AddPrefab(clonedSpawnPointMountain);
 
 
@@ -392,7 +393,7 @@ namespace KukusVillagerMod
                 };
                 spawnerCreaturesPlains.Add(spawnData);
             }
-            spawnerMeadow.m_prefabs = spawnerCreaturesPlains;
+            spawnerPlains.m_prefabs = spawnerCreaturesPlains;
             PrefabManager.Instance.AddPrefab(clonedSpawnPointPlains);
 
 
@@ -428,8 +429,12 @@ namespace KukusVillagerMod
                 };
                 spawnerCreaturesML.Add(spawnData);
             }
-            spawnerMeadow.m_prefabs = spawnerCreaturesML;
+            spawnerML.m_prefabs = spawnerCreaturesML;
             PrefabManager.Instance.AddPrefab(clonedSpawnPointML);
+
+            KLog.warning("Cloned Villager Spawn point successfully");
+            CreatureManager.OnVanillaCreaturesAvailable -= CloneSpawnPoint;
+
         }
         private void AddAllSpawnPointForVillager()
         {

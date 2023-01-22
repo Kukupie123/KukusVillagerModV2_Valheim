@@ -24,7 +24,7 @@ Paste the plugins folder in valheim/BepInEx/
 1. Villager may get lit on fire, especially when working.<br>
 2. When chopping trees they may not attack or attack in the wrong direction. <br>
 3. Villagers when chopping trees may sometime not play the attack animation. <br>
-4. You might get caught in friendly fire for villagers who have AOE attacks. <br>
+4. Villagers who are working will not attack enemies most of the time. This is the side effect of villagers AI being updated constantly to not keep staring at player.<br>
 
 ## USAGE GUIDE :
 ### Recruiting villagers.
@@ -59,13 +59,11 @@ You can also give universal commands to the villagers
 <h3>3.1.0</h3>
 1. 12 Unique Human NPC included, Thanks to Horen for his assets :) <br>
 2. Different villagers found in different biomes.<br>
-3. Villagers can be found in huts and rarely in the wild. <br>
-4. Villagers of Plains can generate shields to protect itself and nearby <br>
-5. Villagers of mistland can generate shields as well as spray yellow smoke to heal themselves and nearby allies. <br>
-3. Villagers should stare at the player less when working and do it's tasks more consistently.<br>
-4. Villager can only do one type of work now. This is because works were conflicting and causing serious bugs. <br>
-5. Working villagers will not fight. This is the side effect of making them not stare at the player and stand idle. Be sure to place a defense villager close by
-6. Villagers 
+3. Villagers of Plains can generate shields to protect itself and nearby <br>
+4. Villagers of mistland can generate shields as well as spray yellow smoke to heal themselves and nearby allies. <br>
+5. Villagers should stare at the player less when working and do it's tasks more consistently.<br>
+6. Villager can only do one type of work now. This is because works were conflicting and causing serious bugs and getting hard to manage. <br>
+7. Next Major update will introduce villagers spawn area such as hut where you will find group of villagers chilling. This is to reduce villagers found in wild and have them in a small residence which will look nice and immersive. Thanks to Horem for the idea. Couldn't get it to work this update :) <br>
 <h3>3.0.1</h3>
 1. Added config option for resources needed to upgrade villagers. As well as others config settings. Make sure to check out the config for full info :)<br>
 2. Wanderer's (Villagers found in the wild) stats will have stats scaled based on the biome it was found at. (Configurable)<br>
