@@ -685,15 +685,15 @@ namespace KukusVillagerMod
                     }
                 }
                 // Spawners
-                var spawnercheck = PrefabManager.Instance.GetPrefab("Spawner_NPCCamp_DoD");
+                var spawnercheck = PrefabManager.Instance.GetPrefab("Spawner_NPCCamp_DoDkuku");
                 if (spawnercheck != null)
                 {
-                    Logger.LogMessage("Spawners already added");
+                    //Logger.LogMessage("Spawners already added");
                 }
                 else
                 {
                     Logger.LogMessage("Adding Spawners");
-                    GameObject monsterspawner1 = NPCBundle.LoadAsset<GameObject>("Spawner_NPCCamp_DoD");
+                    GameObject monsterspawner1 = NPCBundle.LoadAsset<GameObject>("Spawner_NPCCamp_DoDkuku");
                     if (monsterspawner1 != null)
                     {
                         CustomPrefab customSpawner1 = new CustomPrefab(monsterspawner1, true);
@@ -701,14 +701,14 @@ namespace KukusVillagerMod
                     }
                     else
                     {
-                        Logger.LogWarning("Spawners not found");
+                        //Logger.LogWarning("Spawners not found");
                     }
                 }
 
-                var spawnPoint = PrefabManager.Instance.GetPrefab("Loc_NPCCamp_DoD");
+                var spawnPoint = PrefabManager.Instance.GetPrefab("Loc_NPCCamp_DoDkuku");
                 if (spawnPoint != null)
                 {
-                    Logger.LogMessage("Spawn Point is already added");
+                    //Logger.LogMessage("Spawn Point is already added");
                 }
                 else
                 {
@@ -721,7 +721,7 @@ namespace KukusVillagerMod
                     }
                     else
                     {
-                        Logger.LogWarning("Spawn point asset not found");
+                        //Logger.LogWarning("Spawn point asset not found");
                     }
                 }
                 // Ragdolls
@@ -955,6 +955,7 @@ namespace KukusVillagerMod
  * Add random config option for work
  * use move boolean config
  * dynamic list of villagers
+ * USE GOLD TO TAME VILLAGERS
  * 
  * Huge overhaul incomming
  * Villagers are now going to be personal. They will have traits which is going to get better as you level them up. And if they die, they will no longer respawn.
