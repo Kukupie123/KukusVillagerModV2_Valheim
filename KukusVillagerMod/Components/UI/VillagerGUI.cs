@@ -103,15 +103,6 @@ namespace KukusVillagerMod.Components.UI
                 );
             SubUIs.Add(EfficiencyTextBtn);
 
-            string mining = "";
-
-            switch (VillagerGeneral.GetWorkLevel(selected_villager))
-            {
-                case 0: mining = "Newbie"; break;
-                case 1: mining = "Rokie"; break;
-                case 2: mining = "Iron Arms"; break;
-                case 3: mining = "Veteran"; break;
-            }
             /*
             GameObject MiningLvlTextBtn = GUIManager.Instance.CreateText(
                 text: $"Work Level : {mining}",

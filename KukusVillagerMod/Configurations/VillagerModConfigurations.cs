@@ -45,7 +45,6 @@ namespace KukusVillagerMod.Configuration
         public static int MinGroupSize;
         public static float SpawnChance;
         public static float SpawnDistance;
-        public static string biomeToSpawn;
         public static int NormalVillagerChance;
 
 
