@@ -156,6 +156,7 @@ namespace KukusVillagerMod
             //Cloning for meadow, modifying spawnArea, adding prefab
             var cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_Meadow", originalSpawnPoint);
             var spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
+            cloningSpawnPoint.name = "Meadow_Villager_Hut";
             spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
             spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
             spawnArea.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
@@ -163,6 +164,7 @@ namespace KukusVillagerMod
             PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
 
             cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_BF", originalSpawnPoint);
+            cloningSpawnPoint.name = "Blackforest_Villager_Hut";
             spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
             spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
             spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
@@ -171,6 +173,7 @@ namespace KukusVillagerMod
             PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
 
             cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_Mountain", originalSpawnPoint);
+            cloningSpawnPoint.name = "Mountain_Villager_Hut";
             spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
             spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
             spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
@@ -179,6 +182,7 @@ namespace KukusVillagerMod
             PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
 
             cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_Plains", originalSpawnPoint);
+            cloningSpawnPoint.name = "Plains_Villager_Hut";
             spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
             spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
             spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
@@ -187,6 +191,7 @@ namespace KukusVillagerMod
             PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
 
             cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_MistLand", originalSpawnPoint);
+            cloningSpawnPoint.name = "Mistland_Villager_Hut";
             spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
             spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
             spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;

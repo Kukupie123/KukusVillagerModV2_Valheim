@@ -919,6 +919,7 @@ namespace KukusVillagerMod.Components.Villager
                     {
                         //Check biome and scale damage as needed
 
+                        var biome = Heightmap.FindBiome(transform.position);
                         float statsMultiplier = 1f;
                         switch (assignedBiome)
                         {
@@ -929,10 +930,6 @@ namespace KukusVillagerMod.Components.Villager
                             case Heightmap.Biome.BlackForest:
                                 KLog.info("Spawned Wild villager in Black forest");
                                 statsMultiplier = VillagerModConfigurations.BlackForestRandomStatsMultiplier;
-                                break;
-                            case Heightmap.Biome.Swamp:
-                                KLog.info("Spawned Wild villager in Swamp");
-                                statsMultiplier = VillagerModConfigurations.SwampRandomStatsMultiplier;
                                 break;
                             case Heightmap.Biome.Plains:
                                 KLog.info("Spawned Wild villager in Plains");

@@ -73,7 +73,6 @@ namespace KukusVillagerMod.Configuration
         public static int CombatBmSetReq;
         public static float MeadowRandomStatsMultiplier;
         public static float BlackForestRandomStatsMultiplier;
-        public static float SwampRandomStatsMultiplier;
         public static float PlainsRandomStatsMultiplier;
         public static float MountainRandomStatsMultiplier;
         public static float MistlandRandomStatsMultiplier;
@@ -186,8 +185,6 @@ namespace KukusVillagerMod.Configuration
             MeadowRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Meadow Wandering Stats Multiplier", 1f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
                 ).BoxedValue;
             BlackForestRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "BlackForest Wandering Stats Multiplier", 1.5f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
-               ).BoxedValue;
-            SwampRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Swamp Wandering Stats Multiplier", 2f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
                ).BoxedValue;
             MountainRandomStatsMultiplier = (float)Config.Bind("Villager Stats", "Mountain Wandering Stats Multiplier", 2.5f, new ConfigDescription("Determines how much the stats needs to scale for villagers spawned in the wilderness")
                ).BoxedValue;
