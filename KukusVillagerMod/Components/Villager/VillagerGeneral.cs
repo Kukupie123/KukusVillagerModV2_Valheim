@@ -786,6 +786,7 @@ namespace KukusVillagerMod.Components.Villager
         private MonsterAI ai;
         public Humanoid humanoid;
         private Tameable tameable;
+        public Heightmap.Biome assignedBiome;
 
 
         //Ignore collision with player
@@ -918,9 +919,8 @@ namespace KukusVillagerMod.Components.Villager
                     {
                         //Check biome and scale damage as needed
 
-                        var biome = Heightmap.FindBiome(transform.position);
                         float statsMultiplier = 1f;
-                        switch (biome)
+                        switch (assignedBiome)
                         {
                             case Heightmap.Biome.Meadows:
                                 KLog.info("Spawned Wild villager in meadows");

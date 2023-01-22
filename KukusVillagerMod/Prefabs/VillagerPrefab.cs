@@ -131,7 +131,7 @@ namespace KukusVillagerMod.Prefabs
             UnityEngine.GameObject.DestroyImmediate(randAnim);
 
             villager.Prefab.AddComponent<NpcTalk>(); //Add our custom talk component
-            villager.Prefab.AddComponent<VillagerGeneral>(); //Add villager General component 
+            var vg = villager.Prefab.AddComponent<VillagerGeneral>(); //Add villager General component 
             villager.Prefab.AddComponent<VillagerAI>();
             if (existingTameable == null)
             {
@@ -148,6 +148,7 @@ namespace KukusVillagerMod.Prefabs
 
             villager.Prefab.GetComponent<MonsterAI>().m_avoidFire = true;
             villager.Prefab.GetComponent<MonsterAI>().m_huntPlayer = false;
+            vg.assignedBiome = biome;
 
             var a = villager.Prefab.GetComponent<Humanoid>().m_randomSets;
             List<Humanoid.ItemSet> newItemSet = new List<Humanoid.ItemSet>();
