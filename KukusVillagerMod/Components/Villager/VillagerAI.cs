@@ -681,7 +681,7 @@ namespace KukusVillagerMod.Components.Villager
                 }
 
                 //Search for pickable item
-                ItemDrop pickable = FindClosestValidPickup(workPosLoc, workScanRange, true);
+                ItemDrop pickable = FindClosestValidPickup(workPosLoc, workScanRange * 1.3f, true);
 
                 //ItemDrop found.
                 if (pickable != null)
@@ -1279,7 +1279,6 @@ namespace KukusVillagerMod.Components.Villager
                     ai.LookAt(obj.transform.position);
                     if (obj == null) return; //if tree was destroyed by the time we reached we exit
                     ai.DoAttack(null, false);
-                    transform.rotation = Quaternion.FromToRotation(transform.position, obj.transform.position); // Keep them facing the object
                     await Task.Delay(1);
                     count++;
                 }
