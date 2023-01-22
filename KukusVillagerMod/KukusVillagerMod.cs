@@ -86,6 +86,7 @@ namespace KukusVillagerMod
             PrefabManager.OnVanillaPrefabsAvailable += LoadPiecesPrefab;
             CreatureManager.OnVanillaCreaturesAvailable += OnVanillaCreaturesAvailable;
             MinimapManager.OnVanillaMapDataLoaded += OnMapDataLoaded;
+            ZoneManager.OnVanillaLocationsAvailable += AddAllSpawnPointForVillager;
             harmony.PatchAll();
 
         }
@@ -199,6 +200,43 @@ namespace KukusVillagerMod
             addPrefabsToSpawner(new List<GameObject> { Villager_Mist1, Villager_Mist2, Villager_Mist3 }, spawnArea);
             PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
         }
+        private void AddAllSpawnPointForVillager()
+        {
+            AddSpawnPointToWorld("KukuVillager_SpawnPoint_Meadow", Heightmap.Biome.Meadows);
+            AddSpawnPointToWorld("KukuVillager_SpawnPoint_BF", Heightmap.Biome.BlackForest);
+            AddSpawnPointToWorld("KukuVillager_SpawnPoint_Mountain", Heightmap.Biome.Mountain);
+            AddSpawnPointToWorld("KukuVillager_SpawnPoint_Plains", Heightmap.Biome.Plains);
+            AddSpawnPointToWorld("KukuVillager_SpawnPoint_MistLand", Heightmap.Biome.Mistlands);
+            ZoneManager.OnVanillaLocationsAvailable -= AddAllSpawnPointForVillager;
+        }
+        private void AddSpawnPointToWorld(string spawnPoinName, Heightmap.Biome biome)
+        {
+            try
+            {
+                var camp = ZoneManager.Instance.CreateLocationContainer(PrefabManager.Instance.GetPrefab(spawnPoinName));
+                if (camp == null)
+                {
+                    KLog.warning($"Failed to find spawn point {spawnPoinName}");
+                    return;
+                }
+                camp.GetComponentInChildren<AudioSource>().outputAudioMixerGroup = AudioMan.instance.m_ambientMixer;
+                ZoneManager.Instance.AddCustomLocation(new CustomLocation(camp, true, new LocationConfig
+                {
+                    Biome = biome,
+                    Quantity = 5,
+                    Priotized = true,
+                    ExteriorRadius = 32f,
+                    ClearArea = true,
+                    MinDistanceFromSimilar = 1000f
+                }));
+                Logger.LogMessage($"Villager hut Spawn point added {spawnPoinName}");
+            }
+            catch (Exception e)
+            {
+                KLog.warning("Exception when placing Spawn Point for villager " + e.Message);
+            }
+        }
+
         private void LoadAssets()
         {
             try
