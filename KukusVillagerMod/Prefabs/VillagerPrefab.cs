@@ -18,6 +18,8 @@ namespace KukusVillagerMod.Prefabs
 
         public VillagerPrefab()
         {
+
+
             //Compatible NPCs (No ZNV and Tameable error)
             /*
              * HumanNPCBob_DoD  ~~
@@ -146,6 +148,23 @@ namespace KukusVillagerMod.Prefabs
 
             villager.Prefab.GetComponent<MonsterAI>().m_avoidFire = true;
             villager.Prefab.GetComponent<MonsterAI>().m_huntPlayer = false;
+
+            var a = villager.Prefab.GetComponent<Humanoid>().m_randomSets;
+            List<Humanoid.ItemSet> newItemSet = new List<Humanoid.ItemSet>();
+            List<GameObject> items = new List<GameObject>();
+            foreach (var b in a)
+            {
+                items.Clear();
+                foreach (var i in b.m_items)
+                {
+                    if (i.name.Contains("Shield") || i.name.Contains("Heal")) continue;
+                    items.Add(i);
+                }
+                b.m_items = items.ToArray();
+                newItemSet.Add(b);
+            }
+
+            villager.Prefab.GetComponent<Humanoid>().m_randomSets = newItemSet.ToArray();
 
             CreatureManager.Instance.AddCreature(villager);
 

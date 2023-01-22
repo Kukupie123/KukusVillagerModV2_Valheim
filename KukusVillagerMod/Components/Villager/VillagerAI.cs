@@ -1279,6 +1279,7 @@ namespace KukusVillagerMod.Components.Villager
                     if (obj == null) break; 
                     ai.LookAt(obj.transform.position);
                     if (obj == null) return; //if tree was destroyed by the time we reached we exit
+                    
                     ai.DoAttack(null, false);
                     await Task.Delay(1);
                     count++;

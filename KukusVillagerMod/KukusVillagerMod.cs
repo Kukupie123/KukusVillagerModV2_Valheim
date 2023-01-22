@@ -45,9 +45,8 @@ namespace KukusVillagerMod
         private void Awake()
         {
             VillagerModConfigurations.LoadConfig(Config);
-            AddLocalizations();
             LoadBundle();
-            LoadAssets(); //Effects, props etc
+            LoadAssets();
             /*Companion names
            * HumanNPCBob_DoD
            * HumanNPCFred_DoD
@@ -278,13 +277,17 @@ namespace KukusVillagerMod
                         CustomItem customItem2 = new CustomItem(monsteritem2, true);
                         ItemManager.Instance.AddItem(customItem2);
 
+
                         GameObject monsteritem3 = NPCBundle.LoadAsset<GameObject>("NPC_KoshAttack_L_DoD");
                         CustomItem customItem3 = new CustomItem(monsteritem3, true);
                         ItemManager.Instance.AddItem(customItem3);
 
+
+
                         GameObject monsteritem4 = NPCBundle.LoadAsset<GameObject>("NPC_KoshAttack_R_DoD");
                         CustomItem customItem4 = new CustomItem(monsteritem4, true);
                         ItemManager.Instance.AddItem(customItem4);
+
 
                         GameObject monsteritem5 = NPCBundle.LoadAsset<GameObject>("NPC_KnifeAttack_L_DoD");
                         CustomItem customItem5 = new CustomItem(monsteritem5, true);
@@ -474,6 +477,7 @@ namespace KukusVillagerMod
                                 }
                         }
                     });
+
                 CreatureManager.Instance.AddCreature(humanCompanion);
             }
             else
