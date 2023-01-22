@@ -157,7 +157,6 @@ namespace KukusVillagerMod
             //Cloning for meadow, modifying spawnArea, adding prefab
             var cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_Meadow", originalSpawnPoint);
             var spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
-            cloningSpawnPoint.name = "Meadow_Villager_Hut";
             spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
             spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
             spawnArea.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
@@ -165,7 +164,6 @@ namespace KukusVillagerMod
             PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
 
             cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_BF", originalSpawnPoint);
-            cloningSpawnPoint.name = "Blackforest_Villager_Hut";
             spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
             spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
             spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
@@ -174,7 +172,6 @@ namespace KukusVillagerMod
             PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
 
             cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_Mountain", originalSpawnPoint);
-            cloningSpawnPoint.name = "Mountain_Villager_Hut";
             spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
             spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
             spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
@@ -183,7 +180,6 @@ namespace KukusVillagerMod
             PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
 
             cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_Plains", originalSpawnPoint);
-            cloningSpawnPoint.name = "Plains_Villager_Hut";
             spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
             spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
             spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
@@ -192,7 +188,6 @@ namespace KukusVillagerMod
             PrefabManager.Instance.AddPrefab(cloningSpawnPoint);
 
             cloningSpawnPoint = PrefabManager.Instance.CreateClonedPrefab("KukuVillager_SpawnPoint_MistLand", originalSpawnPoint);
-            cloningSpawnPoint.name = "Mistland_Villager_Hut";
             spawnArea = cloningSpawnPoint.GetComponentInChildren<SpawnArea>();
             spawnArea.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
             spawnArea.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
@@ -209,31 +204,38 @@ namespace KukusVillagerMod
             AddSpawnPointToWorld("KukuVillager_SpawnPoint_MistLand", Heightmap.Biome.Mistlands);
             ZoneManager.OnVanillaLocationsAvailable -= AddAllSpawnPointForVillager;
         }
-        private void AddSpawnPointToWorld(string spawnPoinName, Heightmap.Biome biome)
+        private void AddSpawnPointToWorld(string spawnPointName, Heightmap.Biome biome)
         {
             try
             {
-                var camp = ZoneManager.Instance.CreateLocationContainer(PrefabManager.Instance.GetPrefab(spawnPoinName));
-                if (camp == null)
+                var spawnPoint = PrefabManager.Cache.GetPrefab<GameObject>(spawnPointName);
+                if (spawnPoint == null)
                 {
-                    KLog.warning($"Failed to find spawn point {spawnPoinName}");
+                    KLog.warning($"Failed to find spawn point {spawnPointName} Prefab");
                     return;
                 }
-                camp.GetComponentInChildren<AudioSource>().outputAudioMixerGroup = AudioMan.instance.m_ambientMixer;
-                ZoneManager.Instance.AddCustomLocation(new CustomLocation(camp, true, new LocationConfig
+                var camp = ZoneManager.Instance.CreateLocationContainer(spawnPoint);
+                if (camp == null)
+                {
+                    KLog.warning($"Failed to create spawn point {spawnPointName} container");
+                    return;
+                }
+                //camp.GetComponentInChildren<AudioSource>().outputAudioMixerGroup = AudioMan.instance.m_ambientMixer;
+                if (ZoneManager.Instance.AddCustomLocation(new CustomLocation(camp, true, new LocationConfig
                 {
                     Biome = biome,
-                    Quantity = 5,
+                    Quantity = VillagerModConfigurations.HutSpawnQuantity,
                     Priotized = true,
                     ExteriorRadius = 32f,
                     ClearArea = true,
                     MinDistanceFromSimilar = 1000f
-                }));
-                Logger.LogMessage($"Villager hut Spawn point added {spawnPoinName}");
+                })))
+                    Logger.LogMessage($"Villager hut Spawn point added {spawnPointName}");
+                else Logger.LogMessage($"Villager hut Spawn point NOT added {spawnPointName}");
             }
             catch (Exception e)
             {
-                KLog.warning("Exception when placing Spawn Point for villager " + e.Message);
+                KLog.warning("Exception when placing Spawn Point for villager \n" + e.Message + e.StackTrace);
             }
         }
 
