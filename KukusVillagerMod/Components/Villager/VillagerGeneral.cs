@@ -27,6 +27,26 @@ namespace KukusVillagerMod.Components.Villager
     class VillagerGeneral : MonoBehaviour
     {
         //Methods
+
+        public static void SetVillagerSpawnRegion(ZDOID villagerZDOID, Heightmap.Biome biome)
+        {
+            Util.GetZDO(villagerZDOID).Set("spawn", (int)biome);
+        }
+        public void SetVillagerSpawnRegion(Heightmap.Biome biome)
+        {
+            SetVillagerSpawnRegion(ZNV.GetZDO().m_uid, biome);
+        }
+
+        public static Heightmap.Biome GetVillagerSpawnRegion(ZDOID villagerZDOID)
+        {
+            return (Heightmap.Biome)Util.GetZDO(villagerZDOID).GetInt("spawn", (int)Heightmap.Biome.Meadows);
+        }
+
+        public Heightmap.Biome GetVillagerSpawnRegion()
+        {
+            return GetVillagerSpawnRegion(ZNV.GetZDO().m_uid);
+        }
+
         public static GameObject GetVillagerInstance(ZDOID villagerZDOID)
         {
             return ZNetScene.instance.FindInstance(villagerZDOID);
@@ -807,7 +827,7 @@ namespace KukusVillagerMod.Components.Villager
         bool done = false;
         private void FixedUpdate()
         {
-            if (tameable == null || ZNV == null|| ai == null || humanoid == null)
+            if (tameable == null || ZNV == null || ai == null || humanoid == null)
             {
                 if (ZNV == null)
                 {
@@ -897,13 +917,13 @@ namespace KukusVillagerMod.Components.Villager
                     KLog.warning("humanoid component not Found!");
                 }
 
-             
+
             }
             else
             {
                 if (done == false)
                 {
-                    
+
                     done = true;
                     ai.m_attackPlayerObjects = false;
                     ai.m_avoidFire = true;
@@ -944,6 +964,8 @@ namespace KukusVillagerMod.Components.Villager
                                 statsMultiplier = VillagerModConfigurations.MistlandRandomStatsMultiplier;
                                 break;
                         }
+
+                        SetVillagerSpawnRegion(assignedBiome);
                         SetRandomStats(statsMultiplier);
                     }
                     else //In case it was tamed when it was not in memory

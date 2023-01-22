@@ -103,64 +103,22 @@ namespace KukusVillagerMod.Components.UI
                 );
             SubUIs.Add(EfficiencyTextBtn);
 
-            /*
-            GameObject MiningLvlTextBtn = GUIManager.Instance.CreateText(
-                text: $"Work Level : {mining}",
-                parent: MAINBG.transform,
-                anchorMin: new Vector2(0.5f, 0.1f),
-                anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(-200f, 0f), // width & height
-                width: 250f,
-                height: 60f,
-                color: Color.yellow,
-                outline: false,
-                outlineColor: Color.white,
-                font: GUIManager.Instance.AveriaSerif,
-                fontSize: 20,
-                addContentSizeFitter: false
-                );
-            SubUIs.Add(MiningLvlTextBtn);
-
-
-            GameObject ChoppingSkillBtn = GUIManager.Instance.CreateText(
-               text: $"Chopping Skill : {VillagerGeneral.GetChop(selected_villager)}",
-               parent: MAINBG.transform,
-               anchorMin: new Vector2(0.5f, 0.1f),
-               anchorMax: new Vector2(0.5f, 0.5f),
-               position: new Vector2(-200f, -50f), // width & height
-               width: 250f,
-               height: 60f,
-               color: Color.yellow,
-               outline: false,
-               outlineColor: Color.white,
-               font: GUIManager.Instance.AveriaSerif,
-               fontSize: 20,
-               addContentSizeFitter: false
-               );
-
-            SubUIs.Add(ChoppingSkillBtn);
-
-
-            GameObject MiningSkillBtn = GUIManager.Instance.CreateText(
-               text: $"Mining Skill : {VillagerGeneral.GetPickaxe(selected_villager)}",
-               parent: MAINBG.transform,
-               anchorMin: new Vector2(0.5f, 0.1f),
-               anchorMax: new Vector2(0.5f, 0.5f),
-               position: new Vector2(-200f, -100f), // width & height
-               width: 250f,
-               height: 60f,
-               color: Color.yellow,
-               outline: false,
-               outlineColor: Color.white,
-               font: GUIManager.Instance.AveriaSerif,
-               fontSize: 20,
-               addContentSizeFitter: false
-               );
-            SubUIs.Add(MiningSkillBtn);
-
-            */
-
-
+            GameObject SpawnRegion = GUIManager.Instance.CreateText(
+            text: $"Spawn Region: { VillagerGeneral.GetVillagerSpawnRegion(selected_villager) }",
+            parent: MAINBG.transform,
+            anchorMin: new Vector2(0.5f, 0.1f),
+            anchorMax: new Vector2(0.5f, 0.5f),
+            position: new Vector2(-200f, -100f), // width & height
+            width: 250f,
+            height: 60f,
+            color: Color.yellow,
+            outline: false,
+            outlineColor: Color.white,
+            font: GUIManager.Instance.AveriaSerif,
+            fontSize: 20,
+            addContentSizeFitter: false
+            );
+            SubUIs.Add(SpawnRegion);
 
             GameObject WorkSkillPickup = GUIManager.Instance.CreateText(
              text: $"Work Skill: {VillagerGeneral.GetWorkSkill(selected_villager)}",
