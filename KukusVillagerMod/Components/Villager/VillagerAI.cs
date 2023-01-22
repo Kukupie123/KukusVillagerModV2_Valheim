@@ -1267,10 +1267,11 @@ namespace KukusVillagerMod.Components.Villager
             {
                 if (workTalk) talk.Say($"Going to Chop {obj.name}", "Work");
                 int count = 0;
-                int limit = 5000;
+                int limit = 2000;
                 while (obj != null && count < limit)
                 {
                     await Task.Delay(1);
+                    if (obj == null) break;
                     if (useMoveTo)
                         await GoToLocationAwaitWork(obj.transform.position, 2);
                     else
