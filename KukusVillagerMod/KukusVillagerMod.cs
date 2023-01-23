@@ -23,14 +23,12 @@ namespace KukusVillagerMod
 {
     [BepInDependency(Jotunn.Main.ModGuid)]
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    //[BepInDependency("horemvore.Companions",BepInDependency.DependencyFlags.HardDependency)]
-    //[NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     internal class KukusVillagerMod : BaseUnityPlugin
     {
         public static bool isModded = true;
         public const string PluginGUID = "com.kukukodes.KukuVillagers";
         public const string PluginName = "KukusVillagerMod";
-        public const string PluginVersion = "3.1.0";
+        public const string PluginVersion = "3.1.3";
         public static CustomLocalization Localization = LocalizationManager.Instance.GetLocalization();
         private VillagerCommander vc;
         public static bool isMapDataLoaded = false;

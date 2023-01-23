@@ -59,8 +59,11 @@ You can select any villagers from the list and it will open the Villager stats G
 You can also give universal commands to the villagers
 
 ## Changelog
+<h3> 3.1.3</h3>
+1. Bug fixes related to unassignable work post, bed, defense post
+2. Chop wood bug fix
 <h3>3.1.0</h3>
-1. 12 Unique Human NPC included, Thanks to Horen for his assets :) <br>
+1. 12 Unique Human NPC included, Thanks to Horem for his assets :) <br>
 2. Different villagers found in different biomes.<br>
 3. Villagers of Plains can generate shields to protect itself and nearby <br>
 4. Villagers of mistland can generate shields as well as spray yellow smoke to heal themselves and nearby allies. <br>
