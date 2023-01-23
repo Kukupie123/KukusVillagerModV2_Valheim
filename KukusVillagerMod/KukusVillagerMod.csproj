@@ -109,15 +109,7 @@
     <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Package\plugins\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Package\manifest.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Package\icon.png" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="JotunnPostBuildTaskWin" Condition="'$(OS)' == 'Windows_NT'">
     <Exec Command="powershell.exe -ExecutionPolicy RemoteSigned -File &quot;$(SolutionDir)publish.ps1&quot; -Target &quot;$(ConfigurationName)&quot; -TargetPath &quot;$(TargetDir.TrimEnd('\'))&quot; -TargetAssembly &quot;$(TargetFileName)&quot; -ValheimPath &quot;$(VALHEIM_INSTALL.TrimEnd('\'))&quot; -DeployPath &quot;$(MOD_DEPLOYPATH.TrimEnd('\'))&quot; -ProjectPath &quot;$(ProjectDir.TrimEnd('\'))&quot; " />

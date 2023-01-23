@@ -25,27 +25,13 @@ namespace KukusVillagerMod.Components.VillagerBed
         bool fixedUpdateRanOnce = false; //Used to determine if we have ran the fixed update atleast once, we need to perform few actions during the first update call and then never perform them. We use this boolean to determine it.
         private void FixedUpdate()
         {
-            if (!piece || KukusVillagerMod.isMapDataLoaded == false) return; //Map data has to be loaded before we can proceed
 
-            if (piece.IsPlacedByPlayer())
+            if (piece == null) piece = GetComponent<Piece>();
+
+            if (this.znv == null && piece.IsPlacedByPlayer())
             {
-                if (fixedUpdateRanOnce == false)
-
-                {
-                    //Piece needs to be placed before ZNetView is Valid so we have to check if it has been placed every frame and run the codes below once
-                    this.znv = base.GetComponent<ZNetView>();
-                    this.znv.SetPersistent(true);
-
-                    //Load/Create Villager's state (Guarding, Defending etc)
-
-                    if (znv.GetZDO() == null)
-                    {
-                        fixedUpdateRanOnce = true;
-                        return;
-                    }
-                    fixedUpdateRanOnce = true;
-                }
-
+                this.znv = base.GetComponent<ZNetView>();
+                this.znv.SetPersistent(true);
             }
         }
 

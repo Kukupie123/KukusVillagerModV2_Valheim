@@ -1267,7 +1267,7 @@ namespace KukusVillagerMod.Components.Villager
             {
                 if (workTalk) talk.Say($"Going to Chop {obj.name}", "Work");
                 int count = 0;
-                int limit = 2000;
+                int limit = 200;
                 while (obj != null && count < limit)
                 {
                     await Task.Delay(1);
