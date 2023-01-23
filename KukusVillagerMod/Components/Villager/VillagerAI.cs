@@ -1328,9 +1328,6 @@ namespace KukusVillagerMod.Components.Villager
                 talk.Say("Nothing to chop nearby", "WORK");
             }
 
-
-            await Task.Delay(3000);
-
         }
 
         private GameObject GetValidTree2Chop(Vector3 pos, bool random)
