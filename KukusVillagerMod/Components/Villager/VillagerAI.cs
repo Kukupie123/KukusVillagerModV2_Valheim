@@ -155,8 +155,6 @@ namespace KukusVillagerMod.Components.Villager
             //Only continue if we are moving
             if (keepMoving == true)
             {
-                //Reset AI
-                ai.ResetPatrolPoint();
 
                 //Check if we have set starting timer
                 if (keepMovingStartTime == null)
@@ -619,7 +617,6 @@ namespace KukusVillagerMod.Components.Villager
             MoveVillagerToLoc(location, acceptableDistance, false, false, workRun);
             while (keepMoving)
             {
-                ai.ResetPatrolPoint();
                 ai.LookAt(location);
                 movePos = location;
                 await Task.Delay(5);
@@ -636,7 +633,6 @@ namespace KukusVillagerMod.Components.Villager
             RemoveFollower();
             while (!closeToFollowTarget && target != null)
             {
-                ai.ResetPatrolPoint();
                 ai.LookAt(target.transform.position);
                 FollowGameObject(target);
                 AcceptedFollowDistance = acceptableRadius;
