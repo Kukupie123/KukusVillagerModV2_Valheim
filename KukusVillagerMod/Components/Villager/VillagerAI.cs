@@ -221,6 +221,7 @@ namespace KukusVillagerMod.Components.Villager
          */
 
         bool alreadyWorking = false;
+        List<GameObject> unchoppableTrees = new List<GameObject>();
         async private void WorkLoop()
         {
             if (alreadyWorking) return;
@@ -261,12 +262,14 @@ namespace KukusVillagerMod.Components.Villager
                     WorkSkill skill = villagerGeneral.GetWorkSkill();
                     if (skill == WorkSkill.Pickup)
                     {
+                        unchoppableTrees.Clear();
                         await PickupAndStoreWork(VillagerModConfigurations.UseMoveForWork);
                         alreadyWorking = false;
                         return;
                     }
                     if (skill == WorkSkill.Fill_Smelt)
                     {
+                        unchoppableTrees.Clear();
                         await FillSmelt(VillagerModConfigurations.UseMoveForWork);
                         alreadyWorking = false;
                         return;
@@ -278,12 +281,14 @@ namespace KukusVillagerMod.Components.Villager
                         return;
                     }
                 }
+                unchoppableTrees.Clear();
                 alreadyWorking = false;
                 return;
             }
             catch (Exception e)
             {
                 KLog.info($"Exception in work loop {e.Message}\n{e.StackTrace}");
+                unchoppableTrees.Clear();
                 alreadyWorking = false;
                 return;
             }
@@ -1272,10 +1277,10 @@ namespace KukusVillagerMod.Components.Villager
                         await GoToLocationAwaitWork(obj.transform.position, 2);
                     else
                         await FollowTargetAwaitWork(obj.gameObject); //Get close to the tree
-                    if (obj == null) break; 
+                    if (obj == null) break;
                     ai.LookAt(obj.transform.position);
                     if (obj == null) return; //if tree was destroyed by the time we reached we exit
-                    
+
                     ai.DoAttack(null, false);
                     await Task.Delay(1);
                     count++;
@@ -1314,8 +1319,11 @@ namespace KukusVillagerMod.Components.Villager
                     }
                     else
                     {
-                        KLog.info($"Failed to destroy {obj.name} for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree");
-
+                        KLog.info($"Failed to destroy {obj.name} for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree. Adding it to unchoppable list");
+                    }
+                    if (obj != null)
+                    {
+                        unchoppableTrees.Add(obj);
                     }
                 }
             }
@@ -1342,15 +1350,14 @@ namespace KukusVillagerMod.Components.Villager
 
             foreach (Collider c in colliders)
             {
+                if (unchoppableTrees.Contains(c.gameObject)) continue;
                 TreeBase tree = c?.gameObject?.GetComponentInParent<TreeBase>();
                 TreeLog log = c?.gameObject?.GetComponentInParent<TreeLog>();
                 Destructible destructible = c?.gameObject?.GetComponentInParent<Destructible>();
 
                 if (tree != null)
                 {
-                    //cant cut down birch tree for some reason
-                    if (!tree.gameObject.name.Contains("Birch"))
-                        trees.Add(tree);
+                    trees.Add(tree);
                 }
                 else if (log != null)
                 {

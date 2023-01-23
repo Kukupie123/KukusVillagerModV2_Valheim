@@ -59,9 +59,11 @@ You can select any villagers from the list and it will open the Villager stats G
 You can also give universal commands to the villagers
 
 ## Changelog
-<h3> 3.1.3</h3>
-1. Bug fixes related to unassignable work post, bed, defense post
-2. Chop wood bug fix
+<h3> 3.1.4</h3>
+1. Bug fixes related to unassignable work post, bed, defense post <br>
+2. Chop wood bug fix<br>
+3. Fixed healing spell killing player
+
 <h3>3.1.0</h3>
 1. 12 Unique Human NPC included, Thanks to Horem for his assets :) <br>
 2. Different villagers found in different biomes.<br>

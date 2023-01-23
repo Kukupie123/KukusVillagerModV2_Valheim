@@ -179,7 +179,7 @@ namespace KukusVillagerMod.Patches
 
                     if (weapon != null)
                     {
-                        if (weapon.m_shared.m_name.Contains("Health") || weapon.m_shared.m_name.Contains("Shield"))
+                        if (weapon.m_shared.m_name.Contains("Health") || weapon.m_shared.m_name.Contains("Shield") || weapon.m_shared.m_name.Contains("Heal"))
                         {
                             weapon.m_shared.m_damages = new HitData.DamageTypes();
                             weapon.m_shared.m_damages.m_damage = 0;
