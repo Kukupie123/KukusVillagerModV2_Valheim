@@ -15,7 +15,6 @@ namespace KukusVillagerMod.Components.Work_Post
         Piece piece;
 
         //Same deal as the one in BedVillagerProcessor. Please check that file to know about this variable
-        bool fixedUpdateRanOnce = false;
         private void FixedUpdate()
         {
 

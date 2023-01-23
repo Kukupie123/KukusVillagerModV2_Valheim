@@ -21,28 +21,14 @@ namespace KukusVillagerMod.Components.DefensePost
         }
 
         //Same deal as the one in BedVillagerProcessor. Please check that file to know about this variable
-        bool fixedUpdateRanOnce = false;
         private void FixedUpdate()
         {
-            if (!piece || KukusVillagerMod.isMapDataLoaded == false) return;
+            if (piece == null) piece = GetComponent<Piece>();
 
-            if (piece.IsPlacedByPlayer())
+            if (this.znv == null && piece.IsPlacedByPlayer())
             {
-                if (fixedUpdateRanOnce == false)
-
-                {
-                    //Piece needs to be placed before ZNetView is Valid so we have to check if it has been placed every frame and run the codes below once
-                    this.znv = base.GetComponent<ZNetView>();
-                    this.znv.SetPersistent(true);
-                    if (znv.GetZDO() == null)
-                    {
-                        fixedUpdateRanOnce = true;
-                        return;
-                    }
-
-                    fixedUpdateRanOnce = true;
-                }
-
+                this.znv = base.GetComponent<ZNetView>();
+                this.znv.SetPersistent(true);
             }
         }
 

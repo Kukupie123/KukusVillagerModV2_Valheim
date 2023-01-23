@@ -22,7 +22,6 @@ namespace KukusVillagerMod.Components.VillagerBed
         }
 
 
-        bool fixedUpdateRanOnce = false; //Used to determine if we have ran the fixed update atleast once, we need to perform few actions during the first update call and then never perform them. We use this boolean to determine it.
         private void FixedUpdate()
         {
 
