@@ -172,7 +172,7 @@ namespace KukusVillagerMod.Components.Villager
                     TPToLoc(movePos);
                     return;
                 }
-                if (ai.MoveAndAvoid(ai.GetWorldTimeDelta(), movePos, acceptableDistance, shouldRun)) //If time limit threshold not hit keep moving normally. MoveAndAvoid function returns true when it reaches acceptable distance
+                if (ai.MoveTo(ai.GetWorldTimeDelta(), movePos, acceptableDistance, shouldRun)) //If time limit threshold not hit keep moving normally. MoveAndAvoid function returns true when it reaches acceptable distance
                 {
                     KLog.info($"Villager {villagerGeneral.ZNV.GetZDO().m_uid.id} reached destination {movePos}");
                     keepMoving = false;
@@ -622,8 +622,8 @@ namespace KukusVillagerMod.Components.Villager
             MoveVillagerToLoc(location, acceptableDistance, false, false, workRun);
             while (keepMoving)
             {
-                ai.LookAt(location);
-                movePos = location;
+                //ai.LookAt(location);
+                //movePos = location;
                 await Task.Delay(5);
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                 {
@@ -635,12 +635,12 @@ namespace KukusVillagerMod.Components.Villager
         async private Task FollowTargetAwaitWork(GameObject target, float acceptableRadius = 3f)
         {
             if (target == null) return;
-            RemoveFollower();
+            //RemoveFollower();
             while (!closeToFollowTarget && target != null)
             {
-                ai.LookAt(target.transform.position);
-                FollowGameObject(target);
-                AcceptedFollowDistance = acceptableRadius;
+                //ai.LookAt(target.transform.position);
+                //FollowGameObject(target);
+                //AcceptedFollowDistance = acceptableRadius;
                 await Task.Delay(5);
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                 {
