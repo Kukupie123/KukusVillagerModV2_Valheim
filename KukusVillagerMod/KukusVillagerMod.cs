@@ -939,5 +939,8 @@ namespace KukusVillagerMod
  * Major features list todo:
  * Recruit Villagers using Gold
  * Villagers help with fueling
- * 
+ * Potion to heal villagers
+ * Find better way to move villagers. they try to go directly to path
+ * Fixing base
+ * Mining rock
  */
