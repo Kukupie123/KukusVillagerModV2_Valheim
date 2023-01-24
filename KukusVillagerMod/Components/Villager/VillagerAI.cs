@@ -624,7 +624,7 @@ namespace KukusVillagerMod.Components.Villager
             {
                 //ai.LookAt(location);
                 //movePos = location;
-                await Task.Delay(5);
+                await Task.Delay(50);
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                 {
                     break;
@@ -641,7 +641,7 @@ namespace KukusVillagerMod.Components.Villager
                 //ai.LookAt(target.transform.position);
                 //FollowGameObject(target);
                 //AcceptedFollowDistance = acceptableRadius;
-                await Task.Delay(5);
+                await Task.Delay(50);
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                 {
                     break;
