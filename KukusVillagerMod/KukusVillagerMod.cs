@@ -940,7 +940,7 @@ namespace KukusVillagerMod
  * Recruit Villagers using Gold
  * Villagers help with fueling
  * Potion to heal villagers
- * Find better way to move villagers. they try to go directly to path
+ * Find better way to move villagers. they try to go directly to path (Dynamically decreasing await time only when staring at player or not moving, trying to use moveTo, moveAvoid, follow etc)
  * Fixing base
  * Mining rock
  */
