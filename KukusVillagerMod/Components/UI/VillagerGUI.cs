@@ -75,7 +75,7 @@ namespace KukusVillagerMod.Components.UI
                 var villagerGen = villager.GetComponent<VillagerGeneral>();
                 if (villagerGen)
                 {
-                    hpText = $"HHP : {villagerGen.GetAIHP()}/{villagerGen.GetStatHealth()}";
+                    hpText = $"HP : {villagerGen.GetAIHP()}/{villagerGen.GetStatHealth()}";
                 }
             }
             GameObject HealthTextGO = GUIManager.Instance.CreateText(
