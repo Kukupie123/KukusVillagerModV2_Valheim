@@ -68,7 +68,16 @@ namespace KukusVillagerMod.Components.UI
         private static void SetupVillagerStatUITab()
         {
 
-
+            string hpText = $"Max HP : {VillagerGeneral.GetStatHealth(selected_villager)}";
+            var villager = ZNetScene.instance.FindInstance(selected_villager);
+            if (villager)
+            {
+                var villagerGen = villager.GetComponent<VillagerGeneral>();
+                if (villagerGen)
+                {
+                    hpText = $"{villagerGen.GetAIHP()}/{villagerGen.GetStatHealth()}";
+                }
+            }
             GameObject HealthTextGO = GUIManager.Instance.CreateText(
                 text: $"Max Health : {VillagerGeneral.GetStatHealth(selected_villager)}",
                 parent: MAINBG.transform,
