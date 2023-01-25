@@ -185,10 +185,10 @@ namespace KukusVillagerMod.Components.Villager
                 if (timeDiff > timeLimitForMove && Vector3.Distance(transform.position, movePos) > acceptableDistance) //60 sec passed and still hasn't reached path so we tp
                 {
                     KLog.warning($"TPing Villager {villagerGeneral.ZNV.GetZDO().m_uid.id} Because time limit reached for moving");
-                    keepMoving = false;
                     startStuckCheckTime = null;
                     keepMovingStartTime = null;
                     TPToLoc(movePos);
+                    keepMoving = false;
                     return;
                 }
                 if (stuckTimeDiff > timeLimitToStuck) //4 sec passed, check if position of villager is different
@@ -200,17 +200,20 @@ namespace KukusVillagerMod.Components.Villager
                     float distance = Vector3.Distance(transform.position, stuckCheckPos.Value);
                     if (distance <= 1f)
                     {
-                        KLog.warning("Villager is stuck");
+                        //KLog.warning("Villager is stuck");
                     }
                 }
 
-                if (customAI.MoveTo(ai.GetWorldTimeDelta(), movePos, acceptableDistance, shouldRun, transform))
+                customAI.MoveTo(ai.GetWorldTimeDelta(), movePos, acceptableDistance, shouldRun, transform);
+
+                if (Vector3.Distance(transform.position, movePos) <= acceptableDistance)
                 {
+
                     //Necessary
                     ai.StopMoving();
                     ai.SetPatrolPoint();
 
-                    KLog.info($"Villager {villagerGeneral.ZNV.GetZDO().m_uid.id} reached destination {movePos}");
+                    //KLog.info($"Villager {villagerGeneral.ZNV.GetZDO().m_uid.id} reached destination {movePos}");
                     keepMoving = false;
                     startStuckCheckTime = null;
                     keepMovingStartTime = null;
@@ -256,7 +259,6 @@ namespace KukusVillagerMod.Components.Villager
          */
 
         bool alreadyWorking = false;
-        List<GameObject> unchoppableTrees = new List<GameObject>();
         async private void WorkLoop()
         {
             if (alreadyWorking) return;
@@ -1329,7 +1331,7 @@ namespace KukusVillagerMod.Components.Villager
             }
 
             //Find wood to chop
-            var obj = GetValidTree2Chop(workPosLoc, true); //Get random tree
+            var obj = FindValidTree2Chop(workPosLoc, true); //Get random tree
             if (obj != null)
             {
                 if (workTalk) talk.Say($"Going to Chop {obj.name}", "Work");
@@ -1364,6 +1366,17 @@ namespace KukusVillagerMod.Components.Villager
                     {
                         treeLog.Destroy();
                         KLog.info($"Destroyed {obj.name} using Treelog component for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree");
+                        if (treeLog != null)
+                        {
+                            if (!unchoppableTrees.Contains(obj.gameObject))
+                            {
+
+                                unchoppableTrees.Add(obj.gameObject);
+
+                                KLog.info($"Ignoring {obj.gameObject.name} for wood chop");
+
+                            }
+                        }
                         return;
                     }
                     var treebase = obj.GetComponentInParent<TreeBase>();
@@ -1379,6 +1392,17 @@ namespace KukusVillagerMod.Components.Villager
                         hd.m_damage.m_pierce = 5000f;
                         treebase.Damage(hd);
                         KLog.info($"Destroyed {obj.name} using Treebase component for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree");
+                        if (treebase != null)
+                        {
+                            if (!unchoppableTrees.Contains(obj.gameObject))
+                            {
+
+                                unchoppableTrees.Add(obj.gameObject);
+
+                                KLog.info($"Ignoring {obj.gameObject.name} for wood chop");
+
+                            }
+                        }
                         return;
                     }
                     var desc = obj.GetComponentInParent<Destructible>();
@@ -1386,15 +1410,22 @@ namespace KukusVillagerMod.Components.Villager
                     {
                         desc.DestroyNow();
                         KLog.info($"Destroyed {obj.name} using destructible component for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree");
+                        if (desc != null)
+                        {
+                            if (!unchoppableTrees.Contains(obj.gameObject))
+                            {
+
+                                unchoppableTrees.Add(obj.gameObject);
+
+                                KLog.info($"Ignoring {obj.gameObject.name} for wood chop");
+
+                            }
+                        }
                         return;
                     }
                     else
                     {
                         KLog.info($"Failed to destroy {obj.name} for villager{villagerGeneral.ZNV.GetZDO().m_uid.id} chopping tree. Adding it to unchoppable list");
-                    }
-                    if (obj != null)
-                    {
-                        unchoppableTrees.Add(obj);
                     }
                 }
             }
@@ -1405,7 +1436,10 @@ namespace KukusVillagerMod.Components.Villager
 
         }
 
-        private GameObject GetValidTree2Chop(Vector3 pos, bool random)
+
+        List<GameObject> unchoppableTrees = new List<GameObject>();
+
+        private GameObject FindValidTree2Chop(Vector3 pos, bool random)
         {
             Vector3 scanLocation = pos;
             Collider[] colliders = Physics.OverlapSphere(scanLocation, workScanRange);
@@ -1428,18 +1462,26 @@ namespace KukusVillagerMod.Components.Villager
 
                 if (tree != null)
                 {
+                    if (unchoppableTrees.Contains(tree.gameObject)) continue;
                     trees.Add(tree);
                 }
                 else if (log != null)
                 {
+                    if (unchoppableTrees.Contains(log.gameObject)) continue;
                     logs.Add(log);
                 }
                 else if (destructible != null)
                 {
+                    if (unchoppableTrees.Contains(destructible.gameObject)) continue;
                     if (destructible.name.ToLower().Contains("stub"))
                     {
                         destructibles.Add(destructible);
                     }
+                    else if (destructible.name.ToLower().Contains("beech"))
+                    {
+                        destructibles.Add(destructible);
+                    }
+
                 }
             }
 
@@ -1503,7 +1545,7 @@ namespace KukusVillagerMod.Components.Villager
             this.ai = ai;
         }
         BaseAI ai;
-        public bool MoveTo(float dt, Vector3 point, float dist, bool run, Transform villagerTransform)
+        public void MoveTo(float dt, Vector3 point, float dist, bool run, Transform villagerTransform)
         {
             if (ai.m_character.m_flying)
             {
@@ -1513,23 +1555,25 @@ namespace KukusVillagerMod.Components.Villager
                 {
                     point.y = Mathf.Max(point.y, height + ai.m_flyAltitudeMin);
                 }
-                return MoveAndAvoid(dt, point, dist, run, villagerTransform);
+                MoveAndAvoid(dt, point, dist, run, villagerTransform); //originally we return this
+                return;
             }
+
             float num = (run ? 1f : 0.5f);
             if (Utils.DistanceXZ(point, villagerTransform.position) < Mathf.Max(dist, num))
             {
-                ai.StopMoving();
-                return true;
+                //ai.StopMoving();
+                return;
             }
             if (!ai.FindPath(point))
             {
-                ai.StopMoving();
-                return true;
+                //ai.StopMoving();
+                return;
             }
             if (ai.m_path.Count == 0)
             {
-                ai.StopMoving();
-                return true;
+                //ai.StopMoving();
+                return;
             }
             Vector3 vector = ai.m_path[0];
             if (Utils.DistanceXZ(vector, villagerTransform.position) < num)
@@ -1537,8 +1581,8 @@ namespace KukusVillagerMod.Components.Villager
                 ai.m_path.RemoveAt(0);
                 if (ai.m_path.Count == 0)
                 {
-                    ai.StopMoving();
-                    return true;
+                    //ai.StopMoving();
+                    return;
                 }
             }
             else
@@ -1546,7 +1590,7 @@ namespace KukusVillagerMod.Components.Villager
                 Vector3 normalized2 = (vector - villagerTransform.position).normalized;
                 MoveTowards(normalized2, run);
             }
-            return false;
+            return;
         }
 
 
