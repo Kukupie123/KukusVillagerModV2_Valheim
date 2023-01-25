@@ -17,8 +17,6 @@ namespace KukusVillagerMod.Components.UI
 
     class KuchukGUI
     {
-        private const float heightSubUI = 60f;
-        private const float widthSubUI = 250f;
         private const float height = 600f;
         private const float width = 850f;
         private static GameObject MainBG;

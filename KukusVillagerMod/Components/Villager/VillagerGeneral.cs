@@ -94,7 +94,7 @@ namespace KukusVillagerMod.Components.Villager
             ZNV.GetZDO().Set("name", n);
             float minVal = VillagerModConfigurations.MinHealth;
             float maxVal = VillagerModConfigurations.MaxHealth;
-            ZNV.GetZDO().Set("health", UnityEngine.Random.Range(minVal, maxVal) * modifier);
+            ZNV.GetZDO().Set("stathealth", UnityEngine.Random.Range(minVal, maxVal) * modifier);
             minVal = VillagerModConfigurations.MinEfficiency;
             maxVal = VillagerModConfigurations.MaxEfficiency;
             ZNV.GetZDO().Set("efficiency", UnityEngine.Random.Range(minVal, maxVal) * modifier); //Percentage stuff
@@ -329,7 +329,7 @@ namespace KukusVillagerMod.Components.Villager
         {
             var zdo = Util.GetZDO(villagerZDOID);
             if (Util.ValidateZDO(zdo) == false) return 0;
-            return zdo.GetFloat("health");
+            return zdo.GetFloat("stathealth");
         }
         public float GetStatHealth()
         {
