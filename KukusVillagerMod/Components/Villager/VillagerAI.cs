@@ -22,6 +22,7 @@ namespace KukusVillagerMod.Components.Villager
         bool updateRanOnce = false;
         private ZDOID followingObjZDOID;
         private float workScanRange = VillagerModConfigurations.WorkScanRange;
+        CustomAI customAI;
         private void Awake()
         {
             updateRanOnce = false;
@@ -31,6 +32,7 @@ namespace KukusVillagerMod.Components.Villager
         private void FixedUpdate()
         {
             //Keeping them in Awake doesn't always guarentee so we do it here instead.
+
             if (talk == null) talk = GetComponent<NpcTalk>();
 
             if (villagerGeneral == null)
@@ -40,6 +42,9 @@ namespace KukusVillagerMod.Components.Villager
             }
 
             if (ai == null) ai = GetComponent<MonsterAI>();
+
+            if (customAI == null) customAI = new CustomAI(ai);
+
 
             if (!villagerGeneral.IsVillagerTamed()) return;
 
@@ -71,6 +76,7 @@ namespace KukusVillagerMod.Components.Villager
             }
             else //Per Tick Functions
             {
+                //MovePerTimeIfDesired(1);
                 TPVillagerToFollowerIfNeeded();
                 MovePerUpdateIfDesired();
                 FollowCheckPerUpdate();
@@ -149,33 +155,65 @@ namespace KukusVillagerMod.Components.Villager
         bool shouldRun = true; //Should the villager run
         float acceptableDistance = 2f; //Acceptable distance to stop
         DateTime? keepMovingStartTime = null; //Keeps track of how much time has elasped
+        double? startStuckCheckTime = null;
+        int timeLimitToStuck = 4;
         int timeLimitForMove = VillagerModConfigurations.MoveTimeLimit;
+        Vector3? stuckCheckPos;
         private void MovePerUpdateIfDesired()
         {
             //Only continue if we are moving
             if (keepMoving == true)
             {
 
-                //Check if we have set starting timer
+                //Check if we have set starting timer for move
                 if (keepMovingStartTime == null)
                 {
                     keepMovingStartTime = ZNet.instance.GetTime();
                 }
 
+                if (startStuckCheckTime == null) //Setup start stuck check and save position of villager when start stuck check 
+                {
+                    startStuckCheckTime = ZNet.instance.GetTimeSeconds();
+                    stuckCheckPos = transform.position;
+                }
+
                 //Check if villager has been trying to reach target for too long
                 double timeDiff = (ZNet.instance.GetTime() - keepMovingStartTime.Value).TotalSeconds;
+                double stuckTimeDiff = (ZNet.instance.GetTimeSeconds() - startStuckCheckTime.Value);
+
 
                 if (timeDiff > timeLimitForMove && Vector3.Distance(transform.position, movePos) > acceptableDistance) //60 sec passed and still hasn't reached path so we tp
                 {
                     KLog.warning($"TPing Villager {villagerGeneral.ZNV.GetZDO().m_uid.id} Because time limit reached for moving");
                     keepMoving = false;
+                    startStuckCheckTime = null;
+                    keepMovingStartTime = null;
                     TPToLoc(movePos);
                     return;
                 }
-                if (ai.MoveTo(ai.GetWorldTimeDelta(), movePos, acceptableDistance, shouldRun)) //If time limit threshold not hit keep moving normally. MoveAndAvoid function returns true when it reaches acceptable distance
+                if (stuckTimeDiff > timeLimitToStuck) //4 sec passed, check if position of villager is different
                 {
+                    //Reset the startStuck timer first
+                    startStuckCheckTime = null;
+
+
+                    float distance = Vector3.Distance(transform.position, stuckCheckPos.Value);
+                    if (distance <= 1f)
+                    {
+                        KLog.warning("Villager is stuck");
+                    }
+                }
+
+                if (customAI.MoveTo(ai.GetWorldTimeDelta(), movePos, acceptableDistance, shouldRun, transform))
+                {
+                    //Necessary
+                    ai.StopMoving();
+                    ai.SetPatrolPoint();
+
                     KLog.info($"Villager {villagerGeneral.ZNV.GetZDO().m_uid.id} reached destination {movePos}");
                     keepMoving = false;
+                    startStuckCheckTime = null;
+                    keepMovingStartTime = null;
                     return;
                 }
             }
@@ -184,13 +222,10 @@ namespace KukusVillagerMod.Components.Villager
                 //Not moving so reset timer
 
                 keepMovingStartTime = null;
+                startStuckCheckTime = null;
             }
 
         }
-
-
-
-
 
         /*
          * This function is going to execute only when it's following a player.
@@ -616,15 +651,13 @@ namespace KukusVillagerMod.Components.Villager
         async private Task GoToLocationAwaitWork(Vector3 location, float acceptableDistance = 3f)
         {
 
-
-
             //Move to workpost
             MoveVillagerToLoc(location, acceptableDistance, false, false, workRun);
             while (keepMoving)
             {
-                //ai.LookAt(location);
+                ai.LookAt(location);
                 //movePos = location;
-                await Task.Delay(5);
+                await Task.Delay(1);
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                 {
                     break;
@@ -1237,14 +1270,11 @@ namespace KukusVillagerMod.Components.Villager
             KLog.info("Chopping wood " + villagerGeneral.ZNV.GetZDO().m_uid.id);
             ZDO WorkPostZDO = villagerGeneral.GetWorkPostZDO();
             Vector3 workPosLoc = WorkPostZDO.GetPosition();
-
-            await Task.Delay(50);
-
             //Go to work post
             if (villagerGeneral.GetWorkPostInstance())
             {
                 if (useMoveTo)
-                    await GoToLocationAwaitWork(villagerGeneral.GetWorkPostInstance().transform.position, 3);
+                    await GoToLocationAwaitWork(villagerGeneral.GetWorkPostInstance().transform.position);
                 else
                     await FollowTargetAwaitWork(villagerGeneral.GetWorkPostInstance());
 
@@ -1271,17 +1301,22 @@ namespace KukusVillagerMod.Components.Villager
                 int limit = 200;
                 while (obj != null && count < limit)
                 {
-                    await Task.Delay(1);
                     if (obj == null) break;
+
+                    //Get close to the tree
                     if (useMoveTo)
                         await GoToLocationAwaitWork(obj.transform.position, 2);
                     else
-                        await FollowTargetAwaitWork(obj.gameObject); //Get close to the tree
+                        await FollowTargetAwaitWork(obj.gameObject);
+
                     if (obj == null) break;
+
                     ai.LookAt(obj.transform.position);
+
                     if (obj == null) return; //if tree was destroyed by the time we reached we exit
 
                     ai.DoAttack(null, false);
+
                     await Task.Delay(1);
                     count++;
                 }
@@ -1422,8 +1457,182 @@ namespace KukusVillagerMod.Components.Villager
             return item;
         }
 
+    }
+
+
+    class CustomAI
+    {
+        public CustomAI(BaseAI ai)
+        {
+            this.ai = ai;
+        }
+        BaseAI ai;
+        public bool MoveTo(float dt, Vector3 point, float dist, bool run, Transform villagerTransform)
+        {
+            if (ai.m_character.m_flying)
+            {
+                dist = Mathf.Max(dist, 1f);
+                float height;
+                if (ai.GetSolidHeight(point, 0f, ai.m_flyAltitudeMin * 2f, out height))
+                {
+                    point.y = Mathf.Max(point.y, height + ai.m_flyAltitudeMin);
+                }
+                return MoveAndAvoid(dt, point, dist, run, villagerTransform);
+            }
+            float num = (run ? 1f : 0.5f);
+            if (Utils.DistanceXZ(point, villagerTransform.position) < Mathf.Max(dist, num))
+            {
+                ai.StopMoving();
+                return true;
+            }
+            if (!ai.FindPath(point))
+            {
+                ai.StopMoving();
+                return true;
+            }
+            if (ai.m_path.Count == 0)
+            {
+                ai.StopMoving();
+                return true;
+            }
+            Vector3 vector = ai.m_path[0];
+            if (Utils.DistanceXZ(vector, villagerTransform.position) < num)
+            {
+                ai.m_path.RemoveAt(0);
+                if (ai.m_path.Count == 0)
+                {
+                    ai.StopMoving();
+                    return true;
+                }
+            }
+            else
+            {
+                Vector3 normalized2 = (vector - villagerTransform.position).normalized;
+                MoveTowards(normalized2, run);
+            }
+            return false;
+        }
+
+
+        public void MoveTowards(Vector3 dir, bool run)
+        {
+            dir = dir.normalized;
+            ai.LookTowards(dir);
+
+            if (ai.IsLookingTowards(dir, ai.m_moveMinAngle))
+            {
+                ai.m_character.SetMoveDir(dir);
+                ai.m_character.SetRun(run);
+                if (ai.m_jumpInterval > 0f && ai.m_jumpTimer >= ai.m_jumpInterval)
+                {
+                    ai.m_jumpTimer = 0f;
+                    ai.m_character.Jump();
+                }
+            }
+            else
+            {
+                ai.StopMoving();
+            }
+        }
+
+        protected bool MoveAndAvoid(float dt, Vector3 point, float dist, bool run, Transform villagerTransform)
+        {
+            Vector3 vector = point - villagerTransform.position;
+            if (ai.m_character.IsFlying())
+            {
+                if (vector.magnitude < dist)
+                {
+                    ai.StopMoving();
+                    return true;
+                }
+            }
+            else
+            {
+                vector.y = 0f;
+                if (vector.magnitude < dist)
+                {
+                    ai.StopMoving();
+                    return true;
+                }
+            }
+            vector.Normalize();
+            float radius = ai.m_character.GetRadius();
+            float num = radius + 1f;
+            if (!ai.m_character.InAttack())
+            {
+                ai.m_getOutOfCornerTimer -= dt;
+                if (ai.m_getOutOfCornerTimer > 0f)
+                {
+                    Vector3 dir = Quaternion.Euler(0f, ai.m_getOutOfCornerAngle, 0f) * -vector;
+                    MoveTowards(dir, run);
+                    return false;
+                }
+                ai.m_stuckTimer += Time.fixedDeltaTime;
+                if (ai.m_stuckTimer > 1.5f)
+                {
+                    if (Vector3.Distance(villagerTransform.position, ai.m_lastPosition) < 0.2f)
+                    {
+                        ai.m_getOutOfCornerTimer = 4f;
+                        ai.m_getOutOfCornerAngle = UnityEngine.Random.Range(-20f, 20f);
+                        ai.m_stuckTimer = 0f;
+                        return false;
+                    }
+                    ai.m_stuckTimer = 0f;
+                    ai.m_lastPosition = villagerTransform.position;
+                }
+            }
+            if (ai.CanMove(vector, radius, num))
+            {
+                MoveTowards(vector, run);
+            }
+            else
+            {
+                Vector3 forward = villagerTransform.position;
+                if (ai.m_character.IsFlying())
+                {
+                    forward.y = 0.2f;
+                    forward.Normalize();
+                }
+                Vector3 vector2 = villagerTransform.right * radius * 0.75f;
+                float num2 = num * 1.5f;
+                Vector3 centerPoint = ai.m_character.GetCenterPoint();
+                float num3 = ai.Raycast(centerPoint - vector2, forward, num2, 0.1f);
+                float num4 = ai.Raycast(centerPoint + vector2, forward, num2, 0.1f);
+                if (num3 >= num2 && num4 >= num2)
+                {
+                    MoveTowards(forward, run);
+                }
+                else
+                {
+                    Vector3 dir2 = Quaternion.Euler(0f, -20f, 0f) * forward;
+                    Vector3 dir3 = Quaternion.Euler(0f, 20f, 0f) * forward;
+                    if (num3 > num4)
+                    {
+                        MoveTowards(dir2, run);
+                    }
+                    else
+                    {
+                        MoveTowards(dir3, run);
+                    }
+                }
+            }
+            return false;
+        }
+
+
 
     }
+
+
+
+
+
+
+
+
+
+
+
 
 
 }

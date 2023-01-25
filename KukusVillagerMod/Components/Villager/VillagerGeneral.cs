@@ -928,6 +928,7 @@ namespace KukusVillagerMod.Components.Villager
                     ai.m_attackPlayerObjects = false;
                     ai.m_avoidFire = true;
                     ai.SetHuntPlayer(false);
+                    ai.m_sleepDelay = 0.01f;
 
                     humanoid.m_faction = Character.Faction.Players;
                     humanoid.m_group = "Player";

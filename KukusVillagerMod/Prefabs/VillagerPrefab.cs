@@ -4,7 +4,6 @@ using Jotunn.Entities;
 using Jotunn.Managers;
 using KukusVillagerMod.Components.Villager;
 using KukusVillagerMod.Configuration;
-using KukusVillagerMod.Components;
 using UnityEngine;
 using System.Collections.Generic;
 using static CharacterDrop;
@@ -130,8 +129,13 @@ namespace KukusVillagerMod.Prefabs
             UnityEngine.GameObject.DestroyImmediate(interaction);
             UnityEngine.GameObject.DestroyImmediate(randAnim);
 
+
+            //KukuMonsterAAI ai = villager.Prefab.AddComponent<KukuMonsterAAI>();
+
             villager.Prefab.AddComponent<NpcTalk>(); //Add our custom talk component
+
             var vg = villager.Prefab.AddComponent<VillagerGeneral>(); //Add villager General component 
+
             villager.Prefab.AddComponent<VillagerAI>();
             if (existingTameable == null)
             {
@@ -144,6 +148,13 @@ namespace KukusVillagerMod.Prefabs
                 //KLog.warning($"Failed to find ZNetView component in {prefabCloneName}. Adding new one");
 
             }
+
+
+
+
+
+
+
 
 
             villager.Prefab.GetComponent<MonsterAI>().m_avoidFire = true;
