@@ -943,4 +943,5 @@ namespace KukusVillagerMod
  * Find better way to move villagers. they try to go directly to path (Dynamically decreasing await time only when staring at player or not moving, trying to use moveTo, moveAvoid, follow etc. or see follow me and try to write your own version of it)
  * Fixing base
  * Mining rock
+ * using default prefab for villagers
  */

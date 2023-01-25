@@ -188,11 +188,11 @@ namespace KukusVillagerMod.Components.Villager
                 humanoid.m_name = "* " + humanoid.m_name;
             }
             //Set up health
-            humanoid.SetMaxHealth(GetHealth());
+            humanoid.SetMaxHealth(GetStatHealth());
             //If not recruited then set current hp to max
             if (!IsVillagerTamed())
             {
-                humanoid.SetHealth(GetHealth());
+                humanoid.SetHealth(GetStatHealth());
             }
         }
         public static float GetDamage(ZDOID villagerZDOID)
@@ -325,16 +325,25 @@ namespace KukusVillagerMod.Components.Villager
             SetName(ZNV.GetZDO().m_uid, name);
             LoadStatsFromZDO();
         }
-        public static float GetHealth(ZDOID villagerZDOID)
+        public static float GetStatHealth(ZDOID villagerZDOID)
         {
             var zdo = Util.GetZDO(villagerZDOID);
             if (Util.ValidateZDO(zdo) == false) return 0;
             return zdo.GetFloat("health");
         }
-        public float GetHealth(bool fromAI = false)
+        public float GetStatHealth()
         {
-            if (fromAI) return humanoid.GetHealth();
-            return GetHealth(this.ZNV.GetZDO().m_uid);
+            return GetStatHealth(this.ZNV.GetZDO().m_uid);
+        }
+
+        public float GetAIHP()
+        {
+            return humanoid.GetHealth();
+        }
+
+        public void SetAIHP(float hp)
+        {
+            this.humanoid.SetHealth(hp);
         }
         public static int GetWorkLevel(ZDOID villagerZDOID)
         {
@@ -484,7 +493,7 @@ namespace KukusVillagerMod.Components.Villager
         public static void UpgradeVillagerHealth(ZDOID villagerZDOID, float multiplier = 1)
         {
 
-            var health = GetHealth(villagerZDOID) + (GetEfficiency(villagerZDOID) * multiplier * VillagerModConfigurations.UpgradeStrengthMultiplier);
+            var health = GetStatHealth(villagerZDOID) + (GetEfficiency(villagerZDOID) * multiplier * VillagerModConfigurations.UpgradeStrengthMultiplier);
             KLog.warning($"New Health = {health}");
             Util.GetZDO(villagerZDOID).Set("health", health);
         }

@@ -70,7 +70,7 @@ namespace KukusVillagerMod.Components.UI
 
 
             GameObject HealthTextGO = GUIManager.Instance.CreateText(
-                text: $"Max Health : {VillagerGeneral.GetHealth(selected_villager)}",
+                text: $"Max Health : {VillagerGeneral.GetStatHealth(selected_villager)}",
                 parent: MAINBG.transform,
                 anchorMin: new Vector2(0.5f, 0.1f),
                 anchorMax: new Vector2(0.5f, 0.5f),

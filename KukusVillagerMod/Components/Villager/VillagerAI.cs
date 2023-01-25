@@ -76,10 +76,10 @@ namespace KukusVillagerMod.Components.Villager
             }
             else //Per Tick Functions
             {
-                //MovePerTimeIfDesired(1);
                 TPVillagerToFollowerIfNeeded();
                 MovePerUpdateIfDesired();
                 FollowCheckPerUpdate();
+                RegenHPIfGuarding();
                 WorkLoop();
             }
 
@@ -328,6 +328,42 @@ namespace KukusVillagerMod.Components.Villager
                 return;
             }
 
+        }
+
+
+
+        //Recover certain % of hp if guarding bed
+        DateTime? healTimeStart = null;
+        private void RegenHPIfGuarding()
+        {
+            if (Util.ValidateZDOID(villagerGeneral.GetBedZDOID()) == false) return;
+            if (villagerGeneral.GetVillagerState() == VillagerState.Guarding_Bed)
+            {
+                float distance = Vector3.Distance(transform.position, villagerGeneral.GetBedZDO().GetPosition());
+                if (distance > 5) return;
+
+                if (healTimeStart == null)
+                {
+                    healTimeStart = ZNet.instance.GetTime();
+                }
+
+                double timeElasped = (ZNet.instance.GetTime() - healTimeStart.Value).Seconds;
+
+                if (timeElasped > 3)
+                {
+                    healTimeStart = null;
+                    //heal 5% of hp, configure in future
+                    float currentHP = villagerGeneral.GetAIHP();
+                    float toAdd = currentHP * 0.05f;
+                    float newHP = currentHP + toAdd;
+                    if (newHP > villagerGeneral.GetStatHealth()) newHP = villagerGeneral.GetStatHealth();
+                    villagerGeneral.SetAIHP(newHP);
+                }
+            }
+            else
+            {
+                healTimeStart = null;
+            }
         }
 
         //----------------------------------------------------------------------------------------------------------------------------------
