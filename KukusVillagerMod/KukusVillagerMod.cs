@@ -944,4 +944,5 @@ namespace KukusVillagerMod
  * Mining rock
  * using default prefab for villagers
  * modifier for upgrades in config
+ * Mainataining villagers eg rest and energy
  */
