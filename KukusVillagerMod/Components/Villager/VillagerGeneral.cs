@@ -495,7 +495,7 @@ namespace KukusVillagerMod.Components.Villager
 
             var health = GetStatHealth(villagerZDOID) + (GetEfficiency(villagerZDOID) * multiplier * VillagerModConfigurations.UpgradeStrengthMultiplier);
             KLog.warning($"New Health = {health}");
-            Util.GetZDO(villagerZDOID).Set("health", health);
+            Util.GetZDO(villagerZDOID).Set("stathealth", health);
         }
         public void UpgradeVillagerHealth(float multiplier)
         {

@@ -59,6 +59,7 @@ You can also give universal commands to the villagers
 ## Changelog
 <h3>3.1.5</h3>
 1. Villagers regen HP when close to bed and in Guarding_Bed State.<br>
+2. Fixed health upgrade not working on villagers. <br>
 <h3> 3.1.4</h3>
 1. Bug fixes related to unassignable work post, bed, defense post <br>
 2. Chop wood bug fix<br>
