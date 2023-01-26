@@ -41,26 +41,26 @@ namespace KukusVillagerMod.Prefabs
             //Plains : 3 types of villager
             //mistland : 3 types of villager
 
-            CreateVillager("Villager_Meadow1", "HumanNPCBob_DoD", Heightmap.Biome.Meadows, false, false);
-            CreateVillager("Villager_Meadow2", "HumanNPCMandy_DoD", Heightmap.Biome.Meadows, false, false);
+            CreateVillager("Villager_Meadow1", "HumanNPCBob_DoD", Heightmap.Biome.Meadows, false, false, 3);
+            CreateVillager("Villager_Meadow2", "HumanNPCMandy_DoD", Heightmap.Biome.Meadows, false, false, 3);
 
-            CreateVillager("Villager_BF1", "HumanNPCFred_DoD", Heightmap.Biome.BlackForest, false, false);
-            CreateVillager("Villager_BF2", "HumanNPCBarbara_DoD", Heightmap.Biome.BlackForest, false, false);
+            CreateVillager("Villager_BF1", "HumanNPCFred_DoD", Heightmap.Biome.BlackForest, false, false, 6);
+            CreateVillager("Villager_BF2", "HumanNPCBarbara_DoD", Heightmap.Biome.BlackForest, false, false, 6);
 
-            CreateVillager("Villager_Mountain1", "HumanNPCJeff_DoD", Heightmap.Biome.Mountain, false, false);
-            CreateVillager("Villager_Mountain2", "HumanNPCSandra_DoD", Heightmap.Biome.Mountain, false, false);
+            CreateVillager("Villager_Mountain1", "HumanNPCJeff_DoD", Heightmap.Biome.Mountain, false, false, 10);
+            CreateVillager("Villager_Mountain2", "HumanNPCSandra_DoD", Heightmap.Biome.Mountain, false, false, 10);
 
-            CreateVillager("Villager_Plains1", "HumanNPCBobby_DoD", Heightmap.Biome.Plains, true, false);
-            CreateVillager("Villager_Plains2", "HumanNPCCathrine_DoD", Heightmap.Biome.Plains, true, false);
-            CreateVillager("Villager_Plains3", "HumanNPCDaisy_DoD", Heightmap.Biome.Plains, true, false);
+            CreateVillager("Villager_Plains1", "HumanNPCBobby_DoD", Heightmap.Biome.Plains, true, false, 14);
+            CreateVillager("Villager_Plains2", "HumanNPCCathrine_DoD", Heightmap.Biome.Plains, true, false, 14);
+            CreateVillager("Villager_Plains3", "HumanNPCDaisy_DoD", Heightmap.Biome.Plains, true, false, 14);
 
-            CreateVillager("Villager_Mist1", "HumanNPCKaren_DoD", Heightmap.Biome.Mistlands, true, true);
-            CreateVillager("Villager_Mist2", "HumanNPCFletch_DoD", Heightmap.Biome.Mistlands, true, true);
-            CreateVillager("Villager_Mist3", "HumanNPCBarry_DoD", Heightmap.Biome.Mistlands, true, true);
+            CreateVillager("Villager_Mist1", "HumanNPCKaren_DoD", Heightmap.Biome.Mistlands, true, true, 20);
+            CreateVillager("Villager_Mist2", "HumanNPCFletch_DoD", Heightmap.Biome.Mistlands, true, true, 20);
+            CreateVillager("Villager_Mist3", "HumanNPCBarry_DoD", Heightmap.Biome.Mistlands, true, true, 20);
 
         }
 
-        void CreateVillager(string villagerName, string prefabCloneName, Heightmap.Biome biome, bool addShield, bool addHeal)
+        void CreateVillager(string villagerName, string prefabCloneName, Heightmap.Biome biome, bool addShield, bool addHeal, int goldReqForRecruit)
         {
             prefabCloneName = prefabCloneName.Trim();
             CreatureConfig villagerConfig = new CreatureConfig();
@@ -135,6 +135,7 @@ namespace KukusVillagerMod.Prefabs
             villager.Prefab.AddComponent<NpcTalk>(); //Add our custom talk component
 
             var vg = villager.Prefab.AddComponent<VillagerGeneral>(); //Add villager General component 
+            vg.goldToRecruit = goldReqForRecruit;
 
             villager.Prefab.AddComponent<VillagerAI>();
             if (existingTameable == null)

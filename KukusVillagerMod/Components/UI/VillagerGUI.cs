@@ -255,10 +255,21 @@ namespace KukusVillagerMod.Components.UI
         }
         private static void SetupVillagerOrderTab()
         {
+
+
+
             if (!VillagerGeneral.IsVillagerTamed(selected_villager))
             {
+                var villager = ZNetScene.instance.FindInstance(selected_villager);
+                if (villager == null)
+                {
+                    return;
+                }
+                VillagerGeneral vg = villager.GetComponent<VillagerGeneral>();
+                if (vg == null) return;
+
                 GameObject Recruit = GUIManager.Instance.CreateButton(
-                    text: "Recruit Villager",
+                    text: $"Recruit Villager with {vg.goldToRecruit} Coins",
                     parent: MAINBG.transform,
                     anchorMin: new Vector2(0.5f, 0.1f),
                     anchorMax: new Vector2(0.5f, 0.5f),
@@ -269,13 +280,39 @@ namespace KukusVillagerMod.Components.UI
                 SubUIs.Add(Recruit);
                 Recruit.GetComponent<Button>().onClick.AddListener(() =>
                 {
-                    var villager = ZNetScene.instance.FindInstance(selected_villager);
-                    if (villager == null)
+
+
+                    Inventory playerInv = Player.m_localPlayer.GetInventory();
+
+                    int coinCount = 0;
+                    ItemDrop.ItemData gold = null;
+                    foreach (var i in playerInv.GetAllItems())
                     {
-                        return;
+                        if (i.m_shared.m_name.Equals("$item_coins"))
+                        {
+                            coinCount += i.m_stack;
+
+                            if (coinCount >= vg.goldToRecruit)
+                            {
+                                gold = i;
+                                break;
+                            }
+                        }
+
                     }
-                    VillagerGeneral vg = villager.GetComponent<VillagerGeneral>();
-                    vg.TameVillager();
+
+                    if (gold != null && coinCount >= vg.goldToRecruit)
+                    {
+                        if (playerInv.RemoveItem(gold, vg.goldToRecruit))
+                        {
+                            vg.TameVillager();
+                        }
+                        else
+                        {
+                            MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Failed to recruit villager");
+                        }
+                    }
+
                     UpdateUI();
                     return;
                 });
@@ -486,8 +523,16 @@ namespace KukusVillagerMod.Components.UI
         {
             if (!VillagerGeneral.IsVillagerTamed(selected_villager))
             {
+                var villager = ZNetScene.instance.FindInstance(selected_villager);
+                if (villager == null)
+                {
+                    return;
+                }
+                VillagerGeneral vg = villager.GetComponent<VillagerGeneral>();
+                if (vg == null) return;
+
                 GameObject Recruit = GUIManager.Instance.CreateButton(
-                    text: "Recruit Villager",
+                    text: $"Recruit Villager with {vg.goldToRecruit} Coins",
                     parent: MAINBG.transform,
                     anchorMin: new Vector2(0.5f, 0.1f),
                     anchorMax: new Vector2(0.5f, 0.5f),
@@ -498,14 +543,39 @@ namespace KukusVillagerMod.Components.UI
                 SubUIs.Add(Recruit);
                 Recruit.GetComponent<Button>().onClick.AddListener(() =>
                 {
-                    var villager = ZNetScene.instance.FindInstance(selected_villager);
-                    if (villager == null)
+
+
+                    Inventory playerInv = Player.m_localPlayer.GetInventory();
+
+                    int coinCount = 0;
+                    ItemDrop.ItemData gold = null;
+                    foreach (var i in playerInv.GetAllItems())
                     {
-                        VillagerGeneral.TameVillager(selected_villager);
-                        return;
+                        if (i.m_shared.m_name.Equals("$item_coins"))
+                        {
+                            coinCount += i.m_stack;
+
+                            if (coinCount >= vg.goldToRecruit)
+                            {
+                                gold = i;
+                                break;
+                            }
+                        }
+
                     }
-                    VillagerGeneral vg = villager.GetComponent<VillagerGeneral>();
-                    vg.TameVillager();
+
+                    if (gold != null && coinCount >= vg.goldToRecruit)
+                    {
+                        if (playerInv.RemoveItem(gold, vg.goldToRecruit))
+                        {
+                            vg.TameVillager();
+                        }
+                        else
+                        {
+                            MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Failed to recruit villager");
+                        }
+                    }
+
                     UpdateUI();
                     return;
                 });

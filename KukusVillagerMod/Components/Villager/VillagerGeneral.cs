@@ -28,6 +28,7 @@ namespace KukusVillagerMod.Components.Villager
     {
         //Methods
 
+        public int goldToRecruit;
         public static void SetVillagerSpawnRegion(ZDOID villagerZDOID, Heightmap.Biome biome)
         {
             Util.GetZDO(villagerZDOID).Set("spawn", (int)biome);
