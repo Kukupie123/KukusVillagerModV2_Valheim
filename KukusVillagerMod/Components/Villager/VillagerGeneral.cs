@@ -191,10 +191,11 @@ namespace KukusVillagerMod.Components.Villager
             //Set up health
             humanoid.SetMaxHealth(GetStatHealth());
             //If not recruited then set current hp to max
-            if (!IsVillagerTamed())
-            {
-                humanoid.SetHealth(GetStatHealth());
-            }
+            //if (!IsVillagerTamed())
+            //{
+            humanoid.SetHealth(GetStatHealth()); //Had to do this. The villagers were getting their health reset
+            //}
+
         }
         public static float GetDamage(ZDOID villagerZDOID)
         {
@@ -940,6 +941,7 @@ namespace KukusVillagerMod.Components.Villager
                     ai.SetHuntPlayer(false);
                     ai.m_sleepDelay = 0.01f;
 
+
                     humanoid.m_faction = Character.Faction.Players;
                     humanoid.m_group = "Player";
 
@@ -983,10 +985,11 @@ namespace KukusVillagerMod.Components.Villager
                     {
                         tameable.Tame();
                     }
-                    LoadStatsFromZDO();
                     //Sometime villagers will throw error so we do this to fix it, related to patching getCurrentWeapon function of humanoid
                     UpgradeVillagerDamage(0);
                     UpgradeVillagerHealth(0);
+                    LoadStatsFromZDO();
+
                 }
             }
 
