@@ -488,6 +488,7 @@ namespace KukusVillagerMod.Components.Villager
             if (shouldTalk)
                 talk.Say($"Moving to {pos.ToString()}", "Moving");
             ai.ResetPatrolPoint();
+            ai.SetFollowTarget(null);
             keepMoving = true;
             return true;
         }
