@@ -1,4 +1,5 @@
 ﻿
+using Jotunn.Managers;
 using KukusVillagerMod.Components.VillagerBed;
 using KukusVillagerMod.Configuration;
 using KukusVillagerMod.enums;
@@ -836,9 +837,11 @@ namespace KukusVillagerMod.Components.Villager
         }
 
         bool done = false;
+        public CharacterDrop charDrop;
+
         private void FixedUpdate()
         {
-            if (tameable == null || ZNV == null || ai == null || humanoid == null)
+            if (tameable == null || ZNV == null || ai == null || humanoid == null || charDrop == null)
             {
                 if (ZNV == null)
                 {
@@ -929,6 +932,29 @@ namespace KukusVillagerMod.Components.Villager
                 }
 
 
+
+                if (charDrop == null)
+                {
+                    charDrop = GetComponent<CharacterDrop>();
+                    if (charDrop == null)
+                    {
+                        charDrop = GetComponentInParent<CharacterDrop>();
+                    }
+                    if (charDrop == null)
+                    {
+                        charDrop = GetComponentInChildren<CharacterDrop>();
+                    }
+                    if (charDrop == null)
+                    {
+                        charDrop = base.GetComponent<CharacterDrop>();
+                    }
+                }
+                if (charDrop == null)
+                {
+                    KLog.warning("chardrop component not Found!");
+                }
+
+
             }
             else
             {
@@ -984,6 +1010,9 @@ namespace KukusVillagerMod.Components.Villager
                     else //In case it was tamed when it was not in memory
                     {
                         tameable.Tame();
+                        charDrop.m_drops = new List<CharacterDrop.Drop> {
+                            new CharacterDrop.Drop { m_amountMin = goldToRecruit, m_amountMax = goldToRecruit, m_chance = 100, m_levelMultiplier = false, m_prefab = PrefabManager.Instance.GetPrefab("Coins") }
+                        };
                     }
                     //Sometime villagers will throw error so we do this to fix it, related to patching getCurrentWeapon function of humanoid
                     UpgradeVillagerDamage(0);

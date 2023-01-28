@@ -40,27 +40,51 @@ namespace KukusVillagerMod.Prefabs
             //Mountains : 2 types of villagers
             //Plains : 3 types of villager
             //mistland : 3 types of villager
+            if (VillagerModConfigurations.useCustomVillagerPrefab)
+            {
+                CreateVillager("Villager_Meadow1", "HumanNPCBob_DoD", Heightmap.Biome.Meadows, false, false, VillagerModConfigurations.gold2RecruitMeadow, true, VillagerModConfigurations.villagerMeadow1PrefabName);
+                CreateVillager("Villager_Meadow2", "HumanNPCMandy_DoD", Heightmap.Biome.Meadows, false, false, VillagerModConfigurations.gold2RecruitMeadow, true, VillagerModConfigurations.villagerMeadow2PrefabName);
 
-            CreateVillager("Villager_Meadow1", "HumanNPCBob_DoD", Heightmap.Biome.Meadows, false, false, 3);
-            CreateVillager("Villager_Meadow2", "HumanNPCMandy_DoD", Heightmap.Biome.Meadows, false, false, 3);
+                CreateVillager("Villager_BF1", "HumanNPCFred_DoD", Heightmap.Biome.BlackForest, false, false, VillagerModConfigurations.gold2RecruitBF, true, VillagerModConfigurations.villagerBF1PrefabName);
+                CreateVillager("Villager_BF2", "HumanNPCBarbara_DoD", Heightmap.Biome.BlackForest, false, false, VillagerModConfigurations.gold2RecruitBF, true, VillagerModConfigurations.villagerBF2PrefabName);
 
-            CreateVillager("Villager_BF1", "HumanNPCFred_DoD", Heightmap.Biome.BlackForest, false, false, 6);
-            CreateVillager("Villager_BF2", "HumanNPCBarbara_DoD", Heightmap.Biome.BlackForest, false, false, 6);
+                CreateVillager("Villager_Mountain1", "HumanNPCJeff_DoD", Heightmap.Biome.Mountain, false, false, VillagerModConfigurations.gold2RecruitMountain, true, VillagerModConfigurations.villagerMountain1PrefabName);
+                CreateVillager("Villager_Mountain2", "HumanNPCSandra_DoD", Heightmap.Biome.Mountain, false, false, VillagerModConfigurations.gold2RecruitMountain, true, VillagerModConfigurations.villagerMountain2PrefabName);
 
-            CreateVillager("Villager_Mountain1", "HumanNPCJeff_DoD", Heightmap.Biome.Mountain, false, false, 10);
-            CreateVillager("Villager_Mountain2", "HumanNPCSandra_DoD", Heightmap.Biome.Mountain, false, false, 10);
+                CreateVillager("Villager_Plains1", "HumanNPCBobby_DoD", Heightmap.Biome.Plains, true, false, VillagerModConfigurations.gold2RecruitPlain, true, VillagerModConfigurations.villagerPlain1PrefabName);
+                CreateVillager("Villager_Plains2", "HumanNPCCathrine_DoD", Heightmap.Biome.Plains, true, false, VillagerModConfigurations.gold2RecruitPlain, true, VillagerModConfigurations.villagerPlain2PrefabName);
+                CreateVillager("Villager_Plains3", "HumanNPCDaisy_DoD", Heightmap.Biome.Plains, true, false, VillagerModConfigurations.gold2RecruitPlain, true, VillagerModConfigurations.villagerPlain3PrefabName);
 
-            CreateVillager("Villager_Plains1", "HumanNPCBobby_DoD", Heightmap.Biome.Plains, true, false, 14);
-            CreateVillager("Villager_Plains2", "HumanNPCCathrine_DoD", Heightmap.Biome.Plains, true, false, 14);
-            CreateVillager("Villager_Plains3", "HumanNPCDaisy_DoD", Heightmap.Biome.Plains, true, false, 14);
+                CreateVillager("Villager_Mist1", "HumanNPCKaren_DoD", Heightmap.Biome.Mistlands, true, true, VillagerModConfigurations.gold2RecruitMist, true, VillagerModConfigurations.villagerMist1PrefabName);
+                CreateVillager("Villager_Mist2", "HumanNPCFletch_DoD", Heightmap.Biome.Mistlands, true, true, VillagerModConfigurations.gold2RecruitMist, true, VillagerModConfigurations.villagerMist2PrefabName);
+                CreateVillager("Villager_Mist3", "HumanNPCBarry_DoD", Heightmap.Biome.Mistlands, true, true, VillagerModConfigurations.gold2RecruitMist, true, VillagerModConfigurations.villagerMist3PrefabName);
+            }
+            else
+            {
+                CreateVillager("Villager_Meadow1", "HumanNPCBob_DoD", Heightmap.Biome.Meadows, false, false, VillagerModConfigurations.gold2RecruitMeadow);
+                CreateVillager("Villager_Meadow2", "HumanNPCMandy_DoD", Heightmap.Biome.Meadows, false, false, VillagerModConfigurations.gold2RecruitMeadow);
 
-            CreateVillager("Villager_Mist1", "HumanNPCKaren_DoD", Heightmap.Biome.Mistlands, true, true, 20);
-            CreateVillager("Villager_Mist2", "HumanNPCFletch_DoD", Heightmap.Biome.Mistlands, true, true, 20);
-            CreateVillager("Villager_Mist3", "HumanNPCBarry_DoD", Heightmap.Biome.Mistlands, true, true, 20);
+                CreateVillager("Villager_BF1", "HumanNPCFred_DoD", Heightmap.Biome.BlackForest, false, false, VillagerModConfigurations.gold2RecruitBF);
+                CreateVillager("Villager_BF2", "HumanNPCBarbara_DoD", Heightmap.Biome.BlackForest, false, false, VillagerModConfigurations.gold2RecruitBF);
+
+                CreateVillager("Villager_Mountain1", "HumanNPCJeff_DoD", Heightmap.Biome.Mountain, false, false, VillagerModConfigurations.gold2RecruitMountain);
+                CreateVillager("Villager_Mountain2", "HumanNPCSandra_DoD", Heightmap.Biome.Mountain, false, false, VillagerModConfigurations.gold2RecruitMountain);
+
+                CreateVillager("Villager_Plains1", "HumanNPCBobby_DoD", Heightmap.Biome.Plains, true, false, VillagerModConfigurations.gold2RecruitPlain);
+                CreateVillager("Villager_Plains2", "HumanNPCCathrine_DoD", Heightmap.Biome.Plains, true, false, VillagerModConfigurations.gold2RecruitPlain);
+                CreateVillager("Villager_Plains3", "HumanNPCDaisy_DoD", Heightmap.Biome.Plains, true, false, VillagerModConfigurations.gold2RecruitPlain);
+
+                CreateVillager("Villager_Mist1", "HumanNPCKaren_DoD", Heightmap.Biome.Mistlands, true, true, VillagerModConfigurations.gold2RecruitMist);
+                CreateVillager("Villager_Mist2", "HumanNPCFletch_DoD", Heightmap.Biome.Mistlands, true, true, VillagerModConfigurations.gold2RecruitMist);
+                CreateVillager("Villager_Mist3", "HumanNPCBarry_DoD", Heightmap.Biome.Mistlands, true, true, VillagerModConfigurations.gold2RecruitMist);
+            }
 
         }
 
-        void CreateVillager(string villagerName, string prefabCloneName, Heightmap.Biome biome, bool addShield, bool addHeal, int goldReqForRecruit)
+
+
+
+        void CreateVillager(string villagerName, string prefabCloneName, Heightmap.Biome biome, bool addShield, bool addHeal, int goldReqForRecruit, bool useCustomPrefab = false, string customPrefabName = "Dverger")
         {
             prefabCloneName = prefabCloneName.Trim();
             CreatureConfig villagerConfig = new CreatureConfig();
@@ -80,12 +104,12 @@ namespace KukusVillagerMod.Prefabs
 
             };
             villagerConfig.AddSpawnConfig(spawnConfig);
-            if (!PrefabManager.Instance.GetPrefab(prefabCloneName))
+            string prefabName = prefabCloneName;
+            if (useCustomPrefab)
             {
-                prefabCloneName = "Dverger";
+                prefabName = customPrefabName;
             }
-
-            CustomCreature villager = new CustomCreature(villagerName, prefabCloneName, villagerConfig);
+            CustomCreature villager = new CustomCreature(villagerName, prefabName, villagerConfig);
             //Remove components that we do not need from the villagers
             var npcTalk = villager.Prefab.GetComponent<NpcTalk>();
             var charDrop = villager.Prefab.GetComponent<CharacterDrop>();

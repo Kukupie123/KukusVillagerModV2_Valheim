@@ -47,7 +47,7 @@ namespace KukusVillagerMod.Configuration
         public static float SpawnDistance;
         public static int NormalVillagerChance;
 
-
+        //villager stats and upgrades
         public static float MinHealth;
         public static float MaxHealth;
         public static float MinEfficiency;
@@ -76,18 +76,66 @@ namespace KukusVillagerMod.Configuration
         public static float PlainsRandomStatsMultiplier;
         public static float MountainRandomStatsMultiplier;
         public static float MistlandRandomStatsMultiplier;
+        public static int gold2RecruitMeadow;
+        public static int gold2RecruitBF;
+        public static int gold2RecruitMountain;
+        public static int gold2RecruitPlain;
+        public static int gold2RecruitMist;
 
+        //spawn point stuff, unused
         public static float SpawnPoint_SpawnIntervalSec;
-
         public static int SpawnPoint_MaxNear;
-
         public static int SpawnPoint_MaxTotal;
-
         public static int HutSpawnQuantity;
+
+        //villager settings
+        public static bool useCustomVillagerPrefab;
+        internal static string villagerMeadow1PrefabName;
+        internal static string villagerMeadow2PrefabName;
+        internal static string villagerBF1PrefabName;
+        internal static string villagerBF2PrefabName;
+        internal static string villagerMountain1PrefabName;
+        internal static string villagerMountain2PrefabName;
+        internal static string villagerPlain1PrefabName;
+        internal static string villagerPlain2PrefabName;
+        internal static string villagerPlain3PrefabName;
+        internal static string villagerMist1PrefabName;
+        internal static string villagerMist2PrefabName;
+        internal static string villagerMist3PrefabName;
 
         public static void LoadConfig(ConfigFile Config)
         {
             Config.SaveOnConfigSet = true;
+
+            //villager settings
+            useCustomVillagerPrefab = (bool)Config.Bind("Villager settings", "Use Custom Defined Prefab for villagers", false
+         ).BoxedValue;
+            villagerMeadow1PrefabName = (string)Config.Bind("Villager settings", "Meadow 1 Villager Prefab Name", "Dverger"
+         ).BoxedValue;
+            villagerMeadow2PrefabName = (string)Config.Bind("Villager settings", "Meadow 2 Villager Prefab Name", "Dverger"
+         ).BoxedValue;
+            villagerBF1PrefabName = (string)Config.Bind("Villager settings", "BF 1 Villager Prefab Name", "Dverger"
+         ).BoxedValue;
+            villagerBF2PrefabName = (string)Config.Bind("Villager settings", "BF 2 Villager Prefab Name", "Dverger"
+                   ).BoxedValue;
+            villagerMountain1PrefabName = (string)Config.Bind("Villager settings", "Mountain 1 Villager Prefab Name", "Dverger"
+       ).BoxedValue;
+            villagerMountain2PrefabName = (string)Config.Bind("Villager settings", "Mountain 2 Villager Prefab Name", "Dverger"
+       ).BoxedValue;
+            villagerPlain1PrefabName = (string)Config.Bind("Villager settings", "Plains 1 Villager Prefab Name", "Dverger"
+       ).BoxedValue;
+            villagerPlain1PrefabName = (string)Config.Bind("Villager settings", "Plains 2 Villager Prefab Name", "Dverger"
+       ).BoxedValue;
+            villagerPlain3PrefabName = (string)Config.Bind("Villager settings", "Plain 3 Villager Prefab Name", "Dverger"
+       ).BoxedValue;
+            villagerMist1PrefabName = (string)Config.Bind("Villager settings", "Mistland 1 Villager Prefab Name", "Dverger"
+       ).BoxedValue;
+            villagerMist2PrefabName = (string)Config.Bind("Villager settings", "Mistland 2 Villager Prefab Name", "Dverger"
+       ).BoxedValue;
+            villagerMist3PrefabName = (string)Config.Bind("Villager settings", "Mistland 3 Villager Prefab Name", "Dverger"
+       ).BoxedValue;
+
+
             //Villager AI Configuration
             FollowerMaxDistance = (int)Config.Bind("Villager AI Configuration", "Follower Max Distance", 60,
                 new ConfigDescription("If the distance between the player and the villagers following the player exteed this value. They are teleported to the Player.", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
@@ -198,6 +246,18 @@ namespace KukusVillagerMod.Configuration
               ).BoxedValue;
             NormalVillagerChance = (int)Config.Bind("Villager Stats", "Normal Wild Villager Chance", 5, new ConfigDescription("Determines the chance of villagers having special combat skills (forst,ice,poison,etc). 0 = Every Wild villager will have special skill, increase it by 1 will reduce the chance of villager having special skill. It's counterintuiive I know :P but it is what it is")
               ).BoxedValue;
+            gold2RecruitMeadow = (int)Config.Bind("Villager Stats", "Gold To Recruit Meadow Villagers", 10
+              ).BoxedValue;
+            gold2RecruitBF = (int)Config.Bind("Villager Stats", "Gold To Recruit BlackForest Villagers", 20
+             ).BoxedValue;
+            gold2RecruitMountain = (int)Config.Bind("Villager Stats", "Gold To Recruit Mountain Villagers", 35
+            ).BoxedValue;
+            gold2RecruitPlain = (int)Config.Bind("Villager Stats", "Gold To Recruit Plain Villagers", 45
+            ).BoxedValue;
+            gold2RecruitPlain = (int)Config.Bind("Villager Stats", "Gold To Recruit Mistland Villagers", 55
+            ).BoxedValue;
+
+
 
             //Upgrade items
             ArmorRagSetReq = (int)Config.Bind("Villager Upgrade", "Armor Rag Set Requirements", 3, new ConfigDescription("The amount of resources required to craft upgrading items")

@@ -60,8 +60,10 @@ You can also give universal commands to the villagers
 <h3>3.1.5</h3>
 1. Villagers regen HP when close to bed and in Guarding_Bed State.<br>
 2. Fixed health upgrade not working on villagers. <br>
-3. AI will not get as much as it use to in last update. <br>
+3. AI will not get stuck as much as it use to in last update. <br>
 4. Fixed bug where villagers HP would be super low everytime the game is loaded. <br>
+5. Added option in config to use custom prefabs. <br>
+6. Villagers will now need coins to be recruited. Configurable <br>
 <h3> 3.1.4</h3>
 1. Bug fixes related to unassignable work post, bed, defense post <br>
 2. Chop wood bug fix<br>
