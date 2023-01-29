@@ -59,8 +59,11 @@ namespace KukusVillagerMod
             AddNamedMageNPC("HumanNPCTania_DoD");
             AddNamedMageNPC("HumanNPCTina_DoD");
             //Create villager prefab using horem's NPC
-            new VillagerPrefab();
+
             //CreatureManager.OnVanillaCreaturesAvailable += CloneSpawnPoint;
+            CreatureManager.OnVanillaCreaturesAvailable += () => {
+                new VillagerPrefab();
+            };
             //CloneSpawnPoint(); //Clones and modifies each spawn point as needed
             PrefabManager.OnVanillaPrefabsAvailable += LoadPiecesPrefab; //load original prefabs cloned from original game
             //ZoneManager.OnVanillaLocationsAvailable += AddAllSpawnPointForVillager; //add spawn points to the game
