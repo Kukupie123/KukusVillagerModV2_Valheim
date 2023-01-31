@@ -20,9 +20,7 @@ namespace KukusVillagerMod.Prefabs
         {
             //First age
             var weakReq = new List<RequirementConfig>();
-            weakReq.Add(new RequirementConfig("Wood", 30, 0, false));
-            var weakReqM = new List<RequirementConfig>();
-            weakReqM.Add(new RequirementConfig("Wood", 10, 0, false));
+            weakReq.Add(new RequirementConfig("Wood", 30, 0, true)); 
             createBed("Villager_Bed", "Bed for villager to use", "bed", weakReq);
         }
 

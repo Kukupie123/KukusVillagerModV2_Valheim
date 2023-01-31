@@ -2,7 +2,7 @@
 
 ## NOTICE 
 1. I would like to thank [Horem](https://discord.gg/YwtBr7hh) for helping me out so much for this update as well as providing his awesome Assetbundle. <br>
-2. Old villagers may die because of health regen when guarding bed feature being added.<br>
+2. I will not be active for a while. Real life issues :) <br>
 4. May work initially in Multiplayer as we got rid of beds BUT has not been designed with multiplayer in mind so there may be issues specially with work commands as it alters container's contents. <br>
 5. Config file has a section called [Spawn Point HUT] Which is obselete and not used currently.<br>
 
@@ -57,6 +57,9 @@ You can select any villagers from the list and it will open the Villager stats G
 You can also give universal commands to the villagers
 
 ## Changelog
+<h3>3.1.6</h3>
+1. Fixed custom prefab not working. For custom models from other mods, it has to load before this mod does. RRRNPC will not work because it loads very late. I tried to get past this to no avail.<br>
+2. Villager Bed will now drop back woods used to craft them. <br>
 <h3>3.1.5</h3>
 1. Villagers regen HP when close to bed and in Guarding_Bed State.<br>
 2. Fixed health upgrade not working on villagers. <br>
