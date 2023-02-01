@@ -51,6 +51,25 @@ namespace KukusVillagerMod.Components.Villager
             //Runs only once
             if (!updateRanOnce)
             {
+
+                villagerGeneral.humanoid.m_onDamaged += (dmg, character) =>
+                {
+                    string text = "";
+                    if (VillagerModConfigurations.DamageTalk)
+                    {
+                        text = $"{text}Outch! I took {dmg} Damage";
+                    }
+                    if (character)
+                    {
+                        text = $"{text} from {character.m_name}";
+
+                        if (villagerGeneral.GetVillagerState() == VillagerState.Working)
+                        {
+                            IncreaseWorkDelayForTime();
+                        }
+                    }
+                };
+
                 updateRanOnce = true;
 
                 //Get the state of the villager using bed zdo to determine which command to execute
@@ -371,6 +390,8 @@ namespace KukusVillagerMod.Components.Villager
         //----------------------------------------------------------------------------------------------------------------------------------
 
 
+
+
         //Makes villager follow the targer, used internally to make villager follow it's bed, defense post, player, etc
         private bool FollowGameObject(GameObject target)
         {
@@ -675,11 +696,22 @@ namespace KukusVillagerMod.Components.Villager
 
         }
 
+        bool alreadyIncreasedWorkDelay = false;
+        async private Task IncreaseWorkDelayForTime()
+        {
+            if (alreadyIncreasedWorkDelay) return;
+            alreadyIncreasedWorkDelay = true;
+            awaitWorkDelay = 500;
+            await Task.Delay(3000);
+            awaitWorkDelay = 10;
+            alreadyIncreasedWorkDelay = false;
+        }
+
         int minRandomTime = VillagerModConfigurations.MinWaitTimeWork; //min wait time for work
         int maxRandomTime = VillagerModConfigurations.MaxWaitTimeWork; //max wait time for work
         bool workTalk = VillagerModConfigurations.TalkWhileWorking; //should talk while working
         bool workRun = VillagerModConfigurations.workRun; //should villager run while working
-
+        int awaitWorkDelay = 1;
         /// <summary>
         /// We can either move to a location or follow a target, if we pass in followTarget it will start following, following is recommended if you want the character to stay close
         /// </summary>
@@ -687,16 +719,23 @@ namespace KukusVillagerMod.Components.Villager
         /// <param name="acceptableDistance"></param>
         /// <param name="followTarget"></param>
         /// <returns></returns>
-        async private Task GoToLocationAwaitWork(Vector3 location, float acceptableDistance = 3f)
+        /// 
+        async private Task GoToLocationAwaitWork(Vector3 location, float acceptableDistance = 3f, GameObject targetObj = null)
         {
+            bool keepTrackOfObj = false;
+            if (targetObj) keepTrackOfObj = true;
 
             //Move to workpost
             MoveVillagerToLoc(location, acceptableDistance, false, false, workRun);
             while (keepMoving)
             {
+                if (keepTrackOfObj)
+                {
+                    if (!targetObj) break;
+                }
                 ai.LookAt(location);
                 //movePos = location;
-                await Task.Delay(1);
+                await Task.Delay(awaitWorkDelay);
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                 {
                     break;
@@ -713,7 +752,7 @@ namespace KukusVillagerMod.Components.Villager
                 //ai.LookAt(target.transform.position);
                 //FollowGameObject(target);
                 //AcceptedFollowDistance = acceptableRadius;
-                await Task.Delay(5);
+                await Task.Delay(awaitWorkDelay);
                 if (villagerGeneral.GetVillagerState() != VillagerState.Working)
                 {
                     break;
@@ -767,7 +806,7 @@ namespace KukusVillagerMod.Components.Villager
                     if (pickable == null) return;
                     //Go to item
                     if (useMoveTo)
-                        await GoToLocationAwaitWork(pickable.transform.position);
+                        await GoToLocationAwaitWork(pickable.transform.position, targetObj: pickable.gameObject);
                     else
                         await FollowTargetAwaitWork(pickable.gameObject);
 
@@ -1344,7 +1383,7 @@ namespace KukusVillagerMod.Components.Villager
 
                     //Get close to the tree
                     if (useMoveTo)
-                        await GoToLocationAwaitWork(obj.transform.position, 2);
+                        await GoToLocationAwaitWork(obj.transform.position, 2, obj.gameObject);
                     else
                         await FollowTargetAwaitWork(obj.gameObject);
 

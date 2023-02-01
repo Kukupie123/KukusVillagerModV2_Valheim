@@ -102,6 +102,7 @@ namespace KukusVillagerMod.Configuration
         internal static string villagerMist1PrefabName;
         internal static string villagerMist2PrefabName;
         internal static string villagerMist3PrefabName;
+        public static bool DamageTalk;
 
         public static void LoadConfig(ConfigFile Config)
         {
@@ -124,7 +125,7 @@ namespace KukusVillagerMod.Configuration
        ).BoxedValue;
             villagerPlain1PrefabName = (string)Config.Bind("Villager settings", "Plains 1 Villager Prefab Name", "Dverger"
        ).BoxedValue;
-            villagerPlain1PrefabName = (string)Config.Bind("Villager settings", "Plains 2 Villager Prefab Name", "Dverger"
+            villagerPlain2PrefabName = (string)Config.Bind("Villager settings", "Plains 2 Villager Prefab Name", "Dverger"
        ).BoxedValue;
             villagerPlain3PrefabName = (string)Config.Bind("Villager settings", "Plain 3 Villager Prefab Name", "Dverger"
        ).BoxedValue;
@@ -177,6 +178,10 @@ namespace KukusVillagerMod.Configuration
             UseMoveForWork = (bool)Config.Bind("Villager AI Configuration", "Use Move instead of follow for work", true,
                 new ConfigDescription("There's two ways of going from one place to another, it's preferred to keep this as true but in case you want to use follow method set this as false", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
                 ).BoxedValue;
+
+            DamageTalk = (bool)Config.Bind("Villager AI Configuration", "Announce Damage", true,
+              new ConfigDescription("Announce damage taken when villager takes damage", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
+              ).BoxedValue;
 
             //Villager spawn configuration
             GroupRadius = (float)Config.Bind("Villager Spawner WILDERNESS", "Wilderness Spawn Group radius", 3f
@@ -254,7 +259,7 @@ namespace KukusVillagerMod.Configuration
             ).BoxedValue;
             gold2RecruitPlain = (int)Config.Bind("Villager Stats", "Gold To Recruit Plain Villagers", 45
             ).BoxedValue;
-            gold2RecruitPlain = (int)Config.Bind("Villager Stats", "Gold To Recruit Mistland Villagers", 55
+            gold2RecruitMist = (int)Config.Bind("Villager Stats", "Gold To Recruit Mistland Villagers", 55
             ).BoxedValue;
 
 

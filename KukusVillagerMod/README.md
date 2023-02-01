@@ -57,6 +57,11 @@ You can select any villagers from the list and it will open the Villager stats G
 You can also give universal commands to the villagers
 
 ## Changelog
+<h3>3.1.7</h3>
+1. Added ability for villager to announce when they take damage. <br>
+2. Fixed another custom prefab bug related to mistland villagers. <br>
+3. Fixed Gold requirement being 0 for mistland villagers. <br>
+4. Worker Villagers will now be somewhat able to defend themselves.
 <h3>3.1.6</h3>
 1. Fixed custom prefab not working. For custom models from other mods, it has to load before this mod does. RRRNPC will not work because it loads very late. I tried to get past this to no avail.<br>
 2. Villager Bed will now drop back woods used to craft them. <br>
