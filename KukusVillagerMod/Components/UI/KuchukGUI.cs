@@ -184,9 +184,11 @@ namespace KukusVillagerMod.Components.UI
         }
 
         static int listSize = 4;
+        private static int listSizeFac = listSize - 1;
 
         private static List<ZDO> GetTamedVillagers(string faction = null)
         {
+            KLog.warning($"Getting villagers of {(faction == null ? "All" : faction)}");
             List<ZDO> meadow1 = new List<ZDO>();
             List<ZDO> meadow2 = new List<ZDO>();
             List<ZDO> bf1 = new List<ZDO>();
@@ -217,7 +219,7 @@ namespace KukusVillagerMod.Components.UI
             {
                 foreach (var v in meadow1)
                 {
-                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(v))
+                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(faction))
                     {
                         mainList.Add(v);
                     }
@@ -225,7 +227,7 @@ namespace KukusVillagerMod.Components.UI
 
                 foreach (var v in meadow2)
                 {
-                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(v))
+                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(faction))
                     {
                         mainList.Add(v);
                     }
@@ -233,7 +235,7 @@ namespace KukusVillagerMod.Components.UI
 
                 foreach (var v in bf1)
                 {
-                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(v))
+                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(faction))
                     {
                         mainList.Add(v);
                     }
@@ -241,7 +243,7 @@ namespace KukusVillagerMod.Components.UI
 
                 foreach (var v in bf2)
                 {
-                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(v))
+                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(faction))
                     {
                         mainList.Add(v);
                     }
@@ -249,7 +251,7 @@ namespace KukusVillagerMod.Components.UI
 
                 foreach (var v in mountain1)
                 {
-                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(v))
+                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(faction))
                     {
                         mainList.Add(v);
                     }
@@ -257,7 +259,7 @@ namespace KukusVillagerMod.Components.UI
 
                 foreach (var v in mountain2)
                 {
-                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(v))
+                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(faction))
                     {
                         mainList.Add(v);
                     }
@@ -265,7 +267,7 @@ namespace KukusVillagerMod.Components.UI
 
                 foreach (var v in plains1)
                 {
-                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(v))
+                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(faction))
                     {
                         mainList.Add(v);
                     }
@@ -273,7 +275,7 @@ namespace KukusVillagerMod.Components.UI
 
                 foreach (var v in plains2)
                 {
-                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(v))
+                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(faction))
                     {
                         mainList.Add(v);
                     }
@@ -281,7 +283,7 @@ namespace KukusVillagerMod.Components.UI
 
                 foreach (var v in plains3)
                 {
-                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(v))
+                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(faction))
                     {
                         mainList.Add(v);
                     }
@@ -289,7 +291,7 @@ namespace KukusVillagerMod.Components.UI
 
                 foreach (var v in mist1)
                 {
-                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(v))
+                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(faction))
                     {
                         mainList.Add(v);
                     }
@@ -297,7 +299,7 @@ namespace KukusVillagerMod.Components.UI
 
                 foreach (var v in mist2)
                 {
-                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(v))
+                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(faction))
                     {
                         mainList.Add(v);
                     }
@@ -305,7 +307,7 @@ namespace KukusVillagerMod.Components.UI
 
                 foreach (var v in mist3)
                 {
-                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(v))
+                    if (VillagerGeneral.GetVillagerFaction(v.m_uid).Equals(faction))
                     {
                         mainList.Add(v);
                     }
@@ -402,7 +404,7 @@ namespace KukusVillagerMod.Components.UI
                     return;
                 }
 
-                currentPageNo += 4; //If item exists for showing in next page we proceed.
+                currentPageNo += listSize; //If item exists for showing in next page we proceed.
                 if (currentPageNo >= villagerList.Count - 1)
                 {
                     currentPageNo = villagerList.Count - 1;
@@ -466,7 +468,7 @@ namespace KukusVillagerMod.Components.UI
             //Faction list
             void GoBackFac(ref int currentPageNo)
             {
-                currentPageNo -= listSize; //list size
+                currentPageNo -= listSizeFac; //list size
                 if (currentPageNo <= 0)
                 {
                     currentPageNo = 0;
@@ -478,12 +480,12 @@ namespace KukusVillagerMod.Components.UI
             void GoFwdFac(List<string> factionList, ref int currentPageNo)
             {
                 //Is there item for the next page? Eg. If we have 4 items and we show 4 in one list. There is none left to show so now rangedVillagerListstartingIndex = 8 but count is 4 so we know it's already shown.
-                if (factionList.Count - 1 < currentPageNo + listSize)
+                if (factionList.Count - 1 < currentPageNo + listSizeFac)
                 {
                     return;
                 }
 
-                currentPageNo += 4; //If item exists for showing in next page we proceed.
+                currentPageNo += listSizeFac; //If item exists for showing in next page we proceed.
                 if (currentPageNo >= factionList.Count - 1)
                 {
                     currentPageNo = factionList.Count - 1;
@@ -516,7 +518,7 @@ namespace KukusVillagerMod.Components.UI
                 parent: MainBG.transform,
                 anchorMin: new Vector2(0.5f, 0.5f),
                 anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(250, -200),
+                position: new Vector2(150, -200),
                 width: 100f,
                 height: 60f
             );
@@ -526,7 +528,7 @@ namespace KukusVillagerMod.Components.UI
                 parent: MainBG.transform,
                 anchorMin: new Vector2(0.5f, 0.5f),
                 anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(150f, -200),
+                position: new Vector2(250f, -200),
                 width: 100f,
                 height: 60f
             );
@@ -544,9 +546,9 @@ namespace KukusVillagerMod.Components.UI
         }
 
 
-        private static void GenerateVillagersList(List<ZDO> villagerList, int startindIndex, float pos)
+        private static void GenerateVillagersList(List<ZDO> villagerList, int startingIndex, float pos)
         {
-            int endingIndex = startindIndex + listSize;
+            int endingIndex = startingIndex + listSize;
             float startingY = 200f;
             //If we exceed ending index we need to adjust ending index to the last index of the list
             if ((villagerList.Count - 1) < endingIndex)
@@ -559,7 +561,7 @@ namespace KukusVillagerMod.Components.UI
                 VillagerGeneral.GetName(v.m_uid);
             }
 
-            for (int i = startindIndex; i < endingIndex; i++)
+            for (int i = startingIndex; i < endingIndex; i++)
             {
                 ZDOID zdoid = villagerList[i].m_uid;
                 //Villager button
@@ -584,10 +586,9 @@ namespace KukusVillagerMod.Components.UI
             }
         }
 
-        private static void GenerateFactionsList(List<string> factionsList, int startindIndex, float pos)
+        private static void GenerateFactionsList(List<string> factionsList, int startingIndex, float pos)
         {
-            int endingIndex = startindIndex + listSize;
-            endingIndex--;
+            int endingIndex = startingIndex + listSizeFac;
             float startingY = 200f;
             //If we exceed ending index we need to adjust ending index to the last index of the list
             if ((factionsList.Count - 1) < endingIndex)
@@ -596,26 +597,8 @@ namespace KukusVillagerMod.Components.UI
             }
 
 
-            GameObject allVillagerBtn = GUIManager.Instance.CreateButton(
-                text: $"All",
-                parent: MainBG.transform,
-                anchorMin: new Vector2(0.5f, 0.5f),
-                anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(pos, startingY),
-                width: 250f,
-                height: 60f
-            );
-            SubUis.Add(allVillagerBtn);
-            allVillagerBtn.GetComponent<Button>().onClick.AddListener(
-                () =>
-                {
-                    activeFaction = null;
-                    UpdateUI();
-                }
-            );
-            startingY -= 100;
-
-            for (int i = startindIndex; i < endingIndex; i++)
+        
+            for (int i = startingIndex; i < endingIndex; i++)
             {
                 string factionName = factionsList[i];
                 //Villager button
@@ -638,11 +621,29 @@ namespace KukusVillagerMod.Components.UI
                 );
                 startingY -= 100;
             }
+            GameObject allVillagerBtn = GUIManager.Instance.CreateButton(
+                text: $"All",
+                parent: MainBG.transform,
+                anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(pos, startingY),
+                width: 250f,
+                height: 60f
+            );
+            SubUis.Add(allVillagerBtn);
+            allVillagerBtn.GetComponent<Button>().onClick.AddListener(
+                () =>
+                {
+                    activeFaction = null;
+                    UpdateUI();
+                }
+            );
+
         }
 
         private static void SetupVillagerOrderTab()
         {
-            List<ZDO> tamedVillagers = GetTamedVillagers(activeFaction);
+            tamedVillagers = GetTamedVillagers(activeFaction);
             //LEFT
             GameObject FollowMeBtn = GUIManager.Instance.CreateButton(
                 text: "Follow Me(Only nearby villagers)",

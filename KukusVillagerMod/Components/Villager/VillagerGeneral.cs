@@ -19,7 +19,7 @@ namespace KukusVillagerMod.Components.Villager
 
         public static string GetVillagerFaction(ZDOID villagerZDOID)
         {
-            return Util.GetZDO(villagerZDOID).GetString("faction", "None");
+            return Util.GetZDO(villagerZDOID).GetString("faction", "NONE");
         }
 
         public string GetVillagerFaction()
