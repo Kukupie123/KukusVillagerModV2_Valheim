@@ -1137,14 +1137,6 @@ namespace KukusVillagerMod.Components.Villager
                     else //In case it was tamed when it was not in memory
                     {
                         tameable.Tame();
-                        charDrop.m_drops = new List<CharacterDrop.Drop>
-                        {
-                            new CharacterDrop.Drop
-                            {
-                                m_amountMin = goldToRecruit, m_amountMax = goldToRecruit, m_chance = 100,
-                                m_levelMultiplier = false, m_prefab = PrefabManager.Instance.GetPrefab("Coins")
-                            }
-                        };
                     }
 
                     //Sometime villagers will throw error so we do this to fix it, related to patching getCurrentWeapon function of humanoid

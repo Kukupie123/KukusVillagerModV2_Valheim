@@ -32,7 +32,8 @@ Paste the plugins folder in valheim/BepInEx/
 <h3>3.3.0</h3>
 1. Faction System added. Now you can group villagers into factions and command all of the faction members at once. <br>
 2. Assign Items of many villager at once using Runik Kuchuk Commander.
-3. You can now upgrade villagers by interacting with the villagers and selecting the upgrade villagers option. It will select the best item from your inventory and use it to upgrade the villager.
+3. You can now upgrade villagers by interacting with the villagers and selecting the upgrade villagers option. It will select the best item from your inventory and use it to upgrade the villager. <br>
+4. Removed Gold Drops for villagers. This is a choice I made to make recruiting the right villager important.
 
 <h3>3.2.0</h3>
 1. Villagers learnt repairing skill. 1st iteration. <br>

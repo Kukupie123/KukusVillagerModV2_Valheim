@@ -250,6 +250,13 @@ namespace KukusVillagerMod.Components.UI
             var btn = UpgradeBtn.GetComponent<Button>();
             btn.onClick.AddListener(() =>
             {
+                if (!VillagerGeneral.IsVillagerTamed(selected_villager))
+                {
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft,
+                        "Villager has not been recruited yet.");
+                    return;
+                }
+
                 Inventory playerInv = Player.m_localPlayer.GetInventory();
                 bool upgrade = false;
                 float multiplier = 1;
@@ -279,7 +286,8 @@ namespace KukusVillagerMod.Components.UI
                     if (upgrade)
                     {
                         VillagerGeneral.UpgradeVillagerHealth(selected_villager, multiplier);
-                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft,$"Upgrading Health with {multiplier} multiplier");
+                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft,
+                            $"Upgrading Health with {multiplier} multiplier");
                         playerInv.RemoveItem(item, 1);
                         UpdateUI();
                     }
@@ -308,7 +316,8 @@ namespace KukusVillagerMod.Components.UI
                     if (upgrade)
                     {
                         VillagerGeneral.UpgradeVillagerDamage(selected_villager, multiplier);
-                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft,$"Upgrading Damage with {multiplier} Multiplier");
+                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft,
+                            $"Upgrading Damage with {multiplier} Multiplier");
                         playerInv.RemoveItem(item, 1);
                         UpdateUI();
                     }

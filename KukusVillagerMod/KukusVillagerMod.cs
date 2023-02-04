@@ -946,3 +946,18 @@ namespace KukusVillagerMod
  * Not attacking certain creatures. Not attacking taming creatures
  * Routine system or automatic task decision stuff. Lets see how this can be done
  */
+ 
+ /*
+  * Things to show in video
+  * 1. How to recruit and orders, Changing name
+  * 2. Assigning Bed, Regen HP in bed
+  * 3. Assign Defense post
+  * 1. Assign work post, container
+  * 3. Different work showcase
+  * 4. Upgrading health and damage
+  * 5. Faction
+  * 2. Kuchuk commander
+  * 3. Faction list and villagers list
+  * 4. Selecting Factions, selecting villagers
+  * 4. Bulk commands/ Bulk assigns
+ */
