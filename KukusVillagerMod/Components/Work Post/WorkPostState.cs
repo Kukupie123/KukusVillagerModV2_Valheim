@@ -45,42 +45,32 @@ namespace KukusVillagerMod.Components.Work_Post
         /// <returns></returns>
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
-            //Check if user has a bed uid
             ZDOID villagerZDOID = VillagerGeneral.SELECTED_VILLAGER_ID;
-
-            if (villagerZDOID.IsNone())
-            {
-                if (VillagerGeneral.SELECTED_VILLAGERS_ID != null && VillagerGeneral.SELECTED_VILLAGERS_ID.Count > 0)
-                {
-                    AssignWP(villagerZDOID);
-
-                    foreach (var v in VillagerGeneral.SELECTED_VILLAGERS_ID)
-                    {
-                        AssignWP(v);
-                    }
-
-                    VillagerGeneral.SELECTED_VILLAGER_ID = ZDOID.None;
-                    VillagerGeneral.SELECTED_VILLAGERS_ID = null;
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
-                        "Assigned Work Post to a bunch of villagers.");
-                    return true;
-                }
-                else
-                {
-                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
-                        "Please Select villager(s) to assign first.");
-                    return false;
-                }
-            }
-            else
+            if (villagerZDOID.IsNone() == false)
             {
                 AssignWP(villagerZDOID);
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
-                    $"Assigned Work Post {znv.GetZDO().m_uid.id} for {VillagerGeneral.GetName(VillagerGeneral.SELECTED_VILLAGER_ID)}");
+                    $"Work Post {znv.GetZDO().m_uid.m_id} Assigned to {VillagerGeneral.GetName(villagerZDOID)}");
                 VillagerGeneral.SELECTED_VILLAGER_ID = ZDOID.None;
                 VillagerGeneral.SELECTED_VILLAGERS_ID = null;
                 return true;
             }
+            else if (VillagerGeneral.SELECTED_VILLAGERS_ID != null && VillagerGeneral.SELECTED_VILLAGERS_ID.Count > 0)
+            {
+                foreach (var v in VillagerGeneral.SELECTED_VILLAGERS_ID)
+                {
+                    AssignWP(v);
+                }
+
+
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
+                    $"Work Post {znv.GetZDO().m_uid.m_id} Assigned to a bunch of villagers.");
+                VillagerGeneral.SELECTED_VILLAGER_ID = ZDOID.None;
+                VillagerGeneral.SELECTED_VILLAGERS_ID = null;
+                return true;
+            }
+
+            return false;
         }
 
         private void AssignWP(ZDOID villagerZDOID)
