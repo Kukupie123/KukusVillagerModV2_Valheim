@@ -257,9 +257,13 @@ namespace KukusVillagerMod.Components.UI
                     return;
                 }
 
+                KLog.info($"Upgrading villager : {selected_villager.m_id}");
+
                 Inventory playerInv = Player.m_localPlayer.GetInventory();
                 bool upgrade = false;
                 float multiplier = 1;
+
+                List<ItemDrop.ItemData> usedItems = new List<ItemDrop.ItemData>();
                 foreach (var item in playerInv.GetAllItems())
                 {
                     string itemName = item.m_shared.m_name;
@@ -286,13 +290,12 @@ namespace KukusVillagerMod.Components.UI
                     if (upgrade)
                     {
                         VillagerGeneral.UpgradeVillagerHealth(selected_villager, multiplier);
+                        usedItems.Add(item);
                         MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft,
                             $"Upgrading Health with {multiplier} multiplier");
-                        playerInv.RemoveItem(item, 1);
-                        UpdateUI();
+                        break;
                     }
 
-                    upgrade = false;
                     switch (itemName)
                     {
                         case "KukuVillager_Stone_Warlord_Set":
@@ -316,11 +319,17 @@ namespace KukusVillagerMod.Components.UI
                     if (upgrade)
                     {
                         VillagerGeneral.UpgradeVillagerDamage(selected_villager, multiplier);
+                        usedItems.Add(item);
                         MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft,
                             $"Upgrading Damage with {multiplier} Multiplier");
-                        playerInv.RemoveItem(item, 1);
-                        UpdateUI();
+                        break;
                     }
+                }
+
+                foreach (var i in usedItems)
+                {
+                    playerInv.RemoveItem(i, 1);
+                    UpdateUI();
                 }
             });
         }

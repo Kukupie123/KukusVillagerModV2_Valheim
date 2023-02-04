@@ -91,7 +91,7 @@ namespace KukusVillagerMod.Components.Villager
             if (!Util.ValidateZDOID(villagerZDOID)) return false;
             ZDO villagerZDO = ZDOMan.instance.GetZDO(villagerZDOID);
             if (!Util.ValidateZDO(villagerZDO)) return false;
-            return villagerZDO.GetBool("tamed", false);
+            return villagerZDO.GetBool("tamed");
         }
 
         public bool IsVillagerTamed()
