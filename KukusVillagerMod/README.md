@@ -34,6 +34,7 @@ Paste the plugins folder in valheim/BepInEx/
 2. Assign Items of many villager at once using Runik Kuchuk Commander.
 3. You can now upgrade villagers by interacting with the villagers and selecting the upgrade villagers option. It will select the best item from your inventory and use it to upgrade the villager. <br>
 4. Removed Gold Drops for villagers. This is a choice I made to make recruiting the right villager important.
+5. Set work skill of several villagers at once by using Runik Kuchuk Commander.
 
 <h3>3.2.0</h3>
 1. Villagers learnt repairing skill. 1st iteration. <br>

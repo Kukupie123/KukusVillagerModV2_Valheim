@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using KukusVillagerMod.enums.Work_Enum;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -765,6 +766,57 @@ namespace KukusVillagerMod.Components.UI
                     {
                         VillagerGeneral.SetVillagerState(v.m_uid, enums.VillagerState.Working);
                     }
+                }
+            });
+            //WORK SKILLS
+            var workSkillLDropDown = GUIManager.Instance.CreateDropDown(
+                parent: MAINBG.transform,
+                anchorMin: new Vector2(0.5f, 0.1f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(200, 70f),
+                fontSize: 20,
+                width: 250f,
+                height: 40f);
+            SubUis.Add(workSkillLDropDown);
+            var dropdownComp = workSkillLDropDown.GetComponent<Dropdown>();
+
+            dropdownComp.AddOptions(
+                new List<string> { "Pickup items", "Fill Smelters", "Chop Wood", "Repair Base" }
+            );
+
+            dropdownComp.onValueChanged.AddListener((val) =>
+            {
+                var villagers = GetTamedVillagers(activeFaction);
+                switch (val)
+                {
+                    case 0:
+                        foreach (var v in villagers)
+                        {
+                            VillagerGeneral.SetWorkSkill(v.m_uid, WorkSkill.Pickup);
+                        }
+
+                        break;
+                    case 1:
+                        foreach (var v in villagers)
+                        {
+                            VillagerGeneral.SetWorkSkill(v.m_uid, WorkSkill.Fill_Smelt);
+                        }
+
+                        break;
+                    case 2:
+                        foreach (var v in villagers)
+                        {
+                            VillagerGeneral.SetWorkSkill(v.m_uid, WorkSkill.Chop_Wood);
+                        }
+
+                        break;
+                    case 3:
+                        foreach (var v in villagers)
+                        {
+                            VillagerGeneral.SetWorkSkill(v.m_uid, WorkSkill.RepairBase);
+                        }
+
+                        break;
                 }
             });
 
