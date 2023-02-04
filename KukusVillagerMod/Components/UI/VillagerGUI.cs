@@ -242,7 +242,7 @@ namespace KukusVillagerMod.Components.UI
                 parent: MAINBG.transform,
                 anchorMin: new Vector2(0.5f, 0.1f),
                 anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(200f, -150f), // width & height
+                position: new Vector2(200f, -60f), // width & height
                 width: 250f,
                 height: 60f
             );
@@ -279,6 +279,7 @@ namespace KukusVillagerMod.Components.UI
                     if (upgrade)
                     {
                         VillagerGeneral.UpgradeVillagerHealth(selected_villager, multiplier);
+                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft,$"Upgrading Health with {multiplier} multiplier");
                         playerInv.RemoveItem(item, 1);
                         UpdateUI();
                     }
@@ -307,6 +308,7 @@ namespace KukusVillagerMod.Components.UI
                     if (upgrade)
                     {
                         VillagerGeneral.UpgradeVillagerDamage(selected_villager, multiplier);
+                        MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft,$"Upgrading Damage with {multiplier} Multiplier");
                         playerInv.RemoveItem(item, 1);
                         UpdateUI();
                     }
