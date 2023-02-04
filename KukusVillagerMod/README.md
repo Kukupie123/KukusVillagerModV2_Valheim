@@ -6,6 +6,11 @@
 3. May work initially in Multiplayer as we got rid of beds BUT has not been designed with multiplayer in mind so there may be issues specially with work commands as it alters container's contents. <br>
 4. Config file has a section called [Spawn Point HUT] Which is obselete and not used currently.<br>
 
+## Tutorial
+- [VIDEO](https://youtu.be/yLU_zF4JwEY) showing how to use the mod. <br>
+- Villagers will regen HP when guarding bed and close to their bed. <br>
+- You can change name of villager by opening the Villager menu and typing in a new name in the input field where it shows the name of the villager
+
 ## Installation (manual)
 Paste the plugins folder in valheim/BepInEx/
 
@@ -34,7 +39,8 @@ Paste the plugins folder in valheim/BepInEx/
 2. Assign Items of many villager at once using Runik Kuchuk Commander.
 3. You can now upgrade villagers by interacting with the villagers and selecting the upgrade villagers option. It will select the best item from your inventory and use it to upgrade the villager. <br>
 4. Removed Gold Drops for villagers. This is a choice I made to make recruiting the right villager important.
-5. Set work skill of several villagers at once by using Runik Kuchuk Commander.
+5. Set work skill of several villagers at once by using Runik Kuchuk Commander. <br>
+6. Other bug fixes.
 
 <h3>3.2.0</h3>
 1. Villagers learnt repairing skill. 1st iteration. <br>

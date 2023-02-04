@@ -114,6 +114,7 @@ namespace KukusVillagerMod.Components.UI
                 fontSize: 17,
                 addContentSizeFitter: false
             );
+            currentFactionText.GetComponent<Text>().alignment = TextAnchor.UpperCenter;
             SubUis.Add(currentFactionText);
             //Close button
             GameObject closeBtn = GUIManager.Instance.CreateButton(
@@ -512,7 +513,7 @@ namespace KukusVillagerMod.Components.UI
                 addContentSizeFitter: false
             );
             SubUis.Add(FactionsList);
-            FactionsList.GetComponent<Text>().alignment = TextAnchor.MiddleLeft;
+            FactionsList.GetComponent<Text>().alignment = TextAnchor.UpperRight;
             GenerateFactionsList(UniqueFactions, factionsStartingIndex, 200f);
             //Add next and last page button
             GameObject goBackButtonFac = GUIManager.Instance.CreateButton(
@@ -770,10 +771,10 @@ namespace KukusVillagerMod.Components.UI
             });
             //WORK SKILLS
             var workSkillLDropDown = GUIManager.Instance.CreateDropDown(
-                parent: MAINBG.transform,
+                parent: MainBG.transform,
                 anchorMin: new Vector2(0.5f, 0.1f),
                 anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(200, 70f),
+                position: new Vector2(200, 0f),
                 fontSize: 20,
                 width: 250f,
                 height: 40f);
