@@ -939,23 +939,10 @@ namespace KukusVillagerMod
 
 /*
  * Major features list todo:
- * ~Recruit Villagers using Gold
  * Villagers help with fueling
- * ~Find better way to move villagers. they try to go directly to path (Dynamically decreasing await time only when staring at player or not moving, trying to use moveTo, moveAvoid, follow etc. or see follow me and try to write your own version of it)
- * Fixing base
  * Mining rock
- * ~using default prefab for villagers
- * ~modifier for upgrades in config
- * ~LOW HP AT START BUG
  * Hunting animals work. Will be useful for hunger system cuz it will be annoying if player had to create food all the time. Also, a universal container for villagers will be nice
  * Hunger system. If they hungry they dont work. Need to think more about making it not annyoing but at the same time needed
  * Not attacking certain creatures. Not attacking taming creatures
- * ~Faction system GROUPING SYSTEM
- * ORDERS----------
- * Bulk orders : Item assignments
- * Individual : Upgrade 
- * GUI TASK
- * Villagers grouping.
- * Upgrading villagers UI
- * Upgrading villagers in bulk command
+ * Routine system or automatic task decision stuff. Lets see how this can be done
  */
