@@ -511,6 +511,7 @@ namespace KukusVillagerMod.Components.UI
                 addContentSizeFitter: false
             );
             SubUis.Add(FactionsList);
+            FactionsList.GetComponent<Text>().alignment = TextAnchor.MiddleLeft;
             GenerateFactionsList(UniqueFactions, factionsStartingIndex, 200f);
             //Add next and last page button
             GameObject goBackButtonFac = GUIManager.Instance.CreateButton(
