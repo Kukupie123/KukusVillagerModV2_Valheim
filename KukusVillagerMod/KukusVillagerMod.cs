@@ -1,5 +1,5 @@
 // KukusVillagerMod
-// a Valheim mod skeleton using Jötunn
+// a Valheim mod skeleton using Jï¿½tunn
 // 
 // File:    KukusVillagerMod.cs
 // Project: KukusVillagerMod
@@ -11,13 +11,14 @@ using Jotunn.Managers;
 using KukusVillagerMod.Configuration;
 using KukusVillagerMod.itemPrefab;
 using KukusVillagerMod.Prefabs;
-using KukusVillagerMod.Components;
 using System.Reflection;
 using UnityEngine;
 using Jotunn.Utils;
 using System;
 using Jotunn.Configs;
 using System.Collections.Generic;
+// ReSharper disable All
+
 
 namespace KukusVillagerMod
 {
@@ -25,13 +26,11 @@ namespace KukusVillagerMod
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     internal class KukusVillagerMod : BaseUnityPlugin
     {
-        public static bool isModded = true;
         public const string PluginGUID = "com.kukukodes.KukuVillagers";
         public const string PluginName = "KukusVillagerMod";
         public const string PluginVersion = "3.1.5";
         public static CustomLocalization Localization = LocalizationManager.Instance.GetLocalization();
         private VillagerCommander vc;
-        public static bool isMapDataLoaded = false;
 
         private readonly Harmony harmony = new Harmony("kukuvillager");
 
@@ -62,6 +61,7 @@ namespace KukusVillagerMod
 
             //CreatureManager.OnVanillaCreaturesAvailable += CloneSpawnPoint;
             CreatureManager.OnVanillaCreaturesAvailable += () => {
+                // ReSharper disable once ObjectCreationAsStatement
                 new VillagerPrefab();
             };
             //CloneSpawnPoint(); //Clones and modifies each spawn point as needed
@@ -278,8 +278,8 @@ namespace KukusVillagerMod
             spawnerMeadow.m_spawnIntervalSec = VillagerModConfigurations.SpawnPoint_SpawnIntervalSec;
             spawnerMeadow.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
             spawnerMeadow.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
-            List<SpawnArea.SpawnData> spawnerCreaturesMeadow = new List<SpawnArea.SpawnData>();
-            foreach (var c in new GameObject[] { Villager_Meadow1, Villager_Meadow2 })
+            var spawnerCreaturesMeadow = new List<SpawnArea.SpawnData>();
+            foreach (var c in new[] { Villager_Meadow1, Villager_Meadow2 })
             {
                 var spawnData = new SpawnArea.SpawnData
                 {
@@ -313,7 +313,7 @@ namespace KukusVillagerMod
             spawnerBF.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
             spawnerBF.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
             List<SpawnArea.SpawnData> spawnerCreaturesBF = new List<SpawnArea.SpawnData>();
-            foreach (var c in new GameObject[] { Villager_BF1, Villager_BF2 })
+            foreach (var c in new [] { Villager_BF1, Villager_BF2 })
             {
                 var spawnData = new SpawnArea.SpawnData
                 {
@@ -349,7 +349,7 @@ namespace KukusVillagerMod
             spawnerMountain.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
             spawnerMountain.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
             List<SpawnArea.SpawnData> spawnerCreaturesMountain = new List<SpawnArea.SpawnData>();
-            foreach (var c in new GameObject[] { Villager_Mountain1, Villager_Mountain2 })
+            foreach (var c in new [] { Villager_Mountain1, Villager_Mountain2 })
             {
                 var spawnData = new SpawnArea.SpawnData
                 {
@@ -383,7 +383,7 @@ namespace KukusVillagerMod
             spawnerPlains.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
             spawnerPlains.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
             List<SpawnArea.SpawnData> spawnerCreaturesPlains = new List<SpawnArea.SpawnData>();
-            foreach (var c in new GameObject[] { Villager_Plains1, Villager_Plains2, Villager_Plains3 })
+            foreach (var c in new [] { Villager_Plains1, Villager_Plains2, Villager_Plains3 })
             {
                 var spawnData = new SpawnArea.SpawnData
                 {
@@ -419,7 +419,7 @@ namespace KukusVillagerMod
             spawnerML.m_maxNear = VillagerModConfigurations.SpawnPoint_MaxNear;
             spawnerML.m_maxTotal = VillagerModConfigurations.SpawnPoint_MaxTotal;
             List<SpawnArea.SpawnData> spawnerCreaturesML = new List<SpawnArea.SpawnData>();
-            foreach (var c in new GameObject[] { Villager_Mist1, Villager_Mist2, Villager_Mist3 })
+            foreach (var c in new [] { Villager_Mist1, Villager_Mist2, Villager_Mist3 })
             {
                 var spawnData = new SpawnArea.SpawnData
                 {
@@ -807,9 +807,9 @@ namespace KukusVillagerMod
                 Logger.LogWarning($"Exception caught while adding assets for Companions: {ex}");
             }
         }
-        private void AddNamedNPC(string name)
+        private void AddNamedNPC(string Name)
         {
-            GameObject NPC = NPCBundle.LoadAsset<GameObject>(name);
+            GameObject NPC = NPCBundle.LoadAsset<GameObject>(Name);
             if (NPC != null)
             {
                 var humanCompanion = new CustomCreature(NPC, true,
@@ -833,13 +833,13 @@ namespace KukusVillagerMod
             }
             else
             {
-                KLog.warning("Failed to load " + name);
+                KLog.warning("Failed to load " + Name);
             }
         }
 
-        private void AddNamedMageNPC(string name)
+        private void AddNamedMageNPC(string Name)
         {
-            GameObject NPC = NPCBundle.LoadAsset<GameObject>(name);
+            GameObject NPC = NPCBundle.LoadAsset<GameObject>(Name);
             if (NPC != null)
             {
                 var garyMob = new CustomCreature(NPC, true,
@@ -863,7 +863,7 @@ namespace KukusVillagerMod
             }
             else
             {
-                KLog.warning($"Failed to load Mage NPC {name}");
+                KLog.warning($"Failed to load Mage NPC {Name}");
             }
 
         }
@@ -888,12 +888,11 @@ namespace KukusVillagerMod
 
     }
 
-    class Util
+    static class Util
     {
-        private Util() { }
         public static bool ValidateZDOID(ZDOID zdoid)
         {
-            if (zdoid == null || zdoid.IsNone()) return false;
+            if (zdoid.IsNone()) return false;
             return true;
         }
         public static bool ValidateZDO(ZDO zdo)
@@ -925,7 +924,7 @@ namespace KukusVillagerMod
         }
     }
 
-    class KLog
+    static class KLog
     {
         public static void info(string msg)
         {
@@ -945,8 +944,17 @@ namespace KukusVillagerMod
  * ~Find better way to move villagers. they try to go directly to path (Dynamically decreasing await time only when staring at player or not moving, trying to use moveTo, moveAvoid, follow etc. or see follow me and try to write your own version of it)
  * Fixing base
  * Mining rock
- * using default prefab for villagers
- * modifier for upgrades in config
+ * ~using default prefab for villagers
+ * ~modifier for upgrades in config
  * ~LOW HP AT START BUG
- * Mainataining villagers eg rest and energy
+ * Hunting animals work. Will be useful for hunger system cuz it will be annoying if player had to create food all the time. Also, a universal container for villagers will be nice
+ * Hunger system. If they hungry they dont work. Need to think more about making it not annyoing but at the same time needed
+ * Not attacking certain creatures. Not attacking taming creatures
+ * Upgrading villagers using GUI
+ * Grouping villagers and bulk ordering them.
+ * GUI TASK
+ * Villagers grouping.
+ * Upgrading villagers UI
+ * Upgrading villagers in bulk command
+ * Bulk assigning of work posts, containers, defense posts
  */

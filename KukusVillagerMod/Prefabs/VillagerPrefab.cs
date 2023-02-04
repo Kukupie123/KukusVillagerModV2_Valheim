@@ -123,7 +123,6 @@ namespace KukusVillagerMod.Prefabs
             charDrop.m_drops = new List<Drop>();
 
 
-
             Tameable existingTameable = villager.Prefab.GetComponent<Tameable>();
 
             if (existingTameable == null)
@@ -173,13 +172,6 @@ namespace KukusVillagerMod.Prefabs
                 //KLog.warning($"Failed to find ZNetView component in {prefabCloneName}. Adding new one");
 
             }
-
-
-
-
-
-
-
 
 
             villager.Prefab.GetComponent<MonsterAI>().m_avoidFire = true;

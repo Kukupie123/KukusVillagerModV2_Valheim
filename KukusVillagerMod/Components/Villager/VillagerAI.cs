@@ -54,20 +54,23 @@ namespace KukusVillagerMod.Components.Villager
 
                 villagerGeneral.humanoid.m_onDamaged += (dmg, character) =>
                 {
+                    KLog.info($"Villager {villagerGeneral.GetName()} Took damage {dmg}");
                     string text = "";
                     if (VillagerModConfigurations.DamageTalk)
                     {
                         text = $"{text}Outch! I took {dmg} Damage";
+                        if (character)
+                        {
+                            text = $"{text} from {character.m_name}";
+                        }
+                        talk.Say(text, "Damage");
                     }
-                    if (character)
-                    {
-                        text = $"{text} from {character.m_name}";
 
-                        if (villagerGeneral.GetVillagerState() == VillagerState.Working)
+                    if (VillagerModConfigurations.WorkerDefend)
+                        if (villagerGeneral.GetVillagerState() == VillagerState.Working && character)
                         {
                             IncreaseWorkDelayForTime();
                         }
-                    }
                 };
 
                 updateRanOnce = true;
@@ -333,6 +336,12 @@ namespace KukusVillagerMod.Components.Villager
                     if (skill == WorkSkill.Chop_Wood)
                     {
                         await ChopWood(VillagerModConfigurations.UseMoveForWork);
+                        alreadyWorking = false;
+                        return;
+                    }
+                    if (skill == WorkSkill.RepairBase)
+                    {
+                        await RepairBase(VillagerModConfigurations.UseMoveForWork);
                         alreadyWorking = false;
                         return;
                     }
@@ -699,12 +708,24 @@ namespace KukusVillagerMod.Components.Villager
         bool alreadyIncreasedWorkDelay = false;
         async private Task IncreaseWorkDelayForTime()
         {
+
             if (alreadyIncreasedWorkDelay) return;
             alreadyIncreasedWorkDelay = true;
-            awaitWorkDelay = 500;
-            await Task.Delay(3000);
+            if (VillagerModConfigurations.DamageTalk)
+            {
+                talk.Say("Going to slowdown for 20sec and try to defend myself from attack", "damage");
+            }
+            KLog.warning($"Working villager {villagerGeneral.GetName()} is now slowing down to try and fight enemy");
+            awaitWorkDelay = 1000;
+            await Task.Delay(20000);
             awaitWorkDelay = 10;
             alreadyIncreasedWorkDelay = false;
+            KLog.warning($"Working villager {villagerGeneral.GetName()} is actively working again.");
+            if (VillagerModConfigurations.DamageTalk)
+            {
+                talk.Say("Going to start Working again", "damage");
+            }
+
         }
 
         int minRandomTime = VillagerModConfigurations.MinWaitTimeWork; //min wait time for work
@@ -1342,7 +1363,6 @@ namespace KukusVillagerMod.Components.Villager
 
 
 
-        //IGNORE BIRCH TREE. TOO HARD
         async private Task ChopWood(bool useMoveTo)
         {
             KLog.info("Chopping wood " + villagerGeneral.ZNV.GetZDO().m_uid.id);
@@ -1571,6 +1591,98 @@ namespace KukusVillagerMod.Components.Villager
                     item = v.gameObject;
                 }
             }
+
+            return item;
+        }
+
+
+        async private Task RepairBase(bool useMoveTo)
+        {
+            KLog.info("Repairning Player base" + villagerGeneral.ZNV.GetZDO().m_uid.id);
+            ZDO WorkPostZDO = villagerGeneral.GetWorkPostZDO();
+            Vector3 workPosLoc = WorkPostZDO.GetPosition();
+            //Go to work post
+            if (villagerGeneral.GetWorkPostInstance())
+            {
+                if (useMoveTo)
+                    await GoToLocationAwaitWork(villagerGeneral.GetWorkPostInstance().transform.position);
+                else
+                    await FollowTargetAwaitWork(villagerGeneral.GetWorkPostInstance());
+
+            }
+            else
+            {
+                TPToLoc(workPosLoc);
+            }
+
+
+            //Reached Work post, Check if still working
+            await Task.Delay(UnityEngine.Random.Range(minRandomTime, maxRandomTime));
+            if (villagerGeneral.GetVillagerState() != VillagerState.Working)
+            {
+                return;
+            }
+
+            //Find piece to repair
+            var obj = FindValidRepairablePiece(workPosLoc, true); //Get random tree
+
+            if (obj != null)
+            {
+                Piece piece = obj.GetComponentInParent<Piece>();
+                WearNTear wnt = obj.GetComponentInParent<WearNTear>();
+                if (piece == null && wnt == null)
+                {
+                    if (workTalk) talk.Say($"Nothing needs to be repaired nearby", "Work");
+                    await Task.Delay(3000);
+                    return;
+                }
+                if (workTalk) talk.Say($"Going to Repair {piece.m_name}", "Work");
+
+                if (useMoveTo)
+                    await GoToLocationAwaitWork(obj.transform.position, 3, obj.gameObject);
+                else
+                    await FollowTargetAwaitWork(obj.gameObject);
+
+                if (workTalk) talk.Say($"Reparing {piece.m_name}", "Work");
+                await Task.Delay(3000);
+                wnt.Repair();
+                if (workTalk) talk.Say($"Repared {piece.m_name}", "Work");
+                await Task.Delay(1000);
+            }
+            else
+            {
+                if (workTalk) talk.Say($"Nothing needs to be repaired nearby", "Work");
+                await Task.Delay(3000);
+            }
+        }
+
+        private GameObject FindValidRepairablePiece(Vector3 pos, bool random)
+        {
+            Vector3 scanLocation = pos;
+            Collider[] colliders = Physics.OverlapSphere(scanLocation, workScanRange);
+            GameObject item = null;
+            float distance = -1;
+
+            List<GameObject> validGOs = new List<GameObject>();
+
+            foreach (Collider c in colliders)
+            {
+                var piece = c.gameObject.GetComponentInParent<Piece>();
+                if (!piece) continue;
+                if (!piece.IsPlacedByPlayer()) continue;
+                var wearNTear = c.gameObject.GetComponentInParent<WearNTear>();
+                if (!wearNTear) continue;
+                if (wearNTear.GetHealthPercentage() > 0.8) continue;
+                if (random) validGOs.Add(c.gameObject);
+                if (item == null || Vector3.Distance(scanLocation, c.transform.position) < distance)
+                {
+                    item = c.gameObject;
+                }
+            }
+
+            if (random)
+                if (validGOs.Count > 0)
+                    return validGOs[UnityEngine.Random.Range(0, validGOs.Count - 1)];
 
             return item;
         }

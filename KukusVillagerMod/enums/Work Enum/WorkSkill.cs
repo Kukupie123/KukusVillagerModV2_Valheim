@@ -8,6 +8,6 @@ namespace KukusVillagerMod.enums.Work_Enum
 {
     enum WorkSkill
     {
-        Pickup, Fill_Smelt, Chop_Wood
+        Pickup, Fill_Smelt, Chop_Wood, RepairBase
     }
 }

@@ -103,6 +103,7 @@ namespace KukusVillagerMod.Configuration
         internal static string villagerMist2PrefabName;
         internal static string villagerMist3PrefabName;
         public static bool DamageTalk;
+        public static bool WorkerDefend;
 
         public static void LoadConfig(ConfigFile Config)
         {
@@ -181,6 +182,10 @@ namespace KukusVillagerMod.Configuration
 
             DamageTalk = (bool)Config.Bind("Villager AI Configuration", "Announce Damage", true,
               new ConfigDescription("Announce damage taken when villager takes damage", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
+              ).BoxedValue;
+
+            WorkerDefend = (bool)Config.Bind("Villager AI Configuration", "Working Villagers Defend themselves", true,
+              new ConfigDescription("If true villagers who are working when attacked by a character will slow down working for 20 sec and will try to defend themselves.", null, new ConfigurationManagerAttributes { IsAdminOnly = true })
               ).BoxedValue;
 
             //Villager spawn configuration

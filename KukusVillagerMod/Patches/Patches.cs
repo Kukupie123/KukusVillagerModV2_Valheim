@@ -30,22 +30,27 @@ namespace KukusVillagerMod.Patches
         public static void Postfix(Tameable __instance, ref string __result) //postfix = after the OG function is run
         {
             var vls = __instance.GetComponentInParent<VillagerGeneral>(); //instance is the object
-
+            string text = "";
             if (vls != null)
             {
                 if (vls.IsVillagerTamed())
-                    __result = vls.GetVillagerState().ToString();
+                {
+                    text = $"{vls.GetVillagerState().ToString().Replace("_", " ")}";
+                    text = $"{text}\nFaction : {vls.GetVillagerFaction()}";
+                }
                 else
-                    __result = "Roaming in the wild";
+                    text = "Roaming in the wild";
+
+                __result = text;
             }
         }
-
     }
 
     [HarmonyPatch(typeof(Tameable), nameof(Tameable.Interact))]
     static class VillagerTameInteract
     {
-        public static void Postfix(Tameable __instance, ref Humanoid user, ref bool hold, ref bool alt, ref bool __result)
+        public static void Postfix(Tameable __instance, ref Humanoid user, ref bool hold, ref bool alt,
+            ref bool __result)
         {
             var vls = __instance.GetComponentInParent<VillagerGeneral>(); //instance is the object
             if (vls != null)
@@ -93,11 +98,13 @@ namespace KukusVillagerMod.Patches
                     multiplier = 1.0f;
                     break;
             }
+
             if (upgrade)
             {
                 v.UpgradeVillagerHealth(multiplier);
                 user.GetInventory().RemoveItem(item, 1);
             }
+
             upgrade = false;
             switch (itemName)
             {
@@ -118,12 +125,12 @@ namespace KukusVillagerMod.Patches
                     multiplier = 1.2f;
                     break;
             }
+
             if (upgrade)
             {
                 v.UpgradeVillagerDamage(multiplier);
                 user.GetInventory().RemoveItem(item, 1);
             }
-
         }
     }
 
@@ -141,21 +148,22 @@ namespace KukusVillagerMod.Patches
                 containerZDO.Set("m_name", __instance.m_name);
                 containerZDO.Set("width", __instance.m_width);
                 containerZDO.Set("height", __instance.m_height);
-                VillagerGeneral.AssignContainer(VillagerGeneral.SELECTED_VILLAGER_ID.Value, containerZNV.GetZDO().m_uid);
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Container {containerZNV.GetZDO().m_uid.id} Assigned to {VillagerGeneral.GetName(villagerZDOID.Value)}");
+                VillagerGeneral.AssignContainer(VillagerGeneral.SELECTED_VILLAGER_ID.Value,
+                    containerZNV.GetZDO().m_uid);
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
+                    $"Container {containerZNV.GetZDO().m_uid.id} Assigned to {VillagerGeneral.GetName(villagerZDOID.Value)}");
                 VillagerGeneral.SELECTED_VILLAGER_ID = ZDOID.None;
-
             }
         }
     }
-
 
 
     [HarmonyPatch(typeof(Humanoid), nameof(Humanoid.GetCurrentWeapon))]
     static class VillagerDamageModifier
     {
         //TODO: Enable heal and shield and make it enabled for plains and mistland villagers
-        public static void Postfix(Humanoid __instance, ref ItemDrop.ItemData __result, ref ItemDrop.ItemData ___m_rightItem, ref ItemDrop.ItemData ___m_leftItem, ref ItemDrop ___m_unarmedWeapon)
+        public static void Postfix(Humanoid __instance, ref ItemDrop.ItemData __result,
+            ref ItemDrop.ItemData ___m_rightItem, ref ItemDrop.ItemData ___m_leftItem, ref ItemDrop ___m_unarmedWeapon)
         {
             try
             {
@@ -168,10 +176,13 @@ namespace KukusVillagerMod.Patches
                     {
                         weapon = ___m_rightItem;
                     }
-                    if (___m_leftItem != null && ___m_leftItem.IsWeapon() && ___m_leftItem.m_shared.m_itemType != ItemDrop.ItemData.ItemType.Torch)
+
+                    if (___m_leftItem != null && ___m_leftItem.IsWeapon() &&
+                        ___m_leftItem.m_shared.m_itemType != ItemDrop.ItemData.ItemType.Torch)
                     {
                         weapon = ___m_leftItem;
                     }
+
                     if (___m_unarmedWeapon)
                     {
                         weapon = ___m_unarmedWeapon.m_itemData;
@@ -179,7 +190,8 @@ namespace KukusVillagerMod.Patches
 
                     if (weapon != null)
                     {
-                        if (weapon.m_shared.m_name.Contains("Health") || weapon.m_shared.m_name.Contains("Shield") || weapon.m_shared.m_name.Contains("Heal"))
+                        if (weapon.m_shared.m_name.Contains("Health") || weapon.m_shared.m_name.Contains("Shield") ||
+                            weapon.m_shared.m_name.Contains("Heal"))
                         {
                             weapon.m_shared.m_damages = new HitData.DamageTypes();
                             weapon.m_shared.m_damages.m_damage = 0;
@@ -212,15 +224,11 @@ namespace KukusVillagerMod.Patches
 
                         __result = weapon;
                     }
-
                 }
             }
             catch (Exception)
             {
-
             }
-
         }
     }
-
 }
