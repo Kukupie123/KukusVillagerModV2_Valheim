@@ -1,25 +1,10 @@
-﻿using BepInEx;
-using BepInEx.Configuration;
-using HarmonyLib;
-using Jotunn;
-using Jotunn.Configs;
-using Jotunn.Entities;
-using Jotunn.Managers;
-using Jotunn.Utils;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using BepInEx.Configuration;
 
-namespace KukusVillagerMod.Configuration
+namespace KukusVillagerMod.Configurations
 {
     class VillagerModConfigurations
     {
-
-        public static string VillagerMeleePrefabName;
-        public static string VillagerRangedPrefabName;
-
+        
         public static string OpenMenuKey;
         public static string CallFollowers;
         public static string moveToKey;
@@ -293,17 +278,8 @@ namespace KukusVillagerMod.Configuration
             //Villager Commander Club keys
             OpenMenuKey = (string)Config.Bind("Commander Club keybinds", "Open Menu Key", "Keypad1", new ConfigDescription("Key list : https://docs.unity3d.com/ScriptReference/KeyCode.html")).BoxedValue;
             CallFollowers = (string)Config.Bind("Commander Club keybinds", "Call Back Followers", "Keypad3").BoxedValue;
-            moveToKey = (string)Config.Bind("Commander Club keybinds", "Move to Key", "Keypad2").BoxedValue;
+            moveToKey = (string)Config.Bind("Commander Club keybinds", "Move Followers to aimed location Key", "Keypad2").BoxedValue;
 
-            VillagerMeleePrefabName = (string)Config.Bind("Villager Prefab", "Villager Melee", "Skeleton",
-       new ConfigDescription("Prefab for Melee based villagers, if failed to load it will default to Skeleton",
-       null,
-       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
-
-            VillagerRangedPrefabName = (string)Config.Bind("Villager Prefab", "Villager Ranged", "Dverger",
-       new ConfigDescription("Prefab for Melee based villagers, if failed to load it will default to Dverger",
-       null,
-       new ConfigurationManagerAttributes { IsAdminOnly = true })).BoxedValue;
         }
 
     }

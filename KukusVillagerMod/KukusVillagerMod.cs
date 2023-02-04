@@ -8,7 +8,6 @@ using BepInEx;
 using HarmonyLib;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using KukusVillagerMod.Configuration;
 using KukusVillagerMod.itemPrefab;
 using KukusVillagerMod.Prefabs;
 using System.Reflection;
@@ -17,6 +16,8 @@ using Jotunn.Utils;
 using System;
 using Jotunn.Configs;
 using System.Collections.Generic;
+using KukusVillagerMod.Configurations;
+
 // ReSharper disable All
 
 

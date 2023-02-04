@@ -2,13 +2,13 @@
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using KukusVillagerMod.Configuration;
 using KukusVillagerMod.enums;
 using System.Collections.Generic;
 using UnityEngine;
 using KukusVillagerMod.Components.Villager;
 using KukusVillagerMod.Components.VillagerBed;
 using KukusVillagerMod.Components.UI;
+using KukusVillagerMod.Configurations;
 
 /*
  * Commands

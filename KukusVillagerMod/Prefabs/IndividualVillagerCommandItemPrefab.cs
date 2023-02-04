@@ -1,8 +1,8 @@
 ﻿using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using KukusVillagerMod.Configuration;
 using System.Collections.Generic;
+using KukusVillagerMod.Configurations;
 
 namespace KukusVillagerMod.Prefabs
 {

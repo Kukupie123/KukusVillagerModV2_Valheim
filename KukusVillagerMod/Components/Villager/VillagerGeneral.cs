@@ -1,11 +1,11 @@
 ﻿using Jotunn.Managers;
 using KukusVillagerMod.Components.VillagerBed;
-using KukusVillagerMod.Configuration;
 using KukusVillagerMod.enums;
 using KukusVillagerMod.enums.Work_Enum;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using KukusVillagerMod.Configurations;
 using UnityEngine;
 
 namespace KukusVillagerMod.Components.Villager

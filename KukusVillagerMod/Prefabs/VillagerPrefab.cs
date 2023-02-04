@@ -3,11 +3,11 @@ using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using KukusVillagerMod.Components.Villager;
-using KukusVillagerMod.Configuration;
 using UnityEngine;
 using System.Collections.Generic;
 using static CharacterDrop;
 using System;
+using KukusVillagerMod.Configurations;
 
 namespace KukusVillagerMod.Prefabs
 {

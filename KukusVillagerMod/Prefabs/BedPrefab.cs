@@ -2,7 +2,6 @@
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using KukusVillagerMod.Configuration;
 using KukusVillagerMod.Components;
 using System;
 using System.Collections.Generic;
