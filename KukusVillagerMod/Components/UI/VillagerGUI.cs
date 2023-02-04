@@ -1,11 +1,11 @@
-﻿using Jotunn.GUI;
-using Jotunn.Managers;
+﻿using Jotunn.Managers;
 using KukusVillagerMod.Components.Villager;
 using KukusVillagerMod.enums.Work_Enum;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace KukusVillagerMod.Components.UI
 {
@@ -16,21 +16,21 @@ namespace KukusVillagerMod.Components.UI
         Orders
     }
 
-    class VillagerGUI
+    static class VillagerGUI
     {
         static GameObject MAINBG; //The root UI component
         public static ZDOID selected_villager = ZDOID.None; //The villager we are interacting with
 
         private static VUITab currentTab = VUITab.Stats; //The current tab we are at
 
-        static List<GameObject> SubUIs = new List<GameObject>(); //Store all the child UI components
+        static readonly List<GameObject> SubUIs = new List<GameObject>(); //Store all the child UI components
 
         //Remove all child components
         private static void RemoveSubUIs()
         {
             foreach (var v in SubUIs)
             {
-                GameObject.Destroy(v);
+                Object.Destroy(v);
             }
         }
 
@@ -58,8 +58,6 @@ namespace KukusVillagerMod.Components.UI
                     break;
                 case VUITab.ItemAssignment:
                     SetupVillagerItemAssignmentTab();
-                    break;
-                default:
                     break;
             }
 
@@ -238,6 +236,82 @@ namespace KukusVillagerMod.Components.UI
                 addContentSizeFitter: false
             );
             SubUIs.Add(PierceTextbtn);
+
+            GameObject UpgradeBtn = GUIManager.Instance.CreateButton(
+                text: $"Upgrade villager",
+                parent: MAINBG.transform,
+                anchorMin: new Vector2(0.5f, 0.1f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(200f, -150f), // width & height
+                width: 250f,
+                height: 60f
+            );
+            SubUIs.Add(UpgradeBtn);
+            var btn = UpgradeBtn.GetComponent<Button>();
+            btn.onClick.AddListener(() =>
+            {
+                Inventory playerInv = Player.m_localPlayer.GetInventory();
+                bool upgrade = false;
+                float multiplier = 1;
+                foreach (var item in playerInv.GetAllItems())
+                {
+                    string itemName = item.m_shared.m_name;
+                    switch (itemName)
+                    {
+                        case "KukuVillager_Rag_Set":
+                            upgrade = true;
+                            multiplier = 0.2f;
+                            break;
+                        case "KukuVillager_Troll_Set":
+                            upgrade = true;
+                            multiplier = 0.4f;
+                            break;
+                        case "KukuVillager_Bronze_Set":
+                            upgrade = true;
+                            multiplier = 0.6f;
+                            break;
+                        case "KukuVillager_Iron_Set":
+                            upgrade = true;
+                            multiplier = 1.0f;
+                            break;
+                    }
+
+                    if (upgrade)
+                    {
+                        VillagerGeneral.UpgradeVillagerHealth(selected_villager, multiplier);
+                        playerInv.RemoveItem(item, 1);
+                        UpdateUI();
+                    }
+
+                    upgrade = false;
+                    switch (itemName)
+                    {
+                        case "KukuVillager_Stone_Warlord_Set":
+                            upgrade = true;
+                            multiplier = 0.1f;
+                            break;
+                        case "KukuVillager_Bronze_Warlord_Set":
+                            upgrade = true;
+                            multiplier = 0.4f;
+                            break;
+                        case "KukuVillager_Iron_Warlord_Set":
+                            upgrade = true;
+                            multiplier = 0.6f;
+                            break;
+                        case "KukuVillager_BM_Warlord_Set":
+                            upgrade = true;
+                            multiplier = 1.2f;
+                            break;
+                    }
+
+                    if (upgrade)
+                    {
+                        VillagerGeneral.UpgradeVillagerDamage(selected_villager, multiplier);
+                        playerInv.RemoveItem(item, 1);
+                        UpdateUI();
+                    }
+                }
+            });
         }
 
         private static void SetupVillagerOrderTab()
@@ -297,7 +371,6 @@ namespace KukusVillagerMod.Components.UI
                     }
 
                     UpdateUI();
-                    return;
                 });
             }
             else
@@ -439,7 +512,7 @@ namespace KukusVillagerMod.Components.UI
 
 
                 //WORK SKILLS
-                var workSkilLDropDown = GUIManager.Instance.CreateDropDown(
+                var workSkillLDropDown = GUIManager.Instance.CreateDropDown(
                     parent: MAINBG.transform,
                     anchorMin: new Vector2(0.5f, 0.1f),
                     anchorMax: new Vector2(0.5f, 0.5f),
@@ -447,14 +520,14 @@ namespace KukusVillagerMod.Components.UI
                     fontSize: 20,
                     width: 250f,
                     height: 40f);
-                SubUIs.Add(workSkilLDropDown);
-                var dropdownComp = workSkilLDropDown.GetComponent<Dropdown>();
+                SubUIs.Add(workSkillLDropDown);
+                var dropdownComp = workSkillLDropDown.GetComponent<Dropdown>();
 
                 dropdownComp.AddOptions(
                     new List<string> { "Pickup items", "Fill Smelters", "Chop Wood", "Repair Base" }
                 );
 
-                dropdownComp.onValueChanged.AddListener((int val) =>
+                dropdownComp.onValueChanged.AddListener((val) =>
                 {
                     switch (val)
                     {
@@ -536,7 +609,6 @@ namespace KukusVillagerMod.Components.UI
                     }
 
                     UpdateUI();
-                    return;
                 });
             }
             else
@@ -826,7 +898,7 @@ namespace KukusVillagerMod.Components.UI
             RemoveSubUIs();
             selected_villager = ZDOID.None;
             //Destroy main component
-            UnityEngine.GameObject.Destroy(MAINBG);
+            Object.Destroy(MAINBG);
             GUIManager.BlockInput(false);
         }
     }

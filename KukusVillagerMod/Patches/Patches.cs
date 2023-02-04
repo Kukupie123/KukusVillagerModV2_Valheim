@@ -58,67 +58,6 @@ namespace KukusVillagerMod.Patches
     {
         public static void Postfix(Tameable __instance, ref Humanoid user, ref ItemDrop.ItemData item)
         {
-            VillagerAI ai = __instance.GetComponentInParent<VillagerAI>();
-            VillagerGeneral v = __instance.GetComponentInParent<VillagerGeneral>();
-            if (ai == null || v == null || !v.IsVillagerTamed()) return;
-
-            //Upgrade villager if using the right item
-            string itemName = item.m_shared.m_name;
-
-            float multiplier = 1;
-            bool upgrade = false;
-            switch (itemName)
-            {
-                case "KukuVillager_Rag_Set":
-                    upgrade = true;
-                    multiplier = 0.2f;
-                    break;
-                case "KukuVillager_Troll_Set":
-                    upgrade = true;
-                    multiplier = 0.4f;
-                    break;
-                case "KukuVillager_Bronze_Set":
-                    upgrade = true;
-                    multiplier = 0.6f;
-                    break;
-                case "KukuVillager_Iron_Set":
-                    upgrade = true;
-                    multiplier = 1.0f;
-                    break;
-            }
-
-            if (upgrade)
-            {
-                v.UpgradeVillagerHealth(multiplier);
-                user.GetInventory().RemoveItem(item, 1);
-            }
-
-            upgrade = false;
-            switch (itemName)
-            {
-                case "KukuVillager_Stone_Warlord_Set":
-                    upgrade = true;
-                    multiplier = 0.1f;
-                    break;
-                case "KukuVillager_Bronze_Warlord_Set":
-                    upgrade = true;
-                    multiplier = 0.4f;
-                    break;
-                case "KukuVillager_Iron_Warlord_Set":
-                    upgrade = true;
-                    multiplier = 0.6f;
-                    break;
-                case "KukuVillager_BM_Warlord_Set":
-                    upgrade = true;
-                    multiplier = 1.2f;
-                    break;
-            }
-
-            if (upgrade)
-            {
-                v.UpgradeVillagerDamage(multiplier);
-                user.GetInventory().RemoveItem(item, 1);
-            }
         }
     }
 
@@ -130,18 +69,19 @@ namespace KukusVillagerMod.Patches
             ZDOID villagerZDOID = VillagerGeneral.SELECTED_VILLAGER_ID;
             if (villagerZDOID.IsNone() == false)
             {
-              AssignBed(villagerZDOID,__instance);
-              VillagerGeneral.SELECTED_VILLAGER_ID = ZDOID.None;
-              VillagerGeneral.SELECTED_VILLAGERS_ID = null;
-              MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
-                  $"Container Assigned to {VillagerGeneral.GetName(villagerZDOID)}");
+                AssignBed(villagerZDOID, __instance);
+                VillagerGeneral.SELECTED_VILLAGER_ID = ZDOID.None;
+                VillagerGeneral.SELECTED_VILLAGERS_ID = null;
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
+                    $"Container Assigned to {VillagerGeneral.GetName(villagerZDOID)}");
             }
             else if (VillagerGeneral.SELECTED_VILLAGERS_ID != null && VillagerGeneral.SELECTED_VILLAGERS_ID.Count > 0)
             {
                 foreach (var v in VillagerGeneral.SELECTED_VILLAGERS_ID)
                 {
-                    AssignBed(v,__instance);
+                    AssignBed(v, __instance);
                 }
+
                 VillagerGeneral.SELECTED_VILLAGER_ID = ZDOID.None;
                 VillagerGeneral.SELECTED_VILLAGERS_ID = null;
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
@@ -149,7 +89,7 @@ namespace KukusVillagerMod.Patches
             }
         }
 
-        private static void AssignBed(ZDOID villagerZDIOD,Container __instance)
+        private static void AssignBed(ZDOID villagerZDIOD, Container __instance)
         {
             ZNetView containerZNV = __instance.GetComponentInParent<ZNetView>();
             var containerZDO = containerZNV.GetZDO();
@@ -159,7 +99,6 @@ namespace KukusVillagerMod.Patches
             containerZDO.Set("height", __instance.m_height);
             VillagerGeneral.AssignContainer(villagerZDIOD,
                 containerZNV.GetZDO().m_uid);
-           
         }
     }
 
