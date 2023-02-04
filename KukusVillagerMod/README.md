@@ -1,7 +1,7 @@
 ﻿# Kuku's Villager Mod
 
 ## NOTICE 
-1. I would like to thank [Horem](https://discord.gg/YwtBr7hh) for helping me out so much for this update as well as providing his awesome Assetbundle. <br>
+1. I would like to thank [Horem](https://valheim.thunderstore.io/package/Horem/) for helping me out so much for this update as well as providing his awesome Assetbundle. <br>
 2. I will not be active for a while. Real life issues :) <br>
 3. May work initially in Multiplayer as we got rid of beds BUT has not been designed with multiplayer in mind so there may be issues specially with work commands as it alters container's contents. <br>
 4. Config file has a section called [Spawn Point HUT] Which is obselete and not used currently.<br>
@@ -16,9 +16,10 @@ Paste the plugins folder in valheim/BepInEx/
 4. Assign villagers bed, work posts, defense posts, containers. <br>
 5. Command villagers to guard their beds & Defense Post, Follow you <br>
 6. Villagers can also help player by picking up items, filling up smelters, Chopping trees <br>
-7. Manage and control your villagers all at once using Runik Kuchuk Tablet. <br>
-8. Simple GUI for interacting with villager and Runik Kuchuk Tablet <br>
-9. Customization for flexible gameplay experience.
+7. Manage and control your villagers all at once or by faction using Runik Kuchuk Tablet. <br>
+8. Create factions and assign individual villagers to control selected numbers of villagers. <br>
+9. Simple GUI for interacting with villager and Runik Kuchuk Tablet <br>
+10. Customization for flexible gameplay experience.
 
 ## Bug :
 1. Villager may get lit on fire, especially when working.<br>
@@ -27,46 +28,25 @@ Paste the plugins folder in valheim/BepInEx/
 4. Villagers who are working will not attack enemies most of the time. This is the side effect of villagers AI being updated constantly to not keep staring at player.<br>
 5. Villagers will get stuck if path is blocked but get teleported eventually. <br>
 
-## USAGE GUIDE :
-### Recruiting villagers.
-Villagers who are not recruited are going to be labelled as "Wanderer", interact with them by pressing (E by default) to open a menu that will show it's stats as well as a button to recruit.<br>
-Once recruited. It's label is going to change from "Wanderer" to "Villager". <br>
-You can see all your recruited villagers by pressing the open menu key when Runik Kuchuk Tablet is equipped<br>
-### Stats :
-Villagers will have different stats. <br>
-They also have a stat called "Efficiency" which determines how well it consumes upgradable items. In short, the more the efficiency the more it's stats will increase when upgrading it. <br>
-Some villagers may also come with special damage skill such as fire, frost, lightning, spirit, etc.
-### Upgrading villagers :
-Villagers that have been recruited can be upgraded. This mod adds several new items that can be used on the villager to upgrade them.<br>
-Some items are going to upgrade their health, and some will upgrade their combat stats.
-### Commanding villagers :
-You can command individual villagers by interacting with them and going to the order tab. <br>
-To command many villagers at once you can open the menu when Runik Kuchuk tablet is equipped and go to Universal Commands section.
-### Assigning Items :
-For a villager to follow through certain commands you need to assign it specific items. <br>
-For a villager to guard bed you need to assign it a bed. <br>
-For a villager to guard Defense post you need to assign it a Defense Post. <br>
-For a villager to work you need to assign it work post and a container for it to put items.
-### Working
-For a villager to work you need to either enable Pickup skill or smelting refill skill by interacting with the villager, going to the order tab and enabling the desired option. <br>
-Villager will pickup items closest to it's work post and then put the item in the container. <br>
-Villager will smelt  by first checking the contents of the container then finding close by random smelter that needs fuel/Processable item and which is available in the container.<br>
-### Runik Kuchuk Tablet
-This item is used to see all the villagers you recruited. <br>
-You can select any villagers from the list and it will open the Villager stats GUI. <br>
-You can also give universal commands to the villagers
-
 ## Changelog
+<h3>3.3.0</h3>
+1. Faction System added. Now you can group villagers into factions and command all of the faction members at once. <br>
+2. Assign Items of many villager at once using Runik Kuchuk Commander.
+3. You can now upgrade villagers by interacting with the villagers and selecting the upgrade villagers option. It will select the best item from your inventory and use it to upgrade the villager.
+
 <h3>3.2.0</h3>
 1. Villagers learnt repairing skill. 1st iteration. <br>
+
 <h3>3.1.7</h3>
 1. Added ability for villager to announce when they take damage. <br>
 2. Fixed another custom prefab bug related to mistland villagers. <br>
 3. Fixed Gold requirement being 0 for mistland villagers. <br>
 4. Worker Villagers will now be somewhat able to defend themselves. Configurable <br>
+
 <h3>3.1.6</h3>
 1. Fixed custom prefab not working. For custom models from other mods, it has to load before this mod does. RRRNPC will not work because it loads very late. I tried to get past this to no avail.<br>
 2. Villager Bed will now drop back woods used to craft them. <br>
+
 <h3>3.1.5</h3>
 1. Villagers regen HP when close to bed and in Guarding_Bed State.<br>
 2. Fixed health upgrade not working on villagers. <br>
@@ -74,6 +54,7 @@ You can also give universal commands to the villagers
 4. Fixed bug where villagers HP would be super low everytime the game is loaded. <br>
 5. Added option in config to use custom prefabs. <br>
 6. Villagers will now need coins to be recruited. Configurable <br>
+
 <h3> 3.1.4</h3>
 1. Bug fixes related to unassignable work post, bed, defense post <br>
 2. Chop wood bug fix<br>
@@ -94,6 +75,7 @@ You can also give universal commands to the villagers
 3. Fixed versioning bug<br>
 4. Villagers with special Combat ability will have "*" Mark on their name <br>
 5. Next update will replace the villagers with human NPCs (3.1.0) <br>
+
 <h3>3.0.0</h3>
 1. Complete Overhaul of how the mod works.<br>
 2. You will now find villagers scattered through the biome. <br>
@@ -104,17 +86,21 @@ You can also give universal commands to the villagers
 7. Completely new GUI for Villager Commander (Now called Runik Kuchuk Tablet)<br>
 8. Naming villagers. <br>
 9. Once a villager is dead they are gone permanently. Be careful. <br>
+
 <h3>2.1.4</h3>
 - IMPORTANT! YOU WILL HAVE TO REASSIGN YOUR CONTAINERS OR ELSE THINGS WILL NOT WORK PROPERLY.
 - Improved Logic for smelting and pickup job. Now the container and the work post can be far away from each other and still work. <br>
+
 <h3>2.1.3</h3>
 Hot fix update <br>
 - Bug fixed where villager won't fill upblast furnace <br>
+
 <h3>2.1.2</h3>
 - Silly Bug I overlooked fix<br>
 - Fixed Discovered Pickup bug<br>
 - Fixed Smelting work bug where villagers would fill up smelts even when not needed<br>
 - Added a boolean config variable that will decide if the villagers should run or walk when working<br>
+
 <h3>2.1.0</h3>
 - Worker Villagers Added
 - Two work skills : Pickup and store & Fill Smelter
@@ -123,17 +109,21 @@ Hot fix update <br>
 - Ability to assign Work Post and a container for villagers to work with. Recommended to have Work post and container close by.
 - More configuration options, Make sure to delete config file of old version<br>
 
-
 <h3>2.0.0</h3>
 1. Spawn system is based off of Valheim's spawn system which means it is going to be reliable.<br>
 2. No more huge fps drops and freezes<br>
 3. Revamped the way defense posts are handled. Now you can choose which villager to go to which post.<br>
 4. The distance between the beds, posts, villagers no longer matter and will work regardless if they are loaded in memory or not.<br>
 5. Changed few commander club commands.<br>
-<h3>1.1.0:</h3>  <br>1. Villagers go back to their last state (Guarding Bed or Defending Post) When loaded.
-<br>2. Replaced Teleport Following Villagers with Move villagers, they will now move to the aimed location and only teleport if moving to that area is not possible.
 
-<h3>1.0.1 : </h3>Added Configurations for heavy customization,<br> Added A new command to teleport following villagers to looking direction. Refined Bed&Villager Link system.
+<h3>1.1.0:</h3> 
+1. Villagers go back to their last state (Guarding Bed or Defending Post) When loaded.<br>
+2. Replaced Teleport Following Villagers with Move villagers, they will now move to the aimed location and only teleport if moving to that area is not possible.
+
+<h3>1.0.1 : </h3>
+1. Added Configurations for heavy customization.<br> 
+2. Added A new command to teleport following villagers to looking direction. <br>
+3. Refined Bed&Villager Link system.
 
 <h3>1.0.0 : </h3> Re-released after updating the code from scratch.
 
