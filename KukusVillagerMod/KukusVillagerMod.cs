@@ -950,11 +950,12 @@ namespace KukusVillagerMod
  * Hunting animals work. Will be useful for hunger system cuz it will be annoying if player had to create food all the time. Also, a universal container for villagers will be nice
  * Hunger system. If they hungry they dont work. Need to think more about making it not annyoing but at the same time needed
  * Not attacking certain creatures. Not attacking taming creatures
- * Upgrading villagers using GUI
- * Grouping villagers and bulk ordering them.
+ * ~Faction system GROUPING SYSTEM
+ * ORDERS----------
+ * Bulk orders : Item assignments
+ * Individual : Upgrade 
  * GUI TASK
  * Villagers grouping.
  * Upgrading villagers UI
  * Upgrading villagers in bulk command
- * Bulk assigning of work posts, containers, defense posts
  */
