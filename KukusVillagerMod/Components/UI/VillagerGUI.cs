@@ -356,6 +356,7 @@ namespace KukusVillagerMod.Components.UI
                 });
 
 
+                //RIGHT
                 GameObject DefendPostBtn = GUIManager.Instance.CreateButton(
                     text: "Defend Post",
                     parent: MAINBG.transform,
@@ -553,6 +554,7 @@ namespace KukusVillagerMod.Components.UI
                 AssignBedBtn.GetComponent<Button>().onClick.AddListener(() =>
                 {
                     VillagerGeneral.SELECTED_VILLAGER_ID = selected_villager;
+                    VillagerGeneral.SELECTED_VILLAGERS_ID = null;
                     MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
                         $"Interact with a Bed/Defense Post/Work Post/Container to assign it to {VillagerGeneral.GetName(selected_villager)}");
                     UpdateUI();
@@ -668,6 +670,7 @@ namespace KukusVillagerMod.Components.UI
                     {
                         VillagerGeneral.SetVillagerFaction(selected_villager, factionName);
                     }
+
                     UpdateUI();
                 });
                 SubUIs.Add(SetFactionBtn);

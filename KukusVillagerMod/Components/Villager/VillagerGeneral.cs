@@ -62,7 +62,8 @@ namespace KukusVillagerMod.Components.Villager
             return ZNetScene.instance.FindInstance(villagerZDOID);
         }
 
-        public static ZDOID? SELECTED_VILLAGER_ID = null;
+        public static ZDOID SELECTED_VILLAGER_ID = ZDOID.None;
+        public static List<ZDOID> SELECTED_VILLAGERS_ID = null;
 
         //Taming
         public static bool TameVillager(ZDOID villagerZDOID)

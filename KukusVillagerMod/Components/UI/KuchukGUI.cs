@@ -597,7 +597,6 @@ namespace KukusVillagerMod.Components.UI
             }
 
 
-        
             for (int i = startingIndex; i < endingIndex; i++)
             {
                 string factionName = factionsList[i];
@@ -621,6 +620,7 @@ namespace KukusVillagerMod.Components.UI
                 );
                 startingY -= 100;
             }
+
             GameObject allVillagerBtn = GUIManager.Instance.CreateButton(
                 text: $"All",
                 parent: MainBG.transform,
@@ -638,7 +638,6 @@ namespace KukusVillagerMod.Components.UI
                     UpdateUI();
                 }
             );
-
         }
 
         private static void SetupVillagerOrderTab()
@@ -691,6 +690,28 @@ namespace KukusVillagerMod.Components.UI
                         VillagerGeneral.SetVillagerState(v.m_uid, enums.VillagerState.Guarding_Bed);
                     }
                 }
+            });
+
+            GameObject AssignBtn = GUIManager.Instance.CreateButton(
+                text: "Assign Item",
+                parent: MainBG.transform,
+                anchorMin: new Vector2(0.5f, 0.1f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(-200f, 50f), // LEFT LOW
+                width: 250f,
+                height: 60f
+            );
+            SubUis.Add(AssignBtn);
+            AssignBtn.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                VillagerGeneral.SELECTED_VILLAGER_ID = ZDOID.None;
+                List<ZDOID> selectedVillagers = new List<ZDOID>();
+                GetTamedVillagers(activeFaction).ForEach(z => selectedVillagers.Add(z.m_uid));
+
+                VillagerGeneral.SELECTED_VILLAGERS_ID = selectedVillagers;
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
+                    $"Faction {activeFaction}. Interact with WorkPost/DefensePost/Container to assign it to the group.");
+                CloseMenu();
             });
 
 

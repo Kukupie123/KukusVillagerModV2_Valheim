@@ -1,17 +1,10 @@
 ﻿using KukusVillagerMod.Components.Villager;
-using KukusVillagerMod.Components.VillagerBed;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
-namespace KukusVillagerMod.Components.DefensePost
+namespace KukusVillagerMod.Components.Defense_Post
 {
     class DefenseState : MonoBehaviour, Interactable, Hoverable
     {
-
         Piece piece;
         private ZNetView znv;
 
@@ -27,11 +20,10 @@ namespace KukusVillagerMod.Components.DefensePost
 
             if (this.znv == null && piece.IsPlacedByPlayer())
             {
-                this.znv = base.GetComponent<ZNetView>();
+                this.znv = GetComponent<ZNetView>();
                 this.znv.SetPersistent(true);
             }
         }
-
 
 
         public string GetHoverName()
@@ -59,27 +51,44 @@ namespace KukusVillagerMod.Components.DefensePost
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
             //Check if user has a bed uid
-            ZDOID? villagerZDOID = VillagerGeneral.SELECTED_VILLAGER_ID;
-            if (villagerZDOID == null || villagerZDOID.Value.IsNone())
+            ZDOID villagerZDOID = VillagerGeneral.SELECTED_VILLAGER_ID;
+            if (villagerZDOID.IsNone())
             {
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Please Select a villager to assign first.");
+                if (VillagerGeneral.SELECTED_VILLAGERS_ID != null && VillagerGeneral.SELECTED_VILLAGERS_ID.Count > 0)
+                {
+                    foreach (var v in VillagerGeneral.SELECTED_VILLAGERS_ID)
+                    {
+                        AssignDP(v);
+                    }
+
+                    VillagerGeneral.SELECTED_VILLAGERS_ID = null;
+                    VillagerGeneral.SELECTED_VILLAGER_ID = ZDOID.None;
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
+                        "Assigned Defense Post to a bunch of villagers");
+                    return true;
+                }
+
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
+                    "Please Select villager(s) to assign first.");
                 return false;
             }
             else
             {
-                VillagerGeneral.AssignDefense(VillagerGeneral.SELECTED_VILLAGER_ID.Value, znv.GetZDO().m_uid);
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Assigned Defense Post {znv.GetZDO().m_uid.id} for {VillagerGeneral.GetName(VillagerGeneral.SELECTED_VILLAGER_ID.Value)}");
+                AssignDP(villagerZDOID);
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
+                    $"Assigned Defense Post {znv.GetZDO().m_uid.id} for {VillagerGeneral.GetName(VillagerGeneral.SELECTED_VILLAGER_ID)}");
                 return true;
             }
+        }
 
+        private void AssignDP(ZDOID villagerZDOID)
+        {
+            VillagerGeneral.AssignDefense(VillagerGeneral.SELECTED_VILLAGER_ID, znv.GetZDO().m_uid);
         }
 
         public bool UseItem(Humanoid user, ItemDrop.ItemData item)
         {
             return true;
         }
-
-
-
     }
 }

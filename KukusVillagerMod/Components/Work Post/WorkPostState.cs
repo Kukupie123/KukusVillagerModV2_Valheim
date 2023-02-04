@@ -1,10 +1,4 @@
 ﻿using KukusVillagerMod.Components.Villager;
-using KukusVillagerMod.Components.VillagerBed;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace KukusVillagerMod.Components.Work_Post
@@ -17,17 +11,14 @@ namespace KukusVillagerMod.Components.Work_Post
         //Same deal as the one in BedVillagerProcessor. Please check that file to know about this variable
         private void FixedUpdate()
         {
-
             if (piece == null) piece = GetComponent<Piece>();
 
             if (this.znv == null && piece.IsPlacedByPlayer())
             {
-                this.znv = base.GetComponent<ZNetView>();
+                this.znv = GetComponent<ZNetView>();
                 this.znv.SetPersistent(true);
             }
         }
-
-
 
 
         public string GetHoverName()
@@ -55,29 +46,51 @@ namespace KukusVillagerMod.Components.Work_Post
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
             //Check if user has a bed uid
-            ZDOID? villagerZDOID = VillagerGeneral.SELECTED_VILLAGER_ID;
+            ZDOID villagerZDOID = VillagerGeneral.SELECTED_VILLAGER_ID;
 
-            if (villagerZDOID == null || villagerZDOID.Value.IsNone())
+            if (villagerZDOID.IsNone())
             {
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "Please Select a villager to assign first.");
-                return false;
+                if (VillagerGeneral.SELECTED_VILLAGERS_ID != null && VillagerGeneral.SELECTED_VILLAGERS_ID.Count > 0)
+                {
+                    AssignWP(villagerZDOID);
+
+                    foreach (var v in VillagerGeneral.SELECTED_VILLAGERS_ID)
+                    {
+                        AssignWP(v);
+                    }
+
+                    VillagerGeneral.SELECTED_VILLAGER_ID = ZDOID.None;
+                    VillagerGeneral.SELECTED_VILLAGERS_ID = null;
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
+                        "Assigned Work Post to a bunch of villagers.");
+                    return true;
+                }
+                else
+                {
+                    MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
+                        "Please Select villager(s) to assign first.");
+                    return false;
+                }
             }
             else
             {
-                VillagerGeneral.AssignWorkPost(VillagerGeneral.SELECTED_VILLAGER_ID.Value, znv.GetZDO().m_uid);
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, $"Assigned Work Post {znv.GetZDO().m_uid.id} for {VillagerGeneral.GetName(VillagerGeneral.SELECTED_VILLAGER_ID.Value)}");
+                AssignWP(villagerZDOID);
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
+                    $"Assigned Work Post {znv.GetZDO().m_uid.id} for {VillagerGeneral.GetName(VillagerGeneral.SELECTED_VILLAGER_ID)}");
                 VillagerGeneral.SELECTED_VILLAGER_ID = ZDOID.None;
+                VillagerGeneral.SELECTED_VILLAGERS_ID = null;
                 return true;
             }
+        }
 
+        private void AssignWP(ZDOID villagerZDOID)
+        {
+            VillagerGeneral.AssignWorkPost(villagerZDOID, znv.GetZDO().m_uid);
         }
 
         public bool UseItem(Humanoid user, ItemDrop.ItemData item)
         {
             return true;
         }
-
-
-
     }
 }

@@ -2,7 +2,6 @@
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using KukusVillagerMod.Components.DefensePost;
 using KukusVillagerMod.Components.Work_Post;
 using System;
 using System.Collections.Generic;

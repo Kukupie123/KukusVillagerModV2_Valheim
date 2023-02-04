@@ -1,18 +1,7 @@
 ﻿using HarmonyLib;
-using KukusVillagerMod.enums;
-using KukusVillagerMod.Components;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using KukusVillagerMod.Components.Villager;
-using KukusVillagerMod.Components.VillagerBed;
 using KukusVillagerMod.Components.UI;
-using Jotunn.Managers;
-using KukusVillagerMod.Prefabs;
-using Jotunn.Configs;
-using Jotunn.Entities;
 
 namespace KukusVillagerMod.Patches
 {
@@ -30,9 +19,9 @@ namespace KukusVillagerMod.Patches
         public static void Postfix(Tameable __instance, ref string __result) //postfix = after the OG function is run
         {
             var vls = __instance.GetComponentInParent<VillagerGeneral>(); //instance is the object
-            string text = "";
             if (vls != null)
             {
+                string text;
                 if (vls.IsVillagerTamed())
                 {
                     text = $"{vls.GetVillagerState().ToString().Replace("_", " ")}";
@@ -64,7 +53,6 @@ namespace KukusVillagerMod.Patches
         }
     }
 
-    //Villager interaction
     [HarmonyPatch(typeof(Tameable), nameof(Tameable.UseItem))]
     static class VillagerUseItem
     {
@@ -112,7 +100,7 @@ namespace KukusVillagerMod.Patches
                     upgrade = true;
                     multiplier = 0.1f;
                     break;
-                case "KukuVillager_Bronze_Warlod_Set":
+                case "KukuVillager_Bronze_Warlord_Set":
                     upgrade = true;
                     multiplier = 0.4f;
                     break;
@@ -139,21 +127,39 @@ namespace KukusVillagerMod.Patches
     {
         public static void Postfix(Container __instance)
         {
-            ZDOID? villagerZDOID = VillagerGeneral.SELECTED_VILLAGER_ID;
-            if (villagerZDOID != null && villagerZDOID.Value.IsNone() == false)
+            ZDOID villagerZDOID = VillagerGeneral.SELECTED_VILLAGER_ID;
+            if (villagerZDOID.IsNone() == false)
             {
-                ZNetView containerZNV = __instance.GetComponentInParent<ZNetView>();
-                var containerZDO = containerZNV.GetZDO();
-                //VERY IMPORTANT. NECESSARY TO CREATE INVENTORY
-                containerZDO.Set("m_name", __instance.m_name);
-                containerZDO.Set("width", __instance.m_width);
-                containerZDO.Set("height", __instance.m_height);
-                VillagerGeneral.AssignContainer(VillagerGeneral.SELECTED_VILLAGER_ID.Value,
-                    containerZNV.GetZDO().m_uid);
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
-                    $"Container {containerZNV.GetZDO().m_uid.id} Assigned to {VillagerGeneral.GetName(villagerZDOID.Value)}");
-                VillagerGeneral.SELECTED_VILLAGER_ID = ZDOID.None;
+              AssignBed(villagerZDOID,__instance);
+              VillagerGeneral.SELECTED_VILLAGER_ID = ZDOID.None;
+              VillagerGeneral.SELECTED_VILLAGERS_ID = null;
+              MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
+                  $"Container Assigned to {VillagerGeneral.GetName(villagerZDOID)}");
             }
+            else if (VillagerGeneral.SELECTED_VILLAGERS_ID != null && VillagerGeneral.SELECTED_VILLAGERS_ID.Count > 0)
+            {
+                foreach (var v in VillagerGeneral.SELECTED_VILLAGERS_ID)
+                {
+                    AssignBed(v,__instance);
+                }
+                VillagerGeneral.SELECTED_VILLAGER_ID = ZDOID.None;
+                VillagerGeneral.SELECTED_VILLAGERS_ID = null;
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
+                    $"Container Assigned to a bunch of villagers.");
+            }
+        }
+
+        private static void AssignBed(ZDOID villagerZDIOD,Container __instance)
+        {
+            ZNetView containerZNV = __instance.GetComponentInParent<ZNetView>();
+            var containerZDO = containerZNV.GetZDO();
+            //VERY IMPORTANT. NECESSARY TO CREATE INVENTORY
+            containerZDO.Set("m_name", __instance.m_name);
+            containerZDO.Set("width", __instance.m_width);
+            containerZDO.Set("height", __instance.m_height);
+            VillagerGeneral.AssignContainer(villagerZDIOD,
+                containerZNV.GetZDO().m_uid);
+           
         }
     }
 
@@ -161,7 +167,6 @@ namespace KukusVillagerMod.Patches
     [HarmonyPatch(typeof(Humanoid), nameof(Humanoid.GetCurrentWeapon))]
     static class VillagerDamageModifier
     {
-        //TODO: Enable heal and shield and make it enabled for plains and mistland villagers
         public static void Postfix(Humanoid __instance, ref ItemDrop.ItemData __result,
             ref ItemDrop.ItemData ___m_rightItem, ref ItemDrop.ItemData ___m_leftItem, ref ItemDrop ___m_unarmedWeapon)
         {
@@ -193,33 +198,37 @@ namespace KukusVillagerMod.Patches
                         if (weapon.m_shared.m_name.Contains("Health") || weapon.m_shared.m_name.Contains("Shield") ||
                             weapon.m_shared.m_name.Contains("Heal"))
                         {
-                            weapon.m_shared.m_damages = new HitData.DamageTypes();
-                            weapon.m_shared.m_damages.m_damage = 0;
-                            weapon.m_shared.m_damages.m_slash = 0;
-                            weapon.m_shared.m_damages.m_blunt = 0;
-                            weapon.m_shared.m_damages.m_chop = 0;
-                            weapon.m_shared.m_damages.m_fire = 0;
-                            weapon.m_shared.m_damages.m_frost = 0;
-                            weapon.m_shared.m_damages.m_lightning = 0;
-                            weapon.m_shared.m_damages.m_pickaxe = 0;
-                            weapon.m_shared.m_damages.m_pierce = 0;
-                            weapon.m_shared.m_damages.m_poison = 0;
-                            weapon.m_shared.m_damages.m_spirit = 0;
+                            weapon.m_shared.m_damages = new HitData.DamageTypes
+                            {
+                                m_damage = 0,
+                                m_slash = 0,
+                                m_blunt = 0,
+                                m_chop = 0,
+                                m_fire = 0,
+                                m_frost = 0,
+                                m_lightning = 0,
+                                m_pickaxe = 0,
+                                m_pierce = 0,
+                                m_poison = 0,
+                                m_spirit = 0
+                            };
                         }
                         else
                         {
-                            weapon.m_shared.m_damages = new HitData.DamageTypes();
-                            weapon.m_shared.m_damages.m_damage = villagerGeneral.GetDamage();
-                            weapon.m_shared.m_damages.m_slash = villagerGeneral.GetSlash();
-                            weapon.m_shared.m_damages.m_blunt = villagerGeneral.GetBlunt();
-                            weapon.m_shared.m_damages.m_chop = villagerGeneral.GetChop();
-                            weapon.m_shared.m_damages.m_fire = villagerGeneral.GetFire();
-                            weapon.m_shared.m_damages.m_frost = villagerGeneral.GetFrost();
-                            weapon.m_shared.m_damages.m_lightning = villagerGeneral.Getlightning();
-                            weapon.m_shared.m_damages.m_pickaxe = villagerGeneral.GetPickaxe();
-                            weapon.m_shared.m_damages.m_pierce = villagerGeneral.GetPickaxe();
-                            weapon.m_shared.m_damages.m_poison = villagerGeneral.GetPoison();
-                            weapon.m_shared.m_damages.m_spirit = villagerGeneral.GetSpirit();
+                            weapon.m_shared.m_damages = new HitData.DamageTypes
+                            {
+                                m_damage = villagerGeneral.GetDamage(),
+                                m_slash = villagerGeneral.GetSlash(),
+                                m_blunt = villagerGeneral.GetBlunt(),
+                                m_chop = villagerGeneral.GetChop(),
+                                m_fire = villagerGeneral.GetFire(),
+                                m_frost = villagerGeneral.GetFrost(),
+                                m_lightning = villagerGeneral.Getlightning(),
+                                m_pickaxe = villagerGeneral.GetPickaxe(),
+                                m_pierce = villagerGeneral.GetPickaxe(),
+                                m_poison = villagerGeneral.GetPoison(),
+                                m_spirit = villagerGeneral.GetSpirit()
+                            };
                         }
 
                         __result = weapon;
@@ -228,6 +237,7 @@ namespace KukusVillagerMod.Patches
             }
             catch (Exception)
             {
+                // ignored
             }
         }
     }

@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using KukusVillagerMod.Components.Villager;
 using KukusVillagerMod.Components.VillagerBed;
-using KukusVillagerMod.Components.DefensePost;
 using KukusVillagerMod.Components.UI;
 
 /*
