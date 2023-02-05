@@ -946,6 +946,8 @@ namespace KukusVillagerMod
  * Hunger system. If they hungry they dont work. Need to think more about making it not annyoing but at the same time needed
  * Not attacking certain creatures. Not attacking taming creatures
  * Routine system or automatic task decision stuff. Lets see how this can be done
+ * Villagers roaming within range
+ * Multiplayer compatibility
  */
  
  /*
