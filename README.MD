@@ -1,1 +1,3 @@
-Checkout the README.MD inside the sub folder
+![Logo](./images.png)
+
+[Go to Subfolder README](KukusVillagerMod/README.md)
